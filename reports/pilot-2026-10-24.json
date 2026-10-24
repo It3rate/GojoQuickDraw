@@ -1,0 +1,542 @@
+{
+  "schema": "gojo.quickdraw-pilot-report.v1",
+  "fingerprint": "fea6a49a56f4814928e6882085b3b7cef562553235f54f22e12b41126903ab1d",
+  "pipelineSourceSha256": "b8ba02b5d6fe6b614a223f48c5170d8286aaf95f1064d3b876a5c9700749e788",
+  "upstream": {
+    "repository": "https://github.com/It3rate/Gojo.git",
+    "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "matchesPinnedRevision": true,
+    "sourceSha256": "86d402ce95379e3d3729169b4e1a523779277ebe680fcd48e52b6da3c2ee12ad",
+    "dirtyPaths": [],
+    "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+  },
+  "verifiedRecords": {
+    "records": 25,
+    "nativeRestoreVerified": true,
+    "artifactHashesVerified": true
+  },
+  "resumePreservedAllArchiveHashes": true,
+  "totals": {
+    "records": 25,
+    "nativeBytes": 17505781,
+    "adapterBytes": 562117,
+    "nativeNodes": 2716508,
+    "sourceSamples": 5383,
+    "sourceStrokes": 179,
+    "finiteProfiles": 398,
+    "jointReads": 697,
+    "contextParts": 124
+  },
+  "archiveSizeRange": {
+    "minimumNativeBytes": 375292,
+    "maximumNativeBytes": 1287537,
+    "meanNativeBytes": 700231.24
+  },
+  "qualification": "Engineering pilot of five previously curated and twenty first distinct fresh church drawings; no claim of random sampling, learned priors, or semantic correctness of generated hypotheses.",
+  "commands": [
+    {
+      "name": "pilot-convert",
+      "exitCode": 0,
+      "seconds": 37.58,
+      "result": {
+        "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-pilot",
+        "scanned": 25,
+        "matched": 25,
+        "converted": 25,
+        "resumed": 0,
+        "errors": 0,
+        "storedRecords": 25,
+        "storedErrors": 0,
+        "synthesisGenerated": false
+      }
+    },
+    {
+      "name": "pilot-verify",
+      "exitCode": 0,
+      "seconds": 27.413,
+      "result": {
+        "records": 25,
+        "nativeRestoreVerified": true,
+        "artifactHashesVerified": true
+      }
+    },
+    {
+      "name": "pilot-resume",
+      "exitCode": 0,
+      "seconds": 4.432,
+      "result": {
+        "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-pilot",
+        "scanned": 25,
+        "matched": 25,
+        "converted": 0,
+        "resumed": 25,
+        "errors": 0,
+        "storedRecords": 25,
+        "storedErrors": 0,
+        "synthesisGenerated": false
+      }
+    },
+    {
+      "name": "pilot-review",
+      "exitCode": 0,
+      "seconds": 0.498,
+      "result": {
+        "drawings": 25,
+        "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-review.html",
+        "htmlBytes": 3443179,
+        "portable": true,
+        "externalRequests": 0
+      }
+    },
+    {
+      "name": "pilot-native-tests",
+      "exitCode": 0,
+      "seconds": 7.984,
+      "result": null
+    }
+  ],
+  "selection": {
+    "count": 25,
+    "curated": 5,
+    "fresh": 20,
+    "inputSha256": "0ea872256e7cff9caccf78ddb1fe4ebd0fab18aa339a3803736cbce120928bd7",
+    "sources": [
+      {
+        "keyId": "5743197026254848",
+        "selection": "previously curated church",
+        "sourceLine": 1,
+        "sourceSha256": "f148b6f36bb9cfe0556c569c23609e84892041bf8867de0faa07451f8642612c"
+      },
+      {
+        "keyId": "5181133614481408",
+        "selection": "previously curated church",
+        "sourceLine": 2,
+        "sourceSha256": "9c2f013a49b286a94d91aa7719e3b2c9e9088c056dfb34f442da45d8af878d3f"
+      },
+      {
+        "keyId": "5437095780810752",
+        "selection": "previously curated church",
+        "sourceLine": 3,
+        "sourceSha256": "172b244610f52e27c425dad24017ff4917b109dc10661b0f32ad1ae082cb400b"
+      },
+      {
+        "keyId": "6169132418465792",
+        "selection": "previously curated church",
+        "sourceLine": 4,
+        "sourceSha256": "a82bcc6cb9d78492d0f033af49ab301d07fc3f178afad938e9ce4c04a143ce09"
+      },
+      {
+        "keyId": "4578701515685888",
+        "selection": "previously curated church",
+        "sourceLine": 5,
+        "sourceSha256": "755c14ed47e03b835805a6b1100ab7b4d3f8337348c251adc9d7c5df701712cb"
+      },
+      {
+        "keyId": "6732343811244032",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 1,
+        "sourceSha256": "550c4ea615c82712cc99281732f7006fbd63454740c83b1cbea2724f1bc05f49"
+      },
+      {
+        "keyId": "4976514959409152",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 2,
+        "sourceSha256": "dd652df8bde282e595b939d088b79b1d7e66e0d7a8f5299b821fccfd408d1bfb"
+      },
+      {
+        "keyId": "4890301275570176",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 3,
+        "sourceSha256": "6ee5f4b11738c11bf0f2376d88f08a3da16234269cdeaf6bffa766721890f027"
+      },
+      {
+        "keyId": "6655710874042368",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 4,
+        "sourceSha256": "fb6ddaa0d80fd4df0dbb433bb2ac04554ecf73e36858360bd0256c327f9c8b02"
+      },
+      {
+        "keyId": "6311342346600448",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 5,
+        "sourceSha256": "72f6a2bb4b96388ee1c06a259a230381f50cef994f4f18bb77654215e58389a5"
+      },
+      {
+        "keyId": "4614716091531264",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 6,
+        "sourceSha256": "78ecfb8d66569b2c6eadc72eceedd5f0731245370ba0e4ec863ee46a1737e18c"
+      },
+      {
+        "keyId": "5378523143340032",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 7,
+        "sourceSha256": "d1c37354963a03b38ad41e7986e17f9ae2cc8a0c66a987a0af9bdfca2c0aff7e"
+      },
+      {
+        "keyId": "6188412946087936",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 8,
+        "sourceSha256": "6e68ccdb19f2662836714f271e4db015acd0d4c830dd8533e4ea4f5abd36e222"
+      },
+      {
+        "keyId": "4559894143303680",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 9,
+        "sourceSha256": "3b40fbae68c54793948d04c6bdb8f84be0361e8f80159a509b2cef09063a53db"
+      },
+      {
+        "keyId": "4633020235513856",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 10,
+        "sourceSha256": "a1970040dcc9a09606bcc3acf590919eb301743b7a68d6bf85a2a76acef1cf79"
+      },
+      {
+        "keyId": "6023068650569728",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 11,
+        "sourceSha256": "c8b247672b9fd6d1db689686b0d7dca416ed95efa62be94702f40b78de25da25"
+      },
+      {
+        "keyId": "5854257376919552",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 12,
+        "sourceSha256": "f61e26bd48f55a4569b542e03c56388db6f52ced1b334e53a9feef4ad822e0fa"
+      },
+      {
+        "keyId": "5356010535387136",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 13,
+        "sourceSha256": "ca7eb52e99f5d561bfe2389603b82ae320d68507255ca5778a19418dba247b56"
+      },
+      {
+        "keyId": "5626178830336000",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 14,
+        "sourceSha256": "b5f0ae205cffd37f8cc9069385639ac769639987730c14dc9f12c120cc8bcbdc"
+      },
+      {
+        "keyId": "6410564777541632",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 15,
+        "sourceSha256": "a7f699c50b279fe46ef7ca2f8d78e9f130e86e875a240eab623bbe704479acb3"
+      },
+      {
+        "keyId": "5864727584440320",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 16,
+        "sourceSha256": "81833e0e0bd9e920ab0a1ef59224475993b7729a017da5fe2d0cdba8e82fdb7a"
+      },
+      {
+        "keyId": "5403375623471104",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 17,
+        "sourceSha256": "d69d5b6f58375fb98795dd3b32999ade3f1612efa47dec6b4d5a8c37803455e3"
+      },
+      {
+        "keyId": "4629521300979712",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 18,
+        "sourceSha256": "3eda4e40f88569682b0b51153fda23fc3586dc092e2d98f7be6614208e882458"
+      },
+      {
+        "keyId": "4780000223952896",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 19,
+        "sourceSha256": "05be2e1e0a9104544c3d5fbed200c44250b7ddac35004bfd9e0a31826dc677e5"
+      },
+      {
+        "keyId": "6676891505262592",
+        "selection": "first distinct uncurated records, retaining two requested stress examples",
+        "sourceLine": 20,
+        "sourceSha256": "a6bd412ea07ff591b3bb18f6e949981b9fdbe555fee0efdcb917585446766f8c"
+      }
+    ]
+  },
+  "tests": {
+    "python": {
+      "passed": 45,
+      "failed": 0
+    },
+    "native": {
+      "passed": 9,
+      "failed": 0
+    },
+    "linkedGojoSolution": {
+      "passed": 5407,
+      "failed": 0,
+      "skipped": 0,
+      "command": "dotnet test Gojo.slnx --no-restore --verbosity quiet",
+      "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914"
+    }
+  },
+  "browserBaseline": {
+    "drawings": 25,
+    "groupsInspected": 193,
+    "downloads": 25,
+    "errors": [],
+    "requests": [],
+    "immutable": true,
+    "mobileOverflow": false
+  },
+  "browserStages": {
+    "drawings": 5,
+    "passes": 35,
+    "nativePaths": 568,
+    "operations": 113,
+    "rejected": 14,
+    "roles": 77,
+    "downloads": 35,
+    "sourcesSimplified": 5,
+    "sharedJoints": 276,
+    "viewpointCandidates": 30,
+    "reviewSha256": "1ae591893042086a49d5289fa17979020a4811614123660aafcd27f582f76e86",
+    "sourceManifestSha256": "31bff248464d363304d1ce2fcaa769d3ed4c1f389b5360a62d3565265f76dd3e",
+    "archives": [
+      {
+        "programId": "quickdraw-synthesis-5743197026254848",
+        "archiveSha256": "2393fb9c6d56c48a34b015a8b7fc7a22c8799c294e18b27fb2312476ffda5323",
+        "programSha256": "ba141f79e6e4389f1c2332ede17c26ed39ed8bddf7f3746e2628c4601f33be1b"
+      },
+      {
+        "programId": "quickdraw-synthesis-5181133614481408",
+        "archiveSha256": "80091ca7347f4f06896b7608b3060b2782746dbe43a030ede9410d1e351402d2",
+        "programSha256": "92b848a767ba8ce54e8c952b116010235e037e82d4c62d6f33dea2f2b241201b"
+      },
+      {
+        "programId": "quickdraw-synthesis-5437095780810752",
+        "archiveSha256": "1cfc0603a4c6820aa57ffd48342a8d8cfa066305cc6f9a7c22fdf286b24e1424",
+        "programSha256": "e8288acaeaa0ff4aabd7c41cad8f48e16c4c150aec4251bde548799309909e33"
+      },
+      {
+        "programId": "quickdraw-synthesis-6169132418465792",
+        "archiveSha256": "0d447da26226fd0ae3afd7e66c0689a87e7b8d460de5cdae5b2e6570d9bd66ed",
+        "programSha256": "553c54fc3f31fbe5bf16c66e9cc86b882ebb20ace6e07208b595db089f8690ab"
+      },
+      {
+        "programId": "quickdraw-synthesis-4578701515685888",
+        "archiveSha256": "757493f779241c2104bb1f2801c2d246071d53073f3ed6df9df74853f1efe3c6",
+        "programSha256": "a84d01bf19acc73570713864c1c90870721daa9b33cf6612156451e0f9b2b8c6"
+      }
+    ],
+    "capturedGeometryExact": true,
+    "sourcePreserved": true,
+    "rejectedNeverApplied": true,
+    "inspectionOnly": true,
+    "mobileOverflow": false,
+    "externalRequests": 0,
+    "consoleErrors": []
+  },
+  "stageDiagnostics": {
+    "schema": "gojo.quickdraw-stage-diagnostics.v1",
+    "sources": [
+      {
+        "sourceId": "5743197026254848",
+        "programId": "quickdraw-synthesis-5743197026254848",
+        "finalRungId": "r6",
+        "observerViewBox": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "finalNativeExtent": [
+          133.0,
+          32.0,
+          369.0,
+          468.0
+        ],
+        "visibleEdgeCount": 8,
+        "extentStatus": "within-observer-frame",
+        "outOfFrame": false,
+        "overflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "reportedFitMetrics": {
+          "rms": 8.81976759234554,
+          "max": 26.25242091175735,
+          "sourceRms": 9.39721667132405,
+          "proposalRms": 8.201763200566486,
+          "sourceMax": 23.700770333160243,
+          "proposalMax": 26.25242091175735,
+          "previousPassRms": 2.1296933569415484,
+          "sourceFitRms": 9.39721667132405,
+          "sourceFitMax": 23.700770333160243,
+          "proposalFitRms": 8.201763200566486
+        },
+        "qualityStatus": "authored-requires-review"
+      },
+      {
+        "sourceId": "5181133614481408",
+        "programId": "quickdraw-synthesis-5181133614481408",
+        "finalRungId": "r6",
+        "observerViewBox": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "finalNativeExtent": [
+          57.0,
+          32.0,
+          458.0,
+          458.0
+        ],
+        "visibleEdgeCount": 16,
+        "extentStatus": "within-observer-frame",
+        "outOfFrame": false,
+        "overflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "reportedFitMetrics": {
+          "rms": 11.022122060055105,
+          "max": 33.57601713062098,
+          "sourceRms": 11.138361362352489,
+          "proposalRms": 10.904643761955729,
+          "sourceMax": 33.57601713062098,
+          "proposalMax": 33.57601713062098,
+          "previousPassRms": 15.342676941574522,
+          "sourceFitRms": 11.138361362352489,
+          "sourceFitMax": 33.57601713062098,
+          "proposalFitRms": 10.904643761955729
+        },
+        "qualityStatus": "authored-requires-review"
+      },
+      {
+        "sourceId": "5437095780810752",
+        "programId": "quickdraw-synthesis-5437095780810752",
+        "finalRungId": "r6",
+        "observerViewBox": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "finalNativeExtent": [
+          57.0,
+          35.0,
+          548.0,
+          477.0
+        ],
+        "visibleEdgeCount": 26,
+        "extentStatus": "review-needed",
+        "outOfFrame": true,
+        "overflow": {
+          "left": 0,
+          "top": 0,
+          "right": 36.0,
+          "bottom": 0
+        },
+        "reportedFitMetrics": {
+          "rms": 19.032477440389805,
+          "max": 92.89244441945023,
+          "sourceRms": 18.751575394295863,
+          "proposalRms": 19.309293494841587,
+          "sourceMax": 87.32581952858867,
+          "proposalMax": 92.89244441945023,
+          "previousPassRms": 12.357121965591586,
+          "sourceFitRms": 18.751575394295863,
+          "sourceFitMax": 87.32581952858867,
+          "proposalFitRms": 19.309293494841587
+        },
+        "qualityStatus": "authored-requires-review"
+      },
+      {
+        "sourceId": "6169132418465792",
+        "programId": "quickdraw-synthesis-6169132418465792",
+        "finalRungId": "r6",
+        "observerViewBox": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "finalNativeExtent": [
+          72.12389365136738,
+          32.0,
+          357.8761063486327,
+          469.0
+        ],
+        "visibleEdgeCount": 13,
+        "extentStatus": "within-observer-frame",
+        "outOfFrame": false,
+        "overflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "reportedFitMetrics": {
+          "rms": 47.526073114861944,
+          "max": 107.93719588949762,
+          "sourceRms": 45.05624481125493,
+          "proposalRms": 49.87374113646048,
+          "sourceMax": 107.93719588949762,
+          "proposalMax": 100.81771991084783,
+          "previousPassRms": 77.27412230738297,
+          "sourceFitRms": 45.05624481125493,
+          "sourceFitMax": 107.93719588949762,
+          "proposalFitRms": 49.87374113646048
+        },
+        "qualityStatus": "authored-requires-review"
+      },
+      {
+        "sourceId": "4578701515685888",
+        "programId": "quickdraw-synthesis-4578701515685888",
+        "finalRungId": "r6",
+        "observerViewBox": [
+          0,
+          0,
+          512,
+          512
+        ],
+        "finalNativeExtent": [
+          52.0,
+          32.0,
+          468.0,
+          459.0
+        ],
+        "visibleEdgeCount": 9,
+        "extentStatus": "within-observer-frame",
+        "outOfFrame": false,
+        "overflow": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0
+        },
+        "reportedFitMetrics": {
+          "rms": 19.4288600938824,
+          "max": 68.97353438053855,
+          "sourceRms": 19.690088667866153,
+          "proposalRms": 19.164071001404707,
+          "sourceMax": 68.97353438053855,
+          "proposalMax": 53.89397587589696,
+          "previousPassRms": 20.07355137603105,
+          "sourceFitRms": 19.690088667866153,
+          "sourceFitMax": 68.97353438053855,
+          "proposalFitRms": 19.164071001404707
+        },
+        "qualityStatus": "authored-requires-review"
+      }
+    ],
+    "warnings": [
+      {
+        "sourceId": "5437095780810752",
+        "kind": "outside-observer-frame",
+        "status": "review-needed",
+        "message": "Final native geometry extends outside the viewing frame and may be clipped."
+      }
+    ],
+    "qualityQualification": "Authored exploratory priors require visual review. Valid native execution and a small measured error do not establish conceptual correctness; these outputs are not ground-truth training targets.",
+    "extentQualification": "Actual finite native profiles, including Bezier extrema, in the normalized observer frame. Stroke width and faint carried detail are excluded.",
+    "metricQualification": "Fit displacement is reported by the existing proposal author, not recomputed from native rounded geometry. Deliberate source drift is diagnostic and does not reject the run."
+  }
+}

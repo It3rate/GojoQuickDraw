@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gojo-quickdraw"
+version = "0.1.0"
+description = "Stream QuickDraw drawings into source-linked native Gojo evidence"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+gojo-quickdraw = "gojo_quickdraw.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["gojo_quickdraw*"]

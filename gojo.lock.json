@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/It3rate/Gojo.git",
+  "commit": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+  "defaultCheckout": "../Gojo",
+  "contract": "QuickDraw annotation, interpretation, and construction archive readers at this revision",
+  "qualification": "The checkout is linked, not vendored. Runs record its actual revision and content fingerprint."
+}
