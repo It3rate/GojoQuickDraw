@@ -14,6 +14,13 @@ The initial inventory distinguishes fitted observations, seeded hypotheses,
 defaults, and goals. Implementation notes added during subsequent work do not
 retroactively turn an authored control into an automatic recognizer.
 
+Current extension: [church area estimates](CHURCH_LAYOUT_ESTIMATES.md) adds ideal
+ground/building/roof/cross/opening placements (**in**, authored hypotheses).
+Proposed roof-wall and ground-wall/door contacts share actual construction sites;
+they do not establish contact between acquired points. Optional openings and
+alternative building areas remain revisable. General physical support, reliable
+part recognition and learned regional likelihoods remain **plan**.
+
 ## 1. Acquisition and source
 
 | Evidence | Status | Scope |

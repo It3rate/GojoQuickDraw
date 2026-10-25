@@ -50,6 +50,33 @@ def _path(controls):
     return "M" + points[0] + " " + {2: "L", 3: "Q", 4: "C"}[len(points)] + " ".join(points[1:])
 
 
+def _layout_image(packet, original_only=False):
+    parts = (packet.get("layout") or {}).get("parts", [])
+    if not parts and not original_only:
+        return '<div class="missing">No area estimate. Run full church analysis to add one.</div>'
+    strokes = packet["observation"]["strokes"]
+    points = [p for s in strokes for p in s["points"]] + [p for part in parts for p in part["geometry"]["points"]]
+    l, t = min([0, *[p[0] for p in points]]), min([0, *[p[1] for p in points]])
+    r, b = max([512, *[p[0] for p in points]]), max([512, *[p[1] for p in points]])
+    pad = .035 * max(r-l, b-t)
+    box = ' '.join(_number(v) for v in (l-pad, t-pad, r-l+2*pad, b-t+2*pad))
+    image = [f'<svg viewBox="{box}" role="img" aria-label="Area estimates over original ink">']
+    for part in ([] if original_only else parts):
+        geo = part["geometry"]; color = escape(part["color"], quote=True)
+        image.append(f'<g data-layout="{escape(part["id"], quote=True)}"><title>{escape(part["role"])} · {escape(part["status"])}</title>')
+        if geo.get("fillIndices"):
+            values = ' '.join(','.join(_number(v) for v in geo["points"][i]) for i in geo["fillIndices"])
+            image.append(f'<polygon points="{values}" fill="{color}" fill-opacity=".07" stroke="none"/>')
+        for a, b in geo.get("segments", []):
+            image.append(f'<path d="{_path([geo["points"][a], geo["points"][b]])}" stroke="{color}" stroke-width="2" stroke-dasharray="2 5"/>')
+        image.append('</g>')
+    # Acquired points are drawn last, so no proposed fill can conceal them.
+    for stroke in strokes:
+        values = ' '.join(','.join(_number(v) for v in p) for p in stroke["points"])
+        image.append(f'<polyline data-stroke="{escape(stroke["id"], quote=True)}" points="{values}" stroke="#465852" stroke-width="2.1"/>')
+    return ''.join(image) + '</svg>'
+
+
 def _card(row, packet, number, links, parent):
     strokes = packet["observation"]["strokes"]
     objects = object_read(packet)
@@ -111,16 +138,19 @@ def _card(row, packet, number, links, parent):
     card = (f'<{tag} class="comparison" data-item="{escape(selection_id, quote=True)}"{attributes}>'
             f'<div class="cardhead"><strong>{number}. {escape(category)}</strong>'
             f'<span class="key">{escape(key)}</span></div><div class="pair">'
-            f'<div class="input"><div class="label">Input</div><svg viewBox="{box}" role="img" '
+            f'<div class="input"><div class="label">Input</div><div class="final-output"><svg viewBox="{box}" role="img" '
             f'aria-label="Original drawing {escape(key, quote=True)}">' + "".join(acquisition) + "</svg></div>"
-            f'<div class="output"><div class="label">{final_title}</div>{image}</div></div>'
+            f'<div class="layout-output">{_layout_image(packet, original_only=True)}</div></div>'
+            f'<div class="output"><div class="final-output"><div class="label">{final_title}</div>{image}</div>'
+            f'<div class="layout-output"><div class="label">Area estimates + original</div>{_layout_image(packet)}</div></div></div>'
             f'<div class="cardfoot">{"Open detailed inspector ↗" if href else "Saved drawing"}'
             f'{" · expanded viewing frame" if expanded else ""}'
             f'{" · " + str(objects["candidates"]) + " object candidates" if objects["available"] else ""}</div></{tag}>')
     metadata = {"selectionId": selection_id, "itemId": row["itemId"], "keyId": key,
                 "sourceStrokes": len(strokes), "finalEdges": len(edges), "residueEdges": len(residue),
                 "finalStepId": final["id"] if final else None, "viewBox": view, "detailsHref": href,
-                "objectCandidates": objects["candidates"], "objectColorsAvailable": objects["available"]}
+                "objectCandidates": objects["candidates"], "objectColorsAvailable": objects["available"],
+                "layoutParts": len((packet.get("layout") or {}).get("parts", []))}
     return card, metadata
 
 
@@ -196,8 +226,10 @@ _HTML = r'''<!doctype html>
 :root{color-scheme:light;--ink:#183b38;--muted:#637770;--line:#d9e3dd;--green:#287b6f}*{box-sizing:border-box}body{margin:0;background:#f1f5f0;color:var(--ink);font:14px/1.45 system-ui,sans-serif}header,main,footer{max-width:1480px;margin:auto;padding:14px 24px}header{padding-bottom:0}h1{font-size:25px;margin:2px 0 4px}p{margin:4px 0}.subtle,.key,.cardfoot{color:var(--muted);font-size:12px}.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0}.toolbar label{display:flex;align-items:center;gap:6px}button,select{font:inherit;color:var(--ink);background:white;border:1px solid var(--line);border-radius:6px;padding:6px 9px;max-width:100%}button{cursor:pointer}button:disabled{opacity:.4;cursor:default}.toolbar .detail-toggle{margin-left:auto}input{accent-color:var(--green)}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}main{padding-top:8px;padding-bottom:0}.comparison{display:block;min-width:0;background:white;border:1px solid var(--line);border-radius:9px;overflow:hidden;text-decoration:none;color:inherit}.comparison[href]:hover{border-color:var(--green);box-shadow:0 2px 8px #183b3814}:focus-visible{outline:3px solid #dcac47;outline-offset:2px}.cardhead{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:7px 10px 4px}.cardhead strong{font-size:12px}.key{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pair{display:grid;grid-template-columns:1fr 1fr}.pair>div{min-width:0}.input{border-right:1px solid #edf1ee}.label{font-size:11px;color:var(--muted);text-align:center;min-height:20px}svg,.missing{width:100%;height:clamp(100px,calc((100vh - 360px)/4),210px);display:block}svg{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.7}.input svg{stroke:#5e6e69;color:#5e6e69}.output svg{stroke:var(--green)}.residue{stroke:#9ca9a4;stroke-width:1.5;opacity:.35}.hide-detail .residue{display:none}.missing{display:grid;place-content:center;text-align:center;color:var(--muted);font-size:12px;padding:16px}.cardfoot{padding:4px 10px 6px;font-size:10px;min-height:24px}footer{padding-top:8px;padding-bottom:12px}.bottom-nav{display:flex;justify-content:space-between;align-items:center;gap:8px}footer button{font-size:12px}@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}svg,.missing{height:180px}.toolbar .detail-toggle{margin-left:0}}@media(max-width:650px){header,main,footer{padding-left:12px;padding-right:12px}.grid{grid-template-columns:1fr}svg,.missing{height:auto;aspect-ratio:1}.missing{min-height:150px}h1{font-size:23px}.toolbar{gap:6px}.cardhead strong{font-size:13px}}@media print{@page{size:A4 landscape;margin:8mm}header,main,footer{padding:0}.toolbar,footer,.cardfoot{display:none}.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:3mm}svg,.missing{height:30mm}header{margin-bottom:3mm}h1{font-size:16px}.comparison{break-inside:avoid}.cardhead{padding-top:3px}}
 </style>
 <style>.object-ink{display:none}.object-colors .object-ink{display:block;stroke:var(--object-color);stroke-width:3.2}.object-colors .output [style]{stroke:var(--object-color)}#objectLegend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;padding:0 0 8px}#objectLegend span:before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--role-color);margin-right:5px}</style>
-<header><div class="subtle">GOJO / QUICKDRAW</div><h1>Input / final interpretation</h1>
-<p class="subtle">Final = last saved interpretation. Faint lines = retained detail. Each pair shares a viewing frame.</p>
+<style>.layout-output{display:none}.area-view .layout-output{display:block}.area-view .final-output,.area-view .input .object-ink{display:none}.area-view .output [style]{stroke:inherit}.area-view #objectLegend{display:none!important}.area-view .input svg{stroke:#465852}</style>
+<header><div class="subtle">GOJO / QUICKDRAW</div><h1 id="galleryTitle">Input / final interpretation</h1>
+<p class="subtle" id="galleryNote">Final = last saved interpretation. Faint lines = retained detail. Each pair shares a viewing frame.</p>
+<label>Result <select id="resultView" aria-label="Result view"><option value="final">Final interpretation</option><option value="layout">Area estimates over original</option></select></label>
 <nav class="toolbar" aria-label="Gallery pages"><button id="firstPage">First</button><button id="prevPage">← Previous</button><label>Page <select id="page" aria-label="Page"></select></label><button id="nextPage">Next →</button><button id="lastPage">Last</button><span id="position" class="subtle"></span><label><input id="objectColors" type="checkbox">Object colors</label><label class="detail-toggle"><input id="retainedDetail" type="checkbox" checked>Retained detail</label></nav><div id="objectLegend" hidden></div></header>
 <main><div class="grid">__CARDS__</div></main>
 <footer><div class="bottom-nav"><button id="bottomPrev">← Previous page</button><span class="subtle" id="summary"></span><button id="bottomNext">Next page →</button></div></footer>
@@ -208,15 +240,18 @@ const DATA=JSON.parse(document.getElementById('gallery-data').textContent),PAGIN
 $('retainedDetail').checked=new URL(location.href).searchParams.get('detail')!=='0';
 function detail(){document.body.classList.toggle('hide-detail',!$('retainedDetail').checked)}
 function objects(){const active=$('objectColors').checked;document.body.classList.toggle('object-colors',active);$('objectLegend').style.display=active?'flex':'none';for(const card of document.querySelectorAll('a.comparison')){const u=new URL(card.href);u.searchParams.set('objects',active?'1':'0');card.href=u.href}}
+function resultView(){const area=$('resultView').value==='layout';document.body.classList.toggle('area-view',area);$('galleryTitle').textContent=area?'Input / area estimates':'Input / final interpretation';$('galleryNote').textContent=area?'Pale areas with dotted borders = ideal estimates. Solid ink = original. Hover a shape for its role; open a pair for evidence.':'Final = last saved interpretation. Faint lines = retained detail. Each pair shares a viewing frame.';$('objectColors').disabled=$('retainedDetail').disabled=area;for(const card of document.querySelectorAll('a.comparison')){const row=DATA.records.find(r=>r.selectionId===card.dataset.item),u=new URL(card.href),original=new URL(row.detailsHref,location.href);u.searchParams.set('view',area&&row.layoutParts?'layout':original.searchParams.get('view'));card.href=u.href}}
+$('resultView').value=new URL(location.href).searchParams.get('view')==='layout'?'layout':'final';
+$('resultView').onchange=()=>{resultView();const u=new URL(location.href);u.searchParams.set('view',$('resultView').value);history.replaceState(null,'',u.href)};
 $('objectColors').checked=new URL(location.href).searchParams.get('objects')==='1'||new URL(location.href).searchParams.get('objects')===null&&DATA.records.some(r=>r.objectColorsAvailable);
 for(const [role,color]of Object.entries(DATA.objectColors||{})){const item=document.createElement('span');item.textContent=role==='unknown'?'unknown / ambiguous':role;item.style.setProperty('--role-color',color);$('objectLegend').append(item)}
-function goPage(i){if(i<0||i>=PAGING.pages.length)return;const u=new URL(PAGING.pages[i],location.href);u.searchParams.set('detail',$('retainedDetail').checked?'1':'0');u.searchParams.set('objects',$('objectColors').checked?'1':'0');location.href=u.href}
+function goPage(i){if(i<0||i>=PAGING.pages.length)return;const u=new URL(PAGING.pages[i],location.href);u.searchParams.set('detail',$('retainedDetail').checked?'1':'0');u.searchParams.set('objects',$('objectColors').checked?'1':'0');u.searchParams.set('view',$('resultView').value);location.href=u.href}
 PAGING.pages.forEach((_,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(i+1)+' of '+PAGING.pages.length;$('page').append(o)});
 $('page').value=String(PAGING.page-1);$('page').onchange=()=>goPage(Number($('page').value));
 $('firstPage').onclick=()=>goPage(0);$('prevPage').onclick=$('bottomPrev').onclick=()=>goPage(PAGING.page-2);$('nextPage').onclick=$('bottomNext').onclick=()=>goPage(PAGING.page);$('lastPage').onclick=()=>goPage(PAGING.pages.length-1);
 $('firstPage').disabled=$('prevPage').disabled=$('bottomPrev').disabled=PAGING.page===1;$('lastPage').disabled=$('nextPage').disabled=$('bottomNext').disabled=PAGING.page===PAGING.pages.length;
 $('position').textContent=`Drawings ${PAGING.start}–${PAGING.end} of ${PAGING.total}`;$('summary').textContent=`${PAGING.pageSize} pairs per page · ${PAGING.pages.length} pages`;
 $('retainedDetail').onchange=()=>{detail();const u=new URL(location.href);u.searchParams.set('detail',$('retainedDetail').checked?'1':'0');history.replaceState(null,'',u.href)};detail();
-$('objectColors').onchange=()=>{objects();const u=new URL(location.href);u.searchParams.set('objects',$('objectColors').checked?'1':'0');history.replaceState(null,'',u.href)};objects();
+$('objectColors').onchange=()=>{objects();const u=new URL(location.href);u.searchParams.set('objects',$('objectColors').checked?'1':'0');history.replaceState(null,'',u.href)};objects();resultView();
 document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON','A'].includes(e.target.tagName))return;if(e.key==='ArrowRight')goPage(PAGING.page);if(e.key==='ArrowLeft')goPage(PAGING.page-2)});
 </script></html>'''

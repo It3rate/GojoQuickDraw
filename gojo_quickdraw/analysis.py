@@ -35,10 +35,14 @@ def enrich(packet, category, gojo_root):
     result["annotations"] = variants.get("observed-fit")
     result["context"] = build_context(observed, variants.get("stronger-priors"), category)
     result["context"]["annotationMode"] = "stronger-priors" if variants else None
+    result.pop("objects", None)
+    result.pop("layout", None)
     proposal = None
     if category.casefold() == "church" and observed.get("spans"):
         from .objects import enrich_context
         result["context"], result["objects"] = enrich_context(observed, result["context"], variants.get("stronger-priors"))
+        from .layout import enrich_context as place_layout
+        result["context"], result["layout"] = place_layout(observed, result["context"])
         from quickdraw_gestalt_geometry import build
         from quickdraw_gestalt_completion import extend
         proposal = extend(observed, build(observed))

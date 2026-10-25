@@ -226,6 +226,31 @@ remain inspectable under their original fingerprints.
 
 ## Paged inspection
 
+### Ideal area placement
+
+Church analysis adds `layout` (`gojo.quickdraw-area-layout.v1`) and corresponding
+`layout-*` context parts/relations. Chosen regions, alternative building areas,
+authored cost components, broad source support, prior-only placements and policy
+limits are inspectable. The native context witnesses carry the selected source
+profiles, earlier part dependencies, ordered construction edges and comparisons.
+The display cache does not itself establish category meaning.
+
+Context scaffold `geometry.siteSources` optionally aligns with `geometry.points`.
+Each entry is null (fresh proposed site) or `{part: earlierPartId, index: n}`.
+The referenced part must be an explicitly selected earlier participant, and the
+imported position must agree within the declared native quantum. The actual point
+relation is shared, not copied. Native reading preserves this without adapter
+labels and rejects foreign/unselected aliases. Acquired sites stay separate.
+This is distinct from opinion `geometry.pointSources`, which references earlier
+opinion claims; the two scopes are not interchangeable.
+
+`fillIndices` supplies a display polygon only; the ordered `segments` define native
+edges. A cross has twelve outline points plus a separate arm-intersection anchor
+used by its horizontal level. Layout regions never replace acquired coordinates
+or make inferred ground into observed ink. See [the experiment](../CHURCH_LAYOUT_ESTIMATES.md).
+
+### Review pages
+
 `catalog --offset N --limit K` selects a lightweight page; actual latest journal
 states determine totals, not a stale manifest's last-run count. Stable category,
 recent and seeded random orders have the same membership across catalog pages

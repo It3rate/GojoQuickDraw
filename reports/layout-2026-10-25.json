@@ -1,0 +1,534 @@
+{
+  "date": "2026-10-25",
+  "experiment": "church-area-layout.v1",
+  "qualification": "Authored regional placement experiment. These 24 sources were already in the development/review set; this is not an unseen holdout or semantic accuracy benchmark.",
+  "gojoRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+  "analysisFingerprint": "a923c86c819f1a6b0966c2f760df046710fe3ddf54b3e72d2859c397939b673d",
+  "dataset": "D:/_quickDraw/gojo-quickdraw-evidence/church-layout-pilot-v3",
+  "gallery": "D:/_quickDraw/gojo-quickdraw-evidence/church-layout-pilot-v3-runs/inspector/comparison.html?view=layout",
+  "inspector": "D:/_quickDraw/gojo-quickdraw-evidence/church-layout-pilot-v3-runs/inspector/evidence.html?view=layout",
+  "checks": {
+    "pythonTests": 102,
+    "nativeTests": 24,
+    "desktopTests": 11,
+    "linkedGojoTests": 5407,
+    "linkedGojoWorkingTreeUnchanged": true,
+    "releaseBuildWarnings": 0,
+    "releaseBuildErrors": 0,
+    "desktopWorkflow": {
+      "success": true,
+      "jobs": 16,
+      "intentionalCancellations": 1
+    },
+    "independentVerification": {
+      "records": 6,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "resume": {
+      "reused": 24,
+      "errors": 0
+    },
+    "browserLayout": {
+      "drawings": 24,
+      "galleryPages": 2,
+      "originalsUnchanged": true,
+      "pagingPreserved": true,
+      "errors": [],
+      "externalRequests": 0
+    },
+    "browserGallery": {
+      "drawings": 24,
+      "finalImages": 24,
+      "pages": 2,
+      "pageSizes": [
+        12,
+        12
+      ],
+      "detailLinksChecked": 2,
+      "columns": 3,
+      "pairsPerPage": 12,
+      "errors": [],
+      "requests": [],
+      "unclipped": true,
+      "mobileOverflow": false
+    },
+    "browserPages": {
+      "drawings": 24,
+      "pages": 4,
+      "pageSizes": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "drawingsInspected": 8,
+      "modesChecked": 88,
+      "dependenciesInspected": 8,
+      "persistedView": "step:6",
+      "viewFallbackChecked": false,
+      "errors": [],
+      "requests": [],
+      "immutable": true,
+      "mobileOverflow": false
+    }
+  },
+  "audit": {
+    "drawings": 24,
+    "sourceJournalsUnchanged": true,
+    "sourceFieldsUnchanged": true,
+    "nativeCapturesAndRestoresVerified": true,
+    "roles": {
+      "ground": 24,
+      "building": 24,
+      "roof": 24,
+      "cross": 24,
+      "cross-level": 24,
+      "door": 10,
+      "window": 2
+    },
+    "statuses": {
+      "regional-estimate": 111,
+      "prior-only": 21
+    },
+    "rows": [
+      {
+        "keyId": "6291594720313344",
+        "itemId": "17e3f8bd3bfa9a61535aa47906a558356729143b",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1,
+          "window": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "40a4de566c38d3dab1965e575f1f9bb45692daf9c07ac2b1e5cf1f375a55de6c",
+        "evidenceSha256": "60965316505e270d684217498bf96f573b3d0f092f60643759ddf7f1160e51ae"
+      },
+      {
+        "keyId": "5320526270562304",
+        "itemId": "98fbdaa59b51421c30ed00cf9b313d8185179788",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "d1b6d7c6c5fa7e681f7c5ac679feb3e88bca40dccc725fcac7c9aea1d23bcfe0",
+        "evidenceSha256": "661d07163310ae4934f4846ca736f59941fb6dc251f10b6f89263ac5bfad435f"
+      },
+      {
+        "keyId": "6292633682968576",
+        "itemId": "3fc846c3d0e9ce5e7e340a442902ad66468e6e9c",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "748443d589ce7bbb2c100bdff5e4b23e0294f98b44324d8667b111b23559a15f",
+        "evidenceSha256": "92e88ab212195f73f27e55e0e0b264b73684ec34b36b7cf8004c8dd0629b5b70"
+      },
+      {
+        "keyId": "5165838967504896",
+        "itemId": "fa405e6384313889f601ff05448ffd497bb9602b",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "a791642a53097c893b2b06450a27ac3acd185dfa9f8f62495757eedacb59f121",
+        "evidenceSha256": "7c34aeadf8b73eb2cc9e6feea250e984d0e97611f86e329243c6e8a37d95a9ba"
+      },
+      {
+        "keyId": "5488048856891392",
+        "itemId": "ddd1fd9847dddf25993caf4dd453e265948c1ff2",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "f8a13a4f15f786594ab15c5a40babd5cab808806ccabd69536809b98b3de778d",
+        "evidenceSha256": "fa8dcebfe4fc6e3921bcc77cf98df19f3e9c841f373f26d5a3253083a12d8535"
+      },
+      {
+        "keyId": "4835826410192896",
+        "itemId": "eb65f39bbd761b75c3d98766a7638babb3b6b822",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "72acbe8737300a06566fe525958d7da4743203634aea0f6c1a047f94a9800fb0",
+        "evidenceSha256": "b2b6c6a141492f1ab4262e7b0b8a91a1d5c8a43334620880f0d5ee4e95a5ed41"
+      },
+      {
+        "keyId": "5026742236348416",
+        "itemId": "ca0d84a83c8af17fe9a822a57ab589a26a12a738",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "d9d510083dfe5b2d00b460ab9b93bb912e69a8fce471923093f09cff8bdfca3f",
+        "evidenceSha256": "dfa015e9cecb1f78ef61071b13cd7c73cca3203b3fd4acbaf306acaa39c8e83b"
+      },
+      {
+        "keyId": "6039787817402368",
+        "itemId": "4c0c3e331af7241c94574f8b29175dc4740c9d93",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "55ae4c548319e9fadaaa77a115e55a708f9598ba3e86f183ba41a9089084e49e",
+        "evidenceSha256": "2d8fc4b5c25f0633089a114e3b9e2ec9b9b9fae33f3dd2dd4444d9fbc6be75f1"
+      },
+      {
+        "keyId": "5389179863171072",
+        "itemId": "0b56d77211e888e168bd6e13c57e22ae80d7e0f1",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "214b675c5c348da9bfd5abfd0a8615ae21c8978c3a39741699f9d059cf0f14bd",
+        "evidenceSha256": "37eb753e6e57aa305378e929fad1d309ebe055f425d46c705bdf76211b3d194e"
+      },
+      {
+        "keyId": "6469580950077440",
+        "itemId": "77864bb7ee50f4fe3208a55fbdcf181023645768",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "window": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "17ff6dd06ba9d72aa0a2518bd8c8dd3411a3bb009859842b52d3eedf77ac015f",
+        "evidenceSha256": "995b386eb440af869dccf3b4a6279e0ffdd65fe11104a9b3830cee1b1d5bf909"
+      },
+      {
+        "keyId": "5650365196271616",
+        "itemId": "f810e8a1007918f995ee5b74eb56a08114bbb7d3",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "47ab7f9cc2e1ec79a40e95632517b5f76e5943033e0361657f05e792bdbdb2b4",
+        "evidenceSha256": "b5262edb4b39f2a699be4ba7dc2574d29370fabb49710a05460dfc37eb89ff44"
+      },
+      {
+        "keyId": "5231607982063616",
+        "itemId": "d80b4eb2e05579ec14ccb855c6c27d600c3cedf3",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "f92542879deec3deb8fb5259f804f30d3e4c27f004026880004ad735b670cba1",
+        "evidenceSha256": "14e3f0eeb63b1dbf9e1f2bc32788996f5e9db90a0077c7f9b8190a88e181a6f7"
+      },
+      {
+        "keyId": "6082729202417664",
+        "itemId": "b95d86ac0929238759e67244db6bacf5a823dbcf",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "c004f915370e7d84455789d4c420f14188ea6047a2ca2a91f8ead19a7a4ebfd5",
+        "evidenceSha256": "042277e78618bfaaf9c52939262fa284bc2e3aa0bbac69cb0e91d233db6d312f"
+      },
+      {
+        "keyId": "5650520033198080",
+        "itemId": "5ac5cad4e3c55bde61c4eaaa3d17ca34260cda00",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "73af50aaf7d93ecda18f98f96321480fd2ac5f8188430c8852f6d5c03d27a418",
+        "evidenceSha256": "3a45236ff8dc74cad9d44ea6b7c3006a682f4272df9d158d7f3784b9bfd31449"
+      },
+      {
+        "keyId": "4707059385761792",
+        "itemId": "3a686ae5acbe30b6aca0b8a1ba577b2580b0420f",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "fa0fb2e264ac6e3d97b2fc126c8cf5db8bef1caca39478a9b086dee18b46621e",
+        "evidenceSha256": "d040a1fa86b14e01b488bac5f2ce92a28734c13bfc7215ed1467ce9b64d5940a"
+      },
+      {
+        "keyId": "6280306992611328",
+        "itemId": "e97a17e2a42ccf5738e7d23ba8ab4000b22f99b6",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "c0f60c70f98852d94cf15c66a1b29509eeb4aecc293ebe72b7a1c57061c7d65c",
+        "evidenceSha256": "ffd7647f8c1dd6adc52a527cc716e7bf3ee9f17f2de3f6114d73b842442d98bb"
+      },
+      {
+        "keyId": "5521537635450880",
+        "itemId": "fed69d6545c094d0f518074aea17e23c34841e27",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "78cfd6e2329926ae4f9dc63661f130320a8f58dcef0c3e8c3d4980b06bb637cb",
+        "evidenceSha256": "077971625e0ede32b20bbbf905315fd46bb5e8cc63743787a3cc677dd14813d5"
+      },
+      {
+        "keyId": "5865058414362624",
+        "itemId": "bc12f113990380208dd9f260c80b683553eca46f",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "a773d24056bc10fd0d99100237c9fa8a0751ee42f0e5a8e56fba65d0e247682f",
+        "evidenceSha256": "a16696b0fb34090c6f13f1d5c6914d61288392d9e337090694b1698385980198"
+      },
+      {
+        "keyId": "5161617551523840",
+        "itemId": "e72662ce181fd281bf4e68afcf6faf09066cc728",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "9eac3bb7b2072d5dc474dc2c839cb8ae0d1c7d46f81c2acfb0fab9fbe4d174f0",
+        "evidenceSha256": "3780376f76a49f41c9b1d95256029758f0cb44e2f5c2bdc9e62ba1737fb78aed"
+      },
+      {
+        "keyId": "6414840786583552",
+        "itemId": "5bd294408ae682d3a5010e5b875f65b48f882d40",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "roof"
+        ],
+        "nativeSha256": "e219c0ee9df7b135f4d8c29c16d474baccc267aec94352eed4aa1d9c0fc4373d",
+        "evidenceSha256": "9aa34ab7dcad64cc49f08394c823e8a302effeb290aecccd9b33fb3bf8ff9d59"
+      },
+      {
+        "keyId": "6492920540561408",
+        "itemId": "dc6b7c1b37397e5b532dcecb29ccff9068c95b10",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "1e2f541ad8b9a5355ddad829b7c0ebc102fe9fdbf583b1b598394b7a8a8cb29a",
+        "evidenceSha256": "08400c8b3efdb8454674d97816fbd74efba9fa18c54bedd9e3e29bf4abcb91bc"
+      },
+      {
+        "keyId": "6680427051876352",
+        "itemId": "7fb2ae6ebb5424e37b143484f1124001cf3f0ff9",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "91e69848cce4093ae979fa97b80a7e0c176236496cf508c31d7345534e16aa75",
+        "evidenceSha256": "a5477820f9984193f03bd4ef8899f4e1733a755a0d8fb5d125e8dd815817cf4f"
+      },
+      {
+        "keyId": "5901226988273664",
+        "itemId": "3d52584947d9cb2049bc867a32335c8e7e2676cd",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "ef977ee9ea8e064ca4c1b4f3150b219e728c3f015db242b8310f8fb10a3be1a3",
+        "evidenceSha256": "d4858ea15202a935fd98121f4ba1c4c168f2b4c184c746d6ae70279383322b91"
+      },
+      {
+        "keyId": "4836604000600064",
+        "itemId": "409d40f5d9b23ea26693ec9aab74d5ecb46b3b00",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "278d30311483708b1c59777e3f0acd69219f19d18e90c6176f67fbac3dba25d7",
+        "evidenceSha256": "c261a2694d5ceea31a70403c93da23b527d6bf66f9005b267cb5a4c3372e8005"
+      }
+    ],
+    "qualification": "Existing development/review set, not a semantic accuracy evaluation."
+  },
+  "visualFindings": [
+    {
+      "keyId": "6039787817402368",
+      "finding": "Main wall region, attached triangle and ground-level door are plausible on visual inspection. Closed roof start no longer supplies the axis of the old synthesis."
+    },
+    {
+      "keyId": "5165838967504896",
+      "finding": "Broad lower building is retained; upper rectangular tower is compressed into the one-triangle roof premise."
+    },
+    {
+      "keyId": "6291594720313344",
+      "finding": "Writing can produce a false window region. A prior-only cross is added above the roof despite no detected cross."
+    },
+    {
+      "keyId": "5650365196271616",
+      "finding": "Outlined cross is missed by the existing crossing detector; the proposed cross is prior-only and displaced above it."
+    },
+    {
+      "keyId": "5389179863171072",
+      "finding": "Side view is compressed into a frontal rectangular region; not yet a view-specific construction."
+    },
+    {
+      "keyId": "6414840786583552",
+      "finding": "Sparse lower ink gives an implausibly narrow building. Regional width evidence needs competing hypotheses."
+    }
+  ],
+  "nextFeedback": [
+    "Main region plausibility",
+    "Missing or spurious optional openings",
+    "Whether one building/roof is adequate",
+    "Which competing areas to retain or reject"
+  ]
+}

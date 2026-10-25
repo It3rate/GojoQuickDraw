@@ -22,9 +22,9 @@ let browser;
     assert(records.length<=12);
     identities.push(...records.map(r=>r.selectionId)); pageSizes.push(records.length);
     const previews = await page.locator('.comparison').evaluateAll(cards => cards.map(card => ({
-      id:card.dataset.item,sourceStrokes:card.querySelectorAll('.input [data-stroke]').length,
+      id:card.dataset.item,sourceStrokes:card.querySelectorAll('.input .final-output [data-stroke]').length,
       finalEdges:card.querySelectorAll('.output .final').length,residueEdges:card.querySelectorAll('.output .residue').length,
-      missing:!!card.querySelector('.missing'),
+      missing:!!card.querySelector('.final-output .missing'),
       invalid:/NaN|Infinity/.test(card.innerHTML),
       clipped:[...card.querySelectorAll('svg')].some(svg => {
         const b=svg.getBBox(),v=svg.viewBox.baseVal;

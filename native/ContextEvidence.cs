@@ -21,7 +21,8 @@ public static class ContextEvidence
     //   frame, group(scaffold, open slots, pair-bound reads), selected, evidence)
     // scaffold = group(group(site -> calibrated XY position), group(actual site pairs),
     //                  group(optional lower position -> upper position))
-    // A site here is fresh and cannot be an acquired sample merely by coincidence.
+    // A site is fresh or explicitly selected from an earlier candidate. Coordinate
+    // equality alone cannot identify it, and it cannot become an acquired sample.
     // pair-bound read = ReadWitness(outer bounds -> inner bounds, frame,
     //   group(inner.left-outer.left, inner.top-outer.top,
     //         outer.right-inner.right, outer.bottom-inner.bottom), selected, selected)
@@ -66,7 +67,29 @@ public static class ContextEvidence
             var points = new List<Relation>(); var segments = new List<Relation>();
             if (item.TryGetProperty("geometry", out var geometry))
             {
-                foreach (var value in Array(geometry, "points")) points.Add(new Relation(new Placeholder(), PointOf(value, frame)));
+                var values = Array(geometry, "points");
+                var siteSources = Array(geometry, "siteSources");
+                if (siteSources.Length != 0 && siteSources.Length != values.Length) throw new InvalidDataException("Scaffold site sources must match its points.");
+                for (var i = 0; i < values.Length; i++)
+                {
+                    var position = PointOf(values[i], frame);
+                    if (siteSources.Length == 0 || siteSources[i].ValueKind == JsonValueKind.Null)
+                        points.Add(new Relation(new Placeholder(), position));
+                    else
+                    {
+                        var source = siteSources[i];
+                        if (!parts.TryGetValue(source.GetProperty("part").GetString()!, out var prior) || !selectedParts.Contains(prior))
+                            throw new InvalidDataException("Scaffold site source must select an earlier participating part.");
+                        var index = source.GetProperty("index").GetInt32();
+                        if (index < 0 || index >= prior.Points.Length) throw new InvalidDataException("Scaffold site source is absent.");
+                        var point = prior.Points[index];
+                        if (!TryPosition(point.Right, frame, out var actual) || !TryPosition(position, frame, out var expected) || actual != expected)
+                            throw new InvalidDataException("Scaffold site source disagrees with its imported position.");
+                        points.Add(point);
+                    }
+                }
+                if (points.Distinct(ReferenceEqualityComparer.Instance).Count() != points.Count)
+                    throw new InvalidDataException("A scaffold repeats the same site in its point list; reuse its index in edges instead.");
                 foreach (var value in Array(geometry, "segments"))
                 {
                     var indices = value.EnumerateArray().Select(index => index.GetInt32()).ToArray();
@@ -130,8 +153,11 @@ public static class ContextEvidence
                 !Fields(result, 3, out var body) || !Fields(body[0], 3, out var scaffold) || !Elements(scaffold[0], out var points) ||
                 !Elements(scaffold[1], out var segments) || !Elements(scaffold[2], out var boundsRows) || boundsRows.Length > 1 ||
                 !Elements(body[1], out var openSlots) || openSlots.Length == 0 || !Elements(body[2], out var comparisons)) return false;
+            var permitted = selectedParts.Cast<Relation>().SelectMany(p => partMap[p].Points).ToHashSet(ReferenceEqualityComparer.Instance);
+            if (points.Distinct(ReferenceEqualityComparer.Instance).Count() != points.Length) return false;
             foreach (var point in points)
-                if (point is not Relation { Left: Placeholder slot, Right: var position } || slot.IsInverse || !slots.Add(slot) || !TryPosition(position, frame, out _)) return false;
+                if (point is not Relation { Left: Placeholder slot, Right: var position } || slot.IsInverse ||
+                    (!permitted.Contains(point) && !slots.Add(slot)) || !TryPosition(position, frame, out _)) return false;
             foreach (var segment in segments)
                 if (segment is not Relation pair || !points.Contains(pair.Left, ReferenceEqualityComparer.Instance) || !points.Contains(pair.Right, ReferenceEqualityComparer.Instance)) return false;
             foreach (var open in openSlots) if (open is not Placeholder slot || slot.IsInverse || !slots.Add(slot)) return false;

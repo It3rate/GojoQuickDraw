@@ -1,5 +1,37 @@
 # Verification checkpoints
 
+## Ideal church area estimates, 25 October 2026
+
+The new area-placement experiment was reviewed on the same 24 development
+churches, saved separately in `church-layout-pilot-v3`. It proposes one main
+rectangle, one attached triangle, ground/cross levels, an ideal Christian cross
+and optional opening rectangles. This run contains ten proposed doors and two
+proposed windows; these are proposal counts, not confirmed detections. There
+are 21 prior-only part/level records. Every acquired point, time, source interval
+and baseline program remains unchanged.
+
+All 24 native captures independently restore. Six archives pass a second
+verification command, and all 24 resume without re-encoding. Native tests verify
+actual shared proposed sites after labels are removed, distinguish equal but
+unshared coordinates, and reject forward, unselected, absent or disagreeing
+references. Ground/wall/door contact and roof/wall attachment are construction
+relationships; they do not merge acquired samples or assert observed contact.
+
+Browser checks cover all 24 area overlays, unchanged point lists, pale fills,
+matching comparison frames, gallery/detail links, mobile layout and persistent
+view selection. The existing synthesis gallery remains available and all four
+inspector pages pass their annotation/proposal checks (88 view checks). No script
+errors or external requests were observed. Automatic review refresh also passes
+the real desktop workflow with nine converted sources and three church analyses,
+including its intentional cancellation and resume.
+
+This checkpoint passes 102 Python, 24 native and 11 desktop tests, plus 5,407 tests
+in the unchanged linked Gojo solution. Release builds have no warnings or errors.
+The simple frontal example improves visually; side views, several towers,
+outlined crosses, sparse lower ink and writing remain explicit counterexamples.
+See [the placement rules](../CHURCH_LAYOUT_ESTIMATES.md) and
+[the verification report](../reports/layout-2026-10-25.json).
+
 ## Church object candidates and automatic refresh, 25 October 2026
 
 A bounded development pilot analyzes 24 selected churches into

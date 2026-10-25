@@ -54,6 +54,13 @@ reviews** rebuilds them for the selected generated folder without processing the
 source again. The entry paths remain stable. Reload an already open browser tab
 to see updated files; the pages do not watch the filesystem or reload themselves.
 
+Full church analysis also creates **Area estimates over original**: an ideal
+building rectangle, attached roof triangle, ground/cross levels, cross and optional
+opening rectangles. Choose this view in the inspector's **Read** or the gallery's
+**Result** selector. Pale fills and dotted outlines stay behind the original ink.
+See [church area estimates](CHURCH_LAYOUT_ESTIMATES.md) for the placement rules,
+explicit assumptions and current limitations.
+
 Open `GojoQuickDraw.slnx` in Visual Studio and set `GojoQuickDraw.Desktop` as the
 startup project to run the UI there. The solution includes the desktop app and
 tests, native converter and tests, linked Gojo dependencies, Python source files,

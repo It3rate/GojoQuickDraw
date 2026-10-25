@@ -106,6 +106,17 @@ class GalleryTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaises(ValueError):
                 gallery.build(self.dataset, path, inspector=self.inspector)
 
+    def test_empty_acquisition_stays_reviewable_without_invented_area(self):
+        row, packet = next(dataset.load_records(self.dataset))
+        packet = copy.deepcopy(packet)
+        packet['observation']['strokes'] = []
+        packet['observation']['spans'] = []
+        card, meta = gallery._card(row, packet, 1, {}, self.output.parent)
+        self.assertEqual(0, meta['layoutParts'])
+        self.assertEqual(0, meta['sourceStrokes'])
+        self.assertIn('No area estimate.', card)
+        self.assertNotIn('data-layout=', card)
+
 
 if __name__ == "__main__":
     unittest.main()
