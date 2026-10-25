@@ -133,6 +133,83 @@ public sealed class NativeRecordTests
         finally { Directory.Delete(directory, recursive: true); }
     }
 
+    [Fact]
+    public void OpinionTransportConnectsProfilesExpectedTopologyAndEarlierClaims()
+    {
+        var packet = OpinionFixture();
+        // Type/provider names describe the adapter and do not supply geometry.
+        foreach (var row in packet["opinions"]!["claims"]!.AsArray()) { row!.AsObject().Remove("kind"); row.AsObject().Remove("provider"); }
+        var restored = NativeRecord.Restore(NativeRecord.Capture("opinions", Import(packet)));
+        var opinions = Assert.IsType<OpinionEvidence.Read>(restored.Opinions);
+        Assert.Equal(2, opinions.Claims.Length);
+        var first = opinions.Claims[0]; var second = opinions.Claims[1];
+        Assert.Same(restored.Annotation!.Profiles[0].Witness, first.Profiles[0]);
+        Assert.Same(first.Witness, Assert.Single(second.Dependencies));
+        Assert.Same(first.Edges[0].Left, first.Edges[1].Left);
+        Assert.DoesNotContain(first.Sites[0].Left, restored.Acquisition.Samples.Select(s => (IElement)s.Event));
+        var hypothesis = Assert.Single(opinions.Bundle.Read(opinions.Bundle.Hypotheses));
+        Assert.Same(opinions.Bundle.Ladder.Medium, hypothesis.Support);
+        Assert.Same(opinions.Bundle.Ladder.Weak, hypothesis.Opposition);
+        Assert.Single(opinions.Bundle.Read(opinions.Bundle.Defaults));
+        Assert.NotSame(first.Sites[0], second.Sites[0]);
+    }
+
+    [Fact]
+    public void OpinionsRejectForwardDependenciesDuplicateSupportAndUnknownGrades()
+    {
+        var forward = OpinionFixture(); forward["opinions"]!["claims"]![0]!["dependencies"] = new JsonArray("second");
+        Assert.Throws<InvalidDataException>(() => Import(forward));
+        var missing = OpinionFixture(); missing["opinions"]!["claims"]![0]!["spans"]![0] = "absent";
+        Assert.Throws<InvalidDataException>(() => Import(missing));
+        var duplicate = OpinionFixture(); duplicate["opinions"]!["claims"]![0]!["spans"] = new JsonArray("s0", "s0");
+        Assert.Throws<InvalidDataException>(() => Import(duplicate));
+        var grade = OpinionFixture(); grade["opinions"]!["claims"]![0]!["support"] = "certain";
+        Assert.Throws<InvalidDataException>(() => Import(grade));
+    }
+
+    [Fact]
+    public void OpinionExpectedEdgeMustConsumeItsActualDeclaredSites()
+    {
+        var bad = OpinionFixture(); bad["opinions"]!["claims"]![0]!["geometry"]!["segments"]![0] = new JsonArray(0, 12);
+        Assert.Throws<InvalidDataException>(() => Import(bad));
+        var unchanged = Import(OpinionFixture()); Assert.True(NativeRecord.TryRead(unchanged, out var read));
+        var root = Entries(unchanged); var opinion = Entries(root[3]); var claims = Entries(opinion[2]);
+        Assert.True(ReadWitness.TryRead(Assert.IsType<Relation>(claims[0]), out var selected, out var basis, out var result, out var residue, out var history));
+        var expected = Entries(result); var sites = Entries(expected[0]);
+        sites[0] = new Relation(read.Acquisition.Samples[0].Event, Assert.IsType<Relation>(sites[0]).Right);
+        expected[0] = G(sites); expected[1] = G();
+        claims[0] = ReadWitness.Create(new Carrier(), selected, basis, G(expected), residue, history);
+        opinion[2] = G(claims); root[3] = G(opinion);
+        Assert.False(NativeRecord.TryRead(G(root), out _));
+    }
+
+    [Fact]
+    public void CornerExpectationCanConsumeActualEarlierShapeSitesWithoutCoordinateAliasing()
+    {
+        var packet = OpinionFixture();
+        packet["opinions"]!["claims"]![1]!["geometry"]!["pointSources"] = JsonNode.Parse("""[{"claim":"first","index":0},{"claim":"first","index":2}]""");
+        var read = NativeRecord.Restore(NativeRecord.Capture("shared-expectations", Import(packet)));
+        Assert.Same(read.Opinions!.Claims[0].Sites[0], read.Opinions.Claims[1].Sites[0]);
+        Assert.Same(read.Opinions.Claims[0].Sites[2], read.Opinions.Claims[1].Sites[1]);
+        packet["opinions"]!["claims"]![1]!["geometry"]!["pointSources"]![0]!["index"] = 1;
+        Assert.Throws<InvalidDataException>(() => Import(packet));
+    }
+
+    private static JsonObject OpinionFixture()
+    {
+        var packet = Fixture();
+        packet["opinions"] = JsonNode.Parse("""
+            {"sourceId":"fixture","claims":[
+              {"id":"first","kind":"corner","provider":"fixture","context":"hypotheses","spans":["s0","s1"],"dependencies":[],
+               "geometry":{"points":[[10,0],[0,0],[10,20]],"segments":[[0,1],[0,2]]},
+               "comparisons":[{"actual":0,"expected":0,"allowance":4}],"support":"medium","opposition":"weak"},
+              {"id":"second","kind":"container-carry","provider":"fixture","context":"defaults","spans":["s1"],"dependencies":["first"],
+               "geometry":{"points":[[10,0],[10,20]],"segments":[[0,1]]},"comparisons":[],"support":"weak","opposition":"none"}
+            ]}
+            """);
+        return packet;
+    }
+
     private static Relation Import(JsonObject packet)
     { using var document = JsonDocument.Parse(packet.ToJsonString()); return NativeRecord.Import(document.RootElement); }
     private static IElement[] Entries(IElement element)

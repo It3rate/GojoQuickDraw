@@ -123,8 +123,8 @@ def _containment_probe(relation, context, parts, delta):
                              {"fixed": [parent], "changed": {child: [dx, dy]}},
                              "Child location is adjustable; the request is partly reversed if containment requires it."))
         alternatives.append(("move-container", {parent: _shift(wall, -dx, -dy), child: list(box)},
-                             {"fixed": [child], "changed": {parent: [-dx, -dy]}},
-                             "Child location is trusted; container translates. Other unexposed supports remain unknown."))
+                             {"fixed": [child], "changed": {parent: [-dx, -dy]}, "couplingOverride": "child explicitly anchored"},
+                             "Fit the parent frame to an anchored child, explicitly overriding the carry default. This is boundary interpretation, not placement of the whole parent group; other supports remain unknown."))
     expanded = [min(wall[0], requested[child][0]), min(wall[1], requested[child][1]),
                 max(wall[2], requested[child][2]), max(wall[3], requested[child][3])]
     alternatives.append(("resize-container", {parent: expanded, child: list(requested[child])},
@@ -157,12 +157,64 @@ def run_probes(context, delta=12.):
             continue
         if result:
             results.append(result)
+    movement = []
+    for parent in dict.fromkeys(r["participants"][0] for r in context.get("relations", []) if r["kind"] == "containment" and len(r.get("participants", [])) == 2):
+        if len(movement) >= 24:
+            break
+        child = next(r["participants"][1] for r in context["relations"] if r["kind"] == "containment" and r["participants"][0] == parent)
+        movement.append({"container": parent, "child": child,
+                         "moveChild": move_contained(context, child, delta, carry=False),
+                         "moveContainer": move_contained(context, parent, delta, carry=True),
+                         "qualification": "Revisable frame-coupling default; geometric containment alone does not prove physical transport."})
     return {"schema": "gojo.quickdraw-probes.v1", "sourceId": context.get("sourceId"), "probes": results,
+            "containmentMovement": movement,
             "sourceContract": "Only the supplied candidate bounds, participants and constraints were read; no private drawing access.",
             "status": "exploratory conditional adapter computations; not trained probabilities or native dynamic settlement",
             "limitations": ["Shared outcomes under tested interventions do not identify a unique machine.",
                             "A distance residue is an observation, not automatically carrier tension.",
                             "Candidate feedback routes still require a selected native application to move drawing structure."]}
+
+
+def move_contained(context, participant, dx, dy=0., *, carry=True):
+    """Counterfactual placement through the proposed containment frame coupling.
+
+    A descendant receives the displacement once even with nested/multiple routes.
+    Input geometry is never changed. Alternative parents and cycles stay visible.
+    """
+    if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in (dx, dy)):
+        raise ValueError("Movement must be finite")
+    state = {p["id"]: list(p["bounds"]) for p in context.get("parts", []) if "bounds" in p}
+    if participant not in state:
+        raise ValueError("Movement participant has no exposed bounds")
+    children, parents = {}, {}
+    for row in context.get("relations", []):
+        if row["kind"] != "containment" or len(row.get("participants", [])) != 2:
+            continue
+        parent, child = row["participants"]
+        children.setdefault(parent, set()).add(child); parents.setdefault(child, set()).add(parent)
+    selected, pending, unresolved = set(), [participant], []
+    while pending:
+        current = pending.pop()
+        if current in selected:
+            continue
+        if current not in state:
+            unresolved.append("No exposed bounds for " + current); continue
+        selected.add(current)
+        if carry:
+            for child in sorted(children.get(current, [])):
+                if child == participant:
+                    unresolved.append("Containment cycle returns to " + participant)
+                if len(parents.get(child, [])) > 1:
+                    unresolved.append("Alternative parent routes for " + child)
+                if child not in selected:
+                    pending.append(child)
+    before = {key: list(value) for key, value in state.items()}
+    for key in selected:
+        state[key] = _shift(state[key], dx, dy)
+    return {"participant": participant, "displacement": [dx, dy], "carryDescendants": carry,
+            "boundsBefore": before, "boundsAfter": state, "movedParticipants": sorted(selected),
+            "reads": _constraint_reads(state, context), "unresolved": list(dict.fromkeys(unresolved)),
+            "qualification": "Authored conditional placement response, not observed motion or native dynamic settlement."}
 
 
 def example_context():

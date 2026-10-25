@@ -1,10 +1,31 @@
 import copy
 import unittest
 
-from gojo_quickdraw.probes import example_context, run_probes
+from gojo_quickdraw.probes import example_context, run_probes, move_contained
 
 
 class ProbeTests(unittest.TestCase):
+    def test_child_edit_is_independent_and_container_edit_carries_descendants_once(self):
+        context = example_context(); before = copy.deepcopy(context)
+        context["parts"].append({"id": "pane", "bounds": [16, 26, 24, 44]})
+        context["relations"].extend([
+            {"id": "pane-in-window", "kind": "containment", "participants": ["left-window", "pane"]},
+            {"id": "pane-in-wall", "kind": "containment", "participants": ["wall", "pane"]}])
+        original = copy.deepcopy(context)
+        child = move_contained(context, "right-window", 5, carry=False)
+        self.assertEqual(before["parts"][0]["bounds"], child["boundsAfter"]["wall"])
+        self.assertEqual(["right-window"], child["movedParticipants"])
+        parent = move_contained(context, "wall", 5)
+        self.assertEqual([21, 26, 29, 44], parent["boundsAfter"]["pane"])
+        self.assertEqual(5, len(parent["movedParticipants"]))
+        self.assertTrue(parent["unresolved"])
+        self.assertEqual(context, original)
+
+    def test_container_movement_default_preserves_existing_containment_residue(self):
+        context = example_context()
+        context["parts"][2]["bounds"] = [95, 25, 105, 45]
+        move = move_contained(context, "wall", 12)
+        self.assertEqual([0, 5, 0], [r["residue"] for r in move["reads"]])
     def test_pair_common_intervention_and_unidentifiable_tie(self):
         result = run_probes(example_context(), delta=5)
         probe = next(row for row in result["probes"] if row["kind"] == "paired-intervention")

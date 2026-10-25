@@ -1,5 +1,7 @@
 import gzip
 import json
+import re
+from urllib.parse import unquote
 from pathlib import Path
 import tempfile
 import unittest
@@ -10,6 +12,42 @@ from test_dataset import FakeEncoder, GOJO, SOURCE
 
 
 class CollectionTests(unittest.TestCase):
+    def test_paging_covers_every_record_once_in_each_order(self):
+        self.convert(categories=["angel", "church", "frog"], count=9, seed=9)
+        from gojo_quickdraw.review import build
+        for order in ("category", "recent", "random"):
+            with self.subTest(order=order):
+                expected = selection.catalog(self.output, 9, order=order, seed=14)["records"]
+                actual = []
+                for offset in range(0, 9, 2):
+                    page = selection.catalog(self.output, 2, order=order, seed=14, offset=offset)
+                    self.assertEqual(5, page["pageCount"])
+                    self.assertEqual(9, page["storedRecords"])
+                    actual.extend(page["records"])
+                self.assertEqual([r["selectionId"] for r in expected], [r["selectionId"] for r in actual])
+                entry = self.root / (order + ".html")
+                result = build(self.output, entry, 2, order=order, seed=14, paged=True)
+                self.assertEqual((9, 5), (result["drawings"], result["pages"]))
+                def read(path):
+                    return json.loads(re.search(r'<script id="dataset" type="application/json">(.*?)</script>', path.read_text(encoding="utf-8"), re.S).group(1))
+                first = read(entry); ids = []
+                for relative in first["pagination"]["pages"]:
+                    page = read((entry.parent / unquote(relative)).resolve())
+                    self.assertLessEqual(len(page["records"]), 2)
+                    ids.extend(r["index"]["selectionId"] for r in page["records"])
+                self.assertEqual([r["selectionId"] for r in expected], ids)
+                self.assertEqual(9, len(set(ids)))
+
+    def test_page_count_uses_actual_journal_and_rejects_invalid_offsets(self):
+        self.convert(categories=["church"], count=3, seed=1)
+        path = self.output / "church/manifest.json"
+        manifest = json.loads(path.read_text()); manifest["lastRun"]["storedRecords"] = 999
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        self.assertEqual(3, selection.catalog(self.output, 2)["storedRecords"])
+        for offset in (-1, True, 2.5):
+            with self.subTest(offset=offset), self.assertRaises(ValueError):
+                selection.catalog(self.output, 2, offset=offset)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

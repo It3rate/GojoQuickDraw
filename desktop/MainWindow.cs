@@ -23,6 +23,10 @@ internal sealed partial class MainWindow : Window
         _recursive = new() { Content = "Include subfolders" }, _retry = new() { Content = "Retry retained errors" },
         _verifyAll = new() { Content = "Verify the entire dataset", IsChecked = true },
         _autoOpen = new() { Content = "Open visual reviews when ready", IsChecked = true };
+    private readonly CheckBox _analyzeAll = new() { Content = "Analyze every drawing in the selected generated folder and subfolders", IsChecked = true };
+    private readonly CheckBox _analysisRetry = new() { Content = "Retry retained analysis errors" };
+    private readonly NumericUpDown _analysisCount = Number(1000, 1, 5000000), _analysisWorkers = Number(4, 1, 8);
+    private readonly TextBox _analysisOutput = new() { Watermark = "Automatic: separate folder beside the selected collection" };
     private readonly TextBlock _datasetSummary = Text("Choose a dataset to inspect, or create one from the Convert tab."),
         _status = Text("Ready to work", 15, true), _statusDetail = Text("The existing evidence and drawing tools are available below."),
         _selection = Text("Select a drawing to preview its acquired strokes and fitted intervals."),
@@ -38,15 +42,16 @@ internal sealed partial class MainWindow : Window
     private Control _configuration = null!;
     private CancellationTokenSource? _cancellation;
     private Task _activeWork = Task.CompletedTask;
-    private bool _allowClose, _smoke;
-    private string? _lastArtifact, _loadedDataset;
+    private bool _allowClose, _smoke, _startupSmoke;
+    private string? _lastArtifact, _loadedDataset, _observedDatasetPath;
     private int _previewRevision;
     internal readonly List<JobResult> Results = [];
 
     public MainWindow()
     {
         _settings = WorkspaceSettings.Load(_repository);
-        _smoke = Program.Arguments.Contains("--smoke");
+        _startupSmoke = Program.Arguments.Contains("--startup-smoke");
+        _smoke = Program.Arguments.Contains("--smoke") || _startupSmoke;
         Title = "Gojo QuickDraw Studio";
         Width = 1180; Height = 980; MinWidth = 900; MinHeight = 740;
         Background = Brush.Parse("#F1F5F0");
@@ -55,6 +60,9 @@ internal sealed partial class MainWindow : Window
         _category.HorizontalAlignment = HorizontalAlignment.Stretch;
         SetSourceCategories(_settings.Category.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
         _input.Text = _settings.Input; _dataset.Text = _settings.Dataset;
+        var datasetArgument = Array.IndexOf(Program.Arguments, "--dataset");
+        if (datasetArgument >= 0 && datasetArgument + 1 < Program.Arguments.Length) _dataset.Text = Program.Arguments[datasetArgument + 1];
+        _observedDatasetPath = _dataset.Text?.Trim();
         _python.Text = _settings.Python; _gojo.Text = _settings.Gojo; _limit.Value = Math.Max(1, _settings.Limit);
         _stop = Button("Stop", () => { _cancellation?.Cancel(); SetStatus("Stopping…", "Completed records remain available. Conversion can be resumed."); });
         _stop.IsEnabled = false;
@@ -68,6 +76,9 @@ internal sealed partial class MainWindow : Window
         };
         _dataset.TextChanged += (_, _) =>
         {
+            var current = _dataset.Text?.Trim();
+            if (current == _observedDatasetPath) return;
+            _observedDatasetPath = current;
             _catalogCancellation?.Cancel();
             _updatingFolders = true; _folderScope.ItemsSource = Array.Empty<FolderOption>(); _updatingFolders = false;
             _loadedDataset = null; _drawings.ItemsSource = Array.Empty<DrawingRow>();
@@ -113,6 +124,7 @@ internal sealed partial class MainWindow : Window
         };
         Opened += async (_, _) =>
         {
+            if (_startupSmoke) { await RunStartupSmoke(); return; }
             if (_smoke) { await RunSmoke(); return; }
             if (Directory.Exists(_dataset.Text)) await LoadCatalog();
         };
@@ -151,9 +163,14 @@ internal sealed partial class MainWindow : Window
         return Stack(12, Text("Read what the drawing supports", 21, true),
             InspectionControls(),
             Buttons(JobButton("Load drawings", null), JobButton("Verify archives", [PipelineAction.Verify]),
-                JobButton("Build visual review", [PipelineAction.Review], true)),
+                JobButton("Build visual review", [PipelineAction.Review]), JobButton("Full analysis → review", [PipelineAction.Analyze, PipelineAction.Review], true)),
             _verifyAll, browse,
-            Field("Drawings for reviews and limited verification", _reviewLimit, "Verify the entire dataset ignores this limit. Reviews include hoverable lines, joints, symmetry, and provisional parts."),
+            Field("Drawings per page / limited verification", _reviewLimit, "All drawings remain available across pages. Verify the entire dataset ignores this page size."),
+            Card(Stack(10, Text("Full analysis of this collection", 16, true),
+                Text("Run the existing church interpretation passes, looser annotation reads, shape/group candidates, and dependent opinions over already converted drawings. The source collection stays intact."),
+                _analyzeAll, _analysisRetry, Field("Drawings when not analyzing all", _analysisCount), Field("Parallel workers", _analysisWorkers),
+                Field("Analysis output (optional)", _analysisOutput, "Leave blank to use a resumable analysis folder beside the selected folder. Use a new folder after changing the analysis implementation."),
+                Buttons(JobButton("Full analysis → review", [PipelineAction.Analyze, PipelineAction.Review], true)))),
             Text("These small previews read the saved observation cache. Verify archives checks hashes and independently restores native evidence.", 12));
     }
 
@@ -182,7 +199,7 @@ internal sealed partial class MainWindow : Window
 
     private PipelineOptions Options(PipelineAction action, string run)
     {
-        var limit = action == PipelineAction.Catalog ? 1000 : action is PipelineAction.Review or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
+        var limit = action is PipelineAction.Catalog or PipelineAction.Review or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Analyze ? (int)_analysisCount.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
         var selected = _drawings.SelectedItem as DrawingRow;
         var target = action is PipelineAction.Convert or PipelineAction.Setup ? _dataset.Text?.Trim() ?? "" : InspectionPath;
         if ((action == PipelineAction.Probe || action == PipelineAction.Stages && _stageSelection.SelectedIndex == 0) && selected is not null)
@@ -190,11 +207,13 @@ internal sealed partial class MainWindow : Window
         long? sampleSeed = null;
         if (action == PipelineAction.Convert && !string.IsNullOrWhiteSpace(_samplingSeed.Text))
             sampleSeed = long.TryParse(_samplingSeed.Text, out var seed) ? seed : throw new ArgumentException("Sampling seed must be a whole number, or blank for random selection.");
+        if (action == PipelineAction.Review) run = Workspace.InspectorFolder(target);
         return new(_repository, _python.Text?.Trim() ?? "", _gojo.Text?.Trim() ?? "", _input.Text?.Trim() ?? "", target,
-            string.Join(',', _sourceCategories.Order(StringComparer.OrdinalIgnoreCase)), limit, action == PipelineAction.Verify ? _verifyAll.IsChecked == true : _all.IsChecked == true,
-            _recursive.IsChecked == true, _retry.IsChecked == true, (double)(_fit.Value ?? 6), (int)(_maxPoints.Value ?? 20000), (int)(_maxSpans.Value ?? 256),
+            string.Join(',', _sourceCategories.Order(StringComparer.OrdinalIgnoreCase)), limit, action == PipelineAction.Verify ? _verifyAll.IsChecked == true : action == PipelineAction.Analyze ? _analyzeAll.IsChecked == true : _all.IsChecked == true,
+            _recursive.IsChecked == true, action == PipelineAction.Analyze ? _analysisRetry.IsChecked == true : _retry.IsChecked == true, (double)(_fit.Value ?? 6), (int)(_maxPoints.Value ?? 20000), (int)(_maxSpans.Value ?? 256),
             action != PipelineAction.Stages || _stageSelection.SelectedIndex == 0 ? selected?.KeyId : null, run,
-            InspectionOrder, _inspectionSeed, sampleSeed);
+            InspectionOrder, _inspectionSeed, sampleSeed, _catalogOffset, (int)_analysisWorkers.Value!,
+            string.IsNullOrWhiteSpace(_analysisOutput.Text) ? null : _analysisOutput.Text.Trim());
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
@@ -222,6 +241,8 @@ internal sealed partial class MainWindow : Window
                 if (!result.Successful && !result.RetainedErrors)
                     throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Error) ? "The worker did not return a successful result. See run details." : result.Error.Trim());
                 retained |= result.RetainedErrors;
+                if (action == PipelineAction.Analyze && result.Data is { } analyzed && analyzed.TryGetProperty("output", out var analyzedPath))
+                    _dataset.Text = analyzedPath.GetString();
                 if (plan.Artifact is { } artifact && File.Exists(artifact))
                 {
                     _lastArtifact = artifact;
@@ -232,6 +253,7 @@ internal sealed partial class MainWindow : Window
             }
             if (retained) SetStatus("Finished with records to review", "Successful records were processed. Failed sources remain in the dataset's errors folder; see run details.", true);
             if (Directory.Exists(_dataset.Text)) await LoadCatalog(false);
+            SaveSettings();
         }
         catch (OperationCanceledException) { SetStatus("Stopped", "No additional operation was started."); }
         catch (Exception error) { SetStatus("Run needs attention", error.Message, true); AppendLog(error.ToString()); }
@@ -246,6 +268,7 @@ internal sealed partial class MainWindow : Window
     {
         PipelineAction.Convert => "Converting drawings…", PipelineAction.Verify => "Verifying native archives…",
         PipelineAction.Review => "Building the evidence review…", PipelineAction.Stages => "Generating drawing steps…",
+        PipelineAction.Analyze => "Analyzing converted drawings…",
         PipelineAction.Setup => "Checking local tools…", _ => "Comparing machine responses…"
     };
 
@@ -257,7 +280,8 @@ internal sealed partial class MainWindow : Window
         {
             PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings",
             PipelineAction.Verify => $"{Count("records")} drawings independently restored; artifact hashes checked.",
-            PipelineAction.Review => $"Visual review ready for {Count("drawings")} drawings. Use Open last result to inspect it.",
+            PipelineAction.Review => $"Visual review ready for {Count("drawings")} drawings across {Math.Max(1, Count("pages"))} page(s). Use Open last result to inspect it.",
+            PipelineAction.Analyze => $"{Count("converted")} analyzed · {Count("resumed")} reused · {Count("storedErrors")} retained errors. Source collection preserved.",
             PipelineAction.Stages => $"{Count("passes")} steps generated for {Count("drawings")} drawings." +
                 (data.TryGetProperty("warnings", out var warnings) && warnings.GetArrayLength() > 0 ? $" {warnings.GetArrayLength()} viewing-frame warning(s); inspect the review." : " Inspect the proposed interpretations in the review."),
             PipelineAction.Probe or PipelineAction.ExampleProbe => $"{(data.TryGetProperty("probes", out var probes) ? probes.GetArrayLength() : 0)} intervention groups compared. Open last result for the full response report. Equivalent responses remain tied.",
@@ -278,6 +302,15 @@ internal sealed partial class MainWindow : Window
             _probeSummary.Text = "No eligible placement or containment candidates were found for this drawing. The window example provides an authored control.";
             return;
         }
+        if (data.TryGetProperty("containmentMovement", out var movement))
+            foreach (var group in movement.EnumerateArray().Take(4))
+            {
+                var carried = group.GetProperty("moveContainer").GetProperty("movedParticipants").GetArrayLength() - 1;
+                _probeRows.Children.Add(Card(Stack(6, Text("Container movement default", 14, true),
+                    Text("Moving the selected child leaves its container fixed."),
+                    Text($"Moving the container carries {carried} contained part(s), each once."),
+                    Text("This is a revisable frame-coupling expectation. Existing gaps, containment discrepancy, or alternative parents remain available in the report.", 12))));
+            }
         foreach (var probe in probes.EnumerateArray().Take(12))
         {
             var content = Stack(6, Text(probe.GetProperty("id").GetString()?.Replace('-', ' ') ?? "Machine comparison", 14, true));
@@ -367,7 +400,7 @@ internal sealed partial class MainWindow : Window
         var text = (_log.Text ?? "") + line + Environment.NewLine;
         _log.Text = text.Length > 60000 ? text[^60000..] : text;
         _log.CaretIndex = _log.Text.Length;
-        if (_cancellation is not null && (line.StartsWith("Indexing ") || line.StartsWith("Category ") || line.Contains(" selected: ") || line.StartsWith("Resuming ")))
+        if (_cancellation is not null && (line.StartsWith("Analysis ") || line.StartsWith("Indexing ") || line.StartsWith("Category ") || line.Contains(" selected: ") || line.StartsWith("Resuming ")))
             _statusDetail.Text = line;
     });
 

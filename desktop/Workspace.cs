@@ -62,7 +62,7 @@ public sealed record DrawingRow(string ItemId, string KeyId, string Category, in
 }
 public sealed record FolderOption(string Label, string Path) { public override string ToString() => Label; }
 
-public sealed record Catalog(IReadOnlyList<DrawingRow> Drawings, int Stored, int Errors);
+public sealed record Catalog(IReadOnlyList<DrawingRow> Drawings, int Stored, int Errors, int Offset = 0, int PageSize = 50);
 public sealed record Preview(double[][][] Strokes, double[][][] Profiles);
 
 public static class Workspace
@@ -102,7 +102,9 @@ public static class Workspace
                 row.GetProperty("category").GetString()!, Count("strokes"), Count("samples"), Count("spans"),
                 row.GetProperty("evidencePath").GetString()!, "ok", row.GetProperty("datasetPath").GetString()!);
         }).ToArray();
-        return new(rows, data.GetProperty("storedRecords").GetInt32(), data.GetProperty("storedErrors").GetInt32());
+        return new(rows, data.GetProperty("storedRecords").GetInt32(), data.GetProperty("storedErrors").GetInt32(),
+            data.TryGetProperty("offset", out var offset) ? offset.GetInt32() : 0,
+            data.TryGetProperty("pageSize", out var size) ? size.GetInt32() : 50);
     }
 
     public static Preview ReadPreview(string dataset, DrawingRow row)
@@ -126,5 +128,25 @@ public static class Workspace
     {
         var path = Path.GetFullPath(dataset);
         return Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileName(path) + "-runs", DateTime.Now.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture));
+    }
+
+    public static string InspectorFolder(string dataset) => Path.Combine(Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar) + "-runs", "inspector");
+    public static string AnalysisFolder(string dataset) => Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar) + "-analysis";
+
+    public static (string Source, string Output) AnalysisPaths(string selected, string? output = null)
+    {
+        selected = Path.GetFullPath(selected);
+        if (!Directory.Exists(selected)) throw new ArgumentException("Choose an existing generated collection to analyze.");
+        var source = selected;
+        var destination = AnalysisFolder(selected);
+        var collection = Path.Combine(selected, "collection.json");
+        if (File.Exists(collection))
+        {
+            using var document = JsonDocument.Parse(File.ReadAllText(collection));
+            var root = document.RootElement;
+            if (root.TryGetProperty("kind", out var kind) && kind.GetString() == "derived-analysis" && root.TryGetProperty("baseline", out var baseline))
+            { source = baseline.GetString()!; destination = selected; }
+        }
+        return (Path.GetFullPath(source), Path.GetFullPath(output ?? destination));
     }
 }

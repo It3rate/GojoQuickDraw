@@ -122,3 +122,34 @@ should not be quietly removed as noise to improve a category score.
   Full curved enclosure, learned confidence, clustering changes, explicit transform
   machines, native bidirectional settlement, pre-numeric sampling, and physical priors
   remain future work.
+
+## Opinion-provider warm-up
+
+The first replaceable provider contract now exists in `gojo_quickdraw/opinions.py`.
+A request exposes selected finite profile controls, its frame, measured/expected
+comparisons, proposed geometry and earlier claim reads. A response supplies
+support and opposition on the existing ordinal ladder, a provider version and
+qualifications. A heuristic can be replaced by a small model or algorithm without
+turning identifiers or verbal category names into the source of native meaning.
+
+The derived analysis connects trace/traversal observations, contour/part groups,
+rectangle/triangle hypotheses, dependent corner expectations, limited separation,
+containment defaults and roof/wall attachment. Expected L corners consume the
+rectangle's actual expected sites. The resulting native bundle preserves contrary
+local evidence and common source causes. It does not yet train an arbiter, distribute
+belief through a recurrent network, or execute general geometric settlement.
+
+The seven existing church proposal states are also available over an entire converted
+collection. They remain disposable authored interpretation caches. Source acquisition
+and baseline archives do not change; native construction and independent output
+readback remain an on-demand operation. This keeps the inspection/training evidence
+contract separate from the cost and correctness of a particular synthesizer.
+
+The user's container rule is now an explicit default to investigate: a child edit
+can leave the parent fixed, while a parent placement carries contained participants.
+The counterfactual keeps each descendant's displacement single even if several
+containment routes reach it, and reports alternative parents and cyclical returns
+to the selected root. General cycle diagnosis remains incomplete. Fitting the
+container boundary to an explicitly anchored child is a different, qualified
+response route. None of these provisional responses establishes universal physical
+transport, object ownership, or a unique human construction process.

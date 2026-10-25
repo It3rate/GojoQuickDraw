@@ -17,7 +17,7 @@ public static class NativeRecord
     // evidence = native source annotations OR exact empty acquisition.
     public sealed record Read(string SourceOriginalJson, QuickDrawRecord Source,
         NativeAcquisition.Read Acquisition, QuickDrawAnnotationEvidence.Read? Annotation,
-        ContextEvidence.Read Context, Relation Surface);
+        ContextEvidence.Read Context, OpinionEvidence.Read? Opinions, Relation Surface);
 
     public static Relation Import(JsonElement packet)
     {
@@ -35,7 +35,8 @@ public static class NativeRecord
             if (!QuickDrawAnnotationEvidence.TryRead(evidence, out annotation)) throw new InvalidDataException("Source annotations are not readable.");
         }
         var context = ContextEvidence.Import(packet, evidence, annotation);
-        var result = G(EncodedTextSurface.Create(new Carrier(), original), evidence, context);
+        var result = packet.TryGetProperty("opinions", out _) ? G(EncodedTextSurface.Create(new Carrier(), original), evidence, context, OpinionEvidence.Import(packet, evidence, annotation))
+            : G(EncodedTextSurface.Create(new Carrier(), original), evidence, context);
         if (!TryRead(result, out _)) throw new InvalidDataException("Complete native record does not preserve source and contextual references.");
         return result;
     }
@@ -43,7 +44,7 @@ public static class NativeRecord
     public static bool TryRead(Relation root, out Read read)
     {
         read = null!;
-        if (!root.TryReadOrderedGroup(out var fields) || fields.Length != 3 ||
+        if (!root.TryReadOrderedGroup(out var fields) || fields.Length is not (3 or 4) ||
             !EncodedTextSurface.TryRead(fields[0], out var text) || fields[1] is not Relation evidence || fields[2] is not Relation context) return false;
         QuickDrawRecord source;
         try { source = QuickDrawRecord.Parse(text); } catch (Exception e) when (e is JsonException or InvalidDataException or FormatException or OverflowException) { return false; }
@@ -60,7 +61,9 @@ public static class NativeRecord
                 expected.Time?.Numerator != sample.TimeNumerator || expected.Time?.Denominator != sample.TimeDenominator) return false;
         }
         if (!ContextEvidence.TryRead(context, evidence, annotation, out var contextual)) return false;
-        read = new(text, source, acquisition, annotation, contextual, root); return true;
+        OpinionEvidence.Read? opinions = null;
+        if (fields.Length == 4 && (fields[3] is not Relation opinionRoot || !OpinionEvidence.TryRead(opinionRoot, evidence, annotation, out opinions))) return false;
+        read = new(text, source, acquisition, annotation, contextual, opinions, root); return true;
     }
 
     public static string Capture(string itemKey, Relation root) => GojoStructureCompactJson.Serialize(GojoStructureCompactJson.FromElement(itemKey, root));
@@ -96,6 +99,9 @@ public static class NativeRecord
             candidateScaffoldPoints = read.Context.All.Sum(candidate => candidate.Points.Length),
             candidateScaffoldSegments = read.Context.All.Sum(candidate => candidate.Segments.Length),
             boundComparisonReads = read.Context.All.Sum(candidate => candidate.Comparisons.Length),
+            opinionClaims = read.Opinions?.Claims.Length ?? 0,
+            opinionDependencyLinks = read.Opinions?.Claims.Sum(c => c.Dependencies.Length) ?? 0,
+            opinionExpectedSites = read.Opinions?.Claims.Sum(c => c.Sites.Length) ?? 0,
             nativeRestoreVerified = true, actualSourceAliasesVerified = true,
             sourceOrderRetained = true, sourceNumericTokensRetained = true,
             contextualHypothesesAreObservedGeometry = false, synthesizedVariantsSaved = false,

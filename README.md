@@ -45,7 +45,8 @@ steps, machine probes, progress details, and a Stop button.
 The sample count is a total spread across the selected categories. Generation saves
 one dataset per category folder. Inspection discovers actual generated folders and
 supports category/source order, most recent, and random selection. Existing single
-datasets remain readable. See the [desktop guide](docs/desktop.md).
+datasets remain readable. The Evidence tab pages through every record and has
+**Full analysis → review** for an existing collection. See the [desktop guide](docs/desktop.md).
 
 Open `GojoQuickDraw.slnx` in Visual Studio and set `GojoQuickDraw.Desktop` as the
 startup project to run the UI there. The solution includes the desktop app and
@@ -114,6 +115,48 @@ line/joint/symmetry annotations, and optional proposed parts and ground. Select 
 annotation to inspect its supporting intervals. Seeded proposals are visibly qualified;
 they are never silently painted into the acquired drawing.
 
+The `review --limit` value is now **drawings per page**, not a collection cutoff.
+Every successful record is accessible through First/Previous/Next/Last and a page
+selector. Only one page's records are embedded in each offline document. Use
+`--sample-only` for the older single-page limited sample. The desktop reuses
+`<selected-folder>-runs/inspector/evidence.html` instead of creating a new review
+entry for every run. Copy its adjacent `evidence-pages` folder when sharing it.
+
+## Analyze already converted drawings
+
+```powershell
+python -m gojo_quickdraw analyze --dataset D:/_quickDraw/gojo-quickdraw-evidence/church1000 --output D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis --workers 4
+python -m gojo_quickdraw review --dataset D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis --output D:/_quickDraw/church1000-analysis-review/evidence.html --limit 50
+```
+
+This reads every successful converted record, recursively, without reopening or
+sampling the raw library. Add `--limit N` for a smaller pilot. Outputs retain
+category subfolders and native source-linked opinion archives. Identical completed
+items resume after hash checks; interruptions preserve completed records, and
+`--retry-errors` retries retained failures. Work is bounded to 1–8 workers and a
+small queue. Use a new output folder after changing the analysis implementation.
+
+The pass runs all three source-annotation tolerances and, for churches, the existing
+seven authored interpretation proposals: continuity, primitive fitting, relational
+regularization, joint convergence, later regularization, and view-aware synthesis.
+Other categories get generic evidence without a borrowed church template. The
+inspector's **Read** selector compares these proposals and the source annotations.
+Proposal previews are explicitly separate from executed native construction rungs;
+**Drawing steps** still performs that independent native execution on demand.
+
+Additional opinions include trace and traversal reads, contour/part grouping,
+rectangle/triangle candidates, dependent corner/join expectations, separate part
+instances, roof/wall attachment, and a revisable container-carry default. Algorithms,
+heuristics, and later small models use one request/response contract. Model requests
+receive finite profile controls, comparisons, expected geometry, earlier claims and
+their frame; reference IDs are correspondence, not training features. These are
+unlearned hypotheses with separate support/opposition, not a trained arbiter.
+
+Ordered endpoints are explicit on every finite segment/curve. Enable **Start / end
+and direction** for markers and arrows; selecting a fitted line exposes its source
+sample interval and endpoint times when available. Raw XYT records retain point
+time; simplified XY records do not acquire synthetic timing.
+
 ```powershell
 python -m gojo_quickdraw stages --dataset D:/_quickDraw/church-evidence-v1 --key-id SOURCE_KEY --output D:/_quickDraw/church-stages-v1
 python -m gojo_quickdraw probe --dataset D:/_quickDraw/church-evidence-v1 --key-id SOURCE_KEY --output D:/_quickDraw/church-probe-v1.json
@@ -142,6 +185,8 @@ adapter experiments, not native tension settlement or evidence of actual object 
 | Native storage | Independently restorable connected Gojo structure, exact acquisition, source witnesses, provisional scaffolds, open slots, and relative-bound observations. |
 | Interpretation | Existing authored church stages, generated only on request, with source correspondence and diagnostics. |
 | Machine interventions | Non-mutating, explicitly conditioned geometry probes with alternative responses and unresolved ties. |
+| Full collection analysis | Resumable category outputs, all annotation modes, authored church proposal states, and source-linked native opinion bundles. |
+| Dependent opinions | Earlier claims and actual expected-site references, ordinal support/opposition, provenance and bounded capacity. No learned arbitration. |
 
 Some contextual meanings remain verbal proposals in provenance. A `window` label or
 `gravity` description does not implement its law. Bounding-frame clearance does not
@@ -154,7 +199,7 @@ that condition instead of promoting a successful execution to conceptual correct
 Review generated interpretations before using them as supervision.
 
 See [storage and evidence](docs/storage.md), [design and training direction](docs/design.md),
-and [verification](docs/verification.md). The bundled examples are authored controls;
+the root [evidence inventory](EVIDENCE_INVENTORY.md), and [verification](docs/verification.md). The bundled examples are authored controls;
 real QuickDraw data and large generated datasets stay outside this repository.
 
 ## Verify changes

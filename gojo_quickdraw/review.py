@@ -6,18 +6,25 @@ Observed profiles and seeded expectations have separate visual treatments.
 from __future__ import annotations
 
 import json
+import hashlib
+import os
 from pathlib import Path
+from urllib.parse import quote
 
 
-def build(dataset: Path, output: Path, limit: int = 50, *, order="category", seed=0) -> dict:
+def build(dataset: Path, output: Path, limit: int = 50, *, order="category", seed=0,
+          paged=False, offset=0, pagination=None) -> dict:
     """Embed a bounded sample of cached records in one offline HTML document."""
     from .dataset import load_records
 
     if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1:
         raise ValueError("Review limit must be a positive integer")
     dataset, output = Path(dataset).resolve(), Path(output).resolve()
+    if paged:
+        return _pages(dataset, output, limit, order, seed)
     records = [{"index": row, "packet": packet}
-               for row, packet in load_records(dataset, limit=limit, order=order, seed=seed)]
+               for row, packet in load_records(dataset, limit=limit, order=order, seed=seed,
+                                                **({"offset": offset} if offset else {}))]
     if not records:
         raise ValueError("No successfully encoded drawings to review")
     if output.exists() and output.is_dir():
@@ -34,13 +41,45 @@ def build(dataset: Path, output: Path, limit: int = 50, *, order="category", see
     if output.suffix.lower() not in (".html", ".htm"):
         raise ValueError("Review output must have an .html or .htm extension")
     data = {"schema": "gojo.quickdraw-dataset-review.v1", "records": records,
+            "pagination": pagination,
             "qualification": "Fitted profiles and measured annotation reads are shown beside explicitly seeded hypotheses. Proximity and equal coordinates do not establish shared native identity."}
     encoded = json.dumps(data, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
     encoded = encoded.replace("<", "\\u003c").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(_HTML.replace("__DATA__", encoded), encoding="utf-8")
+    temporary = output.with_suffix(output.suffix + ".tmp")
+    temporary.write_text(_HTML.replace("__DATA__", encoded), encoding="utf-8")
+    temporary.replace(output)
     return {"drawings": len(records), "output": str(output), "htmlBytes": output.stat().st_size,
             "portable": True, "externalRequests": 0}
+
+
+def _pages(dataset, output, size, order, seed):
+    """Publish small offline documents; the entry page changes only after all exist."""
+    from .selection import catalog, datasets
+    if output.suffix.lower() not in (".html", ".htm"):
+        raise ValueError("Review output must have an .html or .htm extension")
+    selected = catalog(dataset, 1, order=order, seed=seed)
+    total = selected["storedRecords"]
+    if not total:
+        raise ValueError("No successfully encoded drawings to review")
+    stamps = [(str(folder), (folder / "index.ndjson").stat().st_size,
+               (folder / "index.ndjson").stat().st_mtime_ns) for folder, _ in datasets(dataset)]
+    identity = hashlib.sha256(json.dumps([stamps, size, order, seed]).encode()).hexdigest()[:16]
+    directory = output.parent / (output.stem + "-pages") / identity
+    count = (total + size - 1) // size
+    paths = [output] + [directory / f"page-{i+1:05}.html" for i in range(1, count)]
+    bytes_written = 0
+    # The existing entry remains usable if a later page fails or work is stopped.
+    for number in [*range(1, count), 0]:
+        path = paths[number]
+        pages = [quote(os.path.relpath(target, path.parent).replace(os.sep, "/"), safe="/.-_") for target in paths]
+        nav = {"page": number + 1, "pageSize": size, "pages": pages, "total": total,
+               "start": number * size + 1, "end": min(total, (number + 1) * size),
+               "order": order, "seed": seed}
+        result = build(dataset, path, size, order=order, seed=seed, offset=number * size, pagination=nav)
+        bytes_written += result["htmlBytes"]
+    return {"drawings": total, "pages": count, "pageSize": size, "output": str(output),
+            "htmlBytes": bytes_written, "portable": True, "externalRequests": 0}
 
 
 _HTML = r'''<!doctype html>
@@ -52,13 +91,15 @@ _HTML = r'''<!doctype html>
 <header><div class="subtle">GOJO / QUICKDRAW</div><h1>From ink to evidence</h1>
 <p class="subtle">Inspect the acquired drawing, fitted intervals, measured relationships, and explicitly seeded expectations.</p>
 <div class="toolbar"><button id="prev" aria-label="Previous drawing">←</button><select id="drawing" aria-label="Drawing"></select><button id="next" aria-label="Next drawing">→</button><span id="position" class="subtle"></span></div>
+<div class="toolbar" id="pageControls" hidden><button id="firstPage">First page</button><button id="prevPage">Previous page</button><label>Page <select id="page" aria-label="Page"></select></label><button id="nextPage">Next page</button><button id="lastPage">Last page</button><span id="pageSummary" class="subtle"></span></div>
+<div class="toolbar"><label>Read <select id="readMode" aria-label="Evidence view"><option value="observed-fit">Fitted source</option></select></label><label><input type="checkbox" id="directionLayer"> Start / end and direction</label><span id="modeNote" class="subtle"></span></div>
 <div class="layers"><label><input type="checkbox" id="rawOverlay"> Ink under fit</label><label><input type="checkbox" id="jointLayer" checked> Joints</label><label><input type="checkbox" id="mirrorLayer"> Symmetry</label><label><input type="checkbox" id="seedLayer"> Seeded shapes</label><label><input type="checkbox" id="orderColor"> Stroke colors</label><label>Draw order <input id="strokeLimit" type="range" min="1" value="1"><span id="strokeValue"></span></label></div>
 </header>
 <main><div class="legend"><span><i class="dot" style="background:#9ca9a4"></i>Acquired ink</span><span><i class="dot" style="background:var(--green)"></i>Fitted source</span><span><i class="dot" style="background:var(--joint)"></i>Joint candidate</span><span><i class="dot" style="background:var(--mirror)"></i>Reflection read</span><span><i class="dot" style="background:var(--seed)"></i>Seeded expectation · dashed</span></div>
 <div class="layout"><section class="card"><div class="cardhead"><h2>Original drawing</h2></div><svg id="raw" viewBox="0 0 512 512" role="img" aria-label="Acquired strokes in drawing order"></svg><div id="sourceStats" class="summary"></div></section>
-<section class="card"><div class="cardhead"><h2>Fitted evidence and hypotheses</h2></div><svg id="fit" viewBox="0 0 512 512" role="img" aria-label="Fitted evidence with selectable annotations"></svg><div id="fitStats" class="summary"></div></section>
+<section class="card"><div class="cardhead"><h2 id="fitTitle">Fitted evidence and hypotheses</h2></div><svg id="fit" viewBox="0 0 512 512" role="img" aria-label="Fitted evidence with selectable annotations"></svg><div id="fitStats" class="summary"></div></section>
 <aside class="card detail" id="detail" aria-live="polite"></aside></div>
-<section class="card listcard"><div class="cardhead listhead"><h2>Evidence and open questions</h2><select id="filter" aria-label="Evidence kind"><option value="all">All evidence</option><option value="lines">Lines and arcs</option><option value="joints">Joints</option><option value="symmetries">Symmetry</option><option value="relations">Other measured relations</option><option value="parts">Part hypotheses</option><option value="contextRelations">Containment and part relations</option><option value="assumptions">Open assumptions</option><option value="views">View candidates</option></select></div><div id="list" class="evidence-list"></div></section>
+<section class="card listcard"><div class="cardhead listhead"><h2>Evidence and open questions</h2><select id="filter" aria-label="Evidence kind"><option value="all">All evidence</option><option value="lines">Lines and arcs</option><option value="joints">Joints</option><option value="symmetries">Symmetry</option><option value="relations">Other measured relations</option><option value="parts">Part hypotheses</option><option value="contextRelations">Containment and part relations</option><option value="claims">Dependent opinions / object groups</option><option value="proposals">Current interpretation profiles</option><option value="assumptions">Open assumptions</option><option value="views">View candidates</option></select></div><div id="list" class="evidence-list"></div></section>
 <div class="bottom"><span id="counts" class="subtle"></span><div><button id="download">Download evidence JSON</button> <button id="downloadSource">Download original JSON</button></div></div>
 <p class="qualify">Measured proximity, crossing, closure, and symmetry are candidate reads of the fitted source. They do not merge acquisition identities. Dashed constructions are seeded expectations, including proposed hidden support; they are never additional observed ink. View, gravity, scale, and part labels can remain unresolved. Later interpretation stages are generated separately, on demand.</p>
 </main>
@@ -66,32 +107,58 @@ _HTML = r'''<!doctype html>
 <script>
 'use strict';
 const DATA=JSON.parse(document.getElementById('dataset').textContent), NS='http://www.w3.org/2000/svg', $=id=>document.getElementById(id);
+const PAGING=DATA.pagination;
+function goPage(i){if(PAGING&&i>=0&&i<PAGING.pages.length)location.href=PAGING.pages[i]}
+if(PAGING){$('pageControls').hidden=false;$('pageControls').style.display='flex';PAGING.pages.forEach((_,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(i+1)+' of '+PAGING.pages.length;$('page').append(o)});$('page').value=String(PAGING.page-1);$('page').onchange=()=>goPage(Number($('page').value));$('firstPage').onclick=()=>goPage(0);$('prevPage').onclick=()=>goPage(PAGING.page-2);$('nextPage').onclick=()=>goPage(PAGING.page);$('lastPage').onclick=()=>goPage(PAGING.pages.length-1);$('firstPage').disabled=$('prevPage').disabled=PAGING.page===1;$('lastPage').disabled=$('nextPage').disabled=PAGING.page===PAGING.pages.length;$('pageSummary').textContent=`Drawings ${PAGING.start}–${PAGING.end} of ${PAGING.total} · ${PAGING.pageSize} per page`}
+else $('pageControls').style.display='none';
 let index=0, selected=null, entries=[];
-const COLORS={lines:'#287b6f',joints:'#8864b5',symmetries:'#b54d83',relations:'#4a86a7',parts:'#b26a26',contextRelations:'#b26a26',assumptions:'#b26a26',views:'#b26a26'};
+const COLORS={lines:'#287b6f',joints:'#8864b5',symmetries:'#b54d83',relations:'#4a86a7',parts:'#b26a26',contextRelations:'#b26a26',assumptions:'#b26a26',views:'#b26a26',claims:'#526fb1',proposals:'#b26a26'};
 function node(tag,attrs={},parent=null){const n=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))n.setAttribute(k,String(v));if(parent)parent.append(n);return n}
 function text(parent,tag,value,cls=''){const n=document.createElement(tag);n.textContent=value;if(cls)n.className=cls;parent.append(n);return n}
 function pointAt(c,t){let a=c.map(p=>[...p]);while(a.length>1)a=a.slice(1).map((p,i)=>p.map((v,k)=>v*t+a[i][k]*(1-t)));return a[0]}
 function curve(c){if(!c.length)return '';const start=`M${c[0].join(' ')}`;if(c.length===2)return `${start} L${c[1].join(' ')}`;if(c.length===3)return `${start} Q${c.slice(1).flat().join(' ')}`;if(c.length===4)return `${start} C${c.slice(1).flat().join(' ')}`;return start+' '+Array.from({length:32},(_,i)=>'L'+pointAt(c,(i+1)/32).join(' ')).join(' ')}
 function packet(){return DATA.records[index].packet}
-function annotation(p){const a=p.annotations||{};if(a.lines)return a;if(a['observed-fit'])return a['observed-fit'];return Object.values(a).find(v=>v&&v.lines)||{}}
+function annotation(p){const mode=$('readMode').value,a=p.analysis?.annotationModes?.[mode]||p.annotations||{};if(a.lines)return a;if(a['observed-fit'])return a['observed-fit'];return Object.values(a).find(v=>v&&v.lines)||{}}
+function proposalStep(){const mode=$('readMode').value;return mode.startsWith('step:')?packet().analysis?.proposal?.steps?.[Number(mode.slice(5))]:null}
+function modes(){const previous=$('readMode').value,select=$('readMode');select.replaceChildren();const choices=[['observed-fit','Fitted source']];if(packet().analysis){choices.push(['gentle-priors','Looser source relations'],['stronger-priors','Strong interpretive relations']);(packet().analysis.proposal?.steps||[]).forEach((s,i)=>choices.push(['step:'+i,`Step ${i+1}: ${s.title}`]))}for(const [value,title]of choices){const o=text(select,'option',title);o.value=value}select.value=choices.some(c=>c[0]===previous)?previous:'observed-fit'}
 function label(e){return e.row.label||e.row.kind||e.row.id||e.group}
 function spansOf(e){return e.row.spans||e.row.sourceSpanIds||[]}
-function seeded(e){return ['parts','contextRelations','assumptions','views'].includes(e.group)}
-function gather(){const p=packet(),a=annotation(p),ctx=p.context||{};entries=[];for(const g of ['lines','joints','symmetries','relations'])for(const row of a[g]||[])entries.push({group:g,row});for(const g of ['parts','assumptions','views'])for(const row of ctx[g]||[])entries.push({group:g,row});for(const row of ctx.relations||[])entries.push({group:'contextRelations',row});entries.forEach((e,i)=>e.key=String(i))}
+function seeded(e){return ['parts','contextRelations','assumptions','views','proposals'].includes(e.group)||(e.group==='claims'&&e.row.context!=='observations')}
+function gather(){const p=packet(),a=annotation(p),ctx=p.context||{};entries=[];for(const g of ['lines','joints','symmetries','relations'])for(const row of a[g]||[])entries.push({group:g,row});for(const g of ['parts','assumptions','views'])for(const row of ctx[g]||[])entries.push({group:g,row});for(const row of ctx.relations||[])entries.push({group:'contextRelations',row});for(const row of p.opinions?.claims||[])entries.push({group:'claims',row});for(const row of proposalStep()?.edges||[])entries.push({group:'proposals',row:{...row,label:row.primitive?.name||row.id,qualification:'Cached authored proposal, not an executed native rung. Use Drawing steps for native replay.'}});entries.forEach((e,i)=>e.key=String(i))}
 function supportCenter(e){if(Array.isArray(e.row.point))return e.row.point;if(e.row.bounds){const b=e.row.bounds;return [(b[0]+b[2])/2,(b[1]+b[3])/2]}const spans=packet().observation.spans.filter(s=>spansOf(e).includes(s.id));if(spans.length){const ps=spans.map(s=>pointAt(s.controls,.5));return [0,1].map(j=>ps.reduce((s,p)=>s+p[j],0)/ps.length)}return null}
 function bind(n,e){n.style.cursor='pointer';n.setAttribute('tabindex','0');n.setAttribute('role','button');n.setAttribute('aria-label',(seeded(e)?'Seeded: ':'Measured: ')+label(e));const title=node('title',{},n);title.textContent=label(e)+' · '+(e.row.qualification||e.row.status||e.group);n.addEventListener('click',()=>choose(e));n.addEventListener('mouseenter',()=>detail(e));n.addEventListener('focus',()=>detail(e));n.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();choose(e)}})}
 function currentSpans(){const max=Number($('strokeLimit').value);return packet().observation.spans.filter(s=>s.strokeIndex<max)}
 function visible(e){const ids=new Set(currentSpans().map(s=>s.id));return spansOf(e).every(id=>ids.has(id))}
 function drawInk(svg,opacity=1){const max=Number($('strokeLimit').value);for(const s of packet().observation.strokes.filter(s=>s.index<max)){const color=$('orderColor').checked?`hsl(${s.index*61%360} 45% 44%)`:'#9ca9a4';node('polyline',{'data-stroke':s.id,points:s.points.map(p=>p.join(',')).join(' '),fill:'none',stroke:color,'stroke-width':2.3,'stroke-linecap':'round','stroke-linejoin':'round',opacity},svg)}}
 function drawEntry(svg,e,active=false){const color=COLORS[e.group],group=node('g',{'data-entry':e.key},svg),r=e.row,seed=seeded(e);if(r.axis&&r.axis.from&&r.axis.to)node('line',{x1:r.axis.from[0],y1:r.axis.from[1],x2:r.axis.to[0],y2:r.axis.to[1],stroke:color,'stroke-width':active?2:1.2,'stroke-dasharray':'6 5'},group);const geo=r.geometry;if(seed&&geo&&Array.isArray(geo.points)){for(const pair of geo.segments||[])if(geo.points[pair[0]]&&geo.points[pair[1]])node('line',{x1:geo.points[pair[0]][0],y1:geo.points[pair[0]][1],x2:geo.points[pair[1]][0],y2:geo.points[pair[1]][1],stroke:color,'stroke-width':active?2.5:1.5,'stroke-dasharray':'6 4'},group)}else if(seed&&r.bounds){const b=r.bounds;node('rect',{x:b[0],y:b[1],width:Math.max(0,b[2]-b[0]),height:Math.max(0,b[3]-b[1]),fill:'none',stroke:color,'stroke-width':1.5,'stroke-dasharray':'6 4'},group)}const p=supportCenter(e);if(p){node(seed?'rect':'circle',seed?{x:p[0]-4,y:p[1]-4,width:8,height:8,fill:'white',stroke:color,'stroke-width':2}:{cx:p[0],cy:p[1],r:active?6:4,fill:'white',stroke:color,'stroke-width':2},group);if(e.group==='joints'){const t=node('text',{x:p[0]+7,y:p[1]-6,fill:color,'font-size':11,'paint-order':'stroke',stroke:'white','stroke-width':3},group);t.textContent=r.label}}bind(group,e)}
-function render(){const raw=$('raw'),fit=$('fit');raw.replaceChildren();fit.replaceChildren();drawInk(raw);if($('rawOverlay').checked)drawInk(fit,.24);const p=packet(),active=selected?new Set(spansOf(selected)):new Set();for(const s of currentSpans()){if(active.has(s.id))node('path',{d:curve(s.controls),fill:'none',stroke:'#ecc56a','stroke-width':9,'stroke-linecap':'round',opacity:.65},fit);const n=node('path',{'data-span':s.id,d:curve(s.controls),fill:'none',stroke:$('orderColor').checked?`hsl(${s.strokeIndex*61%360} 45% 40%)`:'#287b6f','stroke-width':2.6,'stroke-linecap':'round'},fit);const e=entries.find(e=>e.group==='lines'&&spansOf(e).includes(s.id));if(e)bind(n,e)}for(const e of entries){if(!visible(e))continue;const show=(e.group==='joints'&&$('jointLayer').checked)||(e.group==='symmetries'&&$('mirrorLayer').checked)||(seeded(e)&&$('seedLayer').checked&&e.group!=='views');if(show||selected===e)drawEntry(fit,e,selected===e)}$('strokeValue').textContent=`${$('strokeLimit').value}/${p.observation.strokes.length}`;list();if(selected)detail(selected)}
+function direction(svg,c){if(!c.length)return;const a=c[0],b=c[c.length-1],p=pointAt(c,.48),q=pointAt(c,.57),theta=Math.atan2(q[1]-p[1],q[0]-p[0]);node('circle',{cx:a[0],cy:a[1],r:3.4,fill:'#238b61',stroke:'white','stroke-width':1},svg);node('rect',{x:b[0]-3,y:b[1]-3,width:6,height:6,fill:'#bf5b36',stroke:'white','stroke-width':1},svg);if(Math.hypot(q[0]-p[0],q[1]-p[1])>.01){const points=[q,[q[0]-7*Math.cos(theta-.5),q[1]-7*Math.sin(theta-.5)],[q[0]-7*Math.cos(theta+.5),q[1]-7*Math.sin(theta+.5)]];node('polygon',{points:points.map(p=>p.join(',')).join(' '),fill:'#365e7e'},svg)}}
+function render(){
+ const raw=$('raw'),fit=$('fit');raw.replaceChildren();fit.replaceChildren();drawInk(raw);if($('rawOverlay').checked)drawInk(fit,.24);
+ const p=packet(),active=selected?new Set(spansOf(selected)):new Set(),step=proposalStep();
+ if(step){for(const e of step.residueEdges||[])node('path',{d:curve(e.controls),fill:'none',stroke:'#9ca9a4','stroke-width':1.5,opacity:.35},fit);
+  for(const e of entries.filter(e=>e.group==='proposals'&&visible(e))){const c=e.row.controls,highlight=spansOf(e).some(id=>active.has(id));if(highlight)node('path',{d:curve(c),fill:'none',stroke:'#ecc56a','stroke-width':9,opacity:.65},fit);const n=node('path',{'data-proposal':e.row.id,d:curve(c),fill:'none',stroke:'#287b6f','stroke-width':2.6,'stroke-linecap':'round'},fit);bind(n,e);if($('directionLayer').checked)direction(fit,c)}
+ }else{for(const s of currentSpans()){if(active.has(s.id))node('path',{d:curve(s.controls),fill:'none',stroke:'#ecc56a','stroke-width':9,'stroke-linecap':'round',opacity:.65},fit);const n=node('path',{'data-span':s.id,d:curve(s.controls),fill:'none',stroke:$('orderColor').checked?`hsl(${s.strokeIndex*61%360} 45% 40%)`:'#287b6f','stroke-width':2.6,'stroke-linecap':'round'},fit);const e=entries.find(e=>e.group==='lines'&&spansOf(e).includes(s.id));if(e)bind(n,e);if($('directionLayer').checked)direction(fit,s.controls)}}
+ for(const e of entries){if(!visible(e))continue;const show=!step&&((e.group==='joints'&&$('jointLayer').checked)||(e.group==='symmetries'&&$('mirrorLayer').checked)||(seeded(e)&&$('seedLayer').checked&&e.group!=='views'&&e.group!=='claims'));if(show||selected===e&&e.group!=='proposals')drawEntry(fit,e,selected===e)}
+ $('fitTitle').textContent=step?'Interpretation proposal':'Fitted evidence and hypotheses';
+ const warning=step&&(p.analysis?.warnings||[]).some(w=>w.stepId===step.id);
+ $('modeNote').textContent=step?'Authored proposal preview · source annotations retain their original basis'+(warning?' · some curves extend outside the frame':''):$('directionLayer').checked?'Green circle = start · orange square = end · arrow = traversal':'';
+ $('fitStats').textContent=step?`${step.edges.length} proposed profiles · ${step.title} · native replay on demand`:p.observation.spans.length+' fitted intervals · '+(annotation(p).mode||'observed-fit');
+ $('strokeValue').textContent=`${$('strokeLimit').value}/${p.observation.strokes.length}`;list();if(selected)detail(selected)
+}
 function readable(value){if(value===null)return 'Unresolved';if(typeof value==='number')return Number.isInteger(value)?String(value):String(Number(value.toFixed(4)));if(typeof value==='object')return JSON.stringify(value);return String(value)}
-function detail(e){const box=$('detail');box.replaceChildren();const seed=seeded(e);text(box,'span',seed?'Seeded / provisional':'Measured source read','badge'+(seed?' seed':''));text(box,'h3',label(e),'details-title');text(box,'p',e.row.qualification|| (seed?'An authored expectation connected to source support; it is not newly observed geometry.':'A tolerance read of the acquired profiles; no source geometry is changed.'),'subtle');if(e.row.status)text(box,'p',e.row.status,'subtle');const support=spansOf(e);text(box,'p',support.length+' supporting interval'+(support.length===1?'':'s'),'subtle');for(const [name,values]of [['Measured',e.row.measured],['Expected',e.row.expected],['Thresholds',e.row.thresholds]]){if(!values||!Object.keys(values).length)continue;text(box,'h4',name);for(const [k,v]of Object.entries(values)){const item=text(box,'div','','metric');text(item,'strong',k.replace(/([a-z])([A-Z])/g,'$1 $2')+': ');text(item,'span',readable(v),'value')}}if(e.row.observedSharedSite!==undefined)text(box,'p',e.row.observedSharedSite?'A shared source sample is recorded.':'Separate source sites: this candidate does not establish contact.','subtle');if(e.row.residue&&e.row.residue.length){text(box,'h4','Still unresolved');for(const r of e.row.residue)text(box,'p',readable(r),'subtle')}const full=document.createElement('details');box.append(full);text(full,'summary','Complete evidence record');text(full,'pre',JSON.stringify(e.row,null,2))}
+function detail(e){
+ const box=$('detail');box.replaceChildren();const seed=seeded(e);text(box,'span',seed?'Seeded / provisional':'Measured source read','badge'+(seed?' seed':''));text(box,'h3',label(e),'details-title');text(box,'p',e.row.qualification||(seed?'An authored expectation connected to source support; it is not newly observed geometry.':'A tolerance read of the acquired profiles; no source geometry is changed.'),'subtle');if(e.row.status)text(box,'p',e.row.status,'subtle');text(box,'p',spansOf(e).length+' supporting intervals','subtle');
+ if(e.row.meaning)text(box,'p',e.row.meaning);
+ if(e.group==='claims'){text(box,'p',`Support: ${e.row.support} · opposition: ${e.row.opposition}`);text(box,'p',`Context: ${e.row.context} · provider: ${e.row.provider}`,'subtle');if(e.row.dependencies?.length){text(box,'h4','Earlier claim dependencies');for(const id of e.row.dependencies){const dep=entries.find(v=>v.group==='claims'&&v.row.id===id);const b=text(box,'button',dep?label(dep):id);if(dep)b.onclick=()=>choose(dep)}}}
+ if(e.group==='lines'){const r=e.row.sourceRange,c=e.row.controls;text(box,'h4','Ordered endpoints');if(c){text(box,'p','Start (t=0): '+readable(c[0]));text(box,'p','End (t=1): '+readable(c[c.length-1]))}if(r){text(box,'p',`Stroke ${r.strokeIndex}, samples ${r.startIndex} → ${r.endIndex}`,'subtle');const t=packet().observation.strokes.find(s=>s.index===r.strokeIndex)?.times;text(box,'p',t?`Source time: ${t[r.startIndex]} → ${t[r.endIndex]}`:'Point timing was not supplied for this source.','subtle')}}
+ for(const [name,values]of [['Measured',e.row.measured],['Expected',e.row.expected],['Thresholds',e.row.thresholds],['Comparisons',e.row.comparisons]]){if(!values||!Object.keys(values).length)continue;text(box,'h4',name);for(const [k,v]of Object.entries(values)){const item=text(box,'div','','metric');text(item,'strong',k.replace(/([a-z])([A-Z])/g,'$1 $2')+': ');text(item,'span',readable(v),'value')}}
+ if(e.row.observedSharedSite!==undefined)text(box,'p',e.row.observedSharedSite?'A shared source sample is recorded.':'Separate source sites: this candidate does not establish contact.','subtle');if(e.row.residue&&e.row.residue.length){text(box,'h4','Still unresolved');for(const r of e.row.residue)text(box,'p',readable(r),'subtle')}const full=document.createElement('details');box.append(full);text(full,'summary','Complete evidence record');text(full,'pre',JSON.stringify(e.row,null,2))
+}
 function welcome(){const box=$('detail');box.replaceChildren();text(box,'span','Inspect this drawing','badge');text(box,'h3','Select a line, joint, or hypothesis','details-title');text(box,'p','Hover to preview its evidence. Click to keep its supporting intervals highlighted. The list also includes hypotheses that have no drawn location.','subtle');text(box,'p','Dashed outlines are seeded expectations. Original strokes and their acquired order remain available on the left.','subtle');const c=packet().context||{};text(box,'p',c.qualification||'No category or physics claim follows from a fitted line alone.','subtle')}
 function choose(e){selected=e;render();detail(e)}
 function list(){const host=$('list'),filter=$('filter').value;host.replaceChildren();const chosen=entries.filter(e=>(filter==='all'||e.group===filter)&&visible(e));for(const e of chosen){const b=text(host,'button','',selected===e?'active':'');b.dataset.evidence=e.key;text(b,'div',label(e));text(b,'div',(seeded(e)?'Seeded · ':'Measured · ')+e.group+' · '+spansOf(e).length+' intervals','tiny');b.addEventListener('click',()=>choose(e));b.addEventListener('mouseenter',()=>detail(e))}if(!chosen.length)text(host,'p','No records in this view.','subtle');$('counts').textContent=`${entries.length} evidence records · ${chosen.length} shown · offline review`}
-function selectDrawing(i){index=(i+DATA.records.length)%DATA.records.length;selected=null;$('drawing').value=String(index);const r=DATA.records[index],p=r.packet;gather();$('strokeLimit').min=p.observation.strokes.length?'1':'0';$('strokeLimit').max=String(p.observation.strokes.length);$('strokeLimit').value=String(p.observation.strokes.length);$('strokeLimit').disabled=!p.observation.strokes.length;$('sourceStats').textContent=p.observation.strokes.length+' strokes · '+p.observation.strokes.reduce((n,s)=>n+s.points.length,0)+' acquired samples · source order retained';$('fitStats').textContent=p.observation.spans.length+' fitted intervals · '+(annotation(p).mode||'observed-fit');$('position').textContent=(index+1)+' of '+DATA.records.length;$('prev').disabled=DATA.records.length<2;$('next').disabled=DATA.records.length<2;history.replaceState(null,'','#'+encodeURIComponent(r.index.itemId));render();welcome()}
+function selectDrawing(i){index=(i+DATA.records.length)%DATA.records.length;selected=null;$('drawing').value=String(index);const r=DATA.records[index],p=r.packet;modes();gather();$('strokeLimit').min=p.observation.strokes.length?'1':'0';$('strokeLimit').max=String(p.observation.strokes.length);$('strokeLimit').value=String(p.observation.strokes.length);$('strokeLimit').disabled=!p.observation.strokes.length;$('sourceStats').textContent=p.observation.strokes.length+' strokes · '+p.observation.strokes.reduce((n,s)=>n+s.points.length,0)+' acquired samples · '+(p.observation.strokes.some(s=>s.times)?'point times retained':'no point timing supplied');$('position').textContent=(PAGING?PAGING.start+index:index+1)+' of '+(PAGING?PAGING.total:DATA.records.length);$('prev').disabled=DATA.records.length<2;$('next').disabled=DATA.records.length<2;history.replaceState(null,'','#'+encodeURIComponent(r.index.itemId));render();welcome()}
 function download(name,body){const url=URL.createObjectURL(new Blob([body],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 DATA.records.forEach((r,i)=>{const o=text($('drawing'),'option',(r.index.category||r.packet.source.word||'Drawing')+' · '+r.index.keyId);o.value=String(i)});
-$('drawing').addEventListener('change',()=>selectDrawing(Number($('drawing').value)));$('prev').addEventListener('click',()=>selectDrawing(index-1));$('next').addEventListener('click',()=>selectDrawing(index+1));for(const id of ['rawOverlay','jointLayer','mirrorLayer','seedLayer','orderColor','filter'])$(id).addEventListener('change',render);$('strokeLimit').addEventListener('input',()=>{if(selected&&!visible(selected)){selected=null;welcome()}render()});$('download').addEventListener('click',()=>download(DATA.records[index].index.itemId+'.evidence.json',JSON.stringify(packet(),null,2)));$('downloadSource').addEventListener('click',()=>download(DATA.records[index].index.keyId+'.source.json',packet().sourceOriginalJson));document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON'].includes(e.target.tagName))return;if(e.key==='ArrowRight')selectDrawing(index+1);if(e.key==='ArrowLeft')selectDrawing(index-1)});let hash;try{hash=decodeURIComponent(location.hash.slice(1))}catch{hash=''}const initial=DATA.records.findIndex(r=>r.index.itemId===hash||r.index.keyId===hash);selectDrawing(initial<0?0:initial);
+$('drawing').addEventListener('change',()=>selectDrawing(Number($('drawing').value)));$('prev').addEventListener('click',()=>selectDrawing(index-1));$('next').addEventListener('click',()=>selectDrawing(index+1));for(const id of ['rawOverlay','jointLayer','mirrorLayer','seedLayer','orderColor','filter','directionLayer'])$(id).addEventListener('change',render);$('readMode').onchange=()=>{selected=null;gather();render();welcome()};$('strokeLimit').addEventListener('input',()=>{if(selected&&!visible(selected)){selected=null;welcome()}render()});$('download').addEventListener('click',()=>download(DATA.records[index].index.itemId+'.evidence.json',JSON.stringify(packet(),null,2)));$('downloadSource').addEventListener('click',()=>download(DATA.records[index].index.keyId+'.source.json',packet().sourceOriginalJson));document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON'].includes(e.target.tagName))return;if(e.key==='ArrowRight')selectDrawing(index+1);if(e.key==='ArrowLeft')selectDrawing(index-1)});let hash;try{hash=decodeURIComponent(location.hash.slice(1))}catch{hash=''}const initial=DATA.records.findIndex(r=>r.index.itemId===hash||r.index.keyId===hash);selectDrawing(initial<0?0:initial);
 </script></html>'''

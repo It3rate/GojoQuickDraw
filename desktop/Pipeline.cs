@@ -5,11 +5,12 @@ using System.Text.Json;
 
 namespace GojoQuickDraw.Desktop;
 
-public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog }
+public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze }
 public sealed record PipelineOptions(string Repository, string Python, string Gojo, string Input, string Dataset,
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
     double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
-    string InspectionOrder = "category", long InspectionSeed = 0, long? SamplingSeed = null);
+    string InspectionOrder = "category", long InspectionSeed = 0, long? SamplingSeed = null,
+    int Offset = 0, int Workers = 4, string? AnalysisOutput = null);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -84,7 +85,15 @@ public static class Pipeline
             case PipelineAction.Setup: arguments.Add("doctor"); break;
             case PipelineAction.Catalog:
                 arguments.Add("catalog"); Dataset(); Ordering();
-                arguments.AddRange(["--limit", options.Limit.ToString()]);
+                arguments.AddRange(["--limit", options.Limit.ToString(), "--offset", options.Offset.ToString()]);
+                break;
+            case PipelineAction.Analyze:
+                var (analysisSource, analyzed) = Workspace.AnalysisPaths(options.Dataset, options.AnalysisOutput);
+                arguments.AddRange(["analyze", "--dataset", analysisSource]);
+                arguments.AddRange(["--output", Path.GetFullPath(analyzed), "--workers", options.Workers.ToString()]);
+                if (!options.AllRecords) arguments.AddRange(["--limit", options.Limit.ToString()]);
+                if (options.RetryErrors) arguments.Add("--retry-errors");
+                artifact = Path.Combine(analyzed, "collection.json");
                 break;
         }
         return new(action, options.Python, options.Repository, arguments, artifact);

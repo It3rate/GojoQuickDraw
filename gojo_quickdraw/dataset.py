@@ -189,9 +189,9 @@ def verify_row(root, row):
             raise ValueError(f"Missing or changed dataset artifact: {row[field]}")
 
 
-def load_records(dataset, key_id=None, limit=None, *, order="category", seed=0):
+def load_records(dataset, key_id=None, limit=None, *, order="category", seed=0, offset=0):
     from .selection import selected_rows
-    for root, stored in selected_rows(dataset, key_id=key_id, limit=limit, order=order, seed=seed):
+    for root, stored in selected_rows(dataset, key_id=key_id, limit=limit, order=order, seed=seed, offset=offset):
         row = dict(stored, datasetPath=str(root))
         verify_row(root, row)
         with gzip.open(_safe_path(root, row["evidencePath"]), "rt", encoding="utf-8") as stream:

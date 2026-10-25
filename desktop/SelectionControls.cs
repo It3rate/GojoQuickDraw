@@ -15,6 +15,10 @@ internal sealed partial class MainWindow
     private bool _updatingFolders;
     private long _inspectionSeed, _catalogRevision;
     private CancellationTokenSource? _catalogCancellation;
+    private int _catalogOffset, _catalogTotal;
+    private readonly NumericUpDown _pageJump = Number(1, 1, 1000000);
+    private readonly TextBlock _pageLabel = Text("Page 1");
+    private Button _firstPage = null!, _previousPage = null!, _nextPage = null!, _lastPage = null!;
     private string InspectionOrder => _inspectionOrder.SelectedIndex switch { 1 => "recent", 2 => "random", _ => "category" };
     private string InspectionPath => (_folderScope.SelectedItem as FolderOption)?.Path ?? _dataset.Text?.Trim() ?? "";
 
@@ -58,12 +62,32 @@ internal sealed partial class MainWindow
             await LoadCatalog(refreshFolders: false);
         });
         shuffle.VerticalAlignment = VerticalAlignment.Bottom; Grid.SetColumn(shuffle, 2); grid.Children.Add(shuffle);
-        return grid;
+        _firstPage = Button("First", async () => await ChangePage(0));
+        _previousPage = Button("Previous", async () => await ChangePage(Math.Max(0, _catalogOffset - (int)_reviewLimit.Value!)));
+        _nextPage = Button("Next", async () => await ChangePage(_catalogOffset + (int)_reviewLimit.Value!));
+        _lastPage = Button("Last", async () => await ChangePage(Math.Max(0, (_catalogTotal - 1) / (int)_reviewLimit.Value! * (int)_reviewLimit.Value!)));
+        _pageJump.Width = 105;
+        var paging = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        foreach (var control in new Control[] { _firstPage, _previousPage, _nextPage, _lastPage, Text("Page"), _pageJump,
+                     Button("Go", async () => await ChangePage(((int)_pageJump.Value! - 1) * (int)_reviewLimit.Value!)) })
+        { control.VerticalAlignment = VerticalAlignment.Center; paging.Children.Add(control); }
+        return Stack(8, grid, paging, _pageLabel);
     }
 
-    private async Task LoadCatalog(bool announce = true, bool refreshFolders = true)
+    private async Task ChangePage(int offset)
     {
+        var size = (int)_reviewLimit.Value!;
+        _catalogOffset = Math.Clamp(offset, 0, Math.Max(0, (_catalogTotal - 1) / size * size));
+        await LoadCatalog(refreshFolders: false, resetPage: false);
+    }
+
+    private async Task LoadCatalog(bool announce = true, bool refreshFolders = true, bool resetPage = true)
+    {
+        if (resetPage) _catalogOffset = 0;
         var root = _dataset.Text?.Trim() ?? "";
+        // TextChanged can be delivered after a picker has already requested
+        // this catalog. Do not cancel that same request as a deferred text edit.
+        _observedDatasetPath = root;
         var revision = ++_catalogRevision;
         _catalogCancellation?.Cancel();
         using var cancellation = new CancellationTokenSource();
@@ -84,6 +108,8 @@ internal sealed partial class MainWindow
                 if (folders.Count == 0)
                 {
                     _loadedDataset = null; _drawings.ItemsSource = Array.Empty<DrawingRow>();
+                    _catalogTotal = 0; _pageLabel.Text = "No drawings";
+                    _firstPage.IsEnabled = _previousPage.IsEnabled = _nextPage.IsEnabled = _lastPage.IsEnabled = false;
                     _datasetSummary.Text = "No generated category folders yet. Choose categories and run a sample.";
                     if (announce) SetStatus("No drawings generated yet", "Use Convert to create category datasets in this collection.");
                     return;
@@ -94,10 +120,19 @@ internal sealed partial class MainWindow
             if (revision != _catalogRevision || _dataset.Text?.Trim() != root || result.Cancelled) return;
             if (!result.Successful || result.Data is null) throw new InvalidDataException(result.Error);
             var catalog = Workspace.ReadCatalogData(result.Data.Value);
+            _catalogTotal = catalog.Stored;
+            var pageCount = Math.Max(1, (catalog.Stored + catalog.PageSize - 1) / catalog.PageSize);
+            _pageJump.Maximum = pageCount; _pageJump.Value = catalog.Offset / catalog.PageSize + 1;
+            _pageLabel.Text = $"Page {catalog.Offset / catalog.PageSize + 1:N0} of {pageCount:N0} · {catalog.Drawings.Count:N0} drawings on this page";
+            _firstPage.IsEnabled = _previousPage.IsEnabled = catalog.Offset > 0;
+            _nextPage.IsEnabled = _lastPage.IsEnabled = catalog.Offset + catalog.Drawings.Count < catalog.Stored;
             var key = (_drawings.SelectedItem as DrawingRow)?.QualifiedId;
             _loadedDataset = root; _drawings.ItemsSource = catalog.Drawings;
             _drawings.SelectedItem = catalog.Drawings.FirstOrDefault(row => row.QualifiedId == key) ?? catalog.Drawings.FirstOrDefault();
-            _datasetSummary.Text = $"{catalog.Stored:N0} stored drawings in scope · {catalog.Errors:N0} retained errors · {catalog.Drawings.Count:N0} shown";
+            _datasetSummary.Text = $"{catalog.Stored:N0} stored drawings in scope · {catalog.Errors:N0} retained errors · showing {catalog.Offset + (catalog.Drawings.Count > 0 ? 1 : 0):N0}–{catalog.Offset + catalog.Drawings.Count:N0}";
+            var inspector = Path.Combine(Workspace.InspectorFolder(InspectionPath), "evidence.html");
+            if (_lastArtifact is null && File.Exists(inspector))
+            { _lastArtifact = inspector; _openResult.IsEnabled = _cancellation is null; }
             var folder = catalog.Drawings.FirstOrDefault()?.DatasetPath ?? InspectionPath;
             if (File.Exists(Path.Combine(folder, "manifest.json")))
             {

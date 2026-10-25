@@ -151,3 +151,70 @@ The baseline stores no later synthesis passes. For corpus-scale training, a futu
 compact projection should select exposed evidence surfaces and point back to this
 archive. The current rich capture is intended for inspection and schema development,
 not yet a claim of economical full-corpus storage.
+
+## Derived analysis collections and opinion structure
+
+`analyze` consumes generated datasets rather than resampling raw QuickDraw. It
+writes a separate collection with the same category/dataset/index layout. Each
+record identifies the baseline item and its evidence/native hashes, an analysis
+implementation fingerprint, and the unchanged original-source digest. A bounded
+worker queue proposes and independently captures/restores native records; the
+parent commits their journal entries in source-selection order. Completed records
+resume after hash checks. An interrupted journal tail is retained/repaired by the
+same explicit resume mechanism used for conversion.
+
+Analysis packets add `analysis` and `opinions`. `analysis.annotationModes` contains
+the three source-based allowances. `analysis.proposal` caches seven authored church
+states, their operations, complement, correspondence and warnings. These previews
+are **not executed native rungs**. The independent `stages` command still creates
+and executes the complete construction program on demand. No synthesized state is
+promoted to new human evidence or a ground-truth target.
+
+Native record roots accept the earlier three-field layout and an optional fourth
+opinion surface. That surface connects the actual observer frame, the existing
+`StructuralEvidenceStreams.Bundle`, claim witnesses, and adapter provenance.
+Each claim selects actual source-profile witnesses and earlier claims; its expected
+sites and ordered edges are native structure. A dependent corner can consume the
+actual earlier rectangle sites through explicit correspondence. Equal coordinates
+alone do not create this sharing, and acquired identities cannot be stolen.
+
+Separate observation/hypothesis/default/goal scopes retain support and opposition
+on the connected ordinal ladder. Comparison inputs have a declared finite import
+quantum and remain provider inputs, not independent native proofs of a detector's
+correctness. Type names, verbal roles and provider versions remain provenance;
+geometric participation, dependency, site sharing and evidence context remain
+readable after those names are removed. Models can later answer the same exposed
+requests without changing the source-selection and native evidence contract.
+
+Container carrying is an explicit revisable default, separate from geometric
+containment. Its counterfactual translates a parent and reachable contained parts
+once each; a child placement can vary independently. Cycles, alternative parents,
+anchored-child overrides and existing containment discrepancy remain visible.
+This is not yet general native physical settlement.
+
+## Paged inspection
+
+`catalog --offset N --limit K` selects a lightweight page; actual latest journal
+states determine totals, not a stale manifest's last-run count. Stable category,
+recent and seeded random orders have the same membership across catalog pages
+and offline review pages.
+
+The CLI review's limit is now page size. The entry HTML and its adjacent
+`<entry-stem>-pages/<generation>/page-00002.html` documents expose every successful
+record while embedding only one page's data per document. All page documents are
+written before publishing the entry. Older page generations remain available for
+already-open reviews; the desktop reuses one stable entry per selected collection.
+The single-page limited API remains available as `review --sample-only`.
+
+## Ordered endpoints and timing
+
+Every finite source interval has `strokeIndex`, `startIndex`, `endIndex` and
+ordered controls. Every native line/quadratic/cubic has explicit `From -> To`
+sites: the parameter begins at the first control and ends at the last. An O read
+does not weld separate first/last acquisition events. A constructed closing edge
+can deliberately return to an actual earlier site.
+
+Raw three-array XYT records preserve point times exactly in acquisition; simplified
+two-array XY records leave timing open. Missing time is not zero, interpolation,
+or an invented drawing duration. Time order, geometric order and later authored
+interpretation history stay distinct.

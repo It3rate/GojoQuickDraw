@@ -1,4 +1,42 @@
-# Initial verification checkpoint
+# Verification checkpoints
+
+## Collection analysis and paging, 25 October 2026
+
+The checkpoint processes all 1,000 previously converted churches in `church1000`
+into a separate `church1000-analysis` collection: no errors, 7,000 authored proposal
+states, 50,202 native opinion claims and 12,863 dependency links. All 1,000 source
+records have point timing. A complete audit checks source and derived artifact
+hashes and exact equality of original text, acquisition, fitted observation and
+baseline program. The source collection remains unchanged.
+
+The native worker independently restores every captured record before publishing
+it. Twenty additional seeded random archives restore in separate processes. One
+selected analyzed church generates and independently executes all seven native
+construction rungs. Cached proposals are not mislabeled as executed native rungs
+or ground-truth supervision.
+
+All 1,000 records resume without re-encoding. A separate interruption audit kills
+its own worker tree after four durable records, resumes to 20, and verifies those
+four records' exact hashes and the unchanged source journals.
+
+The offline review exposes every drawing over 20 pages of 50. Browser checks visit
+every page, verify unique complete membership, inspect 40 drawings and 400 modes,
+and select 34 dependent claims. They report no script errors, external requests,
+evidence mutation or mobile overflow. The nine-record pilot also exercises every
+record and all 90 available modes.
+
+The real desktop workflow covers sampling, folder/order selection, paging, archive
+verification, drawing steps, probes, container carrying, cancellation, full analysis
+and exact resume across three categories. A separate cold-start audit opens the
+1,000-record collection without pressing Load, checks first/last pages, returns to
+page one and confirms the existing inspector is available. It protects the deferred
+text-change cancellation fix discovered during QA.
+
+The checkpoint passes 64 Python, 13 native and nine desktop tests, plus all 5,407
+tests in the unchanged linked Gojo solution. Release builds have no warnings.
+Detailed results: [analysis report](../reports/analysis-2026-10-25.json).
+
+## Initial verification checkpoint
 
 This is an engineering pilot, not an accuracy benchmark or a trained model. Five
 previously curated churches and the first twenty distinct fresh church records were

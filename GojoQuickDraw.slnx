@@ -12,7 +12,10 @@
     <File Path="tests/test_review.py" />
     <File Path="tests/test_stages.py" />
     <File Path="tests/test_sampling.py" />
+    <File Path="tests/test_opinions.py" />
     <File Path="tests/check_review.cjs" />
+    <File Path="tests/check_paged_review.cjs" />
+    <File Path="tests/check_analysis_resume.py" />
   </Folder>
   <Folder Name="/Python Pipeline/">
     <File Path="pyproject.toml" />
@@ -29,6 +32,8 @@
     <File Path="gojo_quickdraw/sampling.py" />
     <File Path="gojo_quickdraw/selection.py" />
     <File Path="gojo_quickdraw/categories.json" />
+    <File Path="gojo_quickdraw/analysis.py" />
+    <File Path="gojo_quickdraw/opinions.py" />
   </Folder>
   <Folder Name="/Gojo Dependencies/">
     <Project Path="../Gojo/Gojo/Gojo.csproj" />
@@ -41,6 +46,7 @@
     <File Path="OpenQuickDraw.cmd" />
     <File Path="OpenQuickDraw.ps1" />
     <File Path="README.md" />
+    <File Path="EVIDENCE_INVENTORY.md" />
     <File Path="AGENTS.md" />
     <File Path="gojo.lock.json" />
     <File Path="docs/storage.md" />
@@ -50,6 +56,7 @@
     <File Path="reports/pilot-2026-10-24.json" />
     <File Path="reports/desktop-2026-10-25.json" />
     <File Path="reports/category-sampling-2026-10-25.json" />
+    <File Path="reports/analysis-2026-10-25.json" />
   </Folder>
   <Folder Name="/Examples/">
     <File Path="examples/README.md" />

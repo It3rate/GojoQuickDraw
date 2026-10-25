@@ -85,6 +85,30 @@ public sealed class PipelineTests : IDisposable
     }
 
     [Fact]
+    public void CatalogPagesAndFullAnalysisHaveSeparateLimitsAndOutputs()
+    {
+        var page = Pipeline.Plan(PipelineAction.Catalog, Options with { Limit = 50, Offset = 950 });
+        Assert.Contains("950", page.Arguments); Assert.Contains("--offset", page.Arguments);
+        var analysis = Pipeline.Plan(PipelineAction.Analyze, Options with { AllRecords = true, Workers = 2 });
+        Assert.Contains("analyze", analysis.Arguments); Assert.DoesNotContain("--limit", analysis.Arguments);
+        Assert.StartsWith(Path.GetFullPath(Dataset) + "-analysis", analysis.Artifact!);
+        Assert.Contains("--limit", Pipeline.Plan(PipelineAction.Analyze, Options with { AllRecords = false }).Arguments);
+        Assert.EndsWith(Path.Combine("dataset-runs", "inspector"), Workspace.InspectorFolder(Dataset));
+        Assert.NotEqual(Workspace.RunFolder(Dataset), Workspace.InspectorFolder(Dataset));
+    }
+
+    [Fact]
+    public void OpeningAnAnalysisCollectionCanResumeItsActualBaseline()
+    {
+        var analyzed = Workspace.AnalysisFolder(Dataset); Directory.CreateDirectory(analyzed);
+        File.WriteAllText(Path.Combine(analyzed, "collection.json"), JsonSerializer.Serialize(new { kind = "derived-analysis", baseline = Dataset }));
+        var plan = Pipeline.Plan(PipelineAction.Analyze, Options with { Dataset = analyzed, AllRecords = true });
+        var args = plan.Arguments.ToList();
+        Assert.Equal(Dataset, args[args.IndexOf("--dataset") + 1]);
+        Assert.Equal(analyzed, args[args.IndexOf("--output") + 1]);
+    }
+
+    [Fact]
     public async Task WorkerPreservesLiteralArgumentsAndRetainedErrorResult()
     {
         var script = Path.Combine(_root, "worker.py");

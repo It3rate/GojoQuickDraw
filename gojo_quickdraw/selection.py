@@ -30,12 +30,14 @@ def datasets(path):
     return sorted(found, key=lambda entry: entry[0].relative_to(root).as_posix().casefold())
 
 
-def selected_rows(path, key_id=None, limit=None, *, order="category", seed=0):
+def selected_rows(path, key_id=None, limit=None, *, order="category", seed=0, offset=0):
     from .dataset import _index, _safe_path
     if limit is not None and (isinstance(limit, bool) or not isinstance(limit, int) or limit < 1):
         raise ValueError("Limit must be a positive integer")
     if order not in ORDERS:
         raise ValueError("Unknown inspection order")
+    if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+        raise ValueError("Offset must be a nonnegative integer")
     if key_id is not None:
         # An explicit identity is a lookup, independent of the browser's sampling order.
         # Keep every match so callers can still detect duplicate/ambiguous identities.
@@ -68,23 +70,33 @@ def selected_rows(path, key_id=None, limit=None, *, order="category", seed=0):
         iterator = all_rows()
         try:
             for index, row in enumerate(iterator):
-                if limit is not None and index >= limit:
+                if index < offset:
+                    continue
+                if limit is not None and index >= offset + limit:
                     break
                 yield row
         finally:
             iterator.close()
     else:
-        yield from heapq.nsmallest(limit, all_rows(), key=rank)
+        yield from heapq.nsmallest(offset + limit, all_rows(), key=rank)[offset:]
 
 
-def catalog(path, limit=1000, *, order="category", seed=0):
+def catalog(path, limit=1000, *, order="category", seed=0, offset=0):
     root = Path(path).resolve()
     folders = datasets(root)
     fields = ("itemId", "keyId", "category", "counts", "evidencePath", "nativePath", "convertedUtc", "selectionId")
     records = [{**{key: row[key] for key in fields if key in row}, "datasetPath": str(folder)}
-               for folder, row in selected_rows(root, limit=limit, order=order, seed=seed)]
+               for folder, row in selected_rows(root, limit=limit, order=order, seed=seed, offset=offset)]
+    # Journals, rather than last-run summaries, determine the actual page count.
+    from .dataset import _index
+    totals = {"ok": 0, "error": 0}
+    for folder, _ in folders:
+        with _index(folder) as rows:
+            for row in rows.values():
+                if row.get("status") in totals:
+                    totals[row["status"]] += 1
     return {"records": records, "folders": [{"path": str(folder), "label": folder.relative_to(root).as_posix()} for folder, _ in folders],
-            "storedRecords": sum(data.get("lastRun", {}).get("storedRecords", 0) for _, data in folders),
-            "storedErrors": sum(data.get("lastRun", {}).get("storedErrors", 0) for _, data in folders),
+            "storedRecords": totals["ok"], "storedErrors": totals["error"],
+            "offset": offset, "pageSize": limit, "pageCount": (totals["ok"] + limit - 1) // limit,
             "order": order, "seed": seed, "recursive": True,
             "qualification": "Catalog metadata and cached previews are observations; archive integrity is checked by verify."}

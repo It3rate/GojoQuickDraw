@@ -43,12 +43,29 @@ source category catalog. Inspection supports:
 - **Random:** a stable seeded sample/order across records in scope. **New random
   sample** changes that inspection seed, without generating or mutating drawings.
 
-Up to 1,000 drawing identities and cached original/fitted previews are shown.
-The same scope/order applies to visual reviews and limited verification; review
-limits take a prefix of that selection. **Verify archives** checks hashes and native
+Drawing identities and original/fitted previews are paged. First/Previous/Next/Last
+and a page number reach every record. The page size also sets the offline review's
+page size; it does not cut the collection down to its first 50 records.
+The same scope/order applies to visual reviews and limited verification.
+**Verify archives** checks hashes and native
 restoration. **Verify the entire dataset** covers every record in the selected scope
 regardless of browsing order. The full browser review includes detailed line,
 joint, symmetry, and provisional-part annotations.
+
+**Full analysis → review** reads every converted drawing in the selected folder and
+subfolders. The options lower in Evidence can restrict its count, choose 1–8 parallel
+workers, retry errors, or set an output folder. The default output is a separate
+`<selected-folder>-analysis` collection. Completed records resume after hash checks.
+The app selects that analysis collection when ready. Running analysis again from
+its collection root resumes the original baseline rather than making another
+generation of derived drawings. Use a new output after changing the implementation.
+
+In the browser, **Read** selects fitted source, looser/stronger source relations,
+and the seven church proposal states. The latter are marked as authored previews;
+Drawing steps independently executes native programs. The evidence list includes
+dependent opinions and proposed object groups with support, opposition, providers,
+and links to earlier claims. Direction markers and endpoint details expose start,
+end, acquisition indices, and point times where supplied.
 
 ## Interpretations and probes
 
@@ -63,16 +80,20 @@ and its remaining distance discrepancy. Equivalent responses can remain tied. A
 drawing with no eligible candidates reports that explicitly. **Open last result**
 opens the full JSON report for probes or the visual review for other operations.
 
-Each review, stage run and probe goes into a new folder beside the baseline:
+The evidence inspector has a stable entry beside the selected collection; stage
+runs and probes keep separate timestamped folders:
 
 ```text
 samples/
   angel/...
   church/...
 samples-runs/
-  <timestamp>/evidence.html
+  inspector/evidence.html
+  inspector/evidence-pages/<generation>/page-00002.html
   <timestamp>/stages/...
   <timestamp>/machine-probes.json
+samples-analysis/
+  church/...
 ```
 
 ## Progress and stopping
@@ -91,6 +112,14 @@ the sample limit are stored in
 `%LOCALAPPDATA%/GojoQuickDraw/desktop-settings.json`.
 
 ## Developer verification
+
+The executable accepts `--dataset PATH` to open an existing generated collection
+directly. A read-only startup audit checks initial loading, paging and access to
+an existing inspector without changing workspace preferences:
+
+```powershell
+dotnet run --project desktop -- --startup-smoke --dataset D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis --qa-output D:/path/new-startup-audit
+```
 
 ```powershell
 dotnet test GojoQuickDraw.slnx

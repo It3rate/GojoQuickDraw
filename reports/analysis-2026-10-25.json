@@ -1,0 +1,226 @@
+{
+  "schema": "gojo.quickdraw-analysis-checkpoint.v1",
+  "date": "2026-10-25",
+  "success": true,
+  "baseline": "D:/_quickDraw/gojo-quickdraw-evidence/church1000",
+  "analysis": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church1000-analysis",
+    "matched": 1000,
+    "converted": 1000,
+    "passes": 7000,
+    "storedRecords": 1000,
+    "storedErrors": 0,
+    "drawings": 1000,
+    "workers": 4,
+    "sourceUnchanged": true,
+    "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver."
+  },
+  "audit": {
+    "records": 1000,
+    "sourceUnchanged": true,
+    "sourceAndDerivedArtifactHashesVerified": true,
+    "sourceObservationAndProgramUnchanged": true,
+    "proposalStates": 7000,
+    "opinionClaims": 50202,
+    "opinionDependencyLinks": 12863,
+    "nativeExecutionOfProposalStates": "on demand; cached proposal previews remain separate"
+  },
+  "timedSourceRecords": 1000,
+  "review": {
+    "entry": "D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis-runs/inspector/evidence.html",
+    "pages": 20,
+    "pageSize": 50,
+    "htmlBytes": 591526624
+  },
+  "browser": {
+    "drawings": 1000,
+    "pages": 20,
+    "pageSizes": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50
+    ],
+    "drawingsInspected": 40,
+    "modesChecked": 400,
+    "dependenciesInspected": 34,
+    "errors": [],
+    "requests": [],
+    "immutable": true,
+    "mobileOverflow": false
+  },
+  "desktop": {
+    "success": true,
+    "errors": [],
+    "dataset": "D:\\_quickDraw\\gojo-quickdraw-analysis-qa\\desktop-final-02\\analysis",
+    "jobs": [
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": -1,
+        "Cancelled": true,
+        "Successful": false
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      },
+      {
+        "ExitCode": 0,
+        "Cancelled": false,
+        "Successful": true
+      }
+    ],
+    "status": "Completed",
+    "detail": "0 analyzed · 9 reused · 0 retained errors. Source collection preserved.",
+    "catalogDrawings": 4,
+    "generatedFolderOptions": 4,
+    "selectedSourceCategories": [
+      "angel",
+      "church",
+      "frog"
+    ],
+    "totalSampleSize": 9,
+    "acquiredStrokesInPreview": 8,
+    "fittedIntervalsInPreview": 25,
+    "cancellationPreservedArchives": true
+  },
+  "coldStart": {
+    "success": true,
+    "errors": [],
+    "dataset": "D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis",
+    "total": 1000,
+    "firstPageRecords": 50,
+    "lastPageRecords": 50,
+    "pageText": "Page 1 of 20 · 50 drawings on this page",
+    "existingInspectorAvailable": true,
+    "startupRequiredManualLoad": false
+  },
+  "interruptedResume": {
+    "source": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church1000",
+    "output": "D:\\_quickDraw\\gojo-quickdraw-analysis-qa\\final\\resume-audit",
+    "checkpointedBeforeStop": 4,
+    "completedRecordsPreserved": true,
+    "sourceJournalsUnchanged": true,
+    "result": {
+      "output": "D:\\_quickDraw\\gojo-quickdraw-analysis-qa\\final\\resume-audit",
+      "matched": 20,
+      "resumed": 4,
+      "converted": 16,
+      "passes": 112,
+      "storedRecords": 20,
+      "storedErrors": 0,
+      "drawings": 20,
+      "workers": 2,
+      "sourceUnchanged": true,
+      "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver."
+    }
+  },
+  "completeResume": {
+    "matched": 1000,
+    "resumed": 1000,
+    "storedRecords": 1000,
+    "storedErrors": 0
+  },
+  "tests": {
+    "python": 64,
+    "native": 13,
+    "desktop": 9,
+    "unchangedLinkedGojoSolution": 5407,
+    "failed": 0
+  },
+  "standaloneRandomRestore": {
+    "records": 20,
+    "seed": 20261025,
+    "artifactHashesVerified": true,
+    "nativeRestoreVerified": true
+  },
+  "nativeConstructionSample": {
+    "sourceId": "6291594720313344",
+    "drawings": 1,
+    "rungs": 7,
+    "independentNativeConstructionAndSourceEvidenceRestored": true,
+    "warnings": []
+  },
+  "analysisFingerprint": "ce665f9c9c469b22ab4dc385aba7d70a9420399cc97efbcc58e47febcf44ec38",
+  "upstream": {
+    "repository": "https://github.com/It3rate/Gojo.git",
+    "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "matchesPinnedRevision": true,
+    "sourceSha256": "86d402ce95379e3d3729169b4e1a523779277ebe680fcd48e52b6da3c2ee12ad",
+    "dirtyPaths": [],
+    "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+  },
+  "limits": [
+    "Authored opinions and geometric proposal passes; no trained prior or learned arbiter.",
+    "Cached proposal states are not executed native rungs; native construction remains on demand.",
+    "Contextual roles and physical expectations can remain open; bounds do not establish filled-area or physical containment.",
+    "Container carrying is a conditional adapter default, not general native dynamic settlement."
+  ]
+}

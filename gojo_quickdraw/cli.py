@@ -39,10 +39,11 @@ def parser():
     check = commands.add_parser("verify", help="Check content hashes and independently restore native evidence")
     check.add_argument("--dataset", type=Path, required=True)
     check.add_argument("--limit", type=int)
-    review = commands.add_parser("review", help="Build a self-contained evidence inspector")
+    review = commands.add_parser("review", help="Build an offline evidence inspector with pages for every drawing")
     review.add_argument("--dataset", type=Path, required=True)
     review.add_argument("--output", type=Path, required=True)
-    review.add_argument("--limit", type=int, default=50)
+    review.add_argument("--limit", type=int, default=50, help="Drawings per page (all records remain accessible)")
+    review.add_argument("--sample-only", action="store_true", help="Retain the older single-page limited sample")
     stages = commands.add_parser("stages", help="Generate church interpretation and synthesis stages on demand")
     stages.add_argument("--dataset", type=Path, required=True)
     stages.add_argument("--output", type=Path, required=True)
@@ -52,6 +53,13 @@ def parser():
     catalog = commands.add_parser("catalog", help="Discover generated category folders and select lightweight drawing metadata")
     catalog.add_argument("--dataset", type=Path, required=True)
     catalog.add_argument("--limit", type=int, default=1000)
+    catalog.add_argument("--offset", type=int, default=0)
+    analysis = commands.add_parser("analyze", help="Run full authored analysis over an existing generated collection")
+    analysis.add_argument("--dataset", type=Path, required=True)
+    analysis.add_argument("--output", type=Path, required=True)
+    analysis.add_argument("--limit", type=int, help="Omitted deliberately processes every converted record in scope")
+    analysis.add_argument("--workers", type=int, default=4)
+    analysis.add_argument("--retry-errors", action="store_true")
     for command in (check, review, stages, catalog):
         command.add_argument("--order", choices=("category", "recent", "random"), default="category")
         command.add_argument("--seed", type=int, default=0)
@@ -82,10 +90,13 @@ def main(argv=None):
             result = dataset.verify(args.dataset, root, args.limit, order=args.order, seed=args.seed)
         elif args.command == "catalog":
             from .selection import catalog
-            result = catalog(args.dataset, args.limit, order=args.order, seed=args.seed)
+            result = catalog(args.dataset, args.limit, order=args.order, seed=args.seed, offset=args.offset)
         elif args.command == "review":
             from .review import build
-            result = build(args.dataset, args.output, args.limit, order=args.order, seed=args.seed)
+            result = build(args.dataset, args.output, args.limit, order=args.order, seed=args.seed, paged=not args.sample_only)
+        elif args.command == "analyze":
+            from .analysis import run
+            result = run(args.dataset, args.output, root, limit=args.limit, workers=args.workers, retry_errors=args.retry_errors)
         elif args.command == "stages":
             from .stages import generate
             result = generate(args.dataset, args.output, root, key_id=args.key_id, limit=args.limit, order=args.order, seed=args.seed)
@@ -115,7 +126,7 @@ def main(argv=None):
             from .bridge import executable
             result = {"gojoRoot": str(root), "upstream": upstream.fingerprint(root), "native": executable(root)}
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
-        return 1 if args.command in ("convert", "sample") and result.get("errors") else 0
+        return 1 if args.command in ("convert", "sample", "analyze") and result.get("errors") else 0
     except (ValueError, RuntimeError, OSError, KeyError) as error:
         print(f"Gojo QuickDraw: {error}", file=sys.stderr)
         return 2
