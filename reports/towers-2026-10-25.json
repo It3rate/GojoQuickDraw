@@ -1,0 +1,757 @@
+{
+  "date": "2026-10-25",
+  "experiment": "church-area-layout.v2",
+  "qualification": "Authored local area hypotheses on the same 24 reviewed development drawings. Not learned priors, unseen evaluation or semantic accuracy measurements.",
+  "implementation": {
+    "converter": "4432aa1956d326a3029c2fa4b8bbc0698ac658bcac29b672761b7f6a6266ed5e",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "86d402ce95379e3d3729169b4e1a523779277ebe680fcd48e52b6da3c2ee12ad",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "analysisFingerprint": "36ca247ad8b1c10575c9d509561632cf52eb869c95e69a41ea87fdb06239a08e",
+  "dataset": "D:/_quickDraw/gojo-quickdraw-evidence/church-towers-pilot-v2",
+  "gallery": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-towers-pilot-v2-runs/inspector/comparison.html?view=layout",
+  "inspector": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-towers-pilot-v2-runs/inspector/evidence.html?view=layout",
+  "checks": {
+    "pythonTests": 110,
+    "nativeTests": 25,
+    "desktopTests": 11,
+    "linkedGojoTests": 5407,
+    "linkedGojoWorkingTreeUnchanged": true,
+    "smallRealConversionAndRestore": {
+      "records": 3,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "independentArchiveVerification": {
+      "records": 6,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "resume": {
+      "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-towers-pilot-v2",
+      "matched": 24,
+      "resumed": 24,
+      "storedRecords": 24,
+      "storedErrors": 0,
+      "drawings": 24,
+      "workers": 3,
+      "sourceUnchanged": true,
+      "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+      "selectedKeyIds": [
+        "4707059385761792",
+        "4835826410192896",
+        "4836604000600064",
+        "5026742236348416",
+        "5161617551523840",
+        "5165838967504896",
+        "5231607982063616",
+        "5320526270562304",
+        "5389179863171072",
+        "5488048856891392",
+        "5521537635450880",
+        "5650365196271616",
+        "5650520033198080",
+        "5865058414362624",
+        "5901226988273664",
+        "6039787817402368",
+        "6082729202417664",
+        "6280306992611328",
+        "6291594720313344",
+        "6292633682968576",
+        "6414840786583552",
+        "6469580950077440",
+        "6492920540561408",
+        "6680427051876352"
+      ]
+    },
+    "browserLayout": {
+      "drawings": 24,
+      "galleryPages": 2,
+      "originalsUnchanged": true,
+      "pagingPreserved": true,
+      "errors": [],
+      "externalRequests": 0
+    },
+    "browserUserExamples": {
+      "checks": [
+        {
+          "sample": 13,
+          "key": "6082729202417664",
+          "tower": 0,
+          "roof": 1,
+          "cross": 1,
+          "shapes": [
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 14,
+          "key": "5650520033198080",
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "shapes": [
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 15,
+          "key": "4707059385761792",
+          "tower": 2,
+          "roof": 2,
+          "cross": 1,
+          "shapes": [
+            "triangle",
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 16,
+          "key": "6280306992611328",
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "shapes": [
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 22,
+          "key": "6680427051876352",
+          "tower": 2,
+          "roof": 2,
+          "cross": 2,
+          "shapes": [
+            "dome",
+            "dome"
+          ],
+          "partialCrosses": 1
+        }
+      ],
+      "errors": [],
+      "qualification": "Known development examples, not unseen evaluation."
+    },
+    "browserGallery": {
+      "drawings": 24,
+      "finalImages": 24,
+      "pages": 2,
+      "pageSizes": [
+        12,
+        12
+      ],
+      "detailLinksChecked": 2,
+      "columns": 3,
+      "pairsPerPage": 12,
+      "errors": [],
+      "requests": [],
+      "unclipped": true,
+      "mobileOverflow": false
+    },
+    "browserPages": {
+      "drawings": 24,
+      "pages": 4,
+      "pageSizes": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "drawingsInspected": 8,
+      "modesChecked": 88,
+      "dependenciesInspected": 8,
+      "persistedView": "step:6",
+      "viewFallbackChecked": false,
+      "errors": [],
+      "requests": [],
+      "immutable": true,
+      "mobileOverflow": false
+    }
+  },
+  "audit": {
+    "drawings": 24,
+    "sourceJournalsUnchanged": true,
+    "sourceFieldsUnchanged": true,
+    "nativeCapturesAndRestoresVerified": true,
+    "roles": {
+      "ground": 24,
+      "building": 24,
+      "roof": 26,
+      "cross": 27,
+      "cross-level": 27,
+      "door": 10,
+      "window": 2,
+      "tower": 8
+    },
+    "statuses": {
+      "regional-estimate": 127,
+      "prior-only": 20,
+      "partial-marker-prior": 1
+    },
+    "rows": [
+      {
+        "keyId": "6291594720313344",
+        "itemId": "1676a844930f470badad13b42c1cb860ca555220",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1,
+          "window": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "6fe482bfddcec132d41713e949f2c2bc71d07c5f036324674a389aa28910b364",
+        "evidenceSha256": "ae8f545c33a2b26e75feec460135bb0f82fb84bb6fb217c30175e1b668eca060"
+      },
+      {
+        "keyId": "5320526270562304",
+        "itemId": "a65049af6405b03f2e506076c45106466da96f35",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [],
+        "nativeSha256": "738dbbabdbd4c4f7b5458dababc173dc9ae6e04b1b4b705f7a4ee71700ea00e0",
+        "evidenceSha256": "b327f76804ad5bcd900fdf626b371f899843aedabab5326654e0224a79852dc5"
+      },
+      {
+        "keyId": "6292633682968576",
+        "itemId": "9d6aae44a50d2e466dcfc0352a45728fd6c9059f",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "881b27249d8b0baa9732b9f19985575c038f2337823068d318708df8931c346a",
+        "evidenceSha256": "88fa1198022a7818d10933cdfdacddab1d830af444d68a2044505cf25f3cf3d6"
+      },
+      {
+        "keyId": "5165838967504896",
+        "itemId": "ee57ceed91e05ac976af382a71f779e064e4bf3a",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [],
+        "nativeSha256": "d6c8fca1844d2595758c726c59a879c450c7c6c5bbae502c5246268185f0a135",
+        "evidenceSha256": "10a488f71052e10638a10845fa22fd9a861cd2b893c45b0bfd22cf4b89c3a1d8"
+      },
+      {
+        "keyId": "5488048856891392",
+        "itemId": "01bb9f2fb10e657adbdba787e48768f6eb06045a",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [],
+        "nativeSha256": "7f69f6a6f5d2e8a8ab8a43d215bde10d9c5ef142f1223792f7cc43e08fc53aa6",
+        "evidenceSha256": "ec26a964cd47e2463ed0906cbe47ca7d78f9c45947c2515d8fba72dc50f13b90"
+      },
+      {
+        "keyId": "4835826410192896",
+        "itemId": "68cef35ec90b233237c3c0ea8d30103d263df352",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [],
+        "nativeSha256": "f2d1ab59c8940385517f50d8a01f8e6d5cf0e5170f2e96663d3ae63ec6a7e883",
+        "evidenceSha256": "c01eb1c608dae2afd48d6afcc089d2760bb9a62c21ee6a038944f1cc272230da"
+      },
+      {
+        "keyId": "5026742236348416",
+        "itemId": "9ba323792ec8d6b4dfb1d59f58416cd106069eae",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [],
+        "nativeSha256": "277dd6696c2f5b9f84ba06192018ddade6e8a475f11469c09c6f49a966f7cf48",
+        "evidenceSha256": "298b1e9223a45719fdfa7a552a410d608548348c62e64be2c768cf965bc8f62c"
+      },
+      {
+        "keyId": "6039787817402368",
+        "itemId": "703709c7a66cdaace682178c669d7e65d49da68e",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [],
+        "nativeSha256": "776b1ba4d805daa80d73b235d937bed093272c5feb08b6a57ccbc36f6a7d404b",
+        "evidenceSha256": "cc91075786e3edb6b3a4a1f5fb6471eb86d889e662035fa0359571d0ab3394f7"
+      },
+      {
+        "keyId": "5389179863171072",
+        "itemId": "2d001d9945393fb88b57443e7651914c6ab1c816",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "a33089648856373aa799c415e6431c1a1b5e72ce0ef86a7b4abf7702e7f42cb7",
+        "evidenceSha256": "7bbea0fa99b8ccc2e00b5a010744ecb6ab3f5149fe60e60035a9f0ca561628c8"
+      },
+      {
+        "keyId": "6469580950077440",
+        "itemId": "c6b8d70516dd7d2474e4d783560fc8094161577b",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "window": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "109b8f6de67e84c9beb27487399e89d64b1b73e198721d1b0cf3b7d21d20645d",
+        "evidenceSha256": "638d8ca10dad8d5136e717956c495a7eec3bf045ef58700323c5857a7bda021c"
+      },
+      {
+        "keyId": "5650365196271616",
+        "itemId": "c014c30772308a509d86d0a9271d70ea3ce98359",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "8090efa03834521d3e9c2030f8c7c1ebaa5e9f682ce4569ec6aefed88ddf8515",
+        "evidenceSha256": "43ec0061f8540c0698746098e831a10a55cacd897dc718ed9cae99332291b3c3"
+      },
+      {
+        "keyId": "5231607982063616",
+        "itemId": "bb8ea79273fe93f5ad0efef2ed7681a21b02cabc",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "0f27253b48e7a4a086f6fb55c106ce5b91e90488fc97d539d0f1aa8af8f26c3b",
+        "evidenceSha256": "24b7a29b17038fbabed531ea82721516975c2986dc84643b25ead59d3f160886"
+      },
+      {
+        "keyId": "6082729202417664",
+        "itemId": "11afc7376b37587838c3774f740f8c57c39b433d",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "9b047387d28b3413f376a7f0c1b519bea924f21d8adc205339a3d14370d5dfc7",
+        "evidenceSha256": "7230f6a58426562aa81f4f2aaa7280d1a311eef32f76519e18ad799823763ea1"
+      },
+      {
+        "keyId": "5650520033198080",
+        "itemId": "09dbc15d96a72fd6c66381b36318c652355b3530",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "3ba29ab48e276a12cf1606c4f11c719b12fbc7961930a2b32363a46de79d9272",
+        "evidenceSha256": "8bbdf4701fccfe281d493ce5868992d438974bac284d67d4b652364e2f9e2c2e"
+      },
+      {
+        "keyId": "4707059385761792",
+        "itemId": "6485db6672be9400a63f2f3f0a52aa50c5eecce4",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 2,
+          "roof": 2,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle",
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 17,
+        "priorOnly": [],
+        "nativeSha256": "cf79de6025a91084a6194f4eb6943d54bacedb924c7570ef54a2215e1dcc977b",
+        "evidenceSha256": "0633f7adecd699167bebae578c1cede55ec6dba61f2bb383f21d23130082ae71"
+      },
+      {
+        "keyId": "6280306992611328",
+        "itemId": "65f5f2cb2654a80f34073e7d4261d2d25a6eefe6",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "b9940991287daea63141024d860bf918e4cc53699f893356c7eb66bb7719f93a",
+        "evidenceSha256": "295dbed8fc19c39489575993e902e7fba7a71427a509f7adee241079330a685b"
+      },
+      {
+        "keyId": "5521537635450880",
+        "itemId": "0d9e49da6cf4e9383ecb05fb162afadee2246e4a",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "7b567ecf17ff8ba2576997b7cfc220a1e7c194afe600936927bf424c05b5f667",
+        "evidenceSha256": "25a6a3db180be34ebc03b8d276fe1f7e1d6191ab759516d22cfd682aacc84ae6"
+      },
+      {
+        "keyId": "5865058414362624",
+        "itemId": "ccf3f0aaa70734c3209fe3dfbc1979023b39133a",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "ec690f3d179c3d100352c72fc8b26198c2f9a24f7219d9087f657a8cacd46999",
+        "evidenceSha256": "eca2c25dcb376027a08c06e4fa8f3a71cb66ea6aed3f85745024a31cd14d6edb"
+      },
+      {
+        "keyId": "5161617551523840",
+        "itemId": "ef48c6763934bda3ba3858a24f3c247d0241693c",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [],
+        "nativeSha256": "c1732d1524edfc8a3eb74d657ce78951a8b49f0ae5c683e3abff757fb7725e73",
+        "evidenceSha256": "fa5327f2fae733c7362539a536eaec0baa0e4df183b409941e1d5386d1754274"
+      },
+      {
+        "keyId": "6414840786583552",
+        "itemId": "900426968887139f3ff08fe7f9e157df25ff99f5",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 2,
+          "cross-level": 2
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "2872d91658c4a14cb19f40080adc3088e4674b3c7ba81feec1c25ed6f6701578",
+        "evidenceSha256": "a7677c0b25f75bc6ac541e76ce0a2a0d0caff23aa412c174a0888aa48c17a38d"
+      },
+      {
+        "keyId": "6492920540561408",
+        "itemId": "ed8f6863dbcedf87d8b1a64642a83096e5261405",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [],
+        "nativeSha256": "7a144050a68f6730bacc1bc43d4418c86e1f4f48db5157fedae46d690005b471",
+        "evidenceSha256": "3b547668438f02061dab2119427b0e11c15bdf0bb4d55094b1ef906bda4bb7bc"
+      },
+      {
+        "keyId": "6680427051876352",
+        "itemId": "54b9253fd0a25d527f71d294a9dc1a6e012d662c",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 2,
+          "roof": 2,
+          "cross": 2,
+          "cross-level": 2
+        },
+        "shapes": [
+          "dome",
+          "dome"
+        ],
+        "partialMarkers": [
+          "layout-cross-2"
+        ],
+        "sharedProposedSiteReferences": 16,
+        "priorOnly": [],
+        "nativeSha256": "a04f8eae56ccf79b5d6f76fbcadf839688c96a0cc30fbe1c7f235a9b1b4d8887",
+        "evidenceSha256": "d12298328e529c0792db2fe9e6534f330cb211ab46cc3bb374f49a28437a4a41"
+      },
+      {
+        "keyId": "5901226988273664",
+        "itemId": "0b8db5428a451a4c492d13bf22b70875ecdd3aee",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 2,
+          "cross-level": 2
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "5b7335f0f878bea9ff05ba0f8ffdc7779b2f0c7717f00c2aa32a90fcc4840ccb",
+        "evidenceSha256": "0020a2e33ba01621109741f9f5ce8c9fceab80564c9645603fc61fc1f8b4e280"
+      },
+      {
+        "keyId": "4836604000600064",
+        "itemId": "13a0f285d8c917d00ed5670643c4c33280bf2821",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "shapes": [
+          "triangle"
+        ],
+        "partialMarkers": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [],
+        "nativeSha256": "e0fd491be0b431e5c009fbaa3bf50c606cca8f96258dd98da9a005a43bf6ddd5",
+        "evidenceSha256": "a6c74f9822e24f14a02d0f9cec516512ab438462fe7d1d1b8fa109dc84b4bd01"
+      }
+    ],
+    "qualification": "Existing development/review set, not a semantic accuracy evaluation."
+  },
+  "visualFindings": [
+    {
+      "sample": 13,
+      "keyId": "6082729202417664",
+      "finding": "Narrow roof keeps its own lateral position rather than spanning the whole wall."
+    },
+    {
+      "sample": 14,
+      "keyId": "5650520033198080",
+      "finding": "Separate tall tower rectangle beneath the small triangular cap; lower edge is inferred."
+    },
+    {
+      "sample": 15,
+      "keyId": "4707059385761792",
+      "finding": "Two separate towers and triangular caps; central cross references the building between them."
+    },
+    {
+      "sample": 16,
+      "keyId": "6280306992611328",
+      "finding": "Small left cap with a short tower reaching the main wall top; no drawn divider required."
+    },
+    {
+      "sample": 22,
+      "keyId": "6680427051876352",
+      "finding": "Two domed caps, two towers and independent markers; right marker explicitly assumes its missing horizontal arm."
+    },
+    {
+      "sample": 11,
+      "keyId": "5650365196271616",
+      "finding": "Disconnected writing-like cap is not attached as an additional roof. Outlined cross is still missed by the upstream crossing detector."
+    },
+    {
+      "sample": 18,
+      "keyId": "5865058414362624",
+      "finding": "Upper contour cost keeps the actual roof above the lower slanted wall/eave candidate."
+    }
+  ],
+  "remainingLimitations": [
+    "One main building envelope and upright premise; side views and several connected bodies still need different constructions.",
+    "Caps with substantially overlapping horizontal extents suppress each other. Flat-topped towers can be missed.",
+    "Crossing candidates can include grid intersections (sample 23); multiple crosses are hypotheses, not confirmed semantic detections.",
+    "Sparse lower ink can give an implausibly narrow building (sample 20); writing can produce false windows.",
+    "Native context carries proposed geometry, shared contacts, selected support and pair-bound comparisons. Named costs and shape choice remain adapter provenance, not native learned laws."
+  ]
+}

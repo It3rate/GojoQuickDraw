@@ -55,8 +55,10 @@ source again. The entry paths remain stable. Reload an already open browser tab
 to see updated files; the pages do not watch the filesystem or reload themselves.
 
 Full church analysis also creates **Area estimates over original**: an ideal
-building rectangle, attached roof triangle, ground/cross levels, cross and optional
-opening rectangles. Choose this view in the inspector's **Read** or the gallery's
+building rectangle, separate tower rectangles, triangular or domed roofs,
+independent crosses and optional opening rectangles. Several towers, roofs and
+crosses can coexist. Tower dividers can be implied and a narrow roof can keep its
+own position. Choose this view in the inspector's **Read** or the gallery's
 **Result** selector. Pale fills and dotted outlines stay behind the original ink.
 See [church area estimates](CHURCH_LAYOUT_ESTIMATES.md) for the placement rules,
 explicit assumptions and current limitations.

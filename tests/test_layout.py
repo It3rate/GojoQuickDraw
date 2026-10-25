@@ -74,7 +74,7 @@ class LayoutTests(unittest.TestCase):
         observed['crosses'] = [{'point': [245, 170], 'spans': ['cv', 'ch']}]
         parts = {p['role']: p for p in estimate(observed)['parts']}
         self.assertEqual('within-roof', parts['cross']['placement'])
-        left, apex, right = parts['roof']['geometry']['points']
+        left, apex, right = parts['roof']['geometry']['points'][:3]
         for x, y in parts['cross']['geometry']['points']:
             fraction = (y-apex[1])/(left[1]-apex[1])
             self.assertTrue(0 <= fraction <= 1)

@@ -232,7 +232,8 @@ Church analysis adds `layout` (`gojo.quickdraw-area-layout.v1`) and correspondin
 `layout-*` context parts/relations. Chosen regions, alternative building areas,
 authored cost components, broad source support, prior-only placements and policy
 limits are inspectable. The native context witnesses carry the selected source
-profiles, earlier part dependencies, ordered construction edges and comparisons.
+profiles, earlier part dependencies, ordered construction edges and signed
+pair-bound comparisons. Named placement cost terms remain adapter provenance.
 The display cache does not itself establish category meaning.
 
 Context scaffold `geometry.siteSources` optionally aligns with `geometry.points`.
@@ -248,6 +249,16 @@ opinion claims; the two scopes are not interchangeable.
 edges. A cross has twelve outline points plus a separate arm-intersection anchor
 used by its horizontal level. Layout regions never replace acquired coordinates
 or make inferred ground into observed ink. See [the experiment](../CHURCH_LAYOUT_ESTIMATES.md).
+
+Policy `church-area-layout.v2` keeps the v1 packet schema and adds repeated tower,
+roof and cross parts. A roof records `shape` (triangle/dome), `shapeCosts`, local
+`costTerms` and construction resolution. Dome scaffolds have 32 curved-boundary
+partitions expressed as ordered segments. Rectangle boundaries are split to
+expose shared contact sites. No acquired site is reused for a proposed contact.
+Tower `lowerBoundary: inferred-level` does not assert a drawn dividing stroke.
+Cross `status: partial-marker-prior` and `missingHorizontalArm: true` distinguish
+an upright-based completion from a two-arm crossing read. `roofReads` and
+`markerReads` retain capacity overflow; unattached cap regions stay inspectable.
 
 ### Review pages
 

@@ -1,5 +1,35 @@
 # Verification checkpoints
 
+## Multiple towers, roofs and markers, 25 October 2026
+
+Policy v2 is saved in `church-towers-pilot-v2`, using the same 24 development
+drawings. It proposes eight tower rectangles, 26 roofs (including two domes),
+27 cross markers and their levels. Counts describe hypotheses, not confirmed
+objects. Sample 13 keeps a narrow offset roof; 14 gains a tall tower; 15 keeps
+two towers and a central cross; 16 uses an inferred lower tower edge; 22 has two
+domes and two markers. Its right marker explicitly assumes a missing crossbar.
+
+All 24 source JSON strings, source objects, observations and baseline programs
+match the original collection; its journals also remain unchanged. Native
+captures independently restore, six archives pass a separate verification, and
+all 24 resume without re-encoding. Three real raw QuickDraw records also convert
+and restore. A new native test removes adapter labels and verifies two distinct
+32-partition caps retain their tower and ground contact identities.
+
+110 Python, 25 native and 11 desktop tests pass. The unchanged linked Gojo
+solution passes 5,407 tests. Browser checks cover all 24 original/area pairs,
+the five requested examples, explicit assumption text, both gallery pages,
+four inspector pages, mobile layout and preserved view selection. There are no
+script errors or external requests. The seven older synthesis states remain
+available; this change adds area hypotheses, not a new learned synthesis pass.
+
+The upper contour preference also fixes a lower eave winning over sample 18's
+roof, and disconnected writing no longer creates an extra attached roof in 11.
+Cross/grid ambiguity, flat-topped or overlapping towers, side views, writing
+and sparse lower ink remain limitations. See [the v2 report](../reports/towers-2026-10-25.json)
+for IDs, fingerprints and exact checks. This is development feedback, not unseen
+semantic evaluation.
+
 ## Ideal church area estimates, 25 October 2026
 
 The new area-placement experiment was reviewed on the same 24 development

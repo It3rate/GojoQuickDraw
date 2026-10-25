@@ -10,10 +10,11 @@ from copy import deepcopy
 import itertools
 import math
 
-COLORS = {"ground": "#63735f", "building": "#277da8", "roof": "#bf712a",
+COLORS = {"ground": "#63735f", "building": "#277da8", "tower": "#56729a", "roof": "#bf712a",
           "cross": "#ae3f6d", "cross-level": "#ae3f6d", "door": "#23846c", "window": "#8c68aa"}
-POLICY = {"version": "church-area-layout.v1", "learned": False, "maximumSamples": 2048,
+POLICY = {"version": "church-area-layout.v2", "learned": False, "maximumSamples": 2048,
           "maximumUprights": 16, "maximumDoors": 2, "maximumWindows": 8,
+          "maximumRoofs": 6, "maximumCrosses": 6, "domePartitions": 32,
           "basis": "normalized observer page; down is a chosen church-upright premise",
           "qualification": "Authored regional plausibility costs, not calibrated probabilities; no source geometry is replaced."}
 
@@ -71,6 +72,38 @@ def _ring(points, site_sources=None):
 
 def _comparison(actual, expected, allowance, basis):
     return dict(actual=actual, expected=expected, allowance=allowance, basis=basis)
+
+
+def _rectangle(bounds, top_anchors=(), bottom_anchors=(), top_source=None, bottom_source=None):
+    """Expose boundary sites by splitting actual ordered rectangle edges."""
+    l,t,r,b=bounds; points=[[l,t],[r,t],[r,b],[l,b]]; sources=[None]*4
+    geometry={"points":points,"segments":[],"fillIndices":[0,1,2,3],"siteSources":sources}
+    maps=[]
+    for y,start,end,anchors,source in ((t,0,1,top_anchors,top_source),(b,3,2,bottom_anchors,bottom_source)):
+        mapping={l:start,r:end}
+        for x in sorted(set(round(x,3) for x in anchors if l<x<r)):
+            mapping[x]=len(points);points.append([x,y]);sources.append(None)
+        if source:
+            for x,index in mapping.items():sources[index]=source(x)
+        indices=[mapping[x] for x in sorted(mapping,reverse=y==b)]
+        geometry['segments'] += [[a,c] for a,c in zip(indices,indices[1:])]
+        maps.append(mapping)
+    geometry['segments'] += [[1,2],[3,0]]
+    return geometry,maps
+
+
+def _cap_geometry(cap, parent_id, parent_sites):
+    l,top,r,base=cap['bounds'];mid=round((l+r)/2,3)
+    if cap['shape']=='dome':
+        points=[[round(mid+(r-l)/2*math.cos(math.pi-i*math.pi/POLICY['domePartitions']),3),
+                 round(base-(base-top)*math.sin(math.pi-i*math.pi/POLICY['domePartitions']),3)]
+                for i in range(POLICY['domePartitions']+1)]
+        points[0]=[l,base];points[-1]=[r,base]
+    else:points=[[l,base],cap['apex'],[r,base]]
+    points.append([mid,base]);sources=[]
+    for x,y in points:
+        sources.append({'part':parent_id,'index':parent_sites[x]} if y==base and x in parent_sites else None)
+    return _ring(points,sources)
 
 
 def _region_support(spans, bounds):
@@ -190,39 +223,16 @@ def estimate(observed):
     peak_band = [p for p in upper if p[1] < apex_y+.10*sh]
     hint_x = _quantile([(p[0],p[2]) for p in peak_band],.5) if peak_band else cx
     apex_x = round(_clamp(.6*hint_x+.4*cx, cx-.12*bw, cx+.12*bw),3)
-    if cross_hints:
-        cross = min(cross_hints, key=lambda c: abs(c["point"][0]-apex_x)/bw + max(0,c["point"][1]-top)/sh)
-        support = cross["spans"]
-        cross_box = _box([p for s in spans if s["id"] in support for p in s["controls"]])
-        ch = _clamp(cross_box[3]-cross_box[1], .08*sh, .27*sh)
-        cross_x, bar_y = cross["point"]
-        above = bar_y < apex_y
-        if above:
-            ch = min(ch, .8*max(.08*sh,apex_y-st)); cross_x = _clamp(cross_x,cx-.22*bw,cx+.22*bw)
-            cross_top = min(bar_y-.32*ch, apex_y-ch)
-        else:
-            ch = min(ch,.48*(top-apex_y)); cross_top = _clamp(bar_y-.32*ch, apex_y+.18*(top-apex_y),top-ch-.04*sh)
-            cross_x = _clamp(cross_x, apex_x-.12*bw, apex_x+.12*bw)
-    else:
-        support=[]; above=True; ch=.12*sh; cross_x=apex_x; cross_top=apex_y-ch
-    if not above:
-        # Every outline vertex must fit the chosen triangle, including the arms.
-        # This adjusts a proposed ideal marker, never the acquired crossing.
-        for _ in range(12):
-            cross_top=_clamp(cross_top,apex_y+.22*(top-apex_y),top-ch-.015*sh)
-            offsets=[(-.06*ch,0),(.06*ch,0),(-.30*ch,.26*ch),(.30*ch,.26*ch),
-                     (-.30*ch,.38*ch),(.30*ch,.38*ch),(-.06*ch,ch),(.06*ch,ch)]
-            lo,hi=l,r
-            for dx,dy in offsets:
-                fraction=(cross_top+dy-apex_y)/(top-apex_y)
-                lo=max(lo,apex_x+(l-apex_x)*fraction-dx)
-                hi=min(hi,apex_x+(r-apex_x)*fraction-dx)
-            if lo+.002 < hi:
-                cross_x=_clamp(cross_x,lo+.001,hi-.001); break
-            ch*=.8
-    # Christian cross: upper arm at 32% of its height, longer lower stem.
-    cross_x, ch, cross_top = round(cross_x,3), round(ch,3), round(cross_top,3)
-    bar_y=round(cross_top+.32*ch,3); thick=.12*ch; half=.30*ch
+    from .layout_roofs import regions as roof_regions
+    from .layout_markers import markers, geometry as marker_geometry
+    roofs, roof_reads = roof_regions(observed,[l,top,r,g],scene,cross_spans,POLICY['maximumRoofs'])
+    if not roofs:
+        roofs=[{'bounds':[l,apex_y,r,top],'apex':[apex_x,apex_y],'shape':'triangle',
+                'spans':_region_support(spans,[l,apex_y,r,top]),'towerBottom':None,
+                'costTerms':{},'shapeCosts':{},'fallback':True}]
+    for cap in roofs:
+        if cap['shape']=='dome':cap['apex']=[round((cap['bounds'][0]+cap['bounds'][2])/2,3),cap['bounds'][1]]
+    cross_markers, marker_reads = markers(observed,roofs,[l,top,r,g],scene,POLICY['maximumCrosses'])
     opening_regions = _opening_regions(observed,[l,top,r,g],cross_spans)
     doors,windows=[],[]
     for region in sorted(opening_regions, key=lambda q: -(q["bounds"][2]-q["bounds"][0])*(q["bounds"][3]-q["bounds"][1])):
@@ -244,7 +254,7 @@ def estimate(observed):
         windows.append({**region,"placedBounds":[x-width/2,y-height/2,x+width/2,y+height/2]})
     parts=[]; relations=[]
     def add(role, geo, bounds, ids=(), parents=(), assumed=False, extra=None):
-        ident="layout-"+role+("-"+str(sum(p["role"]==role for p in parts)+1) if role in ("door","window") else "")
+        ident="layout-"+role+("-"+str(sum(p["role"]==role for p in parts)+1) if role in ("door","window","tower") or any(p["role"]==role for p in parts) else "")
         item={"id":ident,"kind":"area-layout-"+role,"role":role,"spans":list(dict.fromkeys(ids)),
               "participants":list(parents),"geometry":geo,"bounds":bounds,"color":COLORS[role],
               "status":"prior-only" if assumed else "regional-estimate", "comparisons":[],
@@ -256,26 +266,56 @@ def estimate(observed):
         relations.append({"id":"layout-relation-"+name,"kind":name,"participants":selected,"spans":[],
             "comparisons":[_comparison(actual,expected,allowance,"normalized page; chosen layout premise")],
             "status":"conditional-construction","residue":["Construction consistency is not independent observed evidence."]})
-    ground_x=sorted(set([round(l-.10*bw,3),l,r,round(r+.10*bw,3)]+[round(v,3) for d in doors for v in (d["placedBounds"][0],d["placedBounds"][2])]))
+    def anchors(cap):
+        a,_,b,_=cap['bounds'];return [a,round((a+b)/2,3),b]
+    grounded=[x for cap in roofs if cap['towerBottom']==g for x in anchors(cap)]
+    ground_x=sorted(set([round(l-.10*bw,3),l,r,round(r+.10*bw,3)]+grounded+
+                       [round(v,3) for d in doors for v in (d['placedBounds'][0],d['placedBounds'][2])]))
     ground_points=[[x,g] for x in ground_x]
     source_ground=_region_support(spans,[sl,g-.10*sh,sr,g+.10*sh])
-    add("ground",{"points":ground_points,"segments":[[i,i+1] for i in range(len(ground_points)-1)]},[ground_x[0],g,ground_x[-1],g],source_ground,assumed=not source_ground)
-    ground_site=lambda x:{"part":"layout-ground","index":ground_x.index(round(x,3))}
-    building=add("building",_ring([[l,top],[r,top],[r,g],[l,g]],[None,None,ground_site(r),ground_site(l)]),[l,top,r,g],
-        _region_support(spans,[l-.08*bw,top-.08*bh,r+.08*bw,g+.08*bh]),["layout-ground"],extra={"costTerms":distinct[0]["costTerms"],"cost":distinct[0]["cost"]})
-    building["comparisons"]=[_comparison(value,0,1,"authored regional cost: "+key) for key,value in distinct[0]["costTerms"].items()]
-    add("roof",_ring([[l,top],[apex_x,apex_y],[r,top]],[{"part":building["id"],"index":0},None,{"part":building["id"],"index":1}]),
-        [l,apex_y,r,top],_region_support(spans,[l-.10*bw,apex_y,r+.10*bw,top]),[building["id"]],assumed=not upper)
-    x=cross_x; y=cross_top; b=bar_y; e=y+ch; k=thick/2
-    cross_points=[[x-k,y],[x+k,y],[x+k,b-k],[x+half,b-k],[x+half,b+k],[x+k,b+k],
-                  [x+k,e],[x-k,e],[x-k,b+k],[x-half,b+k],[x-half,b-k],[x-k,b-k]]
-    cross_geo=_ring([[round(a,3),round(c,3)] for a,c in cross_points]); cross_geo["points"].append([x,b])
-    add("cross",cross_geo,[x-half,y,x+half,e],support,["layout-roof"],assumed=not support,
-        extra={"placement":"above-roof" if above else "within-roof"})
-    add("cross-level",{"points":[[ground_x[0],b],[x,b],[ground_x[-1],b]],"segments":[[0,1],[1,2]],
-        "siteSources":[None,{"part":"layout-cross","index":12},None]},[min(ground_x[0],x),b,max(ground_x[-1],x),b],support,["layout-cross"],assumed=not support)
-    relate("building-on-ground",["layout-ground",building["id"]],0)
-    relate("roof-on-building",[building["id"],"layout-roof"],0)
+    add('ground',{'points':ground_points,'segments':[[i,i+1] for i in range(len(ground_points)-1)]},
+        [ground_x[0],g,ground_x[-1],g],source_ground,assumed=not source_ground)
+    ground_site=lambda x:{'part':'layout-ground','index':ground_x.index(round(x,3))}
+    top_anchors=[x for cap in roofs if cap['towerBottom'] in (None,top) for x in anchors(cap)]
+    body_geo,body_sites=_rectangle([l,top,r,g],top_anchors,bottom_source=ground_site)
+    building=add('building',body_geo,[l,top,r,g],
+        _region_support(spans,[l-.08*bw,top-.08*bh,r+.08*bw,g+.08*bh]),['layout-ground'],
+        extra={'costTerms':distinct[0]['costTerms'],'cost':distinct[0]['cost']})
+    building['comparisons']=[_comparison(value,0,1,'authored regional cost: '+key) for key,value in distinct[0]['costTerms'].items()]
+    relate('building-on-ground',['layout-ground',building['id']],0)
+    roof_parts=[]
+    for cap in roofs:
+        a,peak,b,base=cap['bounds'];bottom=cap['towerBottom']
+        parent=building;sites=body_sites[0]
+        if bottom is not None:
+            from_body=lambda x:{'part':building['id'],'index':body_sites[0][x]} if x in body_sites[0] else None
+            geo,tower_sites=_rectangle([a,base,b,bottom],anchors(cap),anchors(cap),
+                                      bottom_source=ground_site if bottom==g else from_body)
+            parent=add('tower',geo,[a,base,b,bottom],cap['towerSpans'],['layout-ground',building['id']],
+                extra={'lowerBoundary':'inferred-level','expected':{'meaning':'Upright support below a cap; no drawn separating line is required.'}})
+            sites=tower_sites[0]
+            relate(parent['id']+'-on-'+('ground' if bottom==g else 'building'),
+                   ['layout-ground' if bottom==g else building['id'],parent['id']],0)
+        roof=add('roof',_cap_geometry(cap,parent['id'],sites),cap['bounds'],cap['spans'],[parent['id']],
+            assumed=not cap['spans'],extra={'shape':cap['shape'],'apex':cap['apex'],'fallback':cap.get('fallback',False),
+                 'costTerms':cap['costTerms'],'shapeCosts':cap['shapeCosts'],
+                 'construction':{'partitions':POLICY['domePartitions'] if cap['shape']=='dome' else 2,
+                                 'basis':'Half ellipse or two slopes with an explicit closing base; finite proposed sites.'}})
+        roof['comparisons']=[_comparison(value,0,1,'authored cap cost: '+key) for key,value in {**cap['costTerms'],**cap['shapeCosts']}.items()]
+        gap=max(0,parent['bounds'][0]-b,a-parent['bounds'][2])
+        relate(roof['id']+'-on-'+parent['id'],[parent['id'],roof['id']],gap)
+        roof_parts.append(roof)
+    for hint in cross_markers:
+        parent=roof_parts[hint['roofIndex']] if hint['roofIndex'] is not None else building
+        geo,bounds,placement=marker_geometry(observed,hint,parent,scene)
+        marker=add('cross',geo,bounds,hint['spans'],[parent['id']],assumed=not hint['spans'],
+            extra={'placement':placement,'markerBasis':hint['markerBasis'],
+                   **({'status':'partial-marker-prior','missingHorizontalArm':True} if hint.get('missingHorizontalArm') else {})})
+        x,y=geo['points'][12]
+        left,right=(parent['bounds'][0]-.1*bw,parent['bounds'][2]+.1*bw) if len(cross_markers)>1 else (ground_x[0],ground_x[-1])
+        add('cross-level',{'points':[[left,y],[x,y],[right,y]],'segments':[[0,1],[1,2]],
+            'siteSources':[None,{'part':marker['id'],'index':12},None]},[min(left,x),y,max(right,x),y],
+            hint['spans'],[marker['id']],assumed=not hint['spans'])
     for role,regions in (("door",doors),("window",windows)):
         for region in regions:
             a,b,c,d=[round(v,3) for v in region["placedBounds"]]
@@ -287,9 +327,10 @@ def estimate(observed):
             else:relate(item["id"]+"-smaller-than-door",[item["id"]]+[p["id"] for p in parts if p["role"]=="door"],(c-a)*(d-b),0,dw*dh*.75)
     return {"schema":"gojo.quickdraw-area-layout.v1","sourceId":observed.get("sourceId"),"status":"proposed",
         "parts":parts,"relations":relations,"alternatives":distinct,"policy":deepcopy(POLICY),"sampleReduction":reduced,
-        "sequence":["ground level","building area","attached roof area","upper cross region","optional openings"],
+        "sequence":["ground level","building area","local cap and tower areas","independent upper markers","optional openings"],
+        "roofReads":roof_reads,"markerReads":marker_reads,
         "qualification":POLICY["qualification"],"sourceUnchanged":True,
-        "openQuestions":["One main building and one main roof are assumed; side views and multiple towers are compressed.",
+        "openQuestions":["One main building envelope remains; local towers and triangular or domed caps are provisional interpretations.",
                          "Missing cross uses an explicit prior-only placement. Missing openings are left open."]}
 
 

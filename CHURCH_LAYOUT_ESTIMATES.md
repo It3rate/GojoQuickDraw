@@ -18,16 +18,22 @@ a region for its support, assumptions, placement costs and construction referenc
 | --- | --- | --- |
 | Ground level | Lower ink extent and bottoms of long lower uprights | One horizontal level, whether or not a baseline was drawn |
 | Building rectangle | Broad lower extent, upright regions, upper horizontal levels | Bottom corners share the proposed ground sites |
-| Roof triangle | Upper ink extent and approximate peak region, excluding detected cross strokes | Its base shares the building's two upper sites |
-| Christian cross | An upper crossing candidate, if available | Place above the roof or inside its triangle; ideal proportions |
+| Tower rectangle | A local cap above the main wall; nearby upright regions | Below that cap, down to the main wall or ground; no drawn divider is required |
+| Triangular or domed roof | Paired local upper contours, excluding selected cross intervals | Base sites explicitly select the supporting tower or wall boundary where they meet |
+| Christian cross | Independent upper crossings or partial upright markers | Each uses its nearby cap or main building; multiple markers are allowed |
 | Cross level | The proposed cross's arm intersection | Horizontal reference through that actual proposed site |
 | Door rectangles | Small, substantially traced regions near ground | Bottom sites share ground; rectangles remain inside the building |
 | Window rectangles | Smaller traced regions above ground | Inside the building and smaller than doors |
 
-One building and one roof are deliberately used in this first pass. Up to two
-doors and eight windows can be proposed. Crosses have a longer lower stem and
-a transverse arm at 32% of height. An absent detected cross gets a **prior-only**
-proposal, not a detection claim. Missing openings are left absent. If no door is
+There is still one main building envelope, with up to six local roofs, six towers,
+six crosses, two doors and eight windows. These are search capacities, not expected
+church counts. A tower may overlap the main building area. Distinct towers retain
+their own identities; the same area can participate in both building and tower.
+Crosses have a longer lower stem and a transverse arm at 32% of height.
+An upright above a cap can propose a **partial-marker-prior** cross, with its missing
+horizontal arm explicitly recorded. If no crossing or partial marker is found,
+there is one **prior-only** cross proposal, not one invented for every roof.
+Missing openings are left absent. If no door is
 proposed, window sizing uses an explicit latent door-size default; it does not
 create a visible door. Empty or essentially one-dimensional input leaves the
 layout open.
@@ -56,6 +62,40 @@ their own geometry and costs. The roof, cross and openings then use explicit
 relative placement rules. These placements do not count as new observed support
 for the very premises that created them.
 
+### Local roofs and towers (policy v2)
+
+The cap search reads coarse monotone contour runs and fitted source intervals.
+It pairs left and right sides using tip proximity, similar eave levels and enough
+width/height to be a regional feature. It compares the observed coarse heights
+with a triangle and half ellipse. Midpoints constrain straight sides too, so two
+straight slopes do not become a dome merely because their endpoints agree.
+Acquisition direction is preserved in the source; reversing a contour does not
+change this shape read.
+
+Cap costs expose tip separation, eave-level difference, profile discrepancy and
+unexplained upper contour. The last term helps keep a sloping wall edge from
+winning over the roof above it. Caps need some overlap with the proposed building
+footprint; disconnected contours remain in `unattachedRegions` instead of becoming
+attached roofs. Competing caps with substantially overlapping horizontal extents
+are suppressed in this first local search. Capacity-withheld proposals remain
+visible in `withheldRegions`.
+
+A narrow cap above the wall suggests a tower reaching down to that wall. Paired
+uprights extending near ground instead suggest a full-height tower. Neither case
+requires a stroke along the tower's proposed lower edge: `lowerBoundary` is
+`inferred-level`. The source gap and any continuous outline stay unchanged.
+
+Broad, nearly aligned roofs prefer the wall's width. Narrow or displaced roofs
+keep their own width and position. A dome uses an ideal half ellipse sampled into
+32 ordered boundary intervals, plus a closing base split at its middle contact
+site. This is a finite imported construction, not a new native exact-circle law.
+The alternate triangle/dome costs remain available for inspection.
+
+Crosses are placed independently of roof count. A cross between two towers can
+reference the main building rather than being moved onto one tower. Each gets
+its own horizontal level. These are provisional marker interpretations: the
+existing crossing detector can still mistake a grid intersection for a cross.
+
 ## Connected evidence and preservation
 
 The `layout` packet is a display summary. Corresponding `context.parts` and
@@ -65,11 +105,20 @@ remain provisional verbal meaning; ordered edges, proposed shared sites, selecte
 participants, numerical comparisons and unresolved slots are native structure.
 
 `geometry.siteSources` explicitly selects a point of an earlier participating
-part. Thus the roof really shares the proposed wall's top sites and the wall/doors
-share proposed ground sites after capture and restore. Equal coordinates alone
+part. Wall and tower boundaries are split at actual contact sites, so a roof can
+share two corners and a base-middle site with its supporting tower or wall. A
+tower's lower sites select the wall or ground; walls and doors select ground sites.
+These identities survive capture and restore. Equal coordinates alone
 do not create identity. These sites do not alias acquired samples, and source
 gaps are not silently closed. Missing, forward, unselected or disagreeing site
 references are rejected.
+
+The named heuristic cost components, shape choice, role and partial-marker reason
+remain adapter provenance. Native context preserves selected source witnesses,
+ordered proposed geometry, explicit shared sites, open placeholders and signed
+pair-bound comparisons. It does not yet execute the triangle/dome selection or
+the placement costs as native learned laws. The display's category labels are
+not a substitute for that future structural work.
 
 The source JSON, point order/times, fitted intervals and baseline program remain
 unchanged. The old seven synthesis states remain available for comparison. This
@@ -77,10 +126,13 @@ new layout is neither another pass that mutates those lines nor a native physica
 settlement engine. It is an explicit imported construction hypothesis with visible
 support and disagreement, ready for later changes to the proposing mechanism.
 
-## What this first pass does not establish
+## What this pass does not establish
 
-- A single rectangle and triangle compress side views, towers and several roofs.
+- One main rectangle still compresses side views and complex connected bodies.
   This experiment does not first select an appropriate view-specific machine.
+- The local search handles separated caps; several roofs stacked or overlapping
+  at the same horizontal position can suppress each other. Flat-topped towers
+  without a detectable cap can still fall back to the earlier broad roof premise.
 - An outlined cross can escape the existing crossing detector. A prior-only cross
   may consequently appear above a real cross drawn elsewhere.
 - Writing, scribbles and decoration can propose false openings. Parts embedded in
@@ -90,9 +142,9 @@ support and disagreement, ready for later changes to the proposing mechanism.
 - The 24 drawings used for review are an existing development set, not an unseen
   evaluation set. Geometry and archive checks do not measure semantic accuracy.
 
-Next useful feedback is whether the main **areas and relationships** are plausible,
-which optional openings are missing or spurious, and when this one-roof premise
-should be replaced by several connected regions. Learned weighting can later
+Next useful feedback is whether the individual **tower/roof counts and areas** are
+plausible, which markers or optional openings are missing or spurious, and which
+overlapping regions need a different construction. Learned weighting can later
 propose these same connected structures; no trained model is needed for this trial.
 
 ## Refresh and reproduce

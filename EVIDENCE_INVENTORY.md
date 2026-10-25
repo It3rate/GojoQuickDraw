@@ -15,8 +15,9 @@ defaults, and goals. Implementation notes added during subsequent work do not
 retroactively turn an authored control into an automatic recognizer.
 
 Current extension: [church area estimates](CHURCH_LAYOUT_ESTIMATES.md) adds ideal
-ground/building/roof/cross/opening placements (**in**, authored hypotheses).
-Proposed roof-wall and ground-wall/door contacts share actual construction sites;
+ground/building/tower/roof/cross/opening placements (**in**, authored hypotheses),
+including several triangular or domed caps and separate markers. Proposed
+roof-tower-wall and ground-wall/door contacts share actual construction sites;
 they do not establish contact between acquired points. Optional openings and
 alternative building areas remain revisable. General physical support, reliable
 part recognition and learned regional likelihoods remain **plan**.
@@ -343,12 +344,13 @@ approximate/exact under an explicit premise.
 | Wall | Boundary/surface potentially containing openings | in, provisional |
 | Roof | Upper converging/enclosing/curved structure | in, limited |
 | Roof connected to wall | Attachment at actual/proposed sites | in, provisional local-frame attachment opinions; observed contact remains separate |
-| Roof overhang | Extension beyond lower container | new |
+| Roof overhang | Extension beyond lower container | in, offset/narrow area estimates; attachment reasoning limited |
 | Steeple/peak | Slender upper extension relative to body | in, seeded |
-| Tower | Upright substructure attached/beside body | in, controls/limited synthesis |
-| Multiple towers | Distinct upper parts with count/placement | in, examples; recognition planned |
-| Rounded tower/dome | Curved upper closure | in, controls/limited synthesis |
+| Tower | Upright substructure attached/beside body | in, local cap-supported area hypotheses; missing divider remains inferred |
+| Multiple towers | Distinct upper parts with count/placement | in, separate regional proposals; reliable recognition planned |
+| Rounded tower/dome | Curved upper closure | in, triangle/half-ellipse profile comparison and finite ideal scaffold |
 | Cross | Crossing arms and candidate centre | in |
+| Multiple/partial crosses | Independent markers; missing arm distinct from observed crossing | in, limited upper marker proposals and explicit partial assumptions |
 | Cross on upper part | Attachment and above/near-top relation | in, limited construction |
 | Door | Lower, often central opening | in, ambiguous seed |
 | Window | Smaller interior opening | in, ambiguous seed |
