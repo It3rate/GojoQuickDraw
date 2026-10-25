@@ -66,6 +66,18 @@ Drawing steps independently executes native programs. The evidence list includes
 dependent opinions and proposed object groups with support, opposition, providers,
 and links to earlier claims. Direction markers and endpoint details expose start,
 end, acquisition indices, and point times where supplied.
+The selected Read mode stays selected through First/Previous/Next/Last, page
+selection, drawing changes, and browser refresh. Links can select it directly
+using `?view=step%3A6` for step 7. If a drawing has no such step, its fitted source
+is shown and the requested step remains available for later drawings.
+
+**Input / final gallery** builds the detailed review and a smaller comparison
+gallery without running analysis again. Each page shows 12 pairs: three pairs
+across and four rows on a desktop, with fewer columns on small screens. Click a
+pair to open that exact drawing's final interpretation in the detailed inspector.
+The retained-detail toggle hides or shows the faint carried lines. Its choice
+also survives gallery page changes. Unanalyzed drawings explicitly have no final
+interpretation; run Full analysis first when those are needed.
 
 ## Interpretations and probes
 
@@ -90,6 +102,9 @@ samples/
 samples-runs/
   inspector/evidence.html
   inspector/evidence-pages/<generation>/page-00002.html
+  inspector/evidence.pages.json
+  inspector/comparison.html
+  inspector/comparison-pages/<generation>/page-00002.html
   <timestamp>/stages/...
   <timestamp>/machine-probes.json
 samples-analysis/

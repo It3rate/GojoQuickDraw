@@ -1,0 +1,57 @@
+{
+  "schema": "gojo.quickdraw-gallery-verification.v1",
+  "date": "2026-10-25",
+  "scope": "Read-only presentation of saved source evidence and final authored interpretations; desktop collection selection",
+  "upstream": {
+    "commit": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "workingTreeChanged": false,
+    "fullSolutionRetested": false,
+    "qualification": "The unchanged linked Gojo solution passed 5407 tests in the preceding analysis checkpoint. This change adds no kernel or native encoding behavior."
+  },
+  "tests": {"python": 68, "native": 13, "desktop": 10},
+  "releaseBuild": {"errors": 0, "warnings": 0},
+  "gallery": {
+    "dataset": "D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis",
+    "entry": "D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis-runs/inspector/comparison.html",
+    "drawings": 1000,
+    "finals": 1000,
+    "linkedDrawings": 1000,
+    "pages": 84,
+    "pairsPerPage": 12,
+    "lastPagePairs": 4,
+    "desktopColumns": 3,
+    "htmlBytes": 9206417,
+    "allPagesChecked": true,
+    "thumbnailCountsChecked": true,
+    "actualSvgBoundsChecked": true,
+    "detailLinksOpened": 3,
+    "scriptErrors": 0,
+    "externalRequests": 0,
+    "mobileOverflow": false
+  },
+  "inspector": {
+    "pages": 20,
+    "drawings": 1000,
+    "drawingsInspected": 40,
+    "modesChecked": 400,
+    "dependentClaimsInspected": 34,
+    "persistentView": "step:6",
+    "persistenceControls": ["next page", "previous page", "first page", "last page", "page selector", "drawing selector", "reload"],
+    "immutable": true,
+    "scriptErrors": 0,
+    "externalRequests": 0
+  },
+  "mixedCategoryAudit": {
+    "drawings": 9,
+    "churchFinals": 3,
+    "linkedDrawings": 9,
+    "inspectorPages": 3,
+    "inspectorModesChecked": 48,
+    "unavailableViewFallbackAndRecoveryChecked": true,
+    "desktopWorkflowPassed": true,
+    "baselineArchivesUnchanged": true,
+    "analysisResumeReused": 9
+  },
+  "localEvidence": "D:/_quickDraw/gojo-quickdraw-gallery-qa",
+  "qualification": "Final thumbnails are the last cached authored proposal, not new native executions or ground-truth targets. No analysis was rerun on the 1000-church collection and no source packets were rewritten."
+}

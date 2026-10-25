@@ -71,7 +71,39 @@ let browser;
     await page.click('#lastPage'); await page.waitForFunction(n => typeof PAGING !== 'undefined' && PAGING.page === n, navigation.pages.length);
     await page.click('#firstPage'); await page.waitForFunction(() => typeof PAGING !== 'undefined' && PAGING.page === 1);
   }
+  // The selected interpretation travels in the URL across every paging control,
+  // drawing changes and reloads, including the final synthesized church step.
+  const proposalDrawing = await page.evaluate(() => DATA.records.findIndex(r => r.packet.analysis?.proposal?.steps?.length));
+  if (proposalDrawing >= 0) await page.selectOption('#drawing', String(proposalDrawing));
+  const finalMode = await page.locator('#readMode option').evaluateAll(options => options.map(o => o.value).filter(v => v.startsWith('step:')).at(-1));
+  let persistedView = null, viewFallbackChecked = false;
+  if (finalMode) {
+    persistedView = finalMode;
+    await page.selectOption('#readMode', finalMode);
+    await page.click('#next');
+    assert.equal(new URL(page.url()).searchParams.get('view'), finalMode);
+    const nextAvailable = await page.locator(`#readMode option[value="${finalMode}"]`).count();
+    assert.equal(await page.locator('#readMode').inputValue(), nextAvailable ? finalMode : 'observed-fit');
+    viewFallbackChecked = !nextAvailable;
+    await page.selectOption('#drawing', String(proposalDrawing));
+    assert.equal(await page.locator('#readMode').inputValue(), finalMode, 'Requested step lost while visiting a drawing without it');
+    if (navigation.pages.length > 1) {
+      for (const [control, number] of [['nextPage',2],['prevPage',1],['lastPage',navigation.pages.length],['firstPage',1]]) {
+        await page.click('#' + control);
+        await page.waitForFunction(n => typeof PAGING !== 'undefined' && PAGING.page === n, number);
+        assert.equal(new URL(page.url()).searchParams.get('view'), finalMode);
+        const available = await page.locator(`#readMode option[value="${finalMode}"]`).count();
+        assert.equal(await page.locator('#readMode').inputValue(), available ? finalMode : 'observed-fit');
+      }
+      await page.selectOption('#page', '1'); await page.waitForFunction(() => typeof PAGING !== 'undefined' && PAGING.page === 2);
+      assert.equal(new URL(page.url()).searchParams.get('view'), finalMode);
+    }
+    await page.reload();
+    assert.equal(new URL(page.url()).searchParams.get('view'), finalMode);
+    const available = await page.locator(`#readMode option[value="${finalMode}"]`).count();
+    assert.equal(await page.locator('#readMode').inputValue(), available ? finalMode : 'observed-fit');
+  }
   assert.deepEqual(errors, []); assert.deepEqual(requests, []);
-  const result = {drawings:navigation.total, pages:navigation.pages.length, pageSizes, drawingsInspected, modesChecked, dependenciesInspected, errors, requests, immutable:true, mobileOverflow:false};
+  const result = {drawings:navigation.total, pages:navigation.pages.length, pageSizes, drawingsInspected, modesChecked, dependenciesInspected, persistedView, viewFallbackChecked, errors, requests, immutable:true, mobileOverflow:false};
   fs.writeFileSync(path.join(output, 'summary.json'), JSON.stringify(result, null, 2)); console.log(JSON.stringify(result));
 })().catch(error => {console.error(error); process.exitCode=1;}).finally(async () => {if(browser)await browser.close();});

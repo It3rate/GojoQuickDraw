@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace GojoQuickDraw.Desktop;
 
-public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze }
+public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery }
 public sealed record PipelineOptions(string Repository, string Python, string Gojo, string Input, string Dataset,
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
     double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
@@ -60,6 +60,11 @@ public static class Pipeline
                 arguments.Add("review"); Dataset(); Ordering();
                 artifact = Path.Combine(run, "evidence.html");
                 arguments.AddRange(["--output", artifact, "--limit", options.Limit.ToString()]);
+                break;
+            case PipelineAction.Gallery:
+                arguments.Add("gallery"); Dataset(); Ordering();
+                artifact = Path.Combine(run, "comparison.html");
+                arguments.AddRange(["--output", artifact, "--page-size", "12", "--inspector", Path.Combine(run, "evidence.html")]);
                 break;
             case PipelineAction.Stages:
                 arguments.Add("stages"); Dataset(); Ordering();

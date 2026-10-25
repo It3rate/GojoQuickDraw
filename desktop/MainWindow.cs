@@ -164,6 +164,8 @@ internal sealed partial class MainWindow : Window
             InspectionControls(),
             Buttons(JobButton("Load drawings", null), JobButton("Verify archives", [PipelineAction.Verify]),
                 JobButton("Build visual review", [PipelineAction.Review]), JobButton("Full analysis → review", [PipelineAction.Analyze, PipelineAction.Review], true)),
+            Buttons(JobButton("Input / final gallery", [PipelineAction.Review, PipelineAction.Gallery], true),
+                Text("12 input/result pairs per page. Open a pair to inspect its final step.", 12)),
             _verifyAll, browse,
             Field("Drawings per page / limited verification", _reviewLimit, "All drawings remain available across pages. Verify the entire dataset ignores this page size."),
             Card(Stack(10, Text("Full analysis of this collection", 16, true),
@@ -207,7 +209,7 @@ internal sealed partial class MainWindow : Window
         long? sampleSeed = null;
         if (action == PipelineAction.Convert && !string.IsNullOrWhiteSpace(_samplingSeed.Text))
             sampleSeed = long.TryParse(_samplingSeed.Text, out var seed) ? seed : throw new ArgumentException("Sampling seed must be a whole number, or blank for random selection.");
-        if (action == PipelineAction.Review) run = Workspace.InspectorFolder(target);
+        if (action is PipelineAction.Review or PipelineAction.Gallery) run = Workspace.InspectorFolder(target);
         return new(_repository, _python.Text?.Trim() ?? "", _gojo.Text?.Trim() ?? "", _input.Text?.Trim() ?? "", target,
             string.Join(',', _sourceCategories.Order(StringComparer.OrdinalIgnoreCase)), limit, action == PipelineAction.Verify ? _verifyAll.IsChecked == true : action == PipelineAction.Analyze ? _analyzeAll.IsChecked == true : _all.IsChecked == true,
             _recursive.IsChecked == true, action == PipelineAction.Analyze ? _analysisRetry.IsChecked == true : _retry.IsChecked == true, (double)(_fit.Value ?? 6), (int)(_maxPoints.Value ?? 20000), (int)(_maxSpans.Value ?? 256),
@@ -246,7 +248,8 @@ internal sealed partial class MainWindow : Window
                 if (plan.Artifact is { } artifact && File.Exists(artifact))
                 {
                     _lastArtifact = artifact;
-                    if (action is PipelineAction.Review or PipelineAction.Stages && _autoOpen.IsChecked == true && !_smoke) Open(artifact);
+                    if (action is PipelineAction.Review or PipelineAction.Stages or PipelineAction.Gallery && _autoOpen.IsChecked == true && !_smoke
+                        && !(action == PipelineAction.Review && actions.Contains(PipelineAction.Gallery))) Open(artifact);
                 }
                 SetStatus(result.RetainedErrors ? "Converted with retained errors" : "Completed", Describe(action, result));
                 if (action is PipelineAction.Probe or PipelineAction.ExampleProbe) ShowProbes(result);
@@ -268,6 +271,7 @@ internal sealed partial class MainWindow : Window
     {
         PipelineAction.Convert => "Converting drawings…", PipelineAction.Verify => "Verifying native archives…",
         PipelineAction.Review => "Building the evidence review…", PipelineAction.Stages => "Generating drawing steps…",
+        PipelineAction.Gallery => "Building input / final comparisons…",
         PipelineAction.Analyze => "Analyzing converted drawings…",
         PipelineAction.Setup => "Checking local tools…", _ => "Comparing machine responses…"
     };
@@ -281,6 +285,7 @@ internal sealed partial class MainWindow : Window
             PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings",
             PipelineAction.Verify => $"{Count("records")} drawings independently restored; artifact hashes checked.",
             PipelineAction.Review => $"Visual review ready for {Count("drawings")} drawings across {Math.Max(1, Count("pages"))} page(s). Use Open last result to inspect it.",
+            PipelineAction.Gallery => $"Comparison gallery ready: {Count("drawings")} drawings across {Count("pages")} pages, 12 pairs per page. Use Open last result to inspect it.",
             PipelineAction.Analyze => $"{Count("converted")} analyzed · {Count("resumed")} reused · {Count("storedErrors")} retained errors. Source collection preserved.",
             PipelineAction.Stages => $"{Count("passes")} steps generated for {Count("drawings")} drawings." +
                 (data.TryGetProperty("warnings", out var warnings) && warnings.GetArrayLength() > 0 ? $" {warnings.GetArrayLength()} viewing-frame warning(s); inspect the review." : " Inspect the proposed interpretations in the review."),

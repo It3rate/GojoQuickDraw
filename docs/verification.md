@@ -1,5 +1,34 @@
 # Verification checkpoints
 
+## Comparison gallery and persistent views, 25 October 2026
+
+The 1,000-church gallery has 84 pages of 12 input/result pairs, with four pairs
+on the last page. Browser checks visit every page, verify unique complete
+membership, source/final profile counts, three pairs across, actual unclipped
+SVG bounds, mobile layout, retained-detail persistence and final-step links.
+All 1,000 pairs have a final interpretation and a link to the correct inspector
+page. The gallery is 9.2 MB across its pages; it does not embed full packets.
+
+The detailed inspector preserves its selected Read view through every paging
+control, drawing selection and reload. The 20-page audit again covers all 1,000
+records and 400 views. A separate nine-record, three-category audit verifies that
+a requested final step survives visiting drawings that have no interpretation;
+those drawings show their fitted source without inventing a final result.
+There are no browser script errors, external requests or evidence changes.
+
+The real desktop workflow builds both reviews after analysis and verifies that
+the gallery has nine source drawings, three church finals and nine inspection
+links. This protects a deferred folder-selection fix: the first command after
+switching to the analysis collection must not use the previous collection's
+selected folder. The workflow also converts/restores real samples and checks
+unchanged archives, cancellation and exact analysis resume.
+
+The checkpoint passes 68 Python, 13 native and ten desktop tests. Debug and
+Release desktop builds succeed. This change is limited to presentation and UI
+selection; it does not alter extraction, proposals or native Gojo structure.
+The linked Gojo checkout remains unchanged; its full suite was verified at the
+preceding checkpoint. Results: [gallery report](../reports/gallery-2026-10-25.json).
+
 ## Collection analysis and paging, 25 October 2026
 
 The checkpoint processes all 1,000 previously converted churches in `church1000`

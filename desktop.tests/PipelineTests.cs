@@ -27,7 +27,7 @@ public sealed class PipelineTests : IDisposable
         var conversion = Pipeline.Plan(PipelineAction.Convert, Options);
         Assert.Contains("--limit", conversion.Arguments);
         Assert.DoesNotContain("--limit", Pipeline.Plan(PipelineAction.Convert, Options with { AllRecords = true }).Arguments);
-        foreach (var action in new[] { PipelineAction.Review, PipelineAction.Stages, PipelineAction.ExampleProbe })
+        foreach (var action in new[] { PipelineAction.Review, PipelineAction.Gallery, PipelineAction.Stages, PipelineAction.ExampleProbe })
         {
             var plan = Pipeline.Plan(action, Options);
             Assert.Equal("..", Path.GetRelativePath(Dataset, plan.Artifact!).Split(Path.DirectorySeparatorChar)[0]);
@@ -82,6 +82,19 @@ public sealed class PipelineTests : IDisposable
         var review = Pipeline.Plan(PipelineAction.Review, Options with { InspectionOrder = "random", InspectionSeed = 99 });
         Assert.Contains("random", review.Arguments); Assert.Contains("99", review.Arguments);
         Assert.DoesNotContain("42", review.Arguments);
+    }
+
+    [Fact]
+    public void ComparisonGalleryCoversAllDrawingsWithTwelvePairsIndependentOfInspectorPageSize()
+    {
+        var gallery = Pipeline.Plan(PipelineAction.Gallery, Options with { Limit = 50, InspectionOrder = "random", InspectionSeed = 99 });
+        Assert.Contains("gallery", gallery.Arguments);
+        Assert.Contains("random", gallery.Arguments); Assert.Contains("99", gallery.Arguments);
+        Assert.DoesNotContain("--limit", gallery.Arguments);
+        var args = gallery.Arguments.ToList();
+        Assert.Equal("12", args[args.IndexOf("--page-size") + 1]);
+        Assert.EndsWith("comparison.html", gallery.Artifact!);
+        Assert.Equal(Path.Combine(Options.RunFolder!, "evidence.html"), args[args.IndexOf("--inspector") + 1]);
     }
 
     [Fact]

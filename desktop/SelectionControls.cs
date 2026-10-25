@@ -20,7 +20,16 @@ internal sealed partial class MainWindow
     private readonly TextBlock _pageLabel = Text("Page 1");
     private Button _firstPage = null!, _previousPage = null!, _nextPage = null!, _lastPage = null!;
     private string InspectionOrder => _inspectionOrder.SelectedIndex switch { 1 => "recent", 2 => "random", _ => "category" };
-    private string InspectionPath => (_folderScope.SelectedItem as FolderOption)?.Path ?? _dataset.Text?.Trim() ?? "";
+    private string InspectionPath
+    {
+        get
+        {
+            var root = _dataset.Text?.Trim() ?? "";
+            // TextChanged can arrive after an analysis workflow starts its next
+            // command. A folder from the previous collection cannot select it.
+            return _loadedDataset == root ? (_folderScope.SelectedItem as FolderOption)?.Path ?? root : root;
+        }
+    }
 
     private void InitializeSelectionControls()
     {

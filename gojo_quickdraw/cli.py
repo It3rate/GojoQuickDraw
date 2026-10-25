@@ -44,6 +44,11 @@ def parser():
     review.add_argument("--output", type=Path, required=True)
     review.add_argument("--limit", type=int, default=50, help="Drawings per page (all records remain accessible)")
     review.add_argument("--sample-only", action="store_true", help="Retain the older single-page limited sample")
+    gallery = commands.add_parser("gallery", help="Compare original ink with the final cached interpretation in a paged gallery")
+    gallery.add_argument("--dataset", type=Path, required=True)
+    gallery.add_argument("--output", type=Path, required=True)
+    gallery.add_argument("--page-size", type=int, default=12, help="Input/result pairs per page (default 12)")
+    gallery.add_argument("--inspector", type=Path, help="Existing paged evidence.html to link to (default beside gallery)")
     stages = commands.add_parser("stages", help="Generate church interpretation and synthesis stages on demand")
     stages.add_argument("--dataset", type=Path, required=True)
     stages.add_argument("--output", type=Path, required=True)
@@ -60,7 +65,7 @@ def parser():
     analysis.add_argument("--limit", type=int, help="Omitted deliberately processes every converted record in scope")
     analysis.add_argument("--workers", type=int, default=4)
     analysis.add_argument("--retry-errors", action="store_true")
-    for command in (check, review, stages, catalog):
+    for command in (check, review, gallery, stages, catalog):
         command.add_argument("--order", choices=("category", "recent", "random"), default="category")
         command.add_argument("--seed", type=int, default=0)
     probes = commands.add_parser("probe", help="Run declared construction perturbations without changing baseline evidence")
@@ -94,6 +99,9 @@ def main(argv=None):
         elif args.command == "review":
             from .review import build
             result = build(args.dataset, args.output, args.limit, order=args.order, seed=args.seed, paged=not args.sample_only)
+        elif args.command == "gallery":
+            from .gallery import build
+            result = build(args.dataset, args.output, args.page_size, order=args.order, seed=args.seed, inspector=args.inspector)
         elif args.command == "analyze":
             from .analysis import run
             result = run(args.dataset, args.output, root, limit=args.limit, workers=args.workers, retry_errors=args.retry_errors)

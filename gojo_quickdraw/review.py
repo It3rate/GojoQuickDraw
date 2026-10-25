@@ -53,17 +53,23 @@ def build(dataset: Path, output: Path, limit: int = 50, *, order="category", see
             "portable": True, "externalRequests": 0}
 
 
+def collection_stamp(dataset):
+    """Identify the journals behind a presentation without changing their evidence."""
+    from .selection import datasets
+    return [[str(folder), (folder / "index.ndjson").stat().st_size,
+             (folder / "index.ndjson").stat().st_mtime_ns] for folder, _ in datasets(dataset)]
+
+
 def _pages(dataset, output, size, order, seed):
     """Publish small offline documents; the entry page changes only after all exist."""
-    from .selection import catalog, datasets
+    from .selection import catalog, selected_rows
     if output.suffix.lower() not in (".html", ".htm"):
         raise ValueError("Review output must have an .html or .htm extension")
     selected = catalog(dataset, 1, order=order, seed=seed)
     total = selected["storedRecords"]
     if not total:
         raise ValueError("No successfully encoded drawings to review")
-    stamps = [(str(folder), (folder / "index.ndjson").stat().st_size,
-               (folder / "index.ndjson").stat().st_mtime_ns) for folder, _ in datasets(dataset)]
+    stamps = collection_stamp(dataset)
     identity = hashlib.sha256(json.dumps([stamps, size, order, seed]).encode()).hexdigest()[:16]
     directory = output.parent / (output.stem + "-pages") / identity
     count = (total + size - 1) // size
@@ -78,6 +84,16 @@ def _pages(dataset, output, size, order, seed):
                "order": order, "seed": seed}
         result = build(dataset, path, size, order=order, seed=seed, offset=number * size, pagination=nav)
         bytes_written += result["htmlBytes"]
+    # A small map lets comparison galleries link to the exact page without
+    # loading every full evidence packet into the gallery or its browser.
+    from .dataset import _atomic_json
+    links = [{"selectionId": row["selectionId"], "itemId": row["itemId"], "page": i // size}
+             for i, (_, row) in enumerate(selected_rows(dataset, limit=total, order=order, seed=seed))]
+    _atomic_json(output.with_suffix(".pages.json"), {
+        "schema": "gojo.quickdraw-review-pages.v1", "dataset": str(dataset),
+        "journals": stamps, "pageSize": size,
+        "pages": [quote(os.path.relpath(path, output.parent).replace(os.sep, "/"), safe="/.-_") for path in paths],
+        "records": links})
     return {"drawings": total, "pages": count, "pageSize": size, "output": str(output),
             "htmlBytes": bytes_written, "portable": True, "externalRequests": 0}
 
@@ -108,7 +124,9 @@ _HTML = r'''<!doctype html>
 'use strict';
 const DATA=JSON.parse(document.getElementById('dataset').textContent), NS='http://www.w3.org/2000/svg', $=id=>document.getElementById(id);
 const PAGING=DATA.pagination;
-function goPage(i){if(PAGING&&i>=0&&i<PAGING.pages.length)location.href=PAGING.pages[i]}
+let requestedMode=new URL(location.href).searchParams.get('view')||'observed-fit';
+function goPage(i){if(PAGING&&i>=0&&i<PAGING.pages.length){const url=new URL(PAGING.pages[i],location.href);url.searchParams.set('view',requestedMode);location.href=url.href}}
+function rememberView(){const url=new URL(location.href);url.searchParams.set('view',requestedMode);url.hash=encodeURIComponent(DATA.records[index].index.itemId);history.replaceState(null,'',url.href)}
 if(PAGING){$('pageControls').hidden=false;$('pageControls').style.display='flex';PAGING.pages.forEach((_,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(i+1)+' of '+PAGING.pages.length;$('page').append(o)});$('page').value=String(PAGING.page-1);$('page').onchange=()=>goPage(Number($('page').value));$('firstPage').onclick=()=>goPage(0);$('prevPage').onclick=()=>goPage(PAGING.page-2);$('nextPage').onclick=()=>goPage(PAGING.page);$('lastPage').onclick=()=>goPage(PAGING.pages.length-1);$('firstPage').disabled=$('prevPage').disabled=PAGING.page===1;$('lastPage').disabled=$('nextPage').disabled=PAGING.page===PAGING.pages.length;$('pageSummary').textContent=`Drawings ${PAGING.start}–${PAGING.end} of ${PAGING.total} · ${PAGING.pageSize} per page`}
 else $('pageControls').style.display='none';
 let index=0, selected=null, entries=[];
@@ -120,7 +138,7 @@ function curve(c){if(!c.length)return '';const start=`M${c[0].join(' ')}`;if(c.l
 function packet(){return DATA.records[index].packet}
 function annotation(p){const mode=$('readMode').value,a=p.analysis?.annotationModes?.[mode]||p.annotations||{};if(a.lines)return a;if(a['observed-fit'])return a['observed-fit'];return Object.values(a).find(v=>v&&v.lines)||{}}
 function proposalStep(){const mode=$('readMode').value;return mode.startsWith('step:')?packet().analysis?.proposal?.steps?.[Number(mode.slice(5))]:null}
-function modes(){const previous=$('readMode').value,select=$('readMode');select.replaceChildren();const choices=[['observed-fit','Fitted source']];if(packet().analysis){choices.push(['gentle-priors','Looser source relations'],['stronger-priors','Strong interpretive relations']);(packet().analysis.proposal?.steps||[]).forEach((s,i)=>choices.push(['step:'+i,`Step ${i+1}: ${s.title}`]))}for(const [value,title]of choices){const o=text(select,'option',title);o.value=value}select.value=choices.some(c=>c[0]===previous)?previous:'observed-fit'}
+function modes(){const select=$('readMode');select.replaceChildren();const choices=[['observed-fit','Fitted source']];if(packet().analysis){choices.push(['gentle-priors','Looser source relations'],['stronger-priors','Strong interpretive relations']);(packet().analysis.proposal?.steps||[]).forEach((s,i)=>choices.push(['step:'+i,`Step ${i+1}: ${s.title}`]))}for(const [value,title]of choices){const o=text(select,'option',title);o.value=value}select.value=choices.some(c=>c[0]===requestedMode)?requestedMode:'observed-fit'}
 function label(e){return e.row.label||e.row.kind||e.row.id||e.group}
 function spansOf(e){return e.row.spans||e.row.sourceSpanIds||[]}
 function seeded(e){return ['parts','contextRelations','assumptions','views','proposals'].includes(e.group)||(e.group==='claims'&&e.row.context!=='observations')}
@@ -157,8 +175,8 @@ function detail(e){
 function welcome(){const box=$('detail');box.replaceChildren();text(box,'span','Inspect this drawing','badge');text(box,'h3','Select a line, joint, or hypothesis','details-title');text(box,'p','Hover to preview its evidence. Click to keep its supporting intervals highlighted. The list also includes hypotheses that have no drawn location.','subtle');text(box,'p','Dashed outlines are seeded expectations. Original strokes and their acquired order remain available on the left.','subtle');const c=packet().context||{};text(box,'p',c.qualification||'No category or physics claim follows from a fitted line alone.','subtle')}
 function choose(e){selected=e;render();detail(e)}
 function list(){const host=$('list'),filter=$('filter').value;host.replaceChildren();const chosen=entries.filter(e=>(filter==='all'||e.group===filter)&&visible(e));for(const e of chosen){const b=text(host,'button','',selected===e?'active':'');b.dataset.evidence=e.key;text(b,'div',label(e));text(b,'div',(seeded(e)?'Seeded · ':'Measured · ')+e.group+' · '+spansOf(e).length+' intervals','tiny');b.addEventListener('click',()=>choose(e));b.addEventListener('mouseenter',()=>detail(e))}if(!chosen.length)text(host,'p','No records in this view.','subtle');$('counts').textContent=`${entries.length} evidence records · ${chosen.length} shown · offline review`}
-function selectDrawing(i){index=(i+DATA.records.length)%DATA.records.length;selected=null;$('drawing').value=String(index);const r=DATA.records[index],p=r.packet;modes();gather();$('strokeLimit').min=p.observation.strokes.length?'1':'0';$('strokeLimit').max=String(p.observation.strokes.length);$('strokeLimit').value=String(p.observation.strokes.length);$('strokeLimit').disabled=!p.observation.strokes.length;$('sourceStats').textContent=p.observation.strokes.length+' strokes · '+p.observation.strokes.reduce((n,s)=>n+s.points.length,0)+' acquired samples · '+(p.observation.strokes.some(s=>s.times)?'point times retained':'no point timing supplied');$('position').textContent=(PAGING?PAGING.start+index:index+1)+' of '+(PAGING?PAGING.total:DATA.records.length);$('prev').disabled=DATA.records.length<2;$('next').disabled=DATA.records.length<2;history.replaceState(null,'','#'+encodeURIComponent(r.index.itemId));render();welcome()}
+function selectDrawing(i){index=(i+DATA.records.length)%DATA.records.length;selected=null;$('drawing').value=String(index);const r=DATA.records[index],p=r.packet;modes();gather();$('strokeLimit').min=p.observation.strokes.length?'1':'0';$('strokeLimit').max=String(p.observation.strokes.length);$('strokeLimit').value=String(p.observation.strokes.length);$('strokeLimit').disabled=!p.observation.strokes.length;$('sourceStats').textContent=p.observation.strokes.length+' strokes · '+p.observation.strokes.reduce((n,s)=>n+s.points.length,0)+' acquired samples · '+(p.observation.strokes.some(s=>s.times)?'point times retained':'no point timing supplied');$('position').textContent=(PAGING?PAGING.start+index:index+1)+' of '+(PAGING?PAGING.total:DATA.records.length);$('prev').disabled=DATA.records.length<2;$('next').disabled=DATA.records.length<2;rememberView();render();welcome()}
 function download(name,body){const url=URL.createObjectURL(new Blob([body],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 DATA.records.forEach((r,i)=>{const o=text($('drawing'),'option',(r.index.category||r.packet.source.word||'Drawing')+' · '+r.index.keyId);o.value=String(i)});
-$('drawing').addEventListener('change',()=>selectDrawing(Number($('drawing').value)));$('prev').addEventListener('click',()=>selectDrawing(index-1));$('next').addEventListener('click',()=>selectDrawing(index+1));for(const id of ['rawOverlay','jointLayer','mirrorLayer','seedLayer','orderColor','filter','directionLayer'])$(id).addEventListener('change',render);$('readMode').onchange=()=>{selected=null;gather();render();welcome()};$('strokeLimit').addEventListener('input',()=>{if(selected&&!visible(selected)){selected=null;welcome()}render()});$('download').addEventListener('click',()=>download(DATA.records[index].index.itemId+'.evidence.json',JSON.stringify(packet(),null,2)));$('downloadSource').addEventListener('click',()=>download(DATA.records[index].index.keyId+'.source.json',packet().sourceOriginalJson));document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON'].includes(e.target.tagName))return;if(e.key==='ArrowRight')selectDrawing(index+1);if(e.key==='ArrowLeft')selectDrawing(index-1)});let hash;try{hash=decodeURIComponent(location.hash.slice(1))}catch{hash=''}const initial=DATA.records.findIndex(r=>r.index.itemId===hash||r.index.keyId===hash);selectDrawing(initial<0?0:initial);
+$('drawing').addEventListener('change',()=>selectDrawing(Number($('drawing').value)));$('prev').addEventListener('click',()=>selectDrawing(index-1));$('next').addEventListener('click',()=>selectDrawing(index+1));for(const id of ['rawOverlay','jointLayer','mirrorLayer','seedLayer','orderColor','filter','directionLayer'])$(id).addEventListener('change',render);$('readMode').onchange=()=>{requestedMode=$('readMode').value;rememberView();selected=null;gather();render();welcome()};$('strokeLimit').addEventListener('input',()=>{if(selected&&!visible(selected)){selected=null;welcome()}render()});$('download').addEventListener('click',()=>download(DATA.records[index].index.itemId+'.evidence.json',JSON.stringify(packet(),null,2)));$('downloadSource').addEventListener('click',()=>download(DATA.records[index].index.keyId+'.source.json',packet().sourceOriginalJson));document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON'].includes(e.target.tagName))return;if(e.key==='ArrowRight')selectDrawing(index+1);if(e.key==='ArrowLeft')selectDrawing(index-1)});let hash;try{hash=decodeURIComponent(location.hash.slice(1))}catch{hash=''}const initial=DATA.records.findIndex(r=>r.index.itemId===hash||r.index.keyId===hash);selectDrawing(initial<0?0:initial);
 </script></html>'''

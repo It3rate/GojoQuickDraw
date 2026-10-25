@@ -10,11 +10,13 @@
     <File Path="tests/test_dataset.py" />
     <File Path="tests/test_probes.py" />
     <File Path="tests/test_review.py" />
+    <File Path="tests/test_gallery.py" />
     <File Path="tests/test_stages.py" />
     <File Path="tests/test_sampling.py" />
     <File Path="tests/test_opinions.py" />
     <File Path="tests/check_review.cjs" />
     <File Path="tests/check_paged_review.cjs" />
+    <File Path="tests/check_gallery.cjs" />
     <File Path="tests/check_analysis_resume.py" />
   </Folder>
   <Folder Name="/Python Pipeline/">
@@ -28,6 +30,7 @@
     <File Path="gojo_quickdraw/context.py" />
     <File Path="gojo_quickdraw/probes.py" />
     <File Path="gojo_quickdraw/review.py" />
+    <File Path="gojo_quickdraw/gallery.py" />
     <File Path="gojo_quickdraw/stages.py" />
     <File Path="gojo_quickdraw/sampling.py" />
     <File Path="gojo_quickdraw/selection.py" />
@@ -57,6 +60,7 @@
     <File Path="reports/desktop-2026-10-25.json" />
     <File Path="reports/category-sampling-2026-10-25.json" />
     <File Path="reports/analysis-2026-10-25.json" />
+    <File Path="reports/gallery-2026-10-25.json" />
   </Folder>
   <Folder Name="/Examples/">
     <File Path="examples/README.md" />

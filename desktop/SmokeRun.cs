@@ -93,6 +93,13 @@ internal sealed partial class MainWindow
             Require(ArchiveHashes(Path.Combine(output, "dataset")) == before, "Analysis modified baseline archives.");
             Require(_dataset.Text == Path.Combine(output, "analysis"), "Analysis collection was not selected for inspection.");
             await Capture(Path.Combine(output, "analysis.png"));
+            await Execute(PipelineAction.Gallery);
+            Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("drawings").GetInt32() == 9,
+                "Input / final gallery did not include all nine analyzed drawings.");
+            Require(Results[^1].Data!.Value.GetProperty("linkedDrawings").GetInt32() == 9
+                && Results[^1].Data!.Value.GetProperty("finals").GetInt32() == 3,
+                "Gallery links or church final interpretations are missing.");
+            Require(ArchiveHashes(Path.Combine(output, "dataset")) == before, "Gallery changed baseline archives.");
             await Execute(PipelineAction.Analyze);
             Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Analysis did not resume its original baseline.");
             Require(Results[^1].Successful, "Worker could not restart after cancellation.");

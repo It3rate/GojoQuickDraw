@@ -121,6 +121,27 @@ selector. Only one page's records are embedded in each offline document. Use
 `--sample-only` for the older single-page limited sample. The desktop reuses
 `<selected-folder>-runs/inspector/evidence.html` instead of creating a new review
 entry for every run. Copy its adjacent `evidence-pages` folder when sharing it.
+The selected **Read** view is carried in the URL across page changes, drawing
+changes, and reloads. Selecting step 7 once keeps the synthesized view while browsing.
+
+**Input / final gallery** in the desktop Evidence tab builds a compact overview:
+12 input/result pairs per page, three pairs across and four rows. Each pair opens
+the corresponding inspector page at its final interpretation. It reads existing
+analysis; it does not rerun synthesis. For the command line, build a detailed
+review first to enable those exact page links:
+
+```powershell
+python -m gojo_quickdraw review --dataset D:/_quickDraw/samples-analysis --output D:/_quickDraw/samples-analysis-runs/inspector/evidence.html
+python -m gojo_quickdraw gallery --dataset D:/_quickDraw/samples-analysis --output D:/_quickDraw/samples-analysis-runs/inspector/comparison.html
+```
+
+Copy `comparison.html` with its `comparison-pages` folder for offline viewing;
+include the detailed inspector and its page folder to retain the inspection links.
+Gallery thumbnails show acquired strokes and the last cached authored proposal,
+with retained detail in faint gray. Each pair shares a frame expanded to include
+both drawings. Records without an interpretation say so rather than substituting
+their fitted source. A small `evidence.pages.json` map records actual inspector
+membership; stale or absent maps do not produce potentially wrong drawing links.
 
 ## Analyze already converted drawings
 
