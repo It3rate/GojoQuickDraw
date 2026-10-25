@@ -33,6 +33,24 @@ and whether the revision matches the lock. A mismatch is recorded, not automatic
 fixed by resetting your checkout. For exact reproduction, prepare a separate Gojo
 checkout at the commit in the lock.
 
+## Desktop app
+
+On Windows, double-click **`OpenQuickDraw.cmd`**. It builds and opens QuickDraw
+Studio. Choose a source file or folder, choose or create a dataset, and use
+**Convert → verify → review** to run the main workflow. The app remembers your
+paths and provides drawing previews, archive verification, on-demand drawing
+steps, machine probes, progress details, and a Stop button.
+
+The desktop app uses Avalonia and native Skia, without XAML. It runs the existing
+Python commands in background workers. The conversion code and existing dataset
+fingerprints are unchanged. See the [desktop guide](docs/desktop.md).
+
+Open `GojoQuickDraw.slnx` in Visual Studio and set `GojoQuickDraw.Desktop` as the
+startup project to run the UI there. The solution includes the desktop app and
+tests, native converter and tests, linked Gojo dependencies, Python source files,
+documentation, and examples. It expects Gojo at `../Gojo`, matching the checkout
+layout above. Python files appear as solution items.
+
 ## Convert files or folders
 
 ```powershell
@@ -120,7 +138,7 @@ real QuickDraw data and large generated datasets stay outside this repository.
 
 ```powershell
 python -m unittest discover -s tests -v
-dotnet test native.tests/GojoQuickDraw.Native.Tests.csproj --verbosity quiet
+dotnet test GojoQuickDraw.slnx --verbosity quiet
 dotnet test ../Gojo/Gojo.slnx --verbosity quiet
 ```
 

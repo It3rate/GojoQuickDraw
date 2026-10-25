@@ -1,0 +1,406 @@
+using System.Diagnostics;
+using System.Text.Json;
+using Avalonia;
+using Avalonia.Automation;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
+
+namespace GojoQuickDraw.Desktop;
+
+internal sealed partial class MainWindow : Window
+{
+    private static readonly IBrush Ink = Brush.Parse("#183D43"), Teal = Brush.Parse("#247D72"), Muted = Brush.Parse("#647A79");
+    private readonly string _repository = WorkspaceSettings.Repository();
+    private readonly WorkspaceSettings _settings;
+    private readonly TextBox _input = new(), _dataset = new(), _category = new(), _python = new(), _gojo = new();
+    private readonly NumericUpDown _limit = Number(25, 1, 5000000), _reviewLimit = Number(50, 1, 1000), _stageCount = Number(5, 1, 1000),
+        _fit = Number(6, .1m, 100), _maxPoints = Number(20000, 1, 10000000), _maxSpans = Number(256, 1, 100000);
+    private readonly CheckBox _all = new() { Content = "Process every matching drawing" },
+        _recursive = new() { Content = "Include subfolders" }, _retry = new() { Content = "Retry retained errors" },
+        _verifyAll = new() { Content = "Verify the entire dataset", IsChecked = true },
+        _autoOpen = new() { Content = "Open visual reviews when ready", IsChecked = true };
+    private readonly TextBlock _datasetSummary = Text("Choose a dataset to inspect, or create one from the Convert tab."),
+        _status = Text("Ready to work", 15, true), _statusDetail = Text("The existing evidence and drawing tools are available below."),
+        _selection = Text("Select a drawing to preview its acquired strokes and fitted intervals."),
+        _probeSummary = Text("Machine probes compare reflection, repetition, and alternative containment responses.");
+    private readonly TextBox _log = new() { IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MinHeight = 100, MaxHeight = 230, FontSize = 12 };
+    private readonly ListBox _drawings = new() { MinHeight = 170, MaxHeight = 230 };
+    private readonly DrawingCanvas _raw = new(), _fitted = new() { Fitted = true };
+    private readonly ComboBox _stageSelection = new() { ItemsSource = new[] { "Selected drawing", "First drawings in dataset" }, SelectedIndex = 0, MinWidth = 240 };
+    private readonly ProgressBar _progress = new() { IsVisible = false, IsIndeterminate = true, Height = 4 };
+    private readonly Button _stop, _openResult, _openFolder;
+    private readonly TabControl _tabs = new();
+    private readonly StackPanel _probeRows = new() { Spacing = 10 };
+    private Control _configuration = null!;
+    private CancellationTokenSource? _cancellation;
+    private Task _activeWork = Task.CompletedTask;
+    private bool _allowClose, _smoke;
+    private string? _lastArtifact, _loadedDataset;
+    private int _previewRevision;
+    internal readonly List<JobResult> Results = [];
+
+    public MainWindow()
+    {
+        _settings = WorkspaceSettings.Load(_repository);
+        _smoke = Program.Arguments.Contains("--smoke");
+        Title = "Gojo QuickDraw Studio";
+        Width = 1180; Height = 980; MinWidth = 900; MinHeight = 740;
+        Background = Brush.Parse("#F1F5F0");
+        _statusDetail.MaxLines = 3; _statusDetail.TextTrimming = TextTrimming.WordEllipsis;
+        _input.Text = _settings.Input; _dataset.Text = _settings.Dataset; _category.Text = _settings.Category;
+        _python.Text = _settings.Python; _gojo.Text = _settings.Gojo; _limit.Value = Math.Max(1, _settings.Limit);
+        _stop = Button("Stop", () => { _cancellation?.Cancel(); SetStatus("Stopping…", "Completed records remain available. Conversion can be resumed."); });
+        _stop.IsEnabled = false;
+        _openResult = Button("Open last result", () => Open(_lastArtifact)); _openResult.IsEnabled = false;
+        _openFolder = Button("Open dataset folder", () => Open(_dataset.Text));
+        _all.IsCheckedChanged += (_, _) => _limit.IsEnabled = _all.IsChecked != true;
+        _drawings.SelectionChanged += async (_, _) => await LoadPreview();
+        _dataset.TextChanged += (_, _) =>
+        {
+            _loadedDataset = null; _drawings.ItemsSource = Array.Empty<DrawingRow>();
+            _raw.Profiles = []; _fitted.Profiles = [];
+            _datasetSummary.Text = "Load this dataset to see its drawings and recorded settings.";
+        };
+        var header = Stack(5, Text("GOJO / QUICKDRAW", 12, true), Text("QuickDraw Studio", 29, true),
+            Text("Convert drawings, inspect their evidence, and explore possible constructions.", 14));
+        header.Margin = new Thickness(26, 20, 26, 14);
+        var datasetRow = Row(_dataset, Button("Choose dataset…", async () => await PickDataset()), Button("New dataset", NewDataset));
+        var workspace = Card(Stack(8, Text("Active dataset", 13, true), datasetRow, _datasetSummary));
+        workspace.Margin = new Thickness(26, 0, 26, 14);
+        _tabs.ItemsSource = new[]
+        {
+            new TabItem { Header = Text("Convert", 15, true), Content = Scroll(ConvertPage()) },
+            new TabItem { Header = Text("Evidence", 15, true), Content = Scroll(EvidencePage()) },
+            new TabItem { Header = Text("Drawing steps", 15, true), Content = Scroll(StagesPage()) },
+            new TabItem { Header = Text("Machine probes", 15, true), Content = Scroll(ProbesPage()) },
+            new TabItem { Header = Text("Setup", 15, true), Content = Scroll(SetupPage()) }
+        };
+        _tabs.Margin = new Thickness(26, 0, 26, 12);
+        var jobButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        jobButtons.Children.Add(_openResult); jobButtons.Children.Add(_openFolder); jobButtons.Children.Add(_stop);
+        var job = Card(Stack(8, _status, _statusDetail, _progress, jobButtons,
+            new Expander { Header = "Run details", Content = _log, HorizontalContentAlignment = HorizontalAlignment.Stretch }));
+        job.Margin = new Thickness(26, 0, 26, 20);
+        var main = new DockPanel();
+        DockPanel.SetDock(header, Dock.Top); main.Children.Add(header);
+        DockPanel.SetDock(job, Dock.Bottom); main.Children.Add(job);
+        var body = new DockPanel(); DockPanel.SetDock(workspace, Dock.Top); body.Children.Add(workspace); body.Children.Add(_tabs);
+        _configuration = body; main.Children.Add(body); Content = main;
+        Closing += async (_, args) =>
+        {
+            if (_allowClose || _cancellation is null) { SaveSettings(); return; }
+            args.Cancel = true; _cancellation.Cancel();
+            SetStatus("Stopping before closing…", "Waiting for the active worker to finish stopping.");
+            await _activeWork; _allowClose = true; Close();
+        };
+        Opened += async (_, _) =>
+        {
+            if (_smoke) { await RunSmoke(); return; }
+            if (File.Exists(Path.Combine(_dataset.Text ?? "", "manifest.json"))) await LoadCatalog();
+        };
+    }
+
+    private Control ConvertPage()
+    {
+        var source = Row(_input, Button("File…", async () => await PickInput(false)), Button("Folder…", async () => await PickInput(true)));
+        var options = new Grid { ColumnDefinitions = new ColumnDefinitions("*,180"), ColumnSpacing = 18 };
+        options.Children.Add(Field("Category filter", _category, "Leave blank for every category, or separate several with commas."));
+        var count = Field("Drawing limit", _limit, "Selected records, including reused ones."); Grid.SetColumn(count, 1); options.Children.Add(count);
+        var advanced = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*,*"), ColumnSpacing = 14 };
+        advanced.Children.Add(Field("Fitting tolerance", _fit));
+        var points = Field("Maximum points", _maxPoints); Grid.SetColumn(points, 1); advanced.Children.Add(points);
+        var spans = Field("Maximum intervals", _maxSpans); Grid.SetColumn(spans, 2); advanced.Children.Add(spans);
+        return Stack(14, Text("Start with the drawn evidence", 21, true),
+            Text("Completed records are reused when you resume. Later drawing steps are generated separately."),
+            Buttons(JobButton("Convert / resume", [PipelineAction.Convert]),
+                JobButton("Convert → verify → review", [PipelineAction.Convert, PipelineAction.Verify, PipelineAction.Review], true)),
+            Card(Stack(12, Field("QuickDraw source", source, "Choose a QuickDraw file or a folder of NDJSON / JSONL files, including gzip files."),
+                options, _all, _recursive,
+                new Expander { Header = "Fitting and retry options", Content = Stack(12, advanced, _retry), HorizontalContentAlignment = HorizontalAlignment.Stretch })),
+            _autoOpen, Text("Reviews and interpretation runs are placed beside the dataset, in a separate runs folder.", 12));
+    }
+
+    private Control EvidencePage()
+    {
+        var canvases = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), ColumnSpacing = 12 };
+        canvases.Children.Add(Card(Stack(6, Text("Original strokes", 13, true), _raw), 12));
+        var fit = Card(Stack(6, Text("Fitted intervals", 13, true), _fitted), 12); Grid.SetColumn(fit, 1); canvases.Children.Add(fit);
+        _drawings.MinHeight = 290; _drawings.MaxHeight = 340;
+        var browse = new Grid { ColumnDefinitions = new ColumnDefinitions("270,*"), ColumnSpacing = 14 };
+        browse.Children.Add(_drawings);
+        var preview = Stack(8, _selection, canvases); Grid.SetColumn(preview, 1); browse.Children.Add(preview);
+        return Stack(12, Text("Read what the drawing supports", 21, true),
+            Buttons(JobButton("Load drawings", null), JobButton("Verify archives", [PipelineAction.Verify]),
+                JobButton("Build visual review", [PipelineAction.Review], true)),
+            _verifyAll, browse,
+            Field("Drawings for reviews and limited verification", _reviewLimit, "Verify the entire dataset ignores this limit. Reviews include hoverable lines, joints, symmetry, and provisional parts."),
+            Text("These small previews read the saved observation cache. Verify archives checks hashes and independently restores native evidence.", 12));
+    }
+
+    private Control StagesPage() => Stack(14, Text("Draw through successive interpretations", 21, true),
+        Text("Generate the existing church passes from fitted source through simplification, joint merging, and synthesis."),
+        Card(Stack(12, Field("Drawings to use", _stageSelection), Field("Number of drawings when using the first records", _stageCount),
+            Text("Choose a drawing in Evidence to run only that one. Generated stages retain their source correspondence."))),
+        Buttons(JobButton("Generate drawing steps", [PipelineAction.Stages], true)),
+        Text("These passes use authored church expectations. Unusual drawings can produce poor interpretations; review warnings and the resulting geometry.", 13));
+
+    private Control ProbesPage() => Stack(14, Text("Test how a proposed machine responds", 21, true),
+        Text("Compare changing spacing, preserving a mirror, and moving a part or its enclosing wall."),
+        Card(Stack(12, Text("Selected drawing", 14, true),
+            Text("Use the selected drawing from Evidence. Some drawings have no supported pair or containment candidates yet."),
+            Buttons(JobButton("Probe selected drawing", [PipelineAction.Probe], true)),
+            Text("Or start with the authored two-window and door example."),
+            Buttons(JobButton("Run window example", [PipelineAction.ExampleProbe])))), _probeSummary, _probeRows,
+        Text("Matching outcomes can leave multiple machines plausible. Probe results report those alternatives and their remaining discrepancies.", 12));
+
+    private Control SetupPage() => Stack(14, Text("Local tools and workspace", 21, true),
+        Text("The desktop app runs the same Python pipeline and linked native Gojo bridge as the command line."),
+        Card(Stack(14, Field("Python executable", Row(_python, Button("Browse…", async () => await PickPython()))),
+            Field("Linked Gojo checkout", Row(_gojo, Button("Browse…", async () => await PickGojo()))),
+            Text("A Python 3.10+ installation and the .NET 10 SDK are required. Check setup builds the native bridge and checks the linked revision.", 12))),
+        Buttons(JobButton("Check setup", [PipelineAction.Setup], true), Button("Open project folder", () => Open(_repository))));
+
+    private PipelineOptions Options(PipelineAction action, string run)
+    {
+        var limit = action is PipelineAction.Review or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
+        return new(_repository, _python.Text?.Trim() ?? "", _gojo.Text?.Trim() ?? "", _input.Text?.Trim() ?? "", _dataset.Text?.Trim() ?? "",
+            _category.Text ?? "", limit, action == PipelineAction.Verify ? _verifyAll.IsChecked == true : _all.IsChecked == true,
+            _recursive.IsChecked == true, _retry.IsChecked == true, (double)(_fit.Value ?? 6), (int)(_maxPoints.Value ?? 20000), (int)(_maxSpans.Value ?? 256),
+            action != PipelineAction.Stages || _stageSelection.SelectedIndex == 0 ? (_drawings.SelectedItem as DrawingRow)?.KeyId : null, run);
+    }
+
+    private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
+
+    private async Task Workflow(PipelineAction[] actions)
+    {
+        if (_cancellation is not null) return;
+        _cancellation = new();
+        _configuration.IsEnabled = false; _stop.IsEnabled = true; _openResult.IsEnabled = false; _progress.IsVisible = true;
+        _log.Text = "";
+        var retained = false;
+        try
+        {
+            SaveSettings();
+            var run = actions.All(action => action == PipelineAction.Setup) ? Path.GetTempPath() : Workspace.RunFolder(_dataset.Text ?? "");
+            foreach (var action in actions)
+            {
+                var plan = Pipeline.Plan(action, Options(action, run));
+                SetStatus(TitleFor(action), "Working locally. You can stop this run and resume conversion later.");
+                AppendLog($"{DateTime.Now:HH:mm:ss} · {TitleFor(action)}");
+                var result = await Pipeline.Run(plan, AppendLog, _cancellation.Token);
+                Results.Add(result);
+                if (result.Cancelled) { SetStatus("Stopped", "Completed evidence remains available. Resume with the same conversion settings."); return; }
+                if (!result.Successful && !result.RetainedErrors)
+                    throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Error) ? "The worker did not return a successful result. See run details." : result.Error.Trim());
+                retained |= result.RetainedErrors;
+                if (plan.Artifact is { } artifact && File.Exists(artifact))
+                {
+                    _lastArtifact = artifact;
+                    if (action is PipelineAction.Review or PipelineAction.Stages && _autoOpen.IsChecked == true && !_smoke) Open(artifact);
+                }
+                SetStatus(result.RetainedErrors ? "Converted with retained errors" : "Completed", Describe(action, result));
+                if (action is PipelineAction.Probe or PipelineAction.ExampleProbe) ShowProbes(result);
+            }
+            if (retained) SetStatus("Finished with records to review", "Successful records were processed. Failed sources remain in the dataset's errors folder; see run details.", true);
+            if (File.Exists(Path.Combine(_dataset.Text ?? "", "manifest.json"))) await LoadCatalog(false);
+        }
+        catch (OperationCanceledException) { SetStatus("Stopped", "No additional operation was started."); }
+        catch (Exception error) { SetStatus("Run needs attention", error.Message, true); AppendLog(error.ToString()); }
+        finally
+        {
+            _cancellation.Dispose(); _cancellation = null; _configuration.IsEnabled = true;
+            _stop.IsEnabled = false; _progress.IsVisible = false; _openResult.IsEnabled = _lastArtifact is not null;
+        }
+    }
+
+    private static string TitleFor(PipelineAction action) => action switch
+    {
+        PipelineAction.Convert => "Converting drawings…", PipelineAction.Verify => "Verifying native archives…",
+        PipelineAction.Review => "Building the evidence review…", PipelineAction.Stages => "Generating drawing steps…",
+        PipelineAction.Setup => "Checking local tools…", _ => "Comparing machine responses…"
+    };
+
+    private static string Describe(PipelineAction action, JobResult result)
+    {
+        if (result.Data is not { } data) return "The operation finished. See run details.";
+        int Count(string field) => data.TryGetProperty(field, out var value) ? value.GetInt32() : 0;
+        return action switch
+        {
+            PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings",
+            PipelineAction.Verify => $"{Count("records")} drawings independently restored; artifact hashes checked.",
+            PipelineAction.Review => $"Visual review ready for {Count("drawings")} drawings. Use Open last result to inspect it.",
+            PipelineAction.Stages => $"{Count("passes")} steps generated for {Count("drawings")} drawings." +
+                (data.TryGetProperty("warnings", out var warnings) && warnings.GetArrayLength() > 0 ? $" {warnings.GetArrayLength()} viewing-frame warning(s); inspect the review." : " Inspect the proposed interpretations in the review."),
+            PipelineAction.Probe or PipelineAction.ExampleProbe => $"{(data.TryGetProperty("probes", out var probes) ? probes.GetArrayLength() : 0)} intervention groups compared. Open last result for the full response report. Equivalent responses remain tied.",
+            PipelineAction.Setup => data.GetProperty("upstream").GetProperty("matchesPinnedRevision").GetBoolean()
+                ? "Python and the native bridge are ready. The linked Gojo revision matches the tested dependency."
+                : "Tools are ready. The linked Gojo revision differs from the tested dependency; its actual revision is recorded in each run.",
+            _ => "Completed."
+        };
+    }
+
+    private void ShowProbes(JobResult result)
+    {
+        _probeRows.Children.Clear();
+        _probeSummary.Text = Describe(PipelineAction.Probe, result);
+        if (result.Data is not { } data || !data.TryGetProperty("probes", out var probes)) return;
+        if (probes.GetArrayLength() == 0)
+        {
+            _probeSummary.Text = "No eligible placement or containment candidates were found for this drawing. The window example provides an authored control.";
+            return;
+        }
+        foreach (var probe in probes.EnumerateArray().Take(12))
+        {
+            var content = Stack(6, Text(probe.GetProperty("id").GetString()?.Replace('-', ' ') ?? "Machine comparison", 14, true));
+            foreach (var variant in probe.GetProperty("variants").EnumerateArray().Take(8))
+            {
+                var name = variant.GetProperty("machine").GetString()?.Replace('-', ' ');
+                var residue = variant.GetProperty("sumDistanceResidue").GetDouble();
+                content.Children.Add(Text($"{name}  ·  remaining distance discrepancy {residue:0.##}"));
+            }
+            content.Children.Add(Text("Distances use this experiment's normalized page frame. A smaller discrepancy supports consistency under these constraints.", 12));
+            _probeRows.Children.Add(Card(content));
+        }
+    }
+
+    private async Task LoadCatalog(bool announce = true)
+    {
+        var path = _dataset.Text?.Trim() ?? "";
+        try
+        {
+            if (announce) SetStatus("Loading drawings…", "Reading the saved dataset journal and drawing catalog.");
+            var catalog = await Task.Run(() => Workspace.ReadCatalog(path));
+            if (_dataset.Text?.Trim() != path) return;
+            var key = (_drawings.SelectedItem as DrawingRow)?.ItemId;
+            _loadedDataset = path; _drawings.ItemsSource = catalog.Drawings;
+            _drawings.SelectedItem = catalog.Drawings.FirstOrDefault(row => row.ItemId == key) ?? catalog.Drawings.FirstOrDefault();
+            _datasetSummary.Text = $"{catalog.Stored:N0} stored drawings · {catalog.Errors:N0} retained errors" +
+                (catalog.Stored > catalog.Drawings.Count ? $" · showing {catalog.Drawings.Count:N0} drawings" : "");
+            using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(path, "manifest.json")));
+            var config = manifest.RootElement.GetProperty("config");
+            _maxPoints.Value = config.GetProperty("maxPoints").GetInt32(); _maxSpans.Value = config.GetProperty("maxSpans").GetInt32();
+            if (config.GetProperty("fit").TryGetProperty("polylineTolerance", out var fit)) _fit.Value = fit.GetDecimal();
+            if (announce) SetStatus("Dataset loaded", "Select a drawing, inspect its evidence, or generate a new interpretation run.");
+        }
+        catch (Exception error) { if (announce) SetStatus("Could not load dataset", error.Message, true); else AppendLog("Could not reload dataset: " + error.Message); }
+    }
+
+    private async Task LoadPreview()
+    {
+        var revision = ++_previewRevision;
+        if (_drawings.SelectedItem is not DrawingRow row || _loadedDataset is not { } dataset) return;
+        _selection.Text = $"{row.Category} · {row.KeyId} · {row.Samples} original samples · {row.Intervals} fitted intervals";
+        try
+        {
+            var preview = await Task.Run(() => Workspace.ReadPreview(dataset, row));
+            if (_previewRevision != revision) return;
+            _raw.Profiles = preview.Strokes; _fitted.Profiles = preview.Profiles;
+        }
+        catch (Exception error) { if (_previewRevision == revision) _selection.Text = "Preview unavailable: " + error.Message; }
+    }
+
+    private async Task PickInput(bool folder)
+    {
+        if (folder)
+        {
+            var chosen = await StorageProvider.OpenFolderPickerAsync(new() { Title = "QuickDraw input folder", AllowMultiple = false });
+            if (chosen.Count > 0) _input.Text = chosen[0].TryGetLocalPath();
+        }
+        else
+        {
+            var chosen = await StorageProvider.OpenFilePickerAsync(new() { Title = "QuickDraw input file", AllowMultiple = false,
+                FileTypeFilter = [new("QuickDraw records") { Patterns = ["*.ndjson", "*.jsonl", "*.gz"] }, FilePickerFileTypes.All] });
+            if (chosen.Count > 0) _input.Text = chosen[0].TryGetLocalPath();
+        }
+    }
+
+    private async Task PickDataset()
+    {
+        var chosen = await StorageProvider.OpenFolderPickerAsync(new() { Title = "Gojo QuickDraw dataset", AllowMultiple = false });
+        if (chosen.Count > 0) { _dataset.Text = chosen[0].TryGetLocalPath(); await LoadCatalog(); }
+    }
+    private async Task PickGojo()
+    {
+        var chosen = await StorageProvider.OpenFolderPickerAsync(new() { Title = "Linked Gojo checkout", AllowMultiple = false });
+        if (chosen.Count > 0) _gojo.Text = chosen[0].TryGetLocalPath();
+    }
+    private async Task PickPython()
+    {
+        var chosen = await StorageProvider.OpenFilePickerAsync(new() { Title = "Python executable", AllowMultiple = false });
+        if (chosen.Count > 0) _python.Text = chosen[0].TryGetLocalPath();
+    }
+    private void NewDataset()
+    {
+        var parent = Path.GetDirectoryName(Path.GetFullPath(_dataset.Text ?? _repository))!;
+        _dataset.Text = WorkspaceSettings.NewDataset(parent);
+        _tabs.SelectedIndex = 0;
+        SetStatus("New dataset selected", "Choose a source and run Convert. The new dataset folder is created when the run starts.");
+    }
+    private void SaveSettings()
+    {
+        if (_smoke) return;
+        _settings.Python = _python.Text ?? "python"; _settings.Gojo = _gojo.Text ?? ""; _settings.Input = _input.Text ?? "";
+        _settings.Dataset = _dataset.Text ?? ""; _settings.Category = _category.Text ?? ""; _settings.Limit = (int)(_limit.Value ?? 25);
+        try { _settings.Save(); } catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppendLog("Workspace settings could not be saved: " + error.Message); }
+    }
+    private void Open(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return;
+        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
+        catch (Exception error) { SetStatus("Could not open result", error.Message, true); }
+    }
+    private void SetStatus(string title, string detail, bool error = false)
+    {
+        _status.Text = title; _status.Foreground = error ? Brush.Parse("#A14C30") : Ink;
+        _statusDetail.Text = detail;
+    }
+    private void AppendLog(string line) => Dispatcher.UIThread.Post(() =>
+    {
+        var text = (_log.Text ?? "") + line + Environment.NewLine;
+        _log.Text = text.Length > 60000 ? text[^60000..] : text;
+        _log.CaretIndex = _log.Text.Length;
+    });
+
+    private Button JobButton(string label, PipelineAction[]? actions, bool primary = false)
+    {
+        var button = Button(label, async () =>
+        {
+            if (actions is null) await LoadCatalog();
+            else await Execute(actions);
+        }, primary);
+        AutomationProperties.SetAutomationId(button, actions is null ? "load-drawings" : string.Join("-", actions).ToLowerInvariant());
+        return button;
+    }
+    private static Button Button(string label, Action action, bool primary = false)
+    {
+        var button = new Button { Content = label, Padding = new Thickness(15, 9), CornerRadius = new CornerRadius(6) };
+        if (primary) { button.Background = Teal; button.Foreground = Brushes.White; }
+        button.Click += (_, _) => action(); return button;
+    }
+    private static NumericUpDown Number(decimal value, decimal minimum, decimal maximum) => new()
+    { Value = value, Minimum = minimum, Maximum = maximum, Increment = minimum < 1 ? .5m : 1, FormatString = minimum < 1 ? "0.0" : "0", HorizontalAlignment = HorizontalAlignment.Stretch };
+    private static TextBlock Text(string text, double size = 13, bool bold = false) => new()
+    { Text = text, FontSize = size, FontWeight = bold ? FontWeight.SemiBold : FontWeight.Normal, Foreground = bold ? Ink : Muted, TextWrapping = TextWrapping.Wrap };
+    private static StackPanel Stack(double spacing, params Control[] children)
+    {
+        var stack = new StackPanel { Spacing = spacing }; foreach (var child in children) stack.Children.Add(child); return stack;
+    }
+    private static StackPanel Buttons(params Control[] buttons)
+    {
+        var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 }; foreach (var button in buttons) panel.Children.Add(button); return panel;
+    }
+    private static Grid Row(Control field, params Control[] buttons)
+    {
+        var grid = new Grid { ColumnSpacing = 8 }; grid.ColumnDefinitions.Add(new(GridLength.Star)); grid.Children.Add(field);
+        for (var i = 0; i < buttons.Length; i++) { grid.ColumnDefinitions.Add(new(GridLength.Auto)); Grid.SetColumn(buttons[i], i + 1); grid.Children.Add(buttons[i]); }
+        return grid;
+    }
+    private static Control Field(string label, Control control, string? hint = null) => hint is null
+        ? Stack(6, Text(label, 13, true), control) : Stack(6, Text(label, 13, true), control, Text(hint, 12));
+    private static Border Card(Control content, double padding = 18) => new()
+    { Background = Brushes.White, BorderBrush = Brush.Parse("#D7E2DB"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(9), Padding = new Thickness(padding), Child = content };
+    private static ScrollViewer Scroll(Control content) => new() { Content = content, Padding = new Thickness(0, 15, 8, 10), HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
+}

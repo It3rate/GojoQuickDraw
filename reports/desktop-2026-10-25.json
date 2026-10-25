@@ -1,0 +1,75 @@
+{
+  "success": true,
+  "errors": [],
+  "dataset": "D:\\_quickDraw\\gojo-quickdraw-desktop-qa\\run-02\\dataset",
+  "jobs": [
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": -1,
+      "Cancelled": true,
+      "Successful": false
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    }
+  ],
+  "status": "Completed",
+  "detail": "Python and the native bridge are ready. The linked Gojo revision matches the tested dependency.",
+  "catalogDrawings": 3,
+  "acquiredStrokesInPreview": 5,
+  "fittedIntervalsInPreview": 11,
+  "cancellationPreservedArchives": true,
+  "schema": "gojo.quickdraw-desktop-checkpoint.v1",
+  "date": "2026-10-25",
+  "tests": {
+    "python": 45,
+    "native": 9,
+    "desktop": 5,
+    "linkedGojoSolution": 5407,
+    "failed": 0
+  },
+  "screenshots": {
+    "compact.png": "a00ce227eda3e2450a0c64f6ab14cb9220c56fef2f7d1ac7cf9c09181be39615",
+    "convert.png": "9032e015152274814e8e1165461329b1e1bf9a4d2deef05e687690b5ff2e53e5",
+    "evidence.png": "c4fb99d03b2d22b0143790029447541bacd32d4af24635ecaf7d93a79042240c",
+    "probes.png": "54594fef4d8ac18b6160fbe2fd037ca8e7577c096a94b40d57cdc726f67edc2e",
+    "setup.png": "a5a5094e959009cfc3e4270d99bb82ef4933fdfddb7a5d961fc22a8a838cb248",
+    "steps.png": "668313325a0e62c28a990939392a328fbae258cf0390263faba0f6dded255dcd"
+  },
+  "qualifications": [
+    "Three real church acquisitions; engineering integration check, not an accuracy benchmark.",
+    "One cancelled verification is expected; archive hashes were preserved and setup restarted afterward.",
+    "The desktop app orchestrates existing CLI commands and reads cached previews. No extraction or learning behavior changed."
+  ]
+}

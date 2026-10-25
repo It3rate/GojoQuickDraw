@@ -1,0 +1,53 @@
+<Solution>
+  <Project Path="desktop/GojoQuickDraw.Desktop.csproj" />
+  <Project Path="native/GojoQuickDraw.Native.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="desktop.tests/GojoQuickDraw.Desktop.Tests.csproj" />
+    <Project Path="native.tests/GojoQuickDraw.Native.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Tests/Python/">
+    <File Path="tests/test_context.py" />
+    <File Path="tests/test_dataset.py" />
+    <File Path="tests/test_probes.py" />
+    <File Path="tests/test_review.py" />
+    <File Path="tests/test_stages.py" />
+    <File Path="tests/check_review.cjs" />
+  </Folder>
+  <Folder Name="/Python Pipeline/">
+    <File Path="pyproject.toml" />
+    <File Path="gojo_quickdraw/__init__.py" />
+    <File Path="gojo_quickdraw/__main__.py" />
+    <File Path="gojo_quickdraw/cli.py" />
+    <File Path="gojo_quickdraw/dataset.py" />
+    <File Path="gojo_quickdraw/bridge.py" />
+    <File Path="gojo_quickdraw/upstream.py" />
+    <File Path="gojo_quickdraw/context.py" />
+    <File Path="gojo_quickdraw/probes.py" />
+    <File Path="gojo_quickdraw/review.py" />
+    <File Path="gojo_quickdraw/stages.py" />
+  </Folder>
+  <Folder Name="/Gojo Dependencies/">
+    <Project Path="../Gojo/Gojo/Gojo.csproj" />
+    <Project Path="../Gojo/Gojo.Encoding/Gojo.Encoding.csproj" />
+    <Project Path="../Gojo/experiments/QualitativeExecution/QualitativeExecution.csproj" />
+    <Project Path="../Gojo/experiments/QualitativeFrieze/QualitativeFrieze.csproj" />
+    <Project Path="../Gojo/experiments/quickDraw/QuickDraw.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/">
+    <File Path="OpenQuickDraw.cmd" />
+    <File Path="OpenQuickDraw.ps1" />
+    <File Path="README.md" />
+    <File Path="AGENTS.md" />
+    <File Path="gojo.lock.json" />
+    <File Path="docs/storage.md" />
+    <File Path="docs/design.md" />
+    <File Path="docs/verification.md" />
+    <File Path="docs/desktop.md" />
+    <File Path="reports/pilot-2026-10-24.json" />
+    <File Path="reports/desktop-2026-10-25.json" />
+  </Folder>
+  <Folder Name="/Examples/">
+    <File Path="examples/README.md" />
+    <File Path="examples/churches.ndjson" />
+  </Folder>
+</Solution>
