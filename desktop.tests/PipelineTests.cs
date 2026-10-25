@@ -45,16 +45,43 @@ public sealed class PipelineTests : IDisposable
     }
 
     [Fact]
-    public void CatalogUsesLatestStatusAndRefusesUncommittedTail()
+    public void GeneratedFolderDiscoveryUsesActualDatasetsAndCatalogPreservesTheirIdentity()
     {
-        const string error = """{"itemId":"a","keyId":"1","category":"church","status":"error"}""";
-        const string ok = """{"itemId":"a","keyId":"1","category":"church","status":"ok","counts":{"strokes":2,"samples":8,"spans":3},"evidencePath":"records/a.gz"}""";
-        var index = Path.Combine(Dataset, "index.ndjson");
-        File.WriteAllText(index, error + "\n" + ok + "\n");
-        var row = Assert.Single(Workspace.ReadCatalog(Dataset).Drawings);
-        Assert.Equal(3, row.Intervals); Assert.Equal(2, row.Strokes);
-        File.AppendAllText(index, error);
-        Assert.Throws<InvalidDataException>(() => Workspace.ReadCatalog(Dataset));
+        var child = Path.Combine(Dataset, "church"); Directory.CreateDirectory(child);
+        File.Copy(Path.Combine(Dataset, "manifest.json"), Path.Combine(child, "manifest.json"));
+        var ignored = Path.Combine(Dataset, "records"); Directory.CreateDirectory(ignored);
+        File.Copy(Path.Combine(Dataset, "manifest.json"), Path.Combine(ignored, "manifest.json"));
+        Assert.Equal(2, Workspace.GeneratedFolders(Dataset).Count);
+        using var document = JsonDocument.Parse(JsonSerializer.Serialize(new
+        {
+            storedRecords = 1, storedErrors = 0,
+            records = new[] { new { itemId = "a", keyId = "1", category = "church", counts = new { strokes = 2, samples = 8, spans = 3 },
+                evidencePath = "records/a.gz", datasetPath = child } }
+        }));
+        var row = Assert.Single(Workspace.ReadCatalogData(document.RootElement).Drawings);
+        Assert.Equal(3, row.Intervals); Assert.Equal(child, row.DatasetPath);
+    }
+
+    [Fact]
+    public void StaticCategoryPickerCatalogIsUniqueAndSourceFilenameIsRecognized()
+    {
+        Assert.Equal(345, CategoryCatalog.Names.Count);
+        Assert.Equal(345, CategoryCatalog.Names.Distinct(StringComparer.OrdinalIgnoreCase).Count());
+        Assert.Equal("angel", CategoryCatalog.FromFile("Angel.ndjson"));
+        Assert.Equal("circle", CategoryCatalog.FromFile("full_raw_circle.ndjson"));
+        Assert.Null(CategoryCatalog.FromFile("custom-name.ndjson"));
+        Assert.Throws<ArgumentException>(() => Pipeline.Plan(PipelineAction.Convert, Options with { Category = "" }));
+    }
+
+    [Fact]
+    public void CollectionSamplingAndInspectionArgumentsKeepDifferentSeeds()
+    {
+        var convert = Pipeline.Plan(PipelineAction.Convert, Options with { Category = "angel,church", SamplingSeed = 42 });
+        Assert.Contains("sample", convert.Arguments);
+        Assert.Equal(2, convert.Arguments.Count(argument => argument == "--category"));
+        var review = Pipeline.Plan(PipelineAction.Review, Options with { InspectionOrder = "random", InspectionSeed = 99 });
+        Assert.Contains("random", review.Arguments); Assert.Contains("99", review.Arguments);
+        Assert.DoesNotContain("42", review.Arguments);
     }
 
     [Fact]

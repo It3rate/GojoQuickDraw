@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 
 
-def build(dataset: Path, output: Path, limit: int = 50) -> dict:
+def build(dataset: Path, output: Path, limit: int = 50, *, order="category", seed=0) -> dict:
     """Embed a bounded sample of cached records in one offline HTML document."""
     from .dataset import load_records
 
@@ -17,7 +17,7 @@ def build(dataset: Path, output: Path, limit: int = 50) -> dict:
         raise ValueError("Review limit must be a positive integer")
     dataset, output = Path(dataset).resolve(), Path(output).resolve()
     records = [{"index": row, "packet": packet}
-               for row, packet in load_records(dataset, limit=limit)]
+               for row, packet in load_records(dataset, limit=limit, order=order, seed=seed)]
     if not records:
         raise ValueError("No successfully encoded drawings to review")
     if output.exists() and output.is_dir():
@@ -26,7 +26,8 @@ def build(dataset: Path, output: Path, limit: int = 50) -> dict:
         # A review destination can never replace a cached source or archive.
         for key in ("evidencePath", "nativePath"):
             path = record["index"].get(key)
-            if path and output == (dataset / path).resolve():
+            folder = Path(record["index"].get("datasetPath", dataset))
+            if path and output == (folder / path).resolve():
                 raise ValueError("Review output cannot overwrite a dataset record")
     if output in ((dataset / "manifest.json").resolve(), (dataset / "index.ndjson").resolve()):
         raise ValueError("Review output cannot overwrite the dataset index")

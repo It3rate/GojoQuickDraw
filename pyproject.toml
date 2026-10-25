@@ -14,3 +14,6 @@ gojo-quickdraw = "gojo_quickdraw.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["gojo_quickdraw*"]
+
+[tool.setuptools.package-data]
+gojo_quickdraw = ["categories.json"]

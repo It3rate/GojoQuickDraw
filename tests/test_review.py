@@ -24,7 +24,7 @@ class ReviewContractTests(unittest.TestCase):
     def test_portable_document_safely_embeds_exact_evidence(self):
         with patch("gojo_quickdraw.dataset.load_records", return_value=iter([(self.row, self.packet)])) as records:
             result = build(self.root, self.output, limit=1)
-        records.assert_called_once_with(self.root.resolve(), limit=1)
+        records.assert_called_once_with(self.root.resolve(), limit=1, order="category", seed=0)
         html = self.output.read_text(encoding="utf-8")
         encoded = re.search(r'<script id="dataset" type="application/json">(.*?)</script>', html, re.S).group(1)
         embedded = json.loads(encoded)

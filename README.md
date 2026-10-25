@@ -22,7 +22,7 @@ git clone https://github.com/It3rate/Gojo.git
 git clone https://github.com/It3rate/GojoQuickDraw.git
 Set-Location GojoQuickDraw
 python -m gojo_quickdraw doctor
-python -m gojo_quickdraw convert --input examples/churches.ndjson --output D:/_quickDraw/my-controls
+python -m gojo_quickdraw convert --input examples/church.ndjson --output D:/_quickDraw/my-controls
 python -m gojo_quickdraw verify --dataset D:/_quickDraw/my-controls
 python -m gojo_quickdraw review --dataset D:/_quickDraw/my-controls --output D:/_quickDraw/my-controls.html
 ```
@@ -36,14 +36,16 @@ checkout at the commit in the lock.
 ## Desktop app
 
 On Windows, double-click **`OpenQuickDraw.cmd`**. It builds and opens QuickDraw
-Studio. Choose a source file or folder, choose or create a dataset, and use
+Studio. Choose a source file or folder, choose categories from the toggle-button
+dialog, create a collection, and use
 **Convert → verify → review** to run the main workflow. The app remembers your
 paths and provides drawing previews, archive verification, on-demand drawing
 steps, machine probes, progress details, and a Stop button.
 
-The desktop app uses Avalonia and native Skia, without XAML. It runs the existing
-Python commands in background workers. The conversion code and existing dataset
-fingerprints are unchanged. See the [desktop guide](docs/desktop.md).
+The sample count is a total spread across the selected categories. Generation saves
+one dataset per category folder. Inspection discovers actual generated folders and
+supports category/source order, most recent, and random selection. Existing single
+datasets remain readable. See the [desktop guide](docs/desktop.md).
 
 Open `GojoQuickDraw.slnx` in Visual Studio and set `GojoQuickDraw.Desktop` as the
 startup project to run the UI there. The solution includes the desktop app and
@@ -51,7 +53,28 @@ tests, native converter and tests, linked Gojo dependencies, Python source files
 documentation, and examples. It expects Gojo at `../Gojo`, matching the checkout
 layout above. Python files appear as solution items.
 
-## Convert files or folders
+## Generate category samples
+
+```powershell
+python -m gojo_quickdraw sample --input D:/_quickDraw/quickdraw --category angel --category church --category frog --limit 90 --seed 42 --output D:/_quickDraw/samples-v1
+python -m gojo_quickdraw verify --dataset D:/_quickDraw/samples-v1
+python -m gojo_quickdraw review --dataset D:/_quickDraw/samples-v1 --limit 50 --order random --seed 123 --output D:/_quickDraw/samples-review.html
+```
+
+Each filename supplies its category. A file input can also select sibling category
+files. Alternate `full_raw_` copies are grouped with their category and a canonical
+file is preferred. Categories are balanced in randomized rounds, then records are
+sampled uniformly without replacement within each category. The count is a total,
+not a per-category count. A saved byte-offset index avoids favoring long drawings
+and speeds later samples. The first index pass reads the required category files;
+it does not convert every drawing. Gzip inputs also work but need decompression.
+
+Interrupted samples resume their saved selection. A completed run with no explicit
+seed starts a new random selection next time. An explicit seed reproduces the same
+sample and reuses verified records. `--all-records` explicitly processes every record
+in the selected category files. See [storage](docs/storage.md) for collection layout.
+
+## Legacy sequential conversion
 
 ```powershell
 python -m gojo_quickdraw convert --input D:/_quickDraw/quickdraw --category church --limit 100 --output D:/_quickDraw/church-evidence-v1

@@ -1,5 +1,52 @@
 # Storage and evidence contract
 
+## Category collections and selection
+
+The `sample` command writes a `gojo.quickdraw-collection.v1` root:
+
+```text
+collection.json
+_sampling/active.json
+_sampling/sample-<time>-<id>.json
+angel/manifest.json
+angel/index.ndjson
+angel/native/...
+church/manifest.json
+church/index.ndjson
+church/native/...
+```
+
+Only categories actually selected for records acquire dataset folders. Each child
+is independently readable and uses the existing native evidence format below.
+There is no duplicated root record index. Inspection discovers real child manifests
+recursively, so it also works on a single category, an older flat dataset, or a
+parent folder containing several generated datasets.
+
+The requested count is spread over random category rounds. Within each category,
+record selection is uniform without replacement. This intentionally balances
+categories rather than weighting categories by their different file lengths.
+An explicit seed is reproducible for unchanged source files. The plan records source
+fingerprints, original byte offsets and line numbers, record hashes, selected
+categories and the seed. Interrupted runs resume the saved plan. Completed unseeded
+runs create a new selection; repeated records are reused instead of duplicated.
+
+Source indexes are rebuildable caches under
+`%LOCALAPPDATA%/GojoQuickDraw/source-index` (or the platform cache equivalent).
+They store offsets and line numbers, with checksums and source size/modification
+fingerprints. They contain no fitted drawings. Indexing is lazy: only needed
+category files are indexed. The first pass scans them; subsequent uncompressed
+samples seek straight to records. Gzip offsets refer to its uncompressed stream.
+
+The filename supplies category context for this mode, while the original record's
+`word` and text remain intact. Exact origin file and line remain in the index and
+adapter provenance. Selecting a category does not certify an intended part or concept.
+
+Browsing order is separate from acquisition order. Category order traverses generated
+folders alphabetically and retains journal order within each. Most recent uses each
+successful record's `convertedUtc`, with artifact modification time for older records.
+Random browsing ranks records through a seeded hash, so a shorter review is a prefix
+of the same longer catalog. Changing the browse order never changes strokes or archives.
+
 ## Dataset layout
 
 ```text

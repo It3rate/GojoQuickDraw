@@ -23,6 +23,19 @@ def parser():
     convert.add_argument("--max-points", type=int, default=20000)
     convert.add_argument("--max-spans", type=int, default=256)
     convert.add_argument("--retry-errors", action="store_true")
+    sample = commands.add_parser("sample", help="Randomly sample category files into category subfolders")
+    sample.add_argument("--input", type=Path, required=True)
+    sample.add_argument("--output", type=Path, required=True)
+    sample.add_argument("--category", action="append")
+    sample.add_argument("--limit", type=int, default=25, help="Total sample across selected categories")
+    sample.add_argument("--all-records", action="store_true")
+    sample.add_argument("--seed", type=int, help="Explicit seed; interrupted selections otherwise resume automatically")
+    sample.add_argument("--index-cache", type=Path)
+    sample.add_argument("--recursive", action="store_true")
+    sample.add_argument("--fit-tolerance", type=float, default=6.0)
+    sample.add_argument("--max-points", type=int, default=20000)
+    sample.add_argument("--max-spans", type=int, default=256)
+    sample.add_argument("--retry-errors", action="store_true")
     check = commands.add_parser("verify", help="Check content hashes and independently restore native evidence")
     check.add_argument("--dataset", type=Path, required=True)
     check.add_argument("--limit", type=int)
@@ -36,6 +49,12 @@ def parser():
     selection = stages.add_mutually_exclusive_group(required=True)
     selection.add_argument("--key-id")
     selection.add_argument("--limit", type=int)
+    catalog = commands.add_parser("catalog", help="Discover generated category folders and select lightweight drawing metadata")
+    catalog.add_argument("--dataset", type=Path, required=True)
+    catalog.add_argument("--limit", type=int, default=1000)
+    for command in (check, review, stages, catalog):
+        command.add_argument("--order", choices=("category", "recent", "random"), default="category")
+        command.add_argument("--seed", type=int, default=0)
     probes = commands.add_parser("probe", help="Run declared construction perturbations without changing baseline evidence")
     probes.add_argument("--dataset", type=Path)
     probes.add_argument("--key-id")
@@ -53,14 +72,23 @@ def main(argv=None):
             result = dataset.convert(args.input, args.output, root, limit=args.limit, categories=args.category,
                                      recursive=args.recursive, fit_config={"polylineTolerance": args.fit_tolerance},
                                      max_points=args.max_points, max_spans=args.max_spans, retry_errors=args.retry_errors)
+        elif args.command == "sample":
+            from .sampling import convert_collection
+            result = convert_collection(args.input, args.output, root, categories=args.category, count=args.limit,
+                                        seed=args.seed, all_records=args.all_records, recursive=args.recursive, cache=args.index_cache,
+                                        fit_config={"polylineTolerance": args.fit_tolerance}, max_points=args.max_points,
+                                        max_spans=args.max_spans, retry_errors=args.retry_errors)
         elif args.command == "verify":
-            result = dataset.verify(args.dataset, root, args.limit)
+            result = dataset.verify(args.dataset, root, args.limit, order=args.order, seed=args.seed)
+        elif args.command == "catalog":
+            from .selection import catalog
+            result = catalog(args.dataset, args.limit, order=args.order, seed=args.seed)
         elif args.command == "review":
             from .review import build
-            result = build(args.dataset, args.output, args.limit)
+            result = build(args.dataset, args.output, args.limit, order=args.order, seed=args.seed)
         elif args.command == "stages":
             from .stages import generate
-            result = generate(args.dataset, args.output, root, key_id=args.key_id, limit=args.limit)
+            result = generate(args.dataset, args.output, root, key_id=args.key_id, limit=args.limit, order=args.order, seed=args.seed)
         elif args.command == "probe":
             from .probes import run_probes, example_context
             if args.example:
@@ -87,7 +115,7 @@ def main(argv=None):
             from .bridge import executable
             result = {"gojoRoot": str(root), "upstream": upstream.fingerprint(root), "native": executable(root)}
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
-        return 1 if args.command == "convert" and result.get("errors") else 0
+        return 1 if args.command in ("convert", "sample") and result.get("errors") else 0
     except (ValueError, RuntimeError, OSError, KeyError) as error:
         print(f"Gojo QuickDraw: {error}", file=sys.stderr)
         return 2

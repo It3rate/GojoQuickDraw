@@ -15,7 +15,8 @@ internal sealed partial class MainWindow : Window
     private static readonly IBrush Ink = Brush.Parse("#183D43"), Teal = Brush.Parse("#247D72"), Muted = Brush.Parse("#647A79");
     private readonly string _repository = WorkspaceSettings.Repository();
     private readonly WorkspaceSettings _settings;
-    private readonly TextBox _input = new(), _dataset = new(), _category = new(), _python = new(), _gojo = new();
+    private readonly TextBox _input = new(), _dataset = new(), _python = new(), _gojo = new();
+    private readonly Button _category;
     private readonly NumericUpDown _limit = Number(25, 1, 5000000), _reviewLimit = Number(50, 1, 1000), _stageCount = Number(5, 1, 1000),
         _fit = Number(6, .1m, 100), _maxPoints = Number(20000, 1, 10000000), _maxSpans = Number(256, 1, 100000);
     private readonly CheckBox _all = new() { Content = "Process every matching drawing" },
@@ -50,7 +51,10 @@ internal sealed partial class MainWindow : Window
         Width = 1180; Height = 980; MinWidth = 900; MinHeight = 740;
         Background = Brush.Parse("#F1F5F0");
         _statusDetail.MaxLines = 3; _statusDetail.TextTrimming = TextTrimming.WordEllipsis;
-        _input.Text = _settings.Input; _dataset.Text = _settings.Dataset; _category.Text = _settings.Category;
+        _category = Button("Choose categories…", async () => await ChooseCategories());
+        _category.HorizontalAlignment = HorizontalAlignment.Stretch;
+        SetSourceCategories(_settings.Category.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+        _input.Text = _settings.Input; _dataset.Text = _settings.Dataset;
         _python.Text = _settings.Python; _gojo.Text = _settings.Gojo; _limit.Value = Math.Max(1, _settings.Limit);
         _stop = Button("Stop", () => { _cancellation?.Cancel(); SetStatus("Stopping…", "Completed records remain available. Conversion can be resumed."); });
         _stop.IsEnabled = false;
@@ -58,8 +62,14 @@ internal sealed partial class MainWindow : Window
         _openFolder = Button("Open dataset folder", () => Open(_dataset.Text));
         _all.IsCheckedChanged += (_, _) => _limit.IsEnabled = _all.IsChecked != true;
         _drawings.SelectionChanged += async (_, _) => await LoadPreview();
+        _input.TextChanged += (_, _) =>
+        {
+            if (File.Exists(_input.Text) && CategoryCatalog.FromFile(_input.Text!) is { } category) SetSourceCategories([category]);
+        };
         _dataset.TextChanged += (_, _) =>
         {
+            _catalogCancellation?.Cancel();
+            _updatingFolders = true; _folderScope.ItemsSource = Array.Empty<FolderOption>(); _updatingFolders = false;
             _loadedDataset = null; _drawings.ItemsSource = Array.Empty<DrawingRow>();
             _raw.Profiles = []; _fitted.Profiles = [];
             _datasetSummary.Text = "Load this dataset to see its drawings and recorded settings.";
@@ -67,8 +77,8 @@ internal sealed partial class MainWindow : Window
         var header = Stack(5, Text("GOJO / QUICKDRAW", 12, true), Text("QuickDraw Studio", 29, true),
             Text("Convert drawings, inspect their evidence, and explore possible constructions.", 14));
         header.Margin = new Thickness(26, 20, 26, 14);
-        var datasetRow = Row(_dataset, Button("Choose dataset…", async () => await PickDataset()), Button("New dataset", NewDataset));
-        var workspace = Card(Stack(8, Text("Active dataset", 13, true), datasetRow, _datasetSummary));
+        var datasetRow = Row(_dataset, Button("Choose generated folder…", async () => await PickDataset()), Button("New collection", NewDataset));
+        var workspace = Card(Stack(8, Text("Active collection or dataset", 13, true), datasetRow, _datasetSummary));
         workspace.Margin = new Thickness(26, 0, 26, 14);
         _tabs.ItemsSource = new[]
         {
@@ -81,16 +91,21 @@ internal sealed partial class MainWindow : Window
         _tabs.Margin = new Thickness(26, 0, 26, 12);
         var jobButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         jobButtons.Children.Add(_openResult); jobButtons.Children.Add(_openFolder); jobButtons.Children.Add(_stop);
-        var job = Card(Stack(8, _status, _statusDetail, _progress, jobButtons,
-            new Expander { Header = "Run details", Content = _log, HorizontalContentAlignment = HorizontalAlignment.Stretch }));
+        _log.IsVisible = false;
+        jobButtons.Children.Add(Button("Run details", () => _log.IsVisible = !_log.IsVisible));
+        var jobRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 14 };
+        jobRow.Children.Add(Stack(4, _status, _statusDetail)); Grid.SetColumn(jobButtons, 1); jobRow.Children.Add(jobButtons);
+        var job = Card(Stack(8, jobRow, _progress, _log));
         job.Margin = new Thickness(26, 0, 26, 20);
         var main = new DockPanel();
         DockPanel.SetDock(header, Dock.Top); main.Children.Add(header);
         DockPanel.SetDock(job, Dock.Bottom); main.Children.Add(job);
         var body = new DockPanel(); DockPanel.SetDock(workspace, Dock.Top); body.Children.Add(workspace); body.Children.Add(_tabs);
         _configuration = body; main.Children.Add(body); Content = main;
+        InitializeSelectionControls();
         Closing += async (_, args) =>
         {
+            _catalogCancellation?.Cancel();
             if (_allowClose || _cancellation is null) { SaveSettings(); return; }
             args.Cancel = true; _cancellation.Cancel();
             SetStatus("Stopping before closing…", "Waiting for the active worker to finish stopping.");
@@ -99,7 +114,7 @@ internal sealed partial class MainWindow : Window
         Opened += async (_, _) =>
         {
             if (_smoke) { await RunSmoke(); return; }
-            if (File.Exists(Path.Combine(_dataset.Text ?? "", "manifest.json"))) await LoadCatalog();
+            if (Directory.Exists(_dataset.Text)) await LoadCatalog();
         };
     }
 
@@ -107,19 +122,20 @@ internal sealed partial class MainWindow : Window
     {
         var source = Row(_input, Button("File…", async () => await PickInput(false)), Button("Folder…", async () => await PickInput(true)));
         var options = new Grid { ColumnDefinitions = new ColumnDefinitions("*,180"), ColumnSpacing = 18 };
-        options.Children.Add(Field("Category filter", _category, "Leave blank for every category, or separate several with commas."));
-        var count = Field("Drawing limit", _limit, "Selected records, including reused ones."); Grid.SetColumn(count, 1); options.Children.Add(count);
+        options.Children.Add(Field("Source categories", _category, "Choose categories with toggle buttons, Select all, and Clear all."));
+        var count = Field("Total sample size", _limit, "Across the selected categories."); Grid.SetColumn(count, 1); options.Children.Add(count);
         var advanced = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*,*"), ColumnSpacing = 14 };
         advanced.Children.Add(Field("Fitting tolerance", _fit));
         var points = Field("Maximum points", _maxPoints); Grid.SetColumn(points, 1); advanced.Children.Add(points);
         var spans = Field("Maximum intervals", _maxSpans); Grid.SetColumn(spans, 2); advanced.Children.Add(spans);
         return Stack(14, Text("Start with the drawn evidence", 21, true),
-            Text("Completed records are reused when you resume. Later drawing steps are generated separately."),
-            Buttons(JobButton("Convert / resume", [PipelineAction.Convert]),
+            Text("Random drawings are spread across selected categories and saved in category folders. Interrupted selections can be resumed."),
+            Buttons(JobButton("Sample / resume", [PipelineAction.Convert]),
                 JobButton("Convert → verify → review", [PipelineAction.Convert, PipelineAction.Verify, PipelineAction.Review], true)),
             Card(Stack(12, Field("QuickDraw source", source, "Choose a QuickDraw file or a folder of NDJSON / JSONL files, including gzip files."),
                 options, _all, _recursive,
-                new Expander { Header = "Fitting and retry options", Content = Stack(12, advanced, _retry), HorizontalContentAlignment = HorizontalAlignment.Stretch })),
+                new Expander { Header = "Fitting, random seed, and retry options", Content = Stack(12, advanced,
+                    Field("Sampling seed (optional)", _samplingSeed, "Leave blank for a new random selection; interrupted runs reuse their saved selection."), _retry), HorizontalContentAlignment = HorizontalAlignment.Stretch })),
             _autoOpen, Text("Reviews and interpretation runs are placed beside the dataset, in a separate runs folder.", 12));
     }
 
@@ -133,6 +149,7 @@ internal sealed partial class MainWindow : Window
         browse.Children.Add(_drawings);
         var preview = Stack(8, _selection, canvases); Grid.SetColumn(preview, 1); browse.Children.Add(preview);
         return Stack(12, Text("Read what the drawing supports", 21, true),
+            InspectionControls(),
             Buttons(JobButton("Load drawings", null), JobButton("Verify archives", [PipelineAction.Verify]),
                 JobButton("Build visual review", [PipelineAction.Review], true)),
             _verifyAll, browse,
@@ -165,11 +182,19 @@ internal sealed partial class MainWindow : Window
 
     private PipelineOptions Options(PipelineAction action, string run)
     {
-        var limit = action is PipelineAction.Review or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
-        return new(_repository, _python.Text?.Trim() ?? "", _gojo.Text?.Trim() ?? "", _input.Text?.Trim() ?? "", _dataset.Text?.Trim() ?? "",
-            _category.Text ?? "", limit, action == PipelineAction.Verify ? _verifyAll.IsChecked == true : _all.IsChecked == true,
+        var limit = action == PipelineAction.Catalog ? 1000 : action is PipelineAction.Review or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
+        var selected = _drawings.SelectedItem as DrawingRow;
+        var target = action is PipelineAction.Convert or PipelineAction.Setup ? _dataset.Text?.Trim() ?? "" : InspectionPath;
+        if ((action == PipelineAction.Probe || action == PipelineAction.Stages && _stageSelection.SelectedIndex == 0) && selected is not null)
+            target = selected.DatasetPath;
+        long? sampleSeed = null;
+        if (action == PipelineAction.Convert && !string.IsNullOrWhiteSpace(_samplingSeed.Text))
+            sampleSeed = long.TryParse(_samplingSeed.Text, out var seed) ? seed : throw new ArgumentException("Sampling seed must be a whole number, or blank for random selection.");
+        return new(_repository, _python.Text?.Trim() ?? "", _gojo.Text?.Trim() ?? "", _input.Text?.Trim() ?? "", target,
+            string.Join(',', _sourceCategories.Order(StringComparer.OrdinalIgnoreCase)), limit, action == PipelineAction.Verify ? _verifyAll.IsChecked == true : _all.IsChecked == true,
             _recursive.IsChecked == true, _retry.IsChecked == true, (double)(_fit.Value ?? 6), (int)(_maxPoints.Value ?? 20000), (int)(_maxSpans.Value ?? 256),
-            action != PipelineAction.Stages || _stageSelection.SelectedIndex == 0 ? (_drawings.SelectedItem as DrawingRow)?.KeyId : null, run);
+            action != PipelineAction.Stages || _stageSelection.SelectedIndex == 0 ? selected?.KeyId : null, run,
+            InspectionOrder, _inspectionSeed, sampleSeed);
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
@@ -177,6 +202,7 @@ internal sealed partial class MainWindow : Window
     private async Task Workflow(PipelineAction[] actions)
     {
         if (_cancellation is not null) return;
+        _catalogCancellation?.Cancel();
         _cancellation = new();
         _configuration.IsEnabled = false; _stop.IsEnabled = true; _openResult.IsEnabled = false; _progress.IsVisible = true;
         _log.Text = "";
@@ -205,7 +231,7 @@ internal sealed partial class MainWindow : Window
                 if (action is PipelineAction.Probe or PipelineAction.ExampleProbe) ShowProbes(result);
             }
             if (retained) SetStatus("Finished with records to review", "Successful records were processed. Failed sources remain in the dataset's errors folder; see run details.", true);
-            if (File.Exists(Path.Combine(_dataset.Text ?? "", "manifest.json"))) await LoadCatalog(false);
+            if (Directory.Exists(_dataset.Text)) await LoadCatalog(false);
         }
         catch (OperationCanceledException) { SetStatus("Stopped", "No additional operation was started."); }
         catch (Exception error) { SetStatus("Run needs attention", error.Message, true); AppendLog(error.ToString()); }
@@ -266,36 +292,14 @@ internal sealed partial class MainWindow : Window
         }
     }
 
-    private async Task LoadCatalog(bool announce = true)
-    {
-        var path = _dataset.Text?.Trim() ?? "";
-        try
-        {
-            if (announce) SetStatus("Loading drawings…", "Reading the saved dataset journal and drawing catalog.");
-            var catalog = await Task.Run(() => Workspace.ReadCatalog(path));
-            if (_dataset.Text?.Trim() != path) return;
-            var key = (_drawings.SelectedItem as DrawingRow)?.ItemId;
-            _loadedDataset = path; _drawings.ItemsSource = catalog.Drawings;
-            _drawings.SelectedItem = catalog.Drawings.FirstOrDefault(row => row.ItemId == key) ?? catalog.Drawings.FirstOrDefault();
-            _datasetSummary.Text = $"{catalog.Stored:N0} stored drawings · {catalog.Errors:N0} retained errors" +
-                (catalog.Stored > catalog.Drawings.Count ? $" · showing {catalog.Drawings.Count:N0} drawings" : "");
-            using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(path, "manifest.json")));
-            var config = manifest.RootElement.GetProperty("config");
-            _maxPoints.Value = config.GetProperty("maxPoints").GetInt32(); _maxSpans.Value = config.GetProperty("maxSpans").GetInt32();
-            if (config.GetProperty("fit").TryGetProperty("polylineTolerance", out var fit)) _fit.Value = fit.GetDecimal();
-            if (announce) SetStatus("Dataset loaded", "Select a drawing, inspect its evidence, or generate a new interpretation run.");
-        }
-        catch (Exception error) { if (announce) SetStatus("Could not load dataset", error.Message, true); else AppendLog("Could not reload dataset: " + error.Message); }
-    }
-
     private async Task LoadPreview()
     {
         var revision = ++_previewRevision;
-        if (_drawings.SelectedItem is not DrawingRow row || _loadedDataset is not { } dataset) return;
+        if (_drawings.SelectedItem is not DrawingRow row || _loadedDataset is null) return;
         _selection.Text = $"{row.Category} · {row.KeyId} · {row.Samples} original samples · {row.Intervals} fitted intervals";
         try
         {
-            var preview = await Task.Run(() => Workspace.ReadPreview(dataset, row));
+            var preview = await Task.Run(() => Workspace.ReadPreview(row.DatasetPath, row));
             if (_previewRevision != revision) return;
             _raw.Profiles = preview.Strokes; _fitted.Profiles = preview.Profiles;
         }
@@ -319,7 +323,7 @@ internal sealed partial class MainWindow : Window
 
     private async Task PickDataset()
     {
-        var chosen = await StorageProvider.OpenFolderPickerAsync(new() { Title = "Gojo QuickDraw dataset", AllowMultiple = false });
+        var chosen = await StorageProvider.OpenFolderPickerAsync(new() { Title = "Generated collection or category folder", AllowMultiple = false });
         if (chosen.Count > 0) { _dataset.Text = chosen[0].TryGetLocalPath(); await LoadCatalog(); }
     }
     private async Task PickGojo()
@@ -337,13 +341,14 @@ internal sealed partial class MainWindow : Window
         var parent = Path.GetDirectoryName(Path.GetFullPath(_dataset.Text ?? _repository))!;
         _dataset.Text = WorkspaceSettings.NewDataset(parent);
         _tabs.SelectedIndex = 0;
-        SetStatus("New dataset selected", "Choose a source and run Convert. The new dataset folder is created when the run starts.");
+        SetStatus("New collection selected", "Choose source categories and sample size. Their dataset subfolders are created when generation starts.");
     }
     private void SaveSettings()
     {
         if (_smoke) return;
         _settings.Python = _python.Text ?? "python"; _settings.Gojo = _gojo.Text ?? ""; _settings.Input = _input.Text ?? "";
-        _settings.Dataset = _dataset.Text ?? ""; _settings.Category = _category.Text ?? ""; _settings.Limit = (int)(_limit.Value ?? 25);
+        _settings.Dataset = _dataset.Text ?? ""; _settings.Category = string.Join(',', _sourceCategories); _settings.Limit = (int)(_limit.Value ?? 25);
+        _settings.SamplingSeed = _samplingSeed.Text ?? ""; _settings.InspectionOrder = InspectionOrder; _settings.InspectionSeed = _inspectionSeed;
         try { _settings.Save(); } catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppendLog("Workspace settings could not be saved: " + error.Message); }
     }
     private void Open(string? path)
@@ -362,6 +367,8 @@ internal sealed partial class MainWindow : Window
         var text = (_log.Text ?? "") + line + Environment.NewLine;
         _log.Text = text.Length > 60000 ? text[^60000..] : text;
         _log.CaretIndex = _log.Text.Length;
+        if (_cancellation is not null && (line.StartsWith("Indexing ") || line.StartsWith("Category ") || line.Contains(" selected: ") || line.StartsWith("Resuming ")))
+            _statusDetail.Text = line;
     });
 
     private Button JobButton(string label, PipelineAction[]? actions, bool primary = false)

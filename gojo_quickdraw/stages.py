@@ -106,7 +106,7 @@ def _diagnose_review(review: Path, destination: Path) -> dict:
 
 
 def generate(dataset: Path, output: Path, gojo_root: Path,
-             key_id: str | None = None, limit: int | None = None) -> dict:
+             key_id: str | None = None, limit: int | None = None, *, order="category", seed=0) -> dict:
     """Generate and verify selected seven-stage church interpretations on demand.
 
     Require an explicit key or limit; never synthesize an entire corpus by
@@ -125,7 +125,8 @@ def generate(dataset: Path, output: Path, gojo_root: Path,
         raise ValueError("Stage output must be separate from the baseline dataset")
     if output.exists() and (not output.is_dir() or any(output.iterdir())):
         raise ValueError("Stage output must be a new or empty directory")
-    selected = list(load_records(dataset, key_id=key_id, limit=limit))
+    selection_options = {"order": order, "seed": seed} if order != "category" or seed != 0 else {}
+    selected = list(load_records(dataset, key_id=key_id, limit=limit, **selection_options))
     if not selected:
         raise ValueError("No matching successfully encoded drawings")
     unsupported = sorted({str(row.get("category", packet.get("source", {}).get("word", "")))
@@ -167,9 +168,11 @@ def generate(dataset: Path, output: Path, gojo_root: Path,
         provenance = {
             "schema": "gojo.quickdraw-dataset-stage-run.v1",
             "implementation": implementation,
-            "baselineManifestSha256": hashlib.sha256((dataset / "manifest.json").read_bytes()).hexdigest(),
+            "baselineManifestSha256": hashlib.sha256((dataset / "manifest.json").read_bytes()).hexdigest() if (dataset / "manifest.json").exists() else None,
+            "baselineDatasets": [{"path": str(folder), "manifestSha256": hashlib.sha256((folder / "manifest.json").read_bytes()).hexdigest()}
+                                 for folder in sorted({Path(row.get("datasetPath", dataset)) for row, _ in selected})],
             "selected": [{"itemId": row["itemId"], "keyId": row["keyId"],
-                          "evidenceSha256": row.get("evidenceSha256"),
+                          "evidenceSha256": row.get("evidenceSha256"), "datasetPath": row.get("datasetPath", str(dataset)),
                           "sourceOriginalSha256": hashlib.sha256(packet["sourceOriginalJson"].encode("utf-8")).hexdigest()}
                          for row, packet in selected],
             "authorSha256": hashlib.sha256(author.read_bytes()).hexdigest(),

@@ -1,6 +1,6 @@
 # Authored controls
 
-`churches.ndjson` contains synthetic acquisition controls, not QuickDraw data:
+`church.ndjson` contains synthetic acquisition controls, not QuickDraw data:
 
 - A frontal outline with a door, two windows, and a cross.
 - An outline with no acquired lower boundary, for inspecting a separate hidden

@@ -1,0 +1,135 @@
+{
+  "success": true,
+  "errors": [],
+  "dataset": "D:\\_quickDraw\\gojo-quickdraw-evidence\\category-samples-20261025",
+  "jobs": [
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    },
+    {
+      "ExitCode": -1,
+      "Cancelled": true,
+      "Successful": false
+    },
+    {
+      "ExitCode": 0,
+      "Cancelled": false,
+      "Successful": true
+    }
+  ],
+  "status": "Completed",
+  "detail": "Python and the native bridge are ready. The linked Gojo revision matches the tested dependency.",
+  "catalogDrawings": 3,
+  "generatedFolderOptions": 4,
+  "selectedSourceCategories": [
+    "angel",
+    "church",
+    "frog"
+  ],
+  "totalSampleSize": 9,
+  "acquiredStrokesInPreview": 15,
+  "fittedIntervalsInPreview": 25,
+  "cancellationPreservedArchives": true,
+  "schema": "gojo.quickdraw-category-sampling-checkpoint.v1",
+  "date": "2026-10-25",
+  "tests": {
+    "python": 55,
+    "desktop": 7,
+    "native": 9,
+    "linkedGojoSolution": 5407,
+    "failed": 0
+  },
+  "browser": {
+    "drawings": 9,
+    "groupsInspected": 62,
+    "downloads": 9,
+    "errors": [],
+    "requests": [],
+    "immutable": true,
+    "mobileOverflow": false
+  },
+  "sampling": {
+    "seed": 42,
+    "basis": "Randomized balanced category rounds; uniform record selection without replacement within each category.",
+    "selected": 9,
+    "categories": [
+      {
+        "category": "angel",
+        "sourceFile": "D:\\_quickDraw\\quickdraw\\angel.ndjson",
+        "sourceLines": [
+          40242,
+          42336,
+          109132
+        ]
+      },
+      {
+        "category": "church",
+        "sourceFile": "D:\\_quickDraw\\quickdraw\\church.ndjson",
+        "sourceLines": [
+          18010,
+          43756,
+          154825
+        ]
+      },
+      {
+        "category": "frog",
+        "sourceFile": "D:\\_quickDraw\\quickdraw\\frog.ndjson",
+        "sourceLines": [
+          45142,
+          59281,
+          66118
+        ]
+      }
+    ]
+  },
+  "screenshots": {
+    "all-categories.png": "2be3bb9fcab67cfaf494f67be716f274b36734310b087a55355f34f0a6d22ced",
+    "category-picker.png": "a7ff13172e7115d0944876a340de49a092c1b4ef84bbe726dda38ca3146895a0",
+    "compact.png": "229c858de8940b5ea39b4c7094b4da07f4bb34e7859af455ce5339d31fe23bfe",
+    "convert.png": "f9dd3ef50f27a0b50106e85e4e4d45eb383f632e9e482d4c4d83355b231f5de6",
+    "evidence.png": "fc2b65c14aeaa7246d8a84e757e162b4226fe67a9b4cde9f65a0593a7dcd4160",
+    "probes.png": "c0ac6d985a54d9a755c71e70fe3da09257faa4ca5c479dcab6de2d56f0f230de",
+    "setup.png": "d0aa1559c614ce103e393eebf1865a29d93df3324f3b05bbd889acf58114e80f",
+    "steps.png": "f71af6690f0eb877660186afaaac700b2ac6121db9178fe7210b0e9a17226211"
+  },
+  "qualification": "Nine distinct real acquisitions. Repeated QA runs and the copied inspection collection are correlated copies, not additional independent training examples.",
+  "nativeProfiles": 227,
+  "sourceSamples": 2272
+}

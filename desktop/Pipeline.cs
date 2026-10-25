@@ -5,10 +5,11 @@ using System.Text.Json;
 
 namespace GojoQuickDraw.Desktop;
 
-public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup }
+public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog }
 public sealed record PipelineOptions(string Repository, string Python, string Gojo, string Input, string Dataset,
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
-    double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null);
+    double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
+    string InspectionOrder = "category", long InspectionSeed = 0, long? SamplingSeed = null);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -30,33 +31,37 @@ public static class Pipeline
         string? artifact = null;
         void Dataset()
         {
-            if (!File.Exists(Path.Combine(options.Dataset, "manifest.json"))) throw new ArgumentException("Choose an existing dataset, or convert drawings first.");
+            if (!Directory.Exists(options.Dataset)) throw new ArgumentException("Choose an existing generated folder, or convert drawings first.");
             arguments.AddRange(["--dataset", Path.GetFullPath(options.Dataset)]);
         }
+        void Ordering() => arguments.AddRange(["--order", options.InspectionOrder, "--seed", options.InspectionSeed.ToString(CultureInfo.InvariantCulture)]);
         switch (action)
         {
             case PipelineAction.Convert:
                 if (!File.Exists(options.Input) && !Directory.Exists(options.Input)) throw new ArgumentException("Choose a QuickDraw input file or folder.");
-                arguments.AddRange(["convert", "--input", Path.GetFullPath(options.Input), "--output", Path.GetFullPath(options.Dataset),
+                if (string.IsNullOrWhiteSpace(options.Category)) throw new ArgumentException("Choose at least one source category.");
+                arguments.AddRange(["sample", "--input", Path.GetFullPath(options.Input), "--output", Path.GetFullPath(options.Dataset),
                     "--fit-tolerance", options.FitTolerance.ToString(CultureInfo.InvariantCulture), "--max-points", options.MaxPoints.ToString(),
                     "--max-spans", options.MaxSpans.ToString()]);
                 foreach (var category in options.Category.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
                     arguments.AddRange(["--category", category]);
                 if (!options.AllRecords) arguments.AddRange(["--limit", options.Limit.ToString()]);
+                else arguments.Add("--all-records");
+                if (options.SamplingSeed is { } samplingSeed) arguments.AddRange(["--seed", samplingSeed.ToString(CultureInfo.InvariantCulture)]);
                 if (options.Recursive) arguments.Add("--recursive");
                 if (options.RetryErrors) arguments.Add("--retry-errors");
                 break;
             case PipelineAction.Verify:
-                arguments.Add("verify"); Dataset();
+                arguments.Add("verify"); Dataset(); Ordering();
                 if (!options.AllRecords) arguments.AddRange(["--limit", options.Limit.ToString()]);
                 break;
             case PipelineAction.Review:
-                arguments.Add("review"); Dataset();
+                arguments.Add("review"); Dataset(); Ordering();
                 artifact = Path.Combine(run, "evidence.html");
                 arguments.AddRange(["--output", artifact, "--limit", options.Limit.ToString()]);
                 break;
             case PipelineAction.Stages:
-                arguments.Add("stages"); Dataset();
+                arguments.Add("stages"); Dataset(); Ordering();
                 var stages = Path.Combine(run, "stages");
                 arguments.AddRange(["--output", stages]);
                 if (!string.IsNullOrWhiteSpace(options.KeyId)) arguments.AddRange(["--key-id", options.KeyId]);
@@ -77,6 +82,10 @@ public static class Pipeline
                 arguments.AddRange(["--output", artifact]);
                 break;
             case PipelineAction.Setup: arguments.Add("doctor"); break;
+            case PipelineAction.Catalog:
+                arguments.Add("catalog"); Dataset(); Ordering();
+                arguments.AddRange(["--limit", options.Limit.ToString()]);
+                break;
         }
         return new(action, options.Python, options.Repository, arguments, artifact);
     }

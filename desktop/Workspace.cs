@@ -13,6 +13,9 @@ public sealed class WorkspaceSettings
     public string Dataset { get; set; } = "";
     public string Category { get; set; } = "church";
     public int Limit { get; set; } = 25;
+    public string InspectionOrder { get; set; } = "category";
+    public long InspectionSeed { get; set; }
+    public string SamplingSeed { get; set; } = "";
 
     public static string Repository()
     {
@@ -33,7 +36,7 @@ public sealed class WorkspaceSettings
         settings ??= new();
         if (string.IsNullOrWhiteSpace(settings.Gojo)) settings.Gojo = Path.GetFullPath(Path.Combine(repository, "..", "Gojo"));
         if (string.IsNullOrWhiteSpace(settings.Input)) settings.Input = File.Exists("D:/_quickDraw/quickdraw/church.ndjson")
-            ? "D:/_quickDraw/quickdraw/church.ndjson" : Path.Combine(repository, "examples", "churches.ndjson");
+            ? "D:/_quickDraw/quickdraw/church.ndjson" : Path.Combine(repository, "examples", "church.ndjson");
         if (string.IsNullOrWhiteSpace(settings.Dataset)) settings.Dataset = Directory.Exists("D:/_quickDraw/gojo-quickdraw-evidence/church-pilot")
             ? "D:/_quickDraw/gojo-quickdraw-evidence/church-pilot"
             : NewDataset(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GojoQuickDraw"));
@@ -48,65 +51,58 @@ public sealed class WorkspaceSettings
         File.Move(temporary, SettingsFile, true);
     }
 
-    public static string NewDataset(string parent) => Path.Combine(parent, "church-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff"));
+    public static string NewDataset(string parent) => Path.Combine(parent, "samples-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff"));
 }
 
 public sealed record DrawingRow(string ItemId, string KeyId, string Category, int Strokes, int Samples, int Intervals,
-    string EvidencePath, string Status)
+    string EvidencePath, string Status, string DatasetPath = "")
 {
-    public override string ToString() => $"{KeyId}   ·   {Strokes} strokes   ·   {Intervals} intervals";
+    public string QualifiedId => DatasetPath + "::" + ItemId;
+    public override string ToString() => $"{Category} · {KeyId} · {Intervals} intervals";
 }
+public sealed record FolderOption(string Label, string Path) { public override string ToString() => Label; }
 
 public sealed record Catalog(IReadOnlyList<DrawingRow> Drawings, int Stored, int Errors);
 public sealed record Preview(double[][][] Strokes, double[][][] Profiles);
 
 public static class Workspace
 {
-    public static Catalog ReadCatalog(string dataset)
+    public static IReadOnlyList<FolderOption> GeneratedFolders(string root)
     {
-        var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(dataset, "manifest.json")));
-        using (manifest)
+        if (!Directory.Exists(root)) return [];
+        var found = new List<FolderOption>();
+        var pending = new Stack<string>(); pending.Push(System.IO.Path.GetFullPath(root));
+        var ignored = new HashSet<string>(["records", "native", "errors", "_sampling", "_source-index", "review", "qa"], StringComparer.OrdinalIgnoreCase);
+        while (pending.TryPop(out var folder))
         {
-            if (manifest.RootElement.GetProperty("schema").GetString() != "gojo.quickdraw-dataset.v1")
-                throw new InvalidDataException("Choose a Gojo QuickDraw dataset folder containing manifest.json.");
-            var rows = new Dictionary<string, DrawingRow>();
-            using var stream = new FileStream(Path.Combine(dataset, "index.ndjson"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            if (stream.Length > 0)
+            var manifest = System.IO.Path.Combine(folder, "manifest.json");
+            if (File.Exists(manifest))
             {
-                stream.Seek(-1, SeekOrigin.End);
-                if (stream.ReadByte() != '\n') throw new InvalidDataException("The dataset journal has an unfinished entry. Finish or resume conversion before loading it.");
-                stream.Position = 0;
+                using var document = JsonDocument.Parse(File.ReadAllText(manifest));
+                if (document.RootElement.TryGetProperty("schema", out var schema) && schema.GetString() == "gojo.quickdraw-dataset.v1")
+                    found.Add(new(System.IO.Path.GetRelativePath(root, folder) == "." ? System.IO.Path.GetFileName(folder) : System.IO.Path.GetRelativePath(root, folder), folder));
             }
-            using var reader = new StreamReader(stream);
-            while (reader.ReadLine() is { } line)
+            foreach (var child in Directory.EnumerateDirectories(folder))
             {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-                JsonDocument document;
-                try { document = JsonDocument.Parse(line); }
-                catch (JsonException) { throw new InvalidDataException("The dataset journal is incomplete. Finish or resume conversion before loading it."); }
-                using (document)
-                {
-                    var row = document.RootElement;
-                    var id = row.GetProperty("itemId").GetString()!;
-                    // Keep the first 1,000 identities, updating their latest status throughout the journal.
-                    if (rows.Count >= 1000 && !rows.ContainsKey(id)) continue;
-                    var status = row.GetProperty("status").GetString()!;
-                    var counts = row.TryGetProperty("counts", out var count) ? count : default;
-                    int Count(string key) => counts.ValueKind == JsonValueKind.Object && counts.TryGetProperty(key, out var value) ? value.GetInt32() : 0;
-                    rows[id] = new(id, row.GetProperty("keyId").GetString() ?? "Unparsed record",
-                        row.GetProperty("category").GetString() ?? "unknown", Count("strokes"), Count("samples"), Count("spans"),
-                        row.TryGetProperty("evidencePath", out var path) ? path.GetString()! : "", status);
-                }
+                var name = System.IO.Path.GetFileName(child);
+                if (!ignored.Contains(name) && !name.StartsWith('.') && !name.EndsWith("-runs", StringComparison.OrdinalIgnoreCase)
+                    && (File.GetAttributes(child) & FileAttributes.ReparsePoint) == 0) pending.Push(child);
             }
-            var stored = rows.Values.Count(row => row.Status == "ok");
-            var errors = rows.Values.Count(row => row.Status == "error");
-            if (manifest.RootElement.TryGetProperty("lastRun", out var last))
-            {
-                stored = last.GetProperty("storedRecords").GetInt32();
-                errors = last.GetProperty("storedErrors").GetInt32();
-            }
-            return new(rows.Values.Where(row => row.Status == "ok").ToArray(), stored, errors);
         }
+        return found.OrderBy(folder => folder.Label, StringComparer.OrdinalIgnoreCase).ToArray();
+    }
+
+    public static Catalog ReadCatalogData(JsonElement data)
+    {
+        var rows = data.GetProperty("records").EnumerateArray().Select(row =>
+        {
+            var counts = row.GetProperty("counts");
+            int Count(string key) => counts.TryGetProperty(key, out var count) ? count.GetInt32() : 0;
+            return new DrawingRow(row.GetProperty("itemId").GetString()!, row.GetProperty("keyId").GetString()!,
+                row.GetProperty("category").GetString()!, Count("strokes"), Count("samples"), Count("spans"),
+                row.GetProperty("evidencePath").GetString()!, "ok", row.GetProperty("datasetPath").GetString()!);
+        }).ToArray();
+        return new(rows, data.GetProperty("storedRecords").GetInt32(), data.GetProperty("storedErrors").GetInt32());
     }
 
     public static Preview ReadPreview(string dataset, DrawingRow row)

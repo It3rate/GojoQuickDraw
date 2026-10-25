@@ -189,27 +189,24 @@ def verify_row(root, row):
             raise ValueError(f"Missing or changed dataset artifact: {row[field]}")
 
 
-def load_records(dataset, key_id=None, limit=None):
-    root = Path(dataset).resolve()
-    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    if manifest.get("schema") != SCHEMA:
-        raise ValueError("Unsupported dataset schema")
-    if limit is not None and limit < 1:
-        raise ValueError("Limit must be positive")
-    emitted = 0
-    with _index(root) as rows:
-        for row in rows.values():
-            if row.get("status") != "ok" or key_id is not None and row.get("keyId") != key_id:
-                continue
-            if limit is not None and emitted >= limit:
-                break
-            verify_row(root, row)
-            with gzip.open(_safe_path(root, row["evidencePath"]), "rt", encoding="utf-8") as stream:
-                packet = json.load(stream)
-            if packet["itemKey"] != row["itemId"] or packet["source"]["key_id"] != row["keyId"]:
-                raise ValueError("Dataset index and source identity disagree")
-            yield row, packet
-            emitted += 1
+def load_records(dataset, key_id=None, limit=None, *, order="category", seed=0):
+    from .selection import selected_rows
+    for root, stored in selected_rows(dataset, key_id=key_id, limit=limit, order=order, seed=seed):
+        row = dict(stored, datasetPath=str(root))
+        verify_row(root, row)
+        with gzip.open(_safe_path(root, row["evidencePath"]), "rt", encoding="utf-8") as stream:
+            packet = json.load(stream)
+        if packet["itemKey"] != row["itemId"] or packet["source"]["key_id"] != row["keyId"]:
+            raise ValueError("Dataset index and source identity disagree")
+        yield row, packet
+
+
+def source_records(files):
+    for file in files:
+        opener = gzip.open if file.suffix.lower() == ".gz" else open
+        with opener(file, "rt", encoding="utf-8-sig") as stream:
+            for line_number, line in enumerate(stream, 1):
+                yield file, line_number, line.rstrip("\r\n"), None
 
 
 def build_packet(original, gojo_root, item_id, category=None, fit_config=None, max_points=20000, max_spans=256):
@@ -275,7 +272,7 @@ def convert(input_path, output, gojo_root, **kwargs):
 
 
 def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recursive=False,
-            fit_config=None, max_points=20000, max_spans=256, retry_errors=False, encoder_factory=None):
+            fit_config=None, max_points=20000, max_spans=256, retry_errors=False, encoder_factory=None, records=None):
     """Append one verified source evidence record at a time. Resume by content."""
     gojo_root = activate(gojo_root)
     root = Path(output).resolve()
@@ -316,76 +313,70 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
     counters = Counter(scanned=0, matched=0, converted=0, resumed=0, errors=0)
     wanted = {name.casefold() for name in (categories or [])}
     factory = encoder_factory or bridge.Encoder
-    stop = False
     with _index(root, repair_tail=True) as rows, factory(gojo_root, root / "native") as encoder, (root / "index.ndjson").open("a", encoding="utf-8", newline="\n") as index:
-        for file in files:
-            opener = gzip.open if file.suffix.lower() == ".gz" else open
-            with opener(file, "rt", encoding="utf-8-sig") as stream:
-                for line_number, line in enumerate(stream, 1):
-                    original = line.rstrip("\r\n")
-                    if not original.strip():
-                        continue
-                    counters["scanned"] += 1
-                    raw_hash = hashlib.sha256(original.encode("utf-8")).hexdigest()
-                    error = None
-                    try:
-                        source = parse_source(original, max_points)
-                        category = source.get("word") or file.name.split(".")[0]
-                    except (ValueError, TypeError, OverflowError) as problem:
-                        source, category, error = {}, file.name.split(".")[0], problem
-                    if wanted and category.casefold() not in wanted:
-                        continue
-                    item_id = hashlib.sha256(_canonical([signature, raw_hash, category]).encode()).hexdigest()[:32]
-                    counters["matched"] += 1
-                    if limit is not None and counters["matched"] > limit:
-                        counters["matched"] -= 1
-                        stop = True
-                        break
-                    prior = rows.get(item_id)
-                    if prior and prior["status"] == "ok":
-                        verify_row(root, prior)
-                        counters["resumed"] += 1
-                        continue
-                    if prior and prior["status"] == "error" and not retry_errors:
-                        counters["errors"] += 1
-                        continue
-                    row = {"itemId": item_id, "keyId": source.get("key_id"), "category": category,
-                           "sourceFile": str(file), "sourceLine": line_number, "sourceSha256": raw_hash}
-                    try:
-                        if error:
-                            raise error
-                        packet = build_packet(original, gojo_root, item_id, category=category if not source.get("word") else None, fit_config=fit_config,
-                                              max_points=max_points, max_spans=max_spans)
-                        if not source.get("word"):
-                            packet["categoryContext"]["basis"] = "input-filename"
-                        packet["provenance"] = {"datasetFingerprint": signature, "sourceSha256": raw_hash,
-                                                "upstreamRevision": upstream["revision"]}
-                        native = encoder.encode(packet)
-                        summary = native.get("summary", {})
-                        if summary.get("sourceId") != source["key_id"] or summary.get("sourceSha256") != raw_hash:
-                            raise ValueError("Native record identity or exact source digest differs from the submitted acquisition")
-                        native_path = root / "native" / (item_id + ".gojo.json.gz")
-                        if not native_path.is_file():
-                            raise RuntimeError("Native encoder did not create the expected content-addressed archive")
-                        evidence_path = root / "records" / (item_id + ".evidence.json.gz")
-                        _gzip_json(evidence_path, packet)
-                        row.update(status="ok", evidencePath=evidence_path.relative_to(root).as_posix(),
-                                   nativePath=native_path.relative_to(root).as_posix(),
-                                   evidenceSha256=sha256(evidence_path), nativeSha256=sha256(native_path),
-                                   counts=packet["observation"]["counts"], nativeSummary=native.get("summary", {}))
-                        counters["converted"] += 1
-                    except (ValueError, TypeError, OverflowError, KeyError, RuntimeError, ArithmeticError) as problem:
-                        error_path = root / "errors" / (item_id + ".source.json.gz")
-                        _gzip_json(error_path, {"sourceOriginalJson": original, "error": str(problem)})
-                        row.update(status="error", error=str(problem), retainedSource=error_path.relative_to(root).as_posix())
-                        counters["errors"] += 1
-                    index.write(_canonical(row) + "\n")
-                    index.flush()
-                    rows[item_id] = row
-                    if (counters["converted"] + counters["errors"]) % 10 == 0:
-                        print(f"{counters['matched']} selected: {counters['converted']} converted, {counters['resumed']} reused, {counters['errors']} retained errors", file=sys.stderr)
-            if stop:
+        for file, line_number, original, file_category in (records if records is not None else source_records(files)):
+            if not original.strip():
+                continue
+            counters["scanned"] += 1
+            raw_hash = hashlib.sha256(original.encode("utf-8")).hexdigest()
+            error = None
+            try:
+                source = parse_source(original, max_points)
+                category = file_category or source.get("word") or file.name.split(".")[0]
+            except (ValueError, TypeError, OverflowError) as problem:
+                source, category, error = {}, file_category or file.name.split(".")[0], problem
+            if wanted and category.casefold() not in wanted:
+                continue
+            item_id = hashlib.sha256(_canonical([signature, raw_hash, category]).encode()).hexdigest()[:32]
+            counters["matched"] += 1
+            if limit is not None and counters["matched"] > limit:
+                counters["matched"] -= 1
                 break
+            prior = rows.get(item_id)
+            if prior and prior["status"] == "ok":
+                verify_row(root, prior)
+                counters["resumed"] += 1
+                continue
+            if prior and prior["status"] == "error" and not retry_errors:
+                counters["errors"] += 1
+                continue
+            row = {"itemId": item_id, "keyId": source.get("key_id"), "category": category,
+                   "sourceFile": str(file), "sourceLine": line_number, "sourceSha256": raw_hash}
+            try:
+                if error:
+                    raise error
+                filename_basis = file_category is not None or not source.get("word")
+                packet = build_packet(original, gojo_root, item_id, category=category if filename_basis else None, fit_config=fit_config,
+                                      max_points=max_points, max_spans=max_spans)
+                if filename_basis:
+                    packet["categoryContext"]["basis"] = "input-filename"
+                packet["provenance"] = {"datasetFingerprint": signature, "sourceSha256": raw_hash,
+                                        "upstreamRevision": upstream["revision"], "sourceFile": str(file), "sourceLine": line_number}
+                native = encoder.encode(packet)
+                summary = native.get("summary", {})
+                if summary.get("sourceId") != source["key_id"] or summary.get("sourceSha256") != raw_hash:
+                    raise ValueError("Native record identity or exact source digest differs from the submitted acquisition")
+                native_path = root / "native" / (item_id + ".gojo.json.gz")
+                if not native_path.is_file():
+                    raise RuntimeError("Native encoder did not create the expected content-addressed archive")
+                evidence_path = root / "records" / (item_id + ".evidence.json.gz")
+                _gzip_json(evidence_path, packet)
+                row.update(status="ok", evidencePath=evidence_path.relative_to(root).as_posix(),
+                           nativePath=native_path.relative_to(root).as_posix(),
+                           evidenceSha256=sha256(evidence_path), nativeSha256=sha256(native_path),
+                           counts=packet["observation"]["counts"], nativeSummary=native.get("summary", {}),
+                           convertedUtc=datetime.now(timezone.utc).isoformat())
+                counters["converted"] += 1
+            except (ValueError, TypeError, OverflowError, KeyError, RuntimeError, ArithmeticError) as problem:
+                error_path = root / "errors" / (item_id + ".source.json.gz")
+                _gzip_json(error_path, {"sourceOriginalJson": original, "error": str(problem)})
+                row.update(status="error", error=str(problem), retainedSource=error_path.relative_to(root).as_posix())
+                counters["errors"] += 1
+            index.write(_canonical(row) + "\n")
+            index.flush()
+            rows[item_id] = row
+            if (counters["converted"] + counters["errors"]) % 10 == 0:
+                print(f"{counters['matched']} selected: {counters['converted']} converted, {counters['resumed']} reused, {counters['errors']} retained errors", file=sys.stderr)
         totals = Counter(row["status"] for row in rows.values())
     result = {"output": str(root), **dict(counters), "storedRecords": totals.get("ok", 0),
               "storedErrors": totals.get("error", 0), "synthesisGenerated": False}
@@ -394,10 +385,10 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
     return result
 
 
-def verify(dataset, gojo_root, limit=None):
+def verify(dataset, gojo_root, limit=None, *, order="category", seed=0):
     count = 0
-    for row, _ in load_records(dataset, limit=limit):
-        restored = bridge.inspect(gojo_root, Path(dataset) / row["nativePath"])
+    for row, _ in load_records(dataset, limit=limit, order=order if limit else "category", seed=seed):
+        restored = bridge.inspect(gojo_root, Path(row["datasetPath"]) / row["nativePath"])
         summary = restored["summary"]
         if summary["sourceId"] != row["keyId"] or summary["sourceSha256"] != row["sourceSha256"]:
             raise ValueError("Native archive belongs to another acquisition")
