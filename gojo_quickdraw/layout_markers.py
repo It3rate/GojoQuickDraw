@@ -25,7 +25,7 @@ def markers(observed, roofs, building, scene, maximum=6):
             hints.append({'point':point,'spans':[span['id']],'markerBasis':'upright-marker-prior',
                           'missingHorizontalArm':True})
     if not hints:
-        roof=min(roofs,key=lambda r:r['bounds'][1])
+        roof=min(roofs,key=lambda r:r['bounds'][1]) if roofs else {'bounds':building,'apex':[(building[0]+building[2])/2,building[1]]}
         hints=[{'point':[roof['apex'][0],roof['bounds'][1]-.0816*sh], 'spans':[], 'markerBasis':'prior-only'}]
     hints.sort(key=lambda h:(h['point'][0],h['point'][1]))
     withheld=hints[maximum:];hints=hints[:maximum]
@@ -71,5 +71,9 @@ def geometry(observed, hint, parent, scene):
     points=[[x-k,y],[x+k,y],[x+k,bar-k],[x+arm,bar-k],[x+arm,bar+k],[x+k,bar+k],
             [x+k,bottom],[x-k,bottom],[x-k,bar+k],[x-arm,bar+k],[x-arm,bar-k],[x-k,bar-k]]
     points=[[round(a,3),round(b,3)] for a,b in points]+[[x,bar]]
-    return {'points':points,'segments':[[i,(i+1)%12] for i in range(12)],'fillIndices':list(range(12))},\
-           [x-arm,y,x+arm,bottom],('above-' if above else 'within-')+('building' if shape=='rectangle' else 'roof')
+    points += [[x,y],[x,round(bottom,3)],[round(x-arm,3),bar],[round(x+arm,3),bar]]
+    return {'points':points,'segments':[[i,(i+1)%12] for i in range(12)]+[[13,14],[15,16]],
+            'fillIndices':list(range(12)), 'boundaryGroups':[
+                {'name':'upright','segments':[12]}, {'name':'crossbar','segments':[13]},
+                {'name':'outline thickness','segments':list(range(12)),'priorOnly':True}]},\
+           [x-arm,y,x+arm,bottom],('above-' if above else 'within-')+parent.get('role','building' if shape=='rectangle' else 'roof')

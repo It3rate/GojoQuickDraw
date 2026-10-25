@@ -17,6 +17,8 @@
     <File Path="tests/test_objects.py" />
     <File Path="tests/test_layout.py" />
     <File Path="tests/test_layout_roofs.py" />
+    <File Path="tests/test_layout_mapping.py" />
+    <File Path="tests/check_mapping.cjs" />
     <File Path="tests/check_layout.cjs" />
     <File Path="tests/check_tower_pilot.cjs" />
     <File Path="tests/test_object_display.py" />
@@ -51,6 +53,10 @@
     <File Path="gojo_quickdraw/layout.py" />
     <File Path="gojo_quickdraw/layout_roofs.py" />
     <File Path="gojo_quickdraw/layout_markers.py" />
+    <File Path="gojo_quickdraw/layout_towers.py" />
+    <File Path="gojo_quickdraw/layout_openings.py" />
+    <File Path="gojo_quickdraw/layout_mapping.py" />
+    <File Path="gojo_quickdraw/mapping_display.py" />
     <File Path="gojo_quickdraw/object_display.py" />
     <File Path="gojo_quickdraw/refresh.py" />
   </Folder>
@@ -68,6 +74,7 @@
     <File Path="EVIDENCE_INVENTORY.md" />
     <File Path="CHURCH_OBJECT_HEURISTICS.md" />
     <File Path="CHURCH_LAYOUT_ESTIMATES.md" />
+    <File Path="CHURCH_BOUNDARY_MAPPING.md" />
     <File Path="AGENTS.md" />
     <File Path="gojo.lock.json" />
     <File Path="docs/storage.md" />
@@ -82,6 +89,7 @@
     <File Path="reports/objects-2026-10-25.json" />
     <File Path="reports/layout-2026-10-25.json" />
     <File Path="reports/towers-2026-10-25.json" />
+    <File Path="reports/mapping-2026-10-25.json" />
   </Folder>
   <Folder Name="/Examples/">
     <File Path="examples/README.md" />

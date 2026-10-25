@@ -158,7 +158,7 @@ def regions(observed, building, scene, excluded, maximum=6):
                     rows.append({'span':s['id'],'bottom':bottom,'top':top})
             sides.append(rows)
         long_pair=all(any(s['bottom']>g-.16*sh for s in side) for side in sides)
-        narrow=width<.72*bw or len(selected)>1
+        narrow=width<.72*bw or width<.55*sw or len(selected)>1
         tower=narrow and (base<t-.055*sh or long_pair)
         if tower:
             c['towerBottom']=g if long_pair else t

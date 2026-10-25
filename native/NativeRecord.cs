@@ -13,11 +13,12 @@ namespace GojoQuickDraw.Native;
 /// remain in their connected native structures and are independently checked.</summary>
 public static class NativeRecord
 {
-    // record = group(exact source text, evidence, context)
+    // record = group(exact source text, evidence, context, optional opinions,
+    //                optional boundary correspondences after opinions)
     // evidence = native source annotations OR exact empty acquisition.
     public sealed record Read(string SourceOriginalJson, QuickDrawRecord Source,
         NativeAcquisition.Read Acquisition, QuickDrawAnnotationEvidence.Read? Annotation,
-        ContextEvidence.Read Context, OpinionEvidence.Read? Opinions, Relation Surface);
+        ContextEvidence.Read Context, OpinionEvidence.Read? Opinions, BoundaryMappingEvidence.Read? BoundaryMapping, Relation Surface);
 
     public static Relation Import(JsonElement packet)
     {
@@ -36,8 +37,14 @@ public static class NativeRecord
         }
         var context = ContextEvidence.Import(packet, evidence, annotation);
         if (!ContextEvidence.TryRead(context, evidence, annotation, out var contextual)) throw new InvalidDataException("Context is not independently readable.");
-        var result = packet.TryGetProperty("opinions", out _) ? G(EncodedTextSurface.Create(new Carrier(), original), evidence, context, OpinionEvidence.Import(packet, evidence, annotation, contextual))
-            : G(EncodedTextSurface.Create(new Carrier(), original), evidence, context);
+        var fields = new List<IElement> { EncodedTextSurface.Create(new Carrier(), original), evidence, context };
+        if (packet.TryGetProperty("opinions", out _)) fields.Add(OpinionEvidence.Import(packet, evidence, annotation, contextual));
+        if (packet.TryGetProperty("boundaryMapping", out _))
+        {
+            if (fields.Count != 4) throw new InvalidDataException("Boundary mapping requires the analysis opinion envelope.");
+            fields.Add(BoundaryMappingEvidence.Import(packet, evidence, annotation, contextual));
+        }
+        var result = G(fields.ToArray());
         if (!TryRead(result, out _)) throw new InvalidDataException("Complete native record does not preserve source and contextual references.");
         return result;
     }
@@ -45,7 +52,7 @@ public static class NativeRecord
     public static bool TryRead(Relation root, out Read read)
     {
         read = null!;
-        if (!root.TryReadOrderedGroup(out var fields) || fields.Length is not (3 or 4) ||
+        if (!root.TryReadOrderedGroup(out var fields) || fields.Length is not (3 or 4 or 5) ||
             !EncodedTextSurface.TryRead(fields[0], out var text) || fields[1] is not Relation evidence || fields[2] is not Relation context) return false;
         QuickDrawRecord source;
         try { source = QuickDrawRecord.Parse(text); } catch (Exception e) when (e is JsonException or InvalidDataException or FormatException or OverflowException) { return false; }
@@ -63,8 +70,10 @@ public static class NativeRecord
         }
         if (!ContextEvidence.TryRead(context, evidence, annotation, out var contextual)) return false;
         OpinionEvidence.Read? opinions = null;
-        if (fields.Length == 4 && (fields[3] is not Relation opinionRoot || !OpinionEvidence.TryRead(opinionRoot, evidence, annotation, out opinions, contextual))) return false;
-        read = new(text, source, acquisition, annotation, contextual, opinions, root); return true;
+        if (fields.Length >= 4 && (fields[3] is not Relation opinionRoot || !OpinionEvidence.TryRead(opinionRoot, evidence, annotation, out opinions, contextual))) return false;
+        BoundaryMappingEvidence.Read? mapping = null;
+        if (fields.Length == 5 && (fields[4] is not Relation mappingRoot || !BoundaryMappingEvidence.TryRead(mappingRoot, evidence, annotation, contextual, out mapping))) return false;
+        read = new(text, source, acquisition, annotation, contextual, opinions, mapping, root); return true;
     }
 
     public static string Capture(string itemKey, Relation root) => GojoStructureCompactJson.Serialize(GojoStructureCompactJson.FromElement(itemKey, root));
@@ -104,6 +113,12 @@ public static class NativeRecord
             opinionDependencyLinks = read.Opinions?.Claims.Sum(c => c.Dependencies.Length) ?? 0,
             opinionContextPartLinks = read.Opinions?.Claims.Sum(c => c.ContextParts.Length) ?? 0,
             opinionExpectedSites = read.Opinions?.Claims.Sum(c => c.Sites.Length) ?? 0,
+            boundaryTargets = read.BoundaryMapping?.Targets.Length ?? 0,
+            boundarySourceIntervals = read.BoundaryMapping?.Targets.Sum(t => t.Matches.Length) ?? 0,
+            boundaryEndpointLinks = read.BoundaryMapping?.Targets.Sum(t => t.Endpoints.Length) ?? 0,
+            unresolvedSourceIntervals = read.BoundaryMapping?.Unresolved.Length ?? 0,
+            unprofiledSourceSamples = read.BoundaryMapping?.Unprofiled.Length ?? 0,
+            mappingCoverageVerified = read.BoundaryMapping is not null,
             nativeRestoreVerified = true, actualSourceAliasesVerified = true,
             sourceOrderRetained = true, sourceNumericTokensRetained = true,
             contextualHypothesesAreObservedGeometry = false, synthesizedVariantsSaved = false,

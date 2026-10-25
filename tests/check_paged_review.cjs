@@ -46,8 +46,8 @@ let browser;
       const modes = await page.locator('#readMode option').evaluateAll(options => options.map(o => o.value));
       for (const mode of modes) {
         await page.selectOption('#readMode', mode);
-        const expected = await page.evaluate(() => $('readMode').value === 'layout' ? packet().layout.parts.length : proposalStep()?.edges.length ?? packet().observation.spans.length);
-        const selector = mode === 'layout' ? '#fit [data-layout]' : mode.startsWith('step:') ? '#fit [data-proposal]' : '#fit [data-span]';
+        const expected = await page.evaluate(() => $('readMode').value === 'mapping' ? packet().boundaryMapping.sourceCoverage.length : $('readMode').value === 'layout' ? packet().layout.parts.length : proposalStep()?.edges.length ?? packet().observation.spans.length);
+        const selector = mode === 'mapping' ? '#fit [data-map-range]' : mode === 'layout' ? '#fit [data-layout]' : mode.startsWith('step:') ? '#fit [data-proposal]' : '#fit [data-span]';
         assert.equal(await page.locator(selector).count(), expected);
         assert(!/NaN|Infinity/.test(await page.locator('#fit').innerHTML()));
         modesChecked++;

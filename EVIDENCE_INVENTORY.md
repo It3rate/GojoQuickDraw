@@ -22,6 +22,11 @@ they do not establish contact between acquired points. Optional openings and
 alternative building areas remain revisable. General physical support, reliable
 part recognition and learned regional likelihoods remain **plan**.
 
+[Boundary mapping](CHURCH_BOUNDARY_MAPPING.md) now connects proposed boundaries to
+whole/partial fitted intervals, actual endpoints and existing construction parts.
+It retains shared support and the complete unresolved source complement. These
+are **in** as authored correspondence hypotheses, not confirmed semantic ownership.
+
 ## 1. Acquisition and source
 
 | Evidence | Status | Scope |
@@ -254,7 +259,7 @@ approximate/exact under an explicit premise.
 | General inferred object membership | plan | Not reliable general recognition. |
 | General inferred part membership | plan | Parts retain independent participation. |
 | Several strokes forming one object | in, bounded church pass | Endpoint-chain and local contour proposals can cross pen lifts; branching/ownership remain revisable. |
-| One stroke contributing to several parts | plan | Continuity does not force common ownership. |
+| One stroke contributing to several parts | in, boundary mapping | Whole or partial fitted intervals can support several boundaries; one acquisition cause. |
 | Same object versus similar objects | in, bounded candidates | Source-membership identities, distinct copies, and repeated-part relations; general template inference remains planned. |
 | Object separation | in, bounded candidates | Disjoint local part scopes and separation opinions; physical independence remains unproven. |
 | Distinct touching objects | in | Controls; inference planned. |
@@ -263,7 +268,9 @@ approximate/exact under an explicit premise.
 | Contained but independently movable participant | plan | Containment versus coupling. |
 | Parent/part hierarchy | plan | Potentially several levels. |
 | Alternative/overlapping memberships | plan | Do not force a single partition. |
-| Boundary shared by two parts | plan | Multiple legitimate participation. |
+| Boundary shared by two parts | in, provisional | Actual scaffold contacts plus non-exclusive source interval associations; confirmed ownership remains open. |
+| Inferred boundary without drawn ink | in | Separate endpoint/construction support and explicit uncovered target intervals. |
+| Unresolved source portions | in | Complete profile complement and unprofiled acquired samples remain inspectable. |
 | Common construction frame | in | Authored/generated. |
 | Common template, separate instances | in | Authored repeat and limited reuse. |
 | Common rigid movement | plan | A common object-frame displacement. |

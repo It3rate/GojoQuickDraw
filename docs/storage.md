@@ -247,7 +247,9 @@ opinion claims; the two scopes are not interchangeable.
 
 `fillIndices` supplies a display polygon only; the ordered `segments` define native
 edges. A cross has twelve outline points plus a separate arm-intersection anchor
-used by its horizontal level. Layout regions never replace acquired coordinates
+used by its horizontal level. Policy v3 also exposes four center-axis endpoints,
+two center-axis edges and separate boundary groups for outline thickness.
+Layout regions never replace acquired coordinates
 or make inferred ground into observed ink. See [the experiment](../CHURCH_LAYOUT_ESTIMATES.md).
 
 Policy `church-area-layout.v2` keeps the v1 packet schema and adds repeated tower,
@@ -259,6 +261,23 @@ Tower `lowerBoundary: inferred-level` does not assert a drawn dividing stroke.
 Cross `status: partial-marker-prior` and `missingHorizontalArm: true` distinguish
 an upright-based completion from a two-arm crossing read. `roofReads` and
 `markerReads` retain capacity overflow; unattached cap regions stay inspectable.
+
+### Source-to-boundary correspondence
+
+Policy v3 adds `boundaryMapping` with schema `gojo.quickdraw-boundary-mapping.v1`.
+Targets select actual contextual scaffold edges and whole/partial fitted profile
+intervals. Endpoint support, related parts and uncovered target ranges are separate.
+`sourceCoverage` retains the complete mapped/shared/unresolved partition; samples
+outside every fitted source selection remain `unprofiledSamples`.
+
+Native records with this analysis have a fifth ordered field after opinions.
+Three- and four-field archives still restore. Boundary witnesses retain actual
+profile, endpoint and context identities, ordered parameter ranges in separate
+source/target bases, an open slot and explicit unresolved source complements.
+These are non-draining observations, not transfers or acquired-site welds.
+Restore verifies complements by union and rejects equal-but-copied references.
+Names and heuristic scores remain adapter provenance. See
+[the detailed mapping contract](../CHURCH_BOUNDARY_MAPPING.md).
 
 ### Review pages
 

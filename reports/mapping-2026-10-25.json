@@ -1,0 +1,1164 @@
+{
+  "date": "2026-10-25",
+  "experiment": "church-area-layout.v3 / boundary-correspondence.v1",
+  "qualification": "Authored correspondence hypotheses on 24 familiar development drawings; not learned priors, confirmed ownership or unseen semantic accuracy.",
+  "implementation": {
+    "converter": "bad0b25d995340ee7a6b5a9cd239f81c98f226d018281beb73f2ea42533ef51f",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "86d402ce95379e3d3729169b4e1a523779277ebe680fcd48e52b6da3c2ee12ad",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "analysisFingerprint": "a03aabc7233a6c5d19b6da4bae47e37f4a6759c290bf02a89c04531a5378aacd",
+  "dataset": "D:/_quickDraw/gojo-quickdraw-evidence/church-mapping-pilot-v1",
+  "gallery": "D:/_quickDraw/gojo-quickdraw-evidence/church-mapping-pilot-v1-runs/inspector/comparison.html?view=mapping",
+  "inspector": "D:/_quickDraw/gojo-quickdraw-evidence/church-mapping-pilot-v1-runs/inspector/evidence.html?view=mapping",
+  "analysis": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-mapping-pilot-v1",
+    "matched": 24,
+    "converted": 24,
+    "passes": 168,
+    "storedRecords": 24,
+    "storedErrors": 0,
+    "drawings": 24,
+    "workers": 3,
+    "sourceUnchanged": true,
+    "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+    "selectedKeyIds": [
+      "4707059385761792",
+      "4835826410192896",
+      "4836604000600064",
+      "5026742236348416",
+      "5161617551523840",
+      "5165838967504896",
+      "5231607982063616",
+      "5320526270562304",
+      "5389179863171072",
+      "5488048856891392",
+      "5521537635450880",
+      "5650365196271616",
+      "5650520033198080",
+      "5865058414362624",
+      "5901226988273664",
+      "6039787817402368",
+      "6082729202417664",
+      "6280306992611328",
+      "6291594720313344",
+      "6292633682968576",
+      "6414840786583552",
+      "6469580950077440",
+      "6492920540561408",
+      "6680427051876352"
+    ],
+    "elapsedSeconds": 60.78517640000791
+  },
+  "checks": {
+    "pythonTests": 118,
+    "nativeTests": 38,
+    "desktopTests": 11,
+    "linkedGojoTests": 5407,
+    "linkedGojoWorkingTreeUnchanged": true,
+    "smallRealConversionAndRestore": {
+      "records": 3,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "independentArchiveVerification": {
+      "records": 6,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "resume": {
+      "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-mapping-pilot-v1",
+      "matched": 24,
+      "resumed": 24,
+      "storedRecords": 24,
+      "storedErrors": 0,
+      "drawings": 24,
+      "workers": 3,
+      "sourceUnchanged": true,
+      "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+      "selectedKeyIds": [
+        "4707059385761792",
+        "4835826410192896",
+        "4836604000600064",
+        "5026742236348416",
+        "5161617551523840",
+        "5165838967504896",
+        "5231607982063616",
+        "5320526270562304",
+        "5389179863171072",
+        "5488048856891392",
+        "5521537635450880",
+        "5650365196271616",
+        "5650520033198080",
+        "5865058414362624",
+        "5901226988273664",
+        "6039787817402368",
+        "6082729202417664",
+        "6280306992611328",
+        "6291594720313344",
+        "6292633682968576",
+        "6414840786583552",
+        "6469580950077440",
+        "6492920540561408",
+        "6680427051876352"
+      ],
+      "elapsedSeconds": 6.195930900023086
+    },
+    "mappingBrowser": {
+      "drawings": 24,
+      "galleryPages": 2,
+      "originalsUnchanged": true,
+      "pagingPreserved": true,
+      "errors": [],
+      "externalRequests": 0,
+      "checks": [
+        {
+          "sample": 1,
+          "key": "6291594720313344",
+          "mappedIntervals": 19,
+          "priorTargets": 4,
+          "sharedSourceRanges": 2,
+          "targets": 17,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 24
+        },
+        {
+          "sample": 2,
+          "key": "5320526270562304",
+          "mappedIntervals": 9,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 9
+        },
+        {
+          "sample": 3,
+          "key": "6292633682968576",
+          "mappedIntervals": 2,
+          "priorTargets": 4,
+          "sharedSourceRanges": 0,
+          "targets": 9,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 4,
+          "key": "5165838967504896",
+          "mappedIntervals": 9,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 5,
+          "key": "5488048856891392",
+          "mappedIntervals": 11,
+          "priorTargets": 2,
+          "sharedSourceRanges": 3,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 0
+        },
+        {
+          "sample": 6,
+          "key": "4835826410192896",
+          "mappedIntervals": 13,
+          "priorTargets": 2,
+          "sharedSourceRanges": 1,
+          "targets": 17,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 7,
+          "key": "5026742236348416",
+          "mappedIntervals": 10,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 8,
+          "key": "6039787817402368",
+          "mappedIntervals": 16,
+          "priorTargets": 2,
+          "sharedSourceRanges": 2,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 9,
+          "key": "5389179863171072",
+          "mappedIntervals": 12,
+          "priorTargets": 4,
+          "sharedSourceRanges": 1,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 14
+        },
+        {
+          "sample": 10,
+          "key": "6469580950077440",
+          "mappedIntervals": 12,
+          "priorTargets": 4,
+          "sharedSourceRanges": 2,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 11,
+          "key": "5650365196271616",
+          "mappedIntervals": 23,
+          "priorTargets": 4,
+          "sharedSourceRanges": 9,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 39
+        },
+        {
+          "sample": 12,
+          "key": "5231607982063616",
+          "mappedIntervals": 16,
+          "priorTargets": 3,
+          "sharedSourceRanges": 0,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 13
+        },
+        {
+          "sample": 13,
+          "key": "6082729202417664",
+          "mappedIntervals": 13,
+          "priorTargets": 4,
+          "sharedSourceRanges": 1,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 14,
+          "key": "5650520033198080",
+          "mappedIntervals": 14,
+          "priorTargets": 5,
+          "sharedSourceRanges": 3,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 5
+        },
+        {
+          "sample": 15,
+          "key": "4707059385761792",
+          "mappedIntervals": 24,
+          "priorTargets": 3,
+          "sharedSourceRanges": 6,
+          "targets": 27,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 6
+        },
+        {
+          "sample": 16,
+          "key": "6280306992611328",
+          "mappedIntervals": 15,
+          "priorTargets": 4,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 17,
+          "key": "5521537635450880",
+          "mappedIntervals": 17,
+          "priorTargets": 4,
+          "sharedSourceRanges": 7,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 5
+        },
+        {
+          "sample": 18,
+          "key": "5865058414362624",
+          "mappedIntervals": 13,
+          "priorTargets": 5,
+          "sharedSourceRanges": 2,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 19,
+          "key": "5161617551523840",
+          "mappedIntervals": 18,
+          "priorTargets": 2,
+          "sharedSourceRanges": 7,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 20,
+          "key": "6414840786583552",
+          "mappedIntervals": 6,
+          "priorTargets": 6,
+          "sharedSourceRanges": 1,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 11
+        },
+        {
+          "sample": 21,
+          "key": "6492920540561408",
+          "mappedIntervals": 16,
+          "priorTargets": 3,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 22,
+          "key": "6680427051876352",
+          "mappedIntervals": 34,
+          "priorTargets": 5,
+          "sharedSourceRanges": 17,
+          "targets": 25,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 23,
+          "key": "5901226988273664",
+          "mappedIntervals": 10,
+          "priorTargets": 5,
+          "sharedSourceRanges": 1,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 10
+        },
+        {
+          "sample": 24,
+          "key": "4836604000600064",
+          "mappedIntervals": 16,
+          "priorTargets": 2,
+          "sharedSourceRanges": 5,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        }
+      ]
+    },
+    "areaBrowser": {
+      "drawings": 24,
+      "galleryPages": 2,
+      "originalsUnchanged": true,
+      "pagingPreserved": true,
+      "errors": [],
+      "externalRequests": 0
+    },
+    "earlierTowerCases": {
+      "checks": [
+        {
+          "sample": 13,
+          "key": "6082729202417664",
+          "tower": 0,
+          "roof": 1,
+          "cross": 1,
+          "shapes": [
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 14,
+          "key": "5650520033198080",
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "shapes": [
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 15,
+          "key": "4707059385761792",
+          "tower": 2,
+          "roof": 2,
+          "cross": 1,
+          "shapes": [
+            "triangle",
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 16,
+          "key": "6280306992611328",
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "shapes": [
+            "triangle"
+          ],
+          "partialCrosses": 0
+        },
+        {
+          "sample": 22,
+          "key": "6680427051876352",
+          "tower": 2,
+          "roof": 2,
+          "cross": 2,
+          "shapes": [
+            "dome",
+            "dome"
+          ],
+          "partialCrosses": 1
+        }
+      ],
+      "errors": [],
+      "qualification": "Known development examples, not unseen evaluation."
+    },
+    "galleryBrowser": {
+      "drawings": 24,
+      "finalImages": 24,
+      "pages": 2,
+      "pageSizes": [
+        12,
+        12
+      ],
+      "detailLinksChecked": 2,
+      "columns": 3,
+      "pairsPerPage": 12,
+      "errors": [],
+      "requests": [],
+      "unclipped": true,
+      "mobileOverflow": false
+    },
+    "pagingBrowser": {
+      "drawings": 24,
+      "pages": 4,
+      "pageSizes": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "drawingsInspected": 8,
+      "modesChecked": 96,
+      "dependenciesInspected": 8,
+      "persistedView": "step:6",
+      "viewFallbackChecked": false,
+      "errors": [],
+      "requests": [],
+      "immutable": true,
+      "mobileOverflow": false
+    }
+  },
+  "audit": {
+    "drawings": 24,
+    "sourceJournalsUnchanged": true,
+    "sourceFieldsUnchanged": true,
+    "nativeCapturesAndRestoresVerified": true,
+    "mappingRerunMatches": true,
+    "sourcePartitionComplete": true,
+    "roles": {
+      "ground": 24,
+      "building": 24,
+      "tower": 12,
+      "cross": 27,
+      "cross-level": 27,
+      "door": 11,
+      "roof": 18
+    },
+    "statuses": {
+      "regional-estimate": 122,
+      "prior-only": 20,
+      "partial-marker-prior": 1
+    },
+    "mappingTotals": {
+      "mappedIntervals": 348,
+      "priorTargets": 83,
+      "sharedSourceRanges": 78,
+      "targets": 372,
+      "unprofiledSamples": 0,
+      "unresolvedSourceRanges": 175
+    },
+    "rows": [
+      {
+        "keyId": "6291594720313344",
+        "itemId": "3875a75a24cb2a5020501482aac4d3179a585e36",
+        "sourceSha256": "d0bfdbfff6d7ea7267bc2e3aa070ceeb8ba27cf47d661205465eda17ac159977",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 19,
+          "priorTargets": 4,
+          "sharedSourceRanges": 2,
+          "targets": 17,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 24
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "0f612dfecbe192f657ff35697f386b84a3f557b464915534138650069ffb102c",
+        "evidenceSha256": "922c702d9598690f91e1b11be8433bd68c51a6378fe06a5028ed4251e51f8381"
+      },
+      {
+        "keyId": "5320526270562304",
+        "itemId": "4605ceb234b9bc651be51cbc2377cbf3f24ca3d7",
+        "sourceSha256": "dec39b566e23b34b4630d72b6a812cd0c65f260a16bc10a38b9499ab95bdd8ee",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 9,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 9
+        },
+        "arches": [
+          "layout-door-1"
+        ],
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "4f500e34c6134b54579cacbb5706959eefbb5757922008f59c5cc5ca68e6151b",
+        "evidenceSha256": "d4a4e9f42bec8c17bd73d9ebad081de3c71013d16a193f81bdcd3aabdd3d2a9d"
+      },
+      {
+        "keyId": "6292633682968576",
+        "itemId": "3397c636bcb745efda83f08bb52894cee0b73f45",
+        "sourceSha256": "9334200bbd63faf21f628dae61e8115af42c34eb4d70738bedc16e7401c3a35c",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 2,
+          "priorTargets": 4,
+          "sharedSourceRanges": 0,
+          "targets": 9,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 3,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "3a7bd70597964bfd7a0dc55d20f81003c7039cff8c6c152b9d7b7377e7efce16",
+        "evidenceSha256": "ec13b4384f2833d0cf25e26bdb735d097f4451e6b80a80f51c691a9764ccf3b6"
+      },
+      {
+        "keyId": "5165838967504896",
+        "itemId": "d5b196ad0f9f838ea991952db5c7047d9f33026d",
+        "sourceSha256": "3368a6abf328edd00ca2118697aef1fcf5eb01f7f50d8ecb4bde474032cc0781",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 9,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [],
+        "nativeSha256": "877209df7ee6701224a0c91663818289af8ee5169fc16a69fde4812bfb99d5b2",
+        "evidenceSha256": "477043c0e9cfe93f7043cadb0b54333b0171b02d069f35743bebbd600ba90c9e"
+      },
+      {
+        "keyId": "5488048856891392",
+        "itemId": "528e3df3c82682fde42d9f55494422df143679e0",
+        "sourceSha256": "f34d88efc63eb16813ebc037882131fdf522f862db90b1ad04091a335731f0bf",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 11,
+          "priorTargets": 2,
+          "sharedSourceRanges": 3,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 0
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [],
+        "nativeSha256": "d2e473af5980c7fb884de49504f56cd7c5ace669ec73a87b3504362f4983531e",
+        "evidenceSha256": "4aebc40726dff124610dd5864250e30c4b27b37130e47367e17b26deed65aaf7"
+      },
+      {
+        "keyId": "4835826410192896",
+        "itemId": "a7f33ce3038cd06da5624ae57bdf4b2e89c846d2",
+        "sourceSha256": "602ab673f2123b04e5893b9be5b428bca07fd11bc860f9f0c27eb778b5668dba",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 13,
+          "priorTargets": 2,
+          "sharedSourceRanges": 1,
+          "targets": 17,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [],
+        "nativeSha256": "c07a788be17f7a6c7c8c03528103eacc73c6028a040ba010b59061b0d868add2",
+        "evidenceSha256": "56201e2738c9a442462d727371caffaf0ec56388ef472f9db1c6cef04ca5cb4f"
+      },
+      {
+        "keyId": "5026742236348416",
+        "itemId": "617337698fe3c4735db34184f47766967447bf6b",
+        "sourceSha256": "93f57bfa9f41c2af135019cc295076607e05af98bd8f4b396d8b148002eb3430",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 10,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [],
+        "nativeSha256": "15b6d70c503f54df3277b1148ee186a30cd56cf4d5662da546b88c752422d113",
+        "evidenceSha256": "d1a59a5e332bee7a53fd3506150862443d1c2b9a91caf7dbbf1162232132d532"
+      },
+      {
+        "keyId": "6039787817402368",
+        "itemId": "5cb59af73d30e40d1a1a1bd3fc3fc3d9a899fe25",
+        "sourceSha256": "b092724b69b65ada5ce72727c33c78644a5416a6e58121b7f732cbbeb9e95a3c",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 16,
+          "priorTargets": 2,
+          "sharedSourceRanges": 2,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [],
+        "nativeSha256": "1069225ffc81b3f679164cee84e34c7815b7cd055e95f9bdf7161a7c466d8802",
+        "evidenceSha256": "1d4b1704445b038f6fd15bbc80c4db3b6a774c88ae13dd7896c14d670b7c3489"
+      },
+      {
+        "keyId": "5389179863171072",
+        "itemId": "1aa9aa9b00b53bc621cc87f871a967983d4f8232",
+        "sourceSha256": "a4a1028ed0b731b8fbacd9bc2ba2c13310d277462eab34aebb952040a2167b6c",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 12,
+          "priorTargets": 4,
+          "sharedSourceRanges": 1,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 14
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 5,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "5c41a4f6644771e29b832a5eba2bde5eb5406a0a349840c6388b429ba0ac1d9c",
+        "evidenceSha256": "1cb8cf456f026baeb4a278175f0f7f9866a93d1c75b6a055e198abfb912b1d32"
+      },
+      {
+        "keyId": "6469580950077440",
+        "itemId": "6fac92076289d5815507c15cc68204519971d1c5",
+        "sourceSha256": "0ae0e5aa7f7a728c5cd47e41a4d4e3bcefd4284520696e0fe605ef6d3eef10f8",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 12,
+          "priorTargets": 4,
+          "sharedSourceRanges": 2,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "5cd1e2fa5ea3407be5dda456d38fcaf6b149dd71fb663279585504d8efb10f66",
+        "evidenceSha256": "43fde612cf67b060aa5045230b0673c1a01f39ccf2ccda56e5172d96367b1aa7"
+      },
+      {
+        "keyId": "5650365196271616",
+        "itemId": "a6da5f2a3aee13f5f3d3fee0798424545eb60f57",
+        "sourceSha256": "add8a25a0318f66f0ca472f7d754aaca1d2b5c009566b27be06e49e6b305e8bf",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 23,
+          "priorTargets": 4,
+          "sharedSourceRanges": 9,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 39
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "baada93b3265cd49d8bd40e4fdfdd20fb8f769d84b5e7c5409310e8d04c31f2a",
+        "evidenceSha256": "834d6a445886cbb8095f3859291af3a083d5f78d48b2649b17809a7afa0546df"
+      },
+      {
+        "keyId": "5231607982063616",
+        "itemId": "575f212b356f155be4f5aad9a22d9fbffcd309df",
+        "sourceSha256": "497e4772587f8f68d2b2cc30730201b5dcac3a270a6bccbd795f7a840279e1e5",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 16,
+          "priorTargets": 3,
+          "sharedSourceRanges": 0,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 13
+        },
+        "arches": [
+          "layout-door-1"
+        ],
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "5b236702378635f940e9570294e8722d461a3373072fc65f7173804da909076b",
+        "evidenceSha256": "4bb3c2b7f8bbc223748d9a9ec90512fb90fc84d815240a17c6ff7e6e7da271b3"
+      },
+      {
+        "keyId": "6082729202417664",
+        "itemId": "a188b4c5e5c2d8aca9e0c12439c60ad7b4daa0dd",
+        "sourceSha256": "2b47767ca8465925aabbf21586731518f3fad427a215fe4d6a89890f99d58155",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 13,
+          "priorTargets": 4,
+          "sharedSourceRanges": 1,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "630f46d1b1454ccf8b243890185aaea76f7071a2ae4d4b1771e346635e2c0c0d",
+        "evidenceSha256": "8144622745108885742f4571574197ccc1155a03e39280212051b239ae1e85ce"
+      },
+      {
+        "keyId": "5650520033198080",
+        "itemId": "69dc981bcb46fe7981346a2e6156eb0bc2954ccf",
+        "sourceSha256": "a0a1c78298d8d21b66bd5cb779ce303ab006429b66befa19cef66b997c80346f",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 14,
+          "priorTargets": 5,
+          "sharedSourceRanges": 3,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 5
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "25f569d77817140ca7f92d36216dab08016781e78708164231ef13783640f97d",
+        "evidenceSha256": "31c4e04b693cad1e4090113984af03635f0c4f8beedaf82fb218d1b80af8ae55"
+      },
+      {
+        "keyId": "4707059385761792",
+        "itemId": "3cf8f422160e98fcd0a926b1657045d99eed2832",
+        "sourceSha256": "6d8a210e7eb0f617fcc0220e868fe54429da0238eb0fa11620ea1b2712a8744b",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 2,
+          "roof": 2,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 24,
+          "priorTargets": 3,
+          "sharedSourceRanges": 6,
+          "targets": 27,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 6
+        },
+        "arches": [
+          "layout-door-1"
+        ],
+        "sharedProposedSiteReferences": 17,
+        "priorOnly": [],
+        "nativeSha256": "f6b00124fa788596efe96b230deb9b51e3f4242be545fbaf9f66cb887eda48e1",
+        "evidenceSha256": "91b7de82412298ea8db4ce8d23072244b1b06241cf9aff368a5dca723350115b"
+      },
+      {
+        "keyId": "6280306992611328",
+        "itemId": "58bc6d7272d74039974222c431e3cd4b81877df4",
+        "sourceSha256": "a8c9018486aab7825e6cc5ecaee7e2dbf822c46565d5a6008973f8a7f05246a1",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 15,
+          "priorTargets": 4,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "f65162775c811d5b506b104cf57a7dc0a4bee0c4fa69848963eb1fb30c54865e",
+        "evidenceSha256": "04a49c7e27792160e86168bfd2446fdb787f04728355a2743dd9d69652013463"
+      },
+      {
+        "keyId": "5521537635450880",
+        "itemId": "a6d31cf5714d80905e1b3716ab3c3d077f4a453f",
+        "sourceSha256": "3bdc9fc77f6deee90f00aae3b4cf5bf72f5cedd92f51eb84da5c9ff2c9c77c64",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 17,
+          "priorTargets": 4,
+          "sharedSourceRanges": 7,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 5
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "893f5e4b2cfca3ec313e57ad102212e7120c7d59275bcd802b2d6a3eea2e4b32",
+        "evidenceSha256": "e28d697e8fca1804db396ad5d0650b90e3358a24c50239b4de0d45cbc042321c"
+      },
+      {
+        "keyId": "5865058414362624",
+        "itemId": "9626399c5caf8d9bfa88fc97327cfbdf52a9809e",
+        "sourceSha256": "304fddb793f8d509e8c401a8ffcbbf9197051ab20473449d5666b020d77358cd",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 13,
+          "priorTargets": 5,
+          "sharedSourceRanges": 2,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        "arches": [
+          "layout-door-1"
+        ],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [
+          "cross",
+          "cross-level"
+        ],
+        "nativeSha256": "c4379df62f0012c8df3f13cf6ddc58cd900f7519ba5f908438c94e71816fcb9c",
+        "evidenceSha256": "ee0bfcfac7743ff15641e433d210a1d2f8d2a76076b21eb5ebefefa6a7ae3b8e"
+      },
+      {
+        "keyId": "5161617551523840",
+        "itemId": "83fc63deda951fa23fb01ff8c01b4ac44e80dd19",
+        "sourceSha256": "6ab0d448b2ecc2713f09aa3116ada90c2b2a2ac328e922a67211c583750946c9",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 18,
+          "priorTargets": 2,
+          "sharedSourceRanges": 7,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 9,
+        "priorOnly": [],
+        "nativeSha256": "57fda6b17caeed29b2b0c27f7e3b2b4427590f96edf24500e5e058bddffdf3fd",
+        "evidenceSha256": "252a261f0293af6a7730aef8f74af0e0f696d04f0110c7f0205612832c22e957"
+      },
+      {
+        "keyId": "6414840786583552",
+        "itemId": "f38a030b7678b4bb13021b6f19a9323672b4b757",
+        "sourceSha256": "91bb343a1b045829f19f012df727fd6391afef9e6a32e0f73edd0a1b23ae4bc4",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "cross": 2,
+          "cross-level": 2
+        },
+        "mapping": {
+          "mappedIntervals": 6,
+          "priorTargets": 6,
+          "sharedSourceRanges": 1,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 11
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 4,
+        "priorOnly": [],
+        "nativeSha256": "3ed26287416ea4df437a067989dad4e947a6941a77b6f88261b73c15a857f8fe",
+        "evidenceSha256": "75951d1076e7a33869a8c9ff1113d6eeb21b512642ce0c94c0bd3f7b21499b2a"
+      },
+      {
+        "keyId": "6492920540561408",
+        "itemId": "358981793dc0ea70619349915f51143c548ceef2",
+        "sourceSha256": "2e0adc0263376010a2ffc5eb9b64c4392e022764058bddb82ff2ed8d2d0f78be",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1,
+          "door": 1
+        },
+        "mapping": {
+          "mappedIntervals": 16,
+          "priorTargets": 3,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 8,
+        "priorOnly": [],
+        "nativeSha256": "0c83839ea629408ac17c8e0103b7caaa6bf8a1d29c8f79fde6d9ee9473cfe310",
+        "evidenceSha256": "5f490ec2841f00d95a5b6a4ce24c5afa05f010c271afadcb4e1f14a1858d799a"
+      },
+      {
+        "keyId": "6680427051876352",
+        "itemId": "929e0b4146ece884cffd6a65de49722a7fba0721",
+        "sourceSha256": "76f2411aa8e4f3cdab4781d81b7edfb82890b0dee9a8097a233be2c9a96a3593",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "tower": 2,
+          "roof": 2,
+          "cross": 2,
+          "cross-level": 2
+        },
+        "mapping": {
+          "mappedIntervals": 34,
+          "priorTargets": 5,
+          "sharedSourceRanges": 17,
+          "targets": 25,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 16,
+        "priorOnly": [],
+        "nativeSha256": "a9192bcf05d7111170a153b377c4e57abdcd3ccbd96a4bc997e17ca70d40369e",
+        "evidenceSha256": "fe3aa641160dd5a50080c01039107a2eacacc54835b1cdea725db10beaf8d4cb"
+      },
+      {
+        "keyId": "5901226988273664",
+        "itemId": "10b07cfa3e25807a60b7e979f4c7ce100a475b25",
+        "sourceSha256": "90e93893662eef4330a963b490536c9a010a668929df6522e9ff2df9b452c2d7",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 2,
+          "cross-level": 2
+        },
+        "mapping": {
+          "mappedIntervals": 10,
+          "priorTargets": 5,
+          "sharedSourceRanges": 1,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 10
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 7,
+        "priorOnly": [],
+        "nativeSha256": "2afa6b2b6132175eaa6ccba0a3937accb6c1f7111ff4bd03e8d3c3fefd3ab52c",
+        "evidenceSha256": "b9693a2b8f509c011421d9336ad277884ed7a8b11bd7a013d84b9828cc6f28a3"
+      },
+      {
+        "keyId": "4836604000600064",
+        "itemId": "5705398466ac15e429814c7f001440d5f69ee6de",
+        "sourceSha256": "cb18a0f2b8f37f71a2d2707a27635c3af5d78e052392229f393239a8cfd04b22",
+        "roles": {
+          "ground": 1,
+          "building": 1,
+          "roof": 1,
+          "cross": 1,
+          "cross-level": 1
+        },
+        "mapping": {
+          "mappedIntervals": 16,
+          "priorTargets": 2,
+          "sharedSourceRanges": 5,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        "arches": [],
+        "sharedProposedSiteReferences": 6,
+        "priorOnly": [],
+        "nativeSha256": "83cba9f99d49c99dcffae86576bc58f1a8cd1841f6e8be50ef98687d94880acb",
+        "evidenceSha256": "5717aa08261487fb308df5f86948aabeeed6036a2c4b107167c7c0069e51f212"
+      }
+    ],
+    "qualification": "Existing development/review set, not semantic accuracy evaluation."
+  },
+  "knownLimits": [
+    "One main building envelope; view-specific construction remains open.",
+    "Broad A-frame outlines and sparse silhouettes can leave valid parts unresolved.",
+    "Window gate can miss multi-stroke or gapped openings.",
+    "Cross/grid confusion and outlined-cross detection remain weak.",
+    "Finite threshold associations, incomplete treatment of backtracking, and weak stroke-order costs are authored heuristics.",
+    "Named costs and semantic roles remain adapter provenance; native readers verify references and coverage, not heuristic correctness.",
+    "Current correspondences are not confirmed labels for training."
+  ]
+}

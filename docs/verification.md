@@ -1,5 +1,37 @@
 # Verification checkpoints
 
+## Boundary correspondence and optional construction, 25 October 2026
+
+`church-mapping-pilot-v1` recomputes the same 24 development drawings with layout
+policy v3 and explicit boundary mapping. It contains 372 proposed boundary reads,
+348 source-range associations, 78 shared source ranges and 175 unresolved ranges.
+These are finite correspondence counts, not independent drawings or accuracy
+scores. Every profile has a complete source partition; missing target portions
+stay explicit. No ground/cross-reference level, prior-only cross, missing crossbar
+or assumed cross-outline thickness claims a physical source line.
+
+Samples 1 and 6 gain independent upper towers; 6 shares part of the wall's top
+with the tower's bottom. Sample 7 permits a cross in a building without a roof or
+tower. Sample 17 separates the tall tower from its small cap. Samples 2 and 15
+use arched doors. Sample 1's lettering is unresolved instead of a window. These
+are authored development checks; side views and sparse/A-frame shapes remain
+weak, and the conservative window gate can miss multi-stroke/gapped openings.
+
+All 24 records capture and independently restore the new native field. Six
+archives pass a separate restore command; all 24 resume without re-encoding.
+Exact source JSON, source objects, observed intervals, baseline programs and
+baseline journals are unchanged. A separate three-record raw QuickDraw conversion
+also restores. Recomputing the mapping matches each saved adapter exactly.
+
+118 Python, 38 native and 11 desktop tests pass. The unchanged linked Gojo suite
+passes 5,407 tests. Native checks strip descriptive labels, preserve partial shared
+support and ordered target reversal, distinguish endpoint-only inference, and
+reject missing coverage and equal-but-copied or foreign references. Browser
+checks inspect all 24 mapping/area pairs, boundary and source selection, unresolved
+filters, both gallery pages, four inspector pages, mobile layout and retained view
+choice. See [the report](../reports/mapping-2026-10-25.json) and
+[the mapping contract](../CHURCH_BOUNDARY_MAPPING.md).
+
 ## Multiple towers, roofs and markers, 25 October 2026
 
 Policy v2 is saved in `church-towers-pilot-v2`, using the same 24 development

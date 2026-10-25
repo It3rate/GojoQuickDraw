@@ -25,7 +25,7 @@ let browser;
       fill:[...card.querySelectorAll('.output .layout-output polygon')].map(n=>Number(n.getAttribute('fill-opacity'))),
       layouts:card.querySelectorAll('.output [data-layout]').length
     })));
-    for(const r of rows){assert(r.layouts>=5);assert.deepEqual(r.original,r.overlay);assert.equal(r.left,r.right);assert(r.fill.every(v=>v>0&&v<=.1));assert.equal(new URL(r.href).searchParams.get('view'),'layout');links.push(r)}
+    for(const r of rows){assert(r.layouts>=4);assert.deepEqual(r.original,r.overlay);assert.equal(r.left,r.right);assert(r.fill.every(v=>v>0&&v<=.1));assert.equal(new URL(r.href).searchParams.get('view'),'layout');links.push(r)}
     await page.screenshot({path:path.join(output,`gallery-${i+1}.png`),fullPage:true});
   }
   await page.setViewportSize({width:390,height:844});

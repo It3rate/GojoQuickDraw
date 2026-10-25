@@ -18,11 +18,11 @@ a region for its support, assumptions, placement costs and construction referenc
 | --- | --- | --- |
 | Ground level | Lower ink extent and bottoms of long lower uprights | One horizontal level, whether or not a baseline was drawn |
 | Building rectangle | Broad lower extent, upright regions, upper horizontal levels | Bottom corners share the proposed ground sites |
-| Tower rectangle | A local cap above the main wall; nearby upright regions | Below that cap, down to the main wall or ground; no drawn divider is required |
+| Tower rectangle | A local cap and supporting uprights, or independent paired uprights with a top beam | Down to the main wall or ground; a roof and a lower drawn divider are optional |
 | Triangular or domed roof | Paired local upper contours, excluding selected cross intervals | Base sites explicitly select the supporting tower or wall boundary where they meet |
-| Christian cross | Independent upper crossings or partial upright markers | Each uses its nearby cap or main building; multiple markers are allowed |
+| Christian cross | Independent upper crossings or partial upright markers | Each uses its nearby cap, flat-topped tower or main building; multiple markers are allowed |
 | Cross level | The proposed cross's arm intersection | Horizontal reference through that actual proposed site |
-| Door rectangles | Small, substantially traced regions near ground | Bottom sites share ground; rectangles remain inside the building |
+| Rectangular or arched doors | Small, substantially traced regions near ground; rectangular/curved-head comparison | Bottom sites share ground; ideal areas remain inside the building |
 | Window rectangles | Smaller traced regions above ground | Inside the building and smaller than doors |
 
 There is still one main building envelope, with up to six local roofs, six towers,
@@ -131,8 +131,8 @@ support and disagreement, ready for later changes to the proposing mechanism.
 - One main rectangle still compresses side views and complex connected bodies.
   This experiment does not first select an appropriate view-specific machine.
 - The local search handles separated caps; several roofs stacked or overlapping
-  at the same horizontal position can suppress each other. Flat-topped towers
-  without a detectable cap can still fall back to the earlier broad roof premise.
+  at the same horizontal position can suppress each other. Policy v3 independently
+  proposes flat-topped towers and removes the compulsory broad-roof fallback.
 - An outlined cross can escape the existing crossing detector. A prior-only cross
   may consequently appear above a real cross drawn elsewhere.
 - Writing, scribbles and decoration can propose false openings. Parts embedded in
@@ -142,7 +142,11 @@ support and disagreement, ready for later changes to the proposing mechanism.
 - The 24 drawings used for review are an existing development set, not an unseen
   evaluation set. Geometry and archive checks do not measure semantic accuracy.
 
-Next useful feedback is whether the individual **tower/roof counts and areas** are
+The next pass, [boundary mapping](CHURCH_BOUNDARY_MAPPING.md), adds whole and
+partial line associations, shared support, indirect endpoint references and
+unresolved ink. The original area and synthesis views remain available.
+
+Useful feedback is whether the individual **tower/roof counts and areas** are
 plausible, which markers or optional openings are missing or spurious, and which
 overlapping regions need a different construction. Learned weighting can later
 propose these same connected structures; no trained model is needed for this trial.

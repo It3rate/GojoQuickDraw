@@ -56,12 +56,19 @@ to see updated files; the pages do not watch the filesystem or reload themselves
 
 Full church analysis also creates **Area estimates over original**: an ideal
 building rectangle, separate tower rectangles, triangular or domed roofs,
-independent crosses and optional opening rectangles. Several towers, roofs and
+independent crosses and optional rectangular or arched openings. Several towers, roofs and
 crosses can coexist. Tower dividers can be implied and a narrow roof can keep its
 own position. Choose this view in the inspector's **Read** or the gallery's
 **Result** selector. Pale fills and dotted outlines stay behind the original ink.
 See [church area estimates](CHURCH_LAYOUT_ESTIMATES.md) for the placement rules,
 explicit assumptions and current limitations.
+
+Full analysis also adds **Source ↔ shape mapping** to both selectors. Boundaries
+can share whole or partial source intervals; inferred edges keep endpoint or
+construction references without claiming drawn ink. Rose marks unresolved source,
+and ochre marks shared support. Select a boundary or source range to inspect the
+associations. Roofs and towers are optional, including flat-topped towers with a
+cross above them. See [boundary mapping](CHURCH_BOUNDARY_MAPPING.md).
 
 Open `GojoQuickDraw.slnx` in Visual Studio and set `GojoQuickDraw.Desktop` as the
 startup project to run the UI there. The solution includes the desktop app and
