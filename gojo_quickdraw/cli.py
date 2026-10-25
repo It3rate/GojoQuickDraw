@@ -49,6 +49,11 @@ def parser():
     gallery.add_argument("--output", type=Path, required=True)
     gallery.add_argument("--page-size", type=int, default=12, help="Input/result pairs per page (default 12)")
     gallery.add_argument("--inspector", type=Path, help="Existing paged evidence.html to link to (default beside gallery)")
+    refresh = commands.add_parser("refresh", help="Rebuild both stable reviews from current saved evidence")
+    refresh.add_argument("--dataset", type=Path, required=True)
+    refresh.add_argument("--output", type=Path, help="Review directory (default <dataset>-runs/inspector)")
+    refresh.add_argument("--page-size", type=int, default=50, help="Drawings per inspector page")
+    refresh.add_argument("--gallery-page-size", type=int, default=12, help="Input/result pairs per gallery page")
     stages = commands.add_parser("stages", help="Generate church interpretation and synthesis stages on demand")
     stages.add_argument("--dataset", type=Path, required=True)
     stages.add_argument("--output", type=Path, required=True)
@@ -63,9 +68,12 @@ def parser():
     analysis.add_argument("--dataset", type=Path, required=True)
     analysis.add_argument("--output", type=Path, required=True)
     analysis.add_argument("--limit", type=int, help="Omitted deliberately processes every converted record in scope")
+    analysis.add_argument("--key-id", action="append", help="Analyze only this source key; repeat for a reviewed subset")
     analysis.add_argument("--workers", type=int, default=4)
     analysis.add_argument("--retry-errors", action="store_true")
-    for command in (check, review, gallery, stages, catalog):
+    for command in (convert, sample, analysis):
+        command.add_argument("--refresh", action="store_true", help="Refresh the inspector and gallery after processing or reusing records")
+    for command in (check, review, gallery, refresh, stages, catalog):
         command.add_argument("--order", choices=("category", "recent", "random"), default="category")
         command.add_argument("--seed", type=int, default=0)
     probes = commands.add_parser("probe", help="Run declared construction perturbations without changing baseline evidence")
@@ -102,9 +110,14 @@ def main(argv=None):
         elif args.command == "gallery":
             from .gallery import build
             result = build(args.dataset, args.output, args.page_size, order=args.order, seed=args.seed, inspector=args.inspector)
+        elif args.command == "refresh":
+            from .refresh import run
+            result = run(args.dataset, args.output, review_page_size=args.page_size,
+                         gallery_page_size=args.gallery_page_size, order=args.order, seed=args.seed)
         elif args.command == "analyze":
             from .analysis import run
-            result = run(args.dataset, args.output, root, limit=args.limit, workers=args.workers, retry_errors=args.retry_errors)
+            result = run(args.dataset, args.output, root, limit=args.limit, workers=args.workers,
+                         retry_errors=args.retry_errors, key_ids=args.key_id)
         elif args.command == "stages":
             from .stages import generate
             result = generate(args.dataset, args.output, root, key_id=args.key_id, limit=args.limit, order=args.order, seed=args.seed)
@@ -133,6 +146,12 @@ def main(argv=None):
         else:
             from .bridge import executable
             result = {"gojoRoot": str(root), "upstream": upstream.fingerprint(root), "native": executable(root)}
+        if args.command in ("convert", "sample", "analyze") and args.refresh:
+            if result.get("converted", 0) or result.get("resumed", 0):
+                from .refresh import run
+                result["refresh"] = run(Path(result.get("output", args.output)))
+            else:
+                result["refresh"] = {"skipped": True, "reason": "No records were converted or reused in this invocation."}
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
         return 1 if args.command in ("convert", "sample", "analyze") and result.get("errors") else 0
     except (ValueError, RuntimeError, OSError, KeyError) as error:

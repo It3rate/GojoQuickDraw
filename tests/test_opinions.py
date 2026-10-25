@@ -52,6 +52,106 @@ class OpinionTests(unittest.TestCase):
         self.assertTrue(result["capacityReached"])
         self.assertTrue(result["withheldClaimIds"])
 
+    def object_packet(self):
+        packet = self.packet()
+        spans = [span["id"] for span in packet["observation"]["spans"]]
+        geometry = {"points": [[0, 0], [80, 0], [80, 120], [0, 120]],
+                    "segments": [[0, 1], [1, 2], [2, 3], [3, 0]]}
+        check = {"actual": 2, "expected": 0, "allowance": 4, "basis": "normalized page distance"}
+        packet["context"] = {"sourceId": packet["observation"]["sourceId"], "parts": [
+            {"id": "object-wall", "kind": "wall", "role": "wall", "spans": spans,
+             "bounds": [0, 0, 80, 120], "geometry": geometry, "comparisons": [check]},
+            {"id": "object-building", "kind": "building", "role": "building", "spans": spans,
+             "participants": ["object-wall"], "bounds": [0, 0, 80, 120], "comparisons": [check]},
+            {"id": "object-window", "kind": "window", "role": "window", "spans": [spans[0]],
+             "bounds": [20, 30, 40, 70], "status": "ambiguous-candidate", "conflicts": ["object-door"], "comparisons": [check]},
+            {"id": "object-door", "kind": "door", "role": "door", "spans": [spans[0]],
+             "bounds": [20, 30, 40, 70], "status": "ambiguous-candidate", "conflicts": ["object-window"], "comparisons": [check]},
+            {"id": "object-unknown", "kind": "unknown", "role": "unknown", "spans": [spans[-1]],
+             "bounds": [0, 0, 80, 40], "status": "unresolved"}],
+            "relations": [{"id": "contains", "kind": "containment", "participants": ["object-wall", "object-window"],
+                           "comparisons": [{**check, "actual": 12}]}]}
+        return packet
+
+    def test_object_opinions_connect_exact_parts_nested_memberships_and_relations(self):
+        packet = self.object_packet(); before = copy.deepcopy(packet)
+        result = build(packet); rows = {row["id"]: row for row in result["claims"]}
+        building = rows["part-scope-object-building"]
+        self.assertEqual(["object-building"], building["contextParts"])
+        self.assertEqual(["part-scope-object-wall"], building["dependencies"])
+        self.assertEqual(rows["part-scope-object-wall"]["spans"], building["spans"])
+        relation = rows["context-contains"]
+        self.assertEqual(["object-wall", "object-window"], relation["contextParts"])
+        self.assertEqual("strong", relation["opposition"])
+        self.assertEqual(12, relation["comparisons"][0]["actual"])
+        self.assertEqual(relation["contextParts"], rows["carry-contains"]["contextParts"])
+        self.assertEqual(packet, before)
+
+    def test_object_role_ambiguity_and_unknowns_stay_opposed_without_feedback(self):
+        result = build(self.object_packet()); seen = set()
+        for row in result["claims"]:
+            self.assertTrue(set(row["dependencies"]) <= seen)
+            seen.add(row["id"])
+        rows = {row["id"]: row for row in result["claims"]}
+        window = rows["part-role-object-window"]
+        self.assertEqual(["object-window", "object-door"], window["contextParts"])
+        self.assertEqual("medium", window["support"])
+        self.assertEqual("weak", window["opposition"])
+        self.assertEqual("conflicted", window["status"])
+        self.assertTrue(all(key.startswith("part-scope-") for key in window["dependencies"]))
+        unknown = rows["part-role-object-unknown"]
+        self.assertEqual("none", unknown["support"])
+        self.assertEqual("weak", unknown["opposition"])
+        self.assertFalse(result["learned"])
+
+    def test_provider_gets_readonly_part_details_without_mutating_source(self):
+        packet = self.object_packet(); before = copy.deepcopy(packet); requests = []
+        def provider(request):
+            requests.append(request)
+            self.assertEqual(request.context_parts[0], request.parts[0]["id"])
+            with self.assertRaises(TypeError):
+                request.parts[0]["role"] = "certain"
+            with self.assertRaises(TypeError):
+                request.parts[0]["bounds"][0] = 999
+            return Response("weak", "none", "read-only-provider", "No source edits")
+        build(packet, providers={"part-membership-candidate": provider})
+        self.assertEqual(len(packet["context"]["parts"]), len(requests))
+        self.assertEqual(packet, before)
+        packet["context"]["parts"][0]["bounds"][0] = -100
+        self.assertEqual(0, requests[0].parts[0]["bounds"][0])
+        building = next(request for request in requests if request.context_parts == ("object-building",))
+        self.assertEqual(["object-wall"], building.earlier[0]["contextParts"])
+
+    def test_missing_or_forward_objects_are_not_turned_into_unconnected_labels(self):
+        packet = self.object_packet()
+        packet["context"]["parts"][0]["participants"] = ["object-building"]
+        with self.assertRaisesRegex(ValueError, "forward"):
+            build(packet)
+        packet = self.object_packet()
+        packet["context"]["parts"][2]["conflicts"] = ["absent-alternative"]
+        with self.assertRaisesRegex(ValueError, "missing competing"):
+            build(packet)
+
+    def test_roof_attachments_use_explicit_local_participants_and_separation_deduplicates_ink(self):
+        packet = self.object_packet(); context = packet["context"]
+        source_ids = [span["id"] for span in packet["observation"]["spans"]]
+        context["parts"].insert(0, {"id": "legacy-body", "kind": "body", "spans": source_ids,
+                                     "bounds": [-200, -200, 200, 200]})
+        context["parts"].append({"id": "object-roof", "kind": "roof", "role": "roof", "spans": [source_ids[-1]],
+                                 "bounds": [0, -40, 80, 0], "participants": ["object-wall"]})
+        context["relations"].append({"id": "local-roof-wall", "kind": "roof-wall-attachment",
+                                     "participants": ["object-wall", "object-roof"], "spans": [source_ids[-1]]})
+        new_window = {"id": "object-window-b", "kind": "window", "spans": [source_ids[-1]], "bounds": [50, 30, 70, 70]}
+        context["parts"].append(new_window)
+        context["parts"].append({**new_window, "id": "legacy-window-b"})
+        result = build(packet)
+        attachments = [row for row in result["claims"] if row["kind"].startswith("roof-wall-attachment")]
+        self.assertEqual(1, len(attachments))
+        self.assertEqual(["object-wall", "object-roof"], attachments[0]["contextParts"])
+        separations = [row for row in result["claims"] if row["kind"] == "separate-part-instances"]
+        self.assertEqual(1, len(separations))
+        self.assertTrue(all(part.startswith("object-") for part in separations[0]["contextParts"]))
+
     def test_full_analysis_keeps_timing_source_and_seven_proposals_separate(self):
         packet = self.packet(); before = copy.deepcopy(packet)
         result = enrich(packet, "church", GOJO)

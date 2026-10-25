@@ -245,10 +245,10 @@ approximate/exact under an explicit premise.
 | Source lines supporting proposed church parts | in | Provisional parts. |
 | General inferred object membership | plan | Not reliable general recognition. |
 | General inferred part membership | plan | Parts retain independent participation. |
-| Several strokes forming one object | plan | Pen lifts do not force separation. |
+| Several strokes forming one object | in, bounded church pass | Endpoint-chain and local contour proposals can cross pen lifts; branching/ownership remain revisable. |
 | One stroke contributing to several parts | plan | Continuity does not force common ownership. |
-| Same object versus similar objects | plan | Identity versus template similarity. |
-| Object separation | plan | Positive evidence of independent addressability. |
+| Same object versus similar objects | in, bounded candidates | Source-membership identities, distinct copies, and repeated-part relations; general template inference remains planned. |
+| Object separation | in, bounded candidates | Disjoint local part scopes and separation opinions; physical independence remains unproven. |
 | Distinct touching objects | in | Controls; inference planned. |
 | Distinct objects crossing in projection | in | Controls and crossing candidates. |
 | Attached but distinct parts | plan | Attachment preserves part identity. |
@@ -335,7 +335,7 @@ approximate/exact under an explicit premise.
 | Main body/facade | Large upright frame with boundary support | in, seeded |
 | Wall | Boundary/surface potentially containing openings | in, provisional |
 | Roof | Upper converging/enclosing/curved structure | in, limited |
-| Roof connected to wall | Attachment at actual/proposed sites | in, on demand; discovery planned |
+| Roof connected to wall | Attachment at actual/proposed sites | in, provisional local-frame attachment opinions; observed contact remains separate |
 | Roof overhang | Extension beyond lower container | new |
 | Steeple/peak | Slender upper extension relative to body | in, seeded |
 | Tower | Upright substructure attached/beside body | in, controls/limited synthesis |

@@ -48,6 +48,12 @@ supports category/source order, most recent, and random selection. Existing sing
 datasets remain readable. The Evidence tab pages through every record and has
 **Full analysis → review** for an existing collection. See the [desktop guide](docs/desktop.md).
 
+After conversion or analysis completes, the app automatically rebuilds both the
+inspector and the input/final gallery for that output collection. **Refresh both
+reviews** rebuilds them for the selected generated folder without processing the
+source again. The entry paths remain stable. Reload an already open browser tab
+to see updated files; the pages do not watch the filesystem or reload themselves.
+
 Open `GojoQuickDraw.slnx` in Visual Studio and set `GojoQuickDraw.Desktop` as the
 startup project to run the UI there. The solution includes the desktop app and
 tests, native converter and tests, linked Gojo dependencies, Python source files,
@@ -127,13 +133,25 @@ changes, and reloads. Selecting step 7 once keeps the synthesized view while bro
 **Input / final gallery** in the desktop Evidence tab builds a compact overview:
 12 input/result pairs per page, three pairs across and four rows. Each pair opens
 the corresponding inspector page at its final interpretation. It reads existing
-analysis; it does not rerun synthesis. For the command line, build a detailed
-review first to enable those exact page links:
+analysis; it does not rerun synthesis. On the command line, `refresh` builds both
+views in the correct order and updates the exact drawing links:
 
 ```powershell
-python -m gojo_quickdraw review --dataset D:/_quickDraw/samples-analysis --output D:/_quickDraw/samples-analysis-runs/inspector/evidence.html
-python -m gojo_quickdraw gallery --dataset D:/_quickDraw/samples-analysis --output D:/_quickDraw/samples-analysis-runs/inspector/comparison.html
+python -m gojo_quickdraw refresh --dataset D:/_quickDraw/samples-analysis
+python -m gojo_quickdraw refresh --dataset D:/_quickDraw/samples-analysis --output D:/_quickDraw/custom-review --page-size 50 --gallery-page-size 12 --order random --seed 123
 ```
+
+The default directory is `<selected-folder>-runs/inspector`, with stable
+`evidence.html` and `comparison.html` entries. `refresh.json` records the source
+collection journals, page settings, and refresh time. Refresh reads current saved
+results; it does not rerun fitting or interpretation. To apply changed analysis
+heuristics, analyze into a new output collection and refresh that collection.
+The individual `review` and `gallery` commands remain available.
+
+Add `--refresh` to command-line `convert`, `sample`, or `analyze` to rebuild both
+views after records are converted or reused. This is optional for CLI jobs and
+automatic in the desktop workflow. An empty or entirely failed invocation skips
+refresh; successful records in a partly failed batch can still be reviewed.
 
 Copy `comparison.html` with its `comparison-pages` folder for offline viewing;
 include the detailed inspector and its page folder to retain the inspection links.
@@ -146,8 +164,7 @@ membership; stale or absent maps do not produce potentially wrong drawing links.
 ## Analyze already converted drawings
 
 ```powershell
-python -m gojo_quickdraw analyze --dataset D:/_quickDraw/gojo-quickdraw-evidence/church1000 --output D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis --workers 4
-python -m gojo_quickdraw review --dataset D:/_quickDraw/gojo-quickdraw-evidence/church1000-analysis --output D:/_quickDraw/church1000-analysis-review/evidence.html --limit 50
+python -m gojo_quickdraw analyze --dataset D:/_quickDraw/gojo-quickdraw-evidence/church1000 --output D:/_quickDraw/gojo-quickdraw-evidence/church1000-objects --workers 4 --refresh
 ```
 
 This reads every successful converted record, recursively, without reopening or
@@ -157,6 +174,14 @@ items resume after hash checks; interruptions preserve completed records, and
 `--retry-errors` retries retained failures. Work is bounded to 1–8 workers and a
 small queue. Use a new output folder after changing the analysis implementation.
 
+Use repeated `--key-id` arguments for a specific reviewed subset. Selected keys
+must exist in the input collection; a limit applies after this filter. Replace
+the example keys below with source keys shown in your inspector:
+
+```powershell
+python -m gojo_quickdraw analyze --dataset D:/_quickDraw/gojo-quickdraw-evidence/church1000 --output D:/_quickDraw/church-reviewed-pilot --key-id FIRST_SOURCE_KEY --key-id SECOND_SOURCE_KEY --refresh
+```
+
 The pass runs all three source-annotation tolerances and, for churches, the existing
 seven authored interpretation proposals: continuity, primitive fitting, relational
 regularization, joint convergence, later regularization, and view-aware synthesis.
@@ -164,6 +189,16 @@ Other categories get generic evidence without a borrowed church template. The
 inspector's **Read** selector compares these proposals and the source annotations.
 Proposal previews are explicitly separate from executed native construction rungs;
 **Drawing steps** still performs that independent native execution on demand.
+
+Church analysis also proposes local wall/building scopes, roofs, steeples, crosses,
+doors, windows and unknown groups. It can group contours across several strokes,
+retain separate copies, and keep overlapping role/parent alternatives. The
+inspector's **Church object candidates** panel selects their source support and
+relationships; **Object colors** in the gallery follows that support into the
+cached final drawing. Gray means unknown or conflicting direct membership.
+These are authored candidates, not a trained classifier, and do not yet constrain
+the seven synthesis states. See [church object heuristics](CHURCH_OBJECT_HEURISTICS.md)
+for the implemented scope, known failures and suggested review/training budgets.
 
 Additional opinions include trace and traversal reads, contour/part grouping,
 rectangle/triangle candidates, dependent corner/join expectations, separate part

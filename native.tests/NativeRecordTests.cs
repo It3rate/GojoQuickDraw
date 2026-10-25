@@ -7,7 +7,7 @@ using GojoQuickDraw.Native;
 
 namespace GojoQuickDraw.Native.Tests;
 
-public sealed class NativeRecordTests
+public sealed partial class NativeRecordTests
 {
     [Fact]
     public void StandaloneRestorePreservesActualSourceAliasesAndOrderedSamples()

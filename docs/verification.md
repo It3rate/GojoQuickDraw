@@ -1,5 +1,37 @@
 # Verification checkpoints
 
+## Church object candidates and automatic refresh, 25 October 2026
+
+A bounded development pilot analyzes 24 selected churches into
+`church-objects-pilot-v2`. All 24 capture and independently restore native evidence,
+with 1,831 opinion claims and 1,223 actual context-part selections. Six additional
+archives restore through separate verification processes. Original JSON, source
+acquisition, fitted intervals and baseline programs match their source records
+exactly; source journals and artifact hashes remain intact. All 24 selected keys
+resume without re-encoding. This is an engineering review set, not an accuracy
+benchmark or an unseen holdout.
+
+Source-backed candidates preserve distinct wall/tower scopes, shared wall/building
+focuses, multiple copies, nested/attached relationships, ambiguity and unknown
+support. Native tests verify alias preservation with labels removed and reject
+missing, forward, duplicate and foreign selections. Geometry tests protect open
+U shapes against closed-triangle/outlined-cross false rectangle reads and keep
+each roof-parent comparison local. The existing seven synthesis states are
+unchanged; object-conditioned synthesis remains the next experiment.
+
+The desktop refreshes both stable review entries after processing. Tests cover
+new records appearing after refresh, preservation of saved archives, explicit
+reload semantics and detection of collection changes during rendering. A real
+nine-record desktop workflow covers conversion/restore, analysis, automatic
+refresh, cancellation and resume. Debug tests and Release build succeed.
+
+The checkpoint passes 96 Python, 18 native and 11 desktop tests, and all 5,407
+tests in the unchanged linked Gojo solution. The inspector's detail pane now has
+a stable height so hovering long object/claim records cannot move the evidence
+list beneath the pointer. The 24-record review has four inspector pages and two
+comparison pages; colors follow source correspondence rather than rewriting
+geometry. Full results: [object report](../reports/objects-2026-10-25.json).
+
 ## Comparison gallery and persistent views, 25 October 2026
 
 The 1,000-church gallery has 84 pages of 12 input/result pairs, with four pairs

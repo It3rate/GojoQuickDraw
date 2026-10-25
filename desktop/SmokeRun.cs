@@ -39,9 +39,11 @@ internal sealed partial class MainWindow
             Require(Results.Count == 3 && Results.All(result => result.Successful), "Convert / verify / review did not all succeed.");
             Require(_drawings.Items.Count == 9, "Drawing catalog did not load all nine records.");
             Require(_folderScope.Items.Count == 4, "Generated folder selector should contain all plus three actual category folders.");
+            Require(Results[^1].Data!.Value.GetProperty("gallery").GetProperty("linkedDrawings").GetInt32() == 9,
+                "Conversion did not automatically refresh both linked reviews.");
             var originalHashes = ArchiveHashes(_dataset.Text!);
             await Execute(PipelineAction.Convert);
-            Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Explicit-seed repeat did not reuse all nine records.");
+            Require(Results.TakeLast(2).All(result => result.Successful) && Results[^2].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Explicit-seed repeat did not reuse all nine records and refresh reviews.");
             Require(ArchiveHashes(_dataset.Text!) == originalHashes, "Repeating a selected sample changed baseline archives.");
             Require(_configuration.IsEnabled && !_stop.IsEnabled && !_progress.IsVisible, "Idle controls did not restore.");
             await Capture(Path.Combine(output, "convert.png"));
@@ -92,6 +94,8 @@ internal sealed partial class MainWindow
             Require(Results[^2].Data!.Value.GetProperty("storedRecords").GetInt32() == 9, "Analysis did not include all nine drawings.");
             Require(ArchiveHashes(Path.Combine(output, "dataset")) == before, "Analysis modified baseline archives.");
             Require(_dataset.Text == Path.Combine(output, "analysis"), "Analysis collection was not selected for inspection.");
+            Require(Results[^1].Data!.Value.GetProperty("gallery").GetProperty("finals").GetInt32() == 3,
+                "Full analysis did not automatically refresh the final interpretations.");
             await Capture(Path.Combine(output, "analysis.png"));
             await Execute(PipelineAction.Gallery);
             Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("drawings").GetInt32() == 9,
@@ -101,7 +105,7 @@ internal sealed partial class MainWindow
                 "Gallery links or church final interpretations are missing.");
             Require(ArchiveHashes(Path.Combine(output, "dataset")) == before, "Gallery changed baseline archives.");
             await Execute(PipelineAction.Analyze);
-            Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Analysis did not resume its original baseline.");
+            Require(Results.TakeLast(2).All(result => result.Successful) && Results[^2].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Analysis did not resume its original baseline and refresh reviews.");
             Require(Results[^1].Successful, "Worker could not restart after cancellation.");
             await Capture(Path.Combine(output, "setup.png"));
             _tabs.SelectedIndex = 1; Width = 920; Height = 760;

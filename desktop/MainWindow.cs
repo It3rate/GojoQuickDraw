@@ -148,7 +148,7 @@ internal sealed partial class MainWindow : Window
                 options, _all, _recursive,
                 new Expander { Header = "Fitting, random seed, and retry options", Content = Stack(12, advanced,
                     Field("Sampling seed (optional)", _samplingSeed, "Leave blank for a new random selection; interrupted runs reuse their saved selection."), _retry), HorizontalContentAlignment = HorizontalAlignment.Stretch })),
-            _autoOpen, Text("Reviews and interpretation runs are placed beside the dataset, in a separate runs folder.", 12));
+            _autoOpen, Text("After conversion or analysis, the inspector and comparison gallery refresh automatically. Reload an open browser tab to see the new results.", 12));
     }
 
     private Control EvidencePage()
@@ -163,7 +163,7 @@ internal sealed partial class MainWindow : Window
         return Stack(12, Text("Read what the drawing supports", 21, true),
             InspectionControls(),
             Buttons(JobButton("Load drawings", null), JobButton("Verify archives", [PipelineAction.Verify]),
-                JobButton("Build visual review", [PipelineAction.Review]), JobButton("Full analysis → review", [PipelineAction.Analyze, PipelineAction.Review], true)),
+                JobButton("Refresh both reviews", [PipelineAction.Refresh]), JobButton("Full analysis → review", [PipelineAction.Analyze, PipelineAction.Review], true)),
             Buttons(JobButton("Input / final gallery", [PipelineAction.Review, PipelineAction.Gallery], true),
                 Text("12 input/result pairs per page. Open a pair to inspect its final step.", 12)),
             _verifyAll, browse,
@@ -201,7 +201,7 @@ internal sealed partial class MainWindow : Window
 
     private PipelineOptions Options(PipelineAction action, string run)
     {
-        var limit = action is PipelineAction.Catalog or PipelineAction.Review or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Analyze ? (int)_analysisCount.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
+        var limit = action is PipelineAction.Catalog or PipelineAction.Review or PipelineAction.Refresh or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Analyze ? (int)_analysisCount.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
         var selected = _drawings.SelectedItem as DrawingRow;
         var target = action is PipelineAction.Convert or PipelineAction.Setup ? _dataset.Text?.Trim() ?? "" : InspectionPath;
         if ((action == PipelineAction.Probe || action == PipelineAction.Stages && _stageSelection.SelectedIndex == 0) && selected is not null)
@@ -209,7 +209,7 @@ internal sealed partial class MainWindow : Window
         long? sampleSeed = null;
         if (action == PipelineAction.Convert && !string.IsNullOrWhiteSpace(_samplingSeed.Text))
             sampleSeed = long.TryParse(_samplingSeed.Text, out var seed) ? seed : throw new ArgumentException("Sampling seed must be a whole number, or blank for random selection.");
-        if (action is PipelineAction.Review or PipelineAction.Gallery) run = Workspace.InspectorFolder(target);
+        if (action is PipelineAction.Review or PipelineAction.Gallery or PipelineAction.Refresh) run = Workspace.InspectorFolder(target);
         return new(_repository, _python.Text?.Trim() ?? "", _gojo.Text?.Trim() ?? "", _input.Text?.Trim() ?? "", target,
             string.Join(',', _sourceCategories.Order(StringComparer.OrdinalIgnoreCase)), limit, action == PipelineAction.Verify ? _verifyAll.IsChecked == true : action == PipelineAction.Analyze ? _analyzeAll.IsChecked == true : _all.IsChecked == true,
             _recursive.IsChecked == true, action == PipelineAction.Analyze ? _analysisRetry.IsChecked == true : _retry.IsChecked == true, (double)(_fit.Value ?? 6), (int)(_maxPoints.Value ?? 20000), (int)(_maxSpans.Value ?? 256),
@@ -223,18 +223,23 @@ internal sealed partial class MainWindow : Window
     private async Task Workflow(PipelineAction[] actions)
     {
         if (_cancellation is not null) return;
+        actions = Pipeline.WithAutomaticRefresh(actions).ToArray();
         _catalogCancellation?.Cancel();
         _cancellation = new();
         _configuration.IsEnabled = false; _stop.IsEnabled = true; _openResult.IsEnabled = false; _progress.IsVisible = true;
         _log.Text = "";
         var retained = false;
+        string? refreshedDataset = null;
         try
         {
             SaveSettings();
             var run = actions.All(action => action == PipelineAction.Setup) ? Path.GetTempPath() : Workspace.RunFolder(_dataset.Text ?? "");
             foreach (var action in actions)
             {
-                var plan = Pipeline.Plan(action, Options(action, run));
+                var options = Options(action, run);
+                if (action == PipelineAction.Refresh && refreshedDataset is not null)
+                    options = options with { Dataset = refreshedDataset, RunFolder = Workspace.InspectorFolder(refreshedDataset) };
+                var plan = Pipeline.Plan(action, options);
                 SetStatus(TitleFor(action), "Working locally. You can stop this run and resume conversion later.");
                 AppendLog($"{DateTime.Now:HH:mm:ss} · {TitleFor(action)}");
                 var result = await Pipeline.Run(plan, AppendLog, _cancellation.Token);
@@ -243,12 +248,13 @@ internal sealed partial class MainWindow : Window
                 if (!result.Successful && !result.RetainedErrors)
                     throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Error) ? "The worker did not return a successful result. See run details." : result.Error.Trim());
                 retained |= result.RetainedErrors;
+                if (action == PipelineAction.Convert) refreshedDataset = options.Dataset;
                 if (action == PipelineAction.Analyze && result.Data is { } analyzed && analyzed.TryGetProperty("output", out var analyzedPath))
-                    _dataset.Text = analyzedPath.GetString();
+                    _dataset.Text = refreshedDataset = analyzedPath.GetString();
                 if (plan.Artifact is { } artifact && File.Exists(artifact))
                 {
                     _lastArtifact = artifact;
-                    if (action is PipelineAction.Review or PipelineAction.Stages or PipelineAction.Gallery && _autoOpen.IsChecked == true && !_smoke
+                    if (action is PipelineAction.Review or PipelineAction.Stages or PipelineAction.Gallery or PipelineAction.Refresh && _autoOpen.IsChecked == true && !_smoke
                         && !(action == PipelineAction.Review && actions.Contains(PipelineAction.Gallery))) Open(artifact);
                 }
                 SetStatus(result.RetainedErrors ? "Converted with retained errors" : "Completed", Describe(action, result));
@@ -272,6 +278,7 @@ internal sealed partial class MainWindow : Window
         PipelineAction.Convert => "Converting drawings…", PipelineAction.Verify => "Verifying native archives…",
         PipelineAction.Review => "Building the evidence review…", PipelineAction.Stages => "Generating drawing steps…",
         PipelineAction.Gallery => "Building input / final comparisons…",
+        PipelineAction.Refresh => "Refreshing the inspector and comparison gallery…",
         PipelineAction.Analyze => "Analyzing converted drawings…",
         PipelineAction.Setup => "Checking local tools…", _ => "Comparing machine responses…"
     };
@@ -286,6 +293,7 @@ internal sealed partial class MainWindow : Window
             PipelineAction.Verify => $"{Count("records")} drawings independently restored; artifact hashes checked.",
             PipelineAction.Review => $"Visual review ready for {Count("drawings")} drawings across {Math.Max(1, Count("pages"))} page(s). Use Open last result to inspect it.",
             PipelineAction.Gallery => $"Comparison gallery ready: {Count("drawings")} drawings across {Count("pages")} pages, 12 pairs per page. Use Open last result to inspect it.",
+            PipelineAction.Refresh => $"Inspector and comparison gallery updated for {Count("drawings")} drawings. Reload an already open browser tab to see the latest results.",
             PipelineAction.Analyze => $"{Count("converted")} analyzed · {Count("resumed")} reused · {Count("storedErrors")} retained errors. Source collection preserved.",
             PipelineAction.Stages => $"{Count("passes")} steps generated for {Count("drawings")} drawings." +
                 (data.TryGetProperty("warnings", out var warnings) && warnings.GetArrayLength() > 0 ? $" {warnings.GetArrayLength()} viewing-frame warning(s); inspect the review." : " Inspect the proposed interpretations in the review."),

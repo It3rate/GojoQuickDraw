@@ -35,7 +35,8 @@ public static class NativeRecord
             if (!QuickDrawAnnotationEvidence.TryRead(evidence, out annotation)) throw new InvalidDataException("Source annotations are not readable.");
         }
         var context = ContextEvidence.Import(packet, evidence, annotation);
-        var result = packet.TryGetProperty("opinions", out _) ? G(EncodedTextSurface.Create(new Carrier(), original), evidence, context, OpinionEvidence.Import(packet, evidence, annotation))
+        if (!ContextEvidence.TryRead(context, evidence, annotation, out var contextual)) throw new InvalidDataException("Context is not independently readable.");
+        var result = packet.TryGetProperty("opinions", out _) ? G(EncodedTextSurface.Create(new Carrier(), original), evidence, context, OpinionEvidence.Import(packet, evidence, annotation, contextual))
             : G(EncodedTextSurface.Create(new Carrier(), original), evidence, context);
         if (!TryRead(result, out _)) throw new InvalidDataException("Complete native record does not preserve source and contextual references.");
         return result;
@@ -62,7 +63,7 @@ public static class NativeRecord
         }
         if (!ContextEvidence.TryRead(context, evidence, annotation, out var contextual)) return false;
         OpinionEvidence.Read? opinions = null;
-        if (fields.Length == 4 && (fields[3] is not Relation opinionRoot || !OpinionEvidence.TryRead(opinionRoot, evidence, annotation, out opinions))) return false;
+        if (fields.Length == 4 && (fields[3] is not Relation opinionRoot || !OpinionEvidence.TryRead(opinionRoot, evidence, annotation, out opinions, contextual))) return false;
         read = new(text, source, acquisition, annotation, contextual, opinions, root); return true;
     }
 
@@ -101,6 +102,7 @@ public static class NativeRecord
             boundComparisonReads = read.Context.All.Sum(candidate => candidate.Comparisons.Length),
             opinionClaims = read.Opinions?.Claims.Length ?? 0,
             opinionDependencyLinks = read.Opinions?.Claims.Sum(c => c.Dependencies.Length) ?? 0,
+            opinionContextPartLinks = read.Opinions?.Claims.Sum(c => c.ContextParts.Length) ?? 0,
             opinionExpectedSites = read.Opinions?.Claims.Sum(c => c.Sites.Length) ?? 0,
             nativeRestoreVerified = true, actualSourceAliasesVerified = true,
             sourceOrderRetained = true, sourceNumericTokensRetained = true,

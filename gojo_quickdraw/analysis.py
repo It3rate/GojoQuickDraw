@@ -37,6 +37,8 @@ def enrich(packet, category, gojo_root):
     result["context"]["annotationMode"] = "stronger-priors" if variants else None
     proposal = None
     if category.casefold() == "church" and observed.get("spans"):
+        from .objects import enrich_context
+        result["context"], result["objects"] = enrich_context(observed, result["context"], variants.get("stronger-priors"))
         from quickdraw_gestalt_geometry import build
         from quickdraw_gestalt_completion import extend
         proposal = extend(observed, build(observed))
@@ -101,7 +103,7 @@ def _one(task):
         return {**row, "status": "error", "error": str(problem), "retainedSource": path.relative_to(folder).as_posix()}
 
 
-def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False):
+def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False, key_ids=None):
     from .selection import datasets, selected_rows
     source, output, gojo_root = (Path(p).resolve() for p in (source, output, gojo_root))
     if source == output or source in output.parents or output in source.parents:
@@ -110,6 +112,15 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False)
         raise ValueError("Choose 1..8 analysis workers")
     if limit is not None and (isinstance(limit, bool) or not isinstance(limit, int) or limit < 1):
         raise ValueError("Limit must be a positive integer")
+    if key_ids is not None:
+        if isinstance(key_ids, (str, bytes)) or not key_ids or any(not isinstance(key, str) or not key for key in key_ids):
+            raise ValueError("Key selection must contain nonempty source key strings")
+        selected_keys = set(key_ids)
+        available = {row["keyId"] for _, row in selected_rows(source) if row["keyId"] in selected_keys}
+        if available != selected_keys:
+            raise ValueError("Selected source keys are absent: " + ", ".join(sorted(selected_keys - available)))
+    else:
+        selected_keys = None
     folders = datasets(source)
     implementation = {"converter": dataset._pipeline_fingerprint(), "upstream": upstream.fingerprint(gojo_root)}
     signature = hashlib.sha256(dataset._canonical(implementation).encode()).hexdigest()
@@ -155,7 +166,11 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False)
             return folder
 
         def tasks():
-            for baseline_folder, stored in selected_rows(source, limit=limit):
+            for baseline_folder, stored in selected_rows(source, limit=limit if selected_keys is None else None):
+                if selected_keys is not None and stored["keyId"] not in selected_keys:
+                    continue
+                if limit is not None and counters["matched"] >= limit:
+                    break
                 counters["matched"] += 1
                 category = stored.get("category", "unknown")
                 folder = prepare(category, baseline_folder)
@@ -208,6 +223,8 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False)
         result = {"output": str(output), **dict(counters), "storedRecords": total["ok"], "storedErrors": total["error"],
                   "drawings": total["ok"], "workers": workers, "sourceUnchanged": True,
                   "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver."}
+        if selected_keys is not None:
+            result["selectedKeyIds"] = sorted(selected_keys)
         collection["lastRun"] = result
         dataset._atomic_json(collection_path, collection)
         return result

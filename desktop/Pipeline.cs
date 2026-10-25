@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace GojoQuickDraw.Desktop;
 
-public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery }
+public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery, Refresh }
 public sealed record PipelineOptions(string Repository, string Python, string Gojo, string Input, string Dataset,
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
     double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
@@ -20,6 +20,15 @@ public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, 
 
 public static class Pipeline
 {
+    public static IReadOnlyList<PipelineAction> WithAutomaticRefresh(IReadOnlyList<PipelineAction> actions)
+    {
+        if (!actions.Any(action => action is PipelineAction.Convert or PipelineAction.Analyze)) return actions;
+        // Processing may change both collection membership and saved proposals.
+        // One refresh after the batch replaces any separately requested views.
+        return actions.Where(action => action is not (PipelineAction.Review or PipelineAction.Gallery or PipelineAction.Refresh))
+            .Append(PipelineAction.Refresh).ToArray();
+    }
+
     public static CommandPlan Plan(PipelineAction action, PipelineOptions options)
     {
         if (string.IsNullOrWhiteSpace(options.Python)) throw new ArgumentException("Choose a Python executable in Setup.");
@@ -65,6 +74,11 @@ public static class Pipeline
                 arguments.Add("gallery"); Dataset(); Ordering();
                 artifact = Path.Combine(run, "comparison.html");
                 arguments.AddRange(["--output", artifact, "--page-size", "12", "--inspector", Path.Combine(run, "evidence.html")]);
+                break;
+            case PipelineAction.Refresh:
+                arguments.Add("refresh"); Dataset(); Ordering();
+                artifact = Path.Combine(run, "evidence.html");
+                arguments.AddRange(["--output", run, "--page-size", options.Limit.ToString(), "--gallery-page-size", "12"]);
                 break;
             case PipelineAction.Stages:
                 arguments.Add("stages"); Dataset(); Ordering();

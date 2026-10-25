@@ -10,7 +10,8 @@ from dataclasses import dataclass, asdict
 from copy import deepcopy
 import itertools
 import math
-from typing import Protocol
+from types import MappingProxyType
+from typing import Mapping, Protocol
 
 GRADES = ("none", "weak", "medium", "strong")
 
@@ -35,6 +36,8 @@ class Request:
     expected: dict
     earlier: tuple[dict, ...]
     frame: dict
+    context_parts: tuple[str, ...] = ()
+    parts: tuple[Mapping, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -54,11 +57,21 @@ def heuristic(request: Request) -> Response:
     if request.context == "defaults":
         return Response("weak", "none", "authored-default.v1", "Revisable logical expectation, not an observation.")
     if not request.comparisons:
-        return Response("weak", "none", "authored-structure.v1", "Source-supported candidate; semantic role remains open.")
-    within = [abs(c.actual-c.expected) <= c.allowance for c in request.comparisons]
-    return Response("medium" if all(within) else "weak" if any(within) else "none",
-                    "none" if all(within) else "strong", "finite-comparison.v1",
-                    "Independent comparison faces retain disagreement; grades are ordinal and unlearned.")
+        response = Response("weak", "none", "authored-structure.v1", "Source-supported candidate; semantic role remains open.")
+    else:
+        within = [abs(c.actual-c.expected) <= c.allowance for c in request.comparisons]
+        response = Response("medium" if all(within) else "weak" if any(within) else "none",
+                            "none" if all(within) else "strong", "finite-comparison.v1",
+                            "Independent comparison faces retain disagreement; grades are ordinal and unlearned.")
+    if request.question == "object-role-candidate" and request.parts:
+        part = request.parts[0]
+        unresolved = part.get("role", part.get("kind")) == "unknown" or part.get("status") == "unresolved"
+        ambiguous = part.get("status") == "ambiguous-candidate" or bool(part.get("conflicts"))
+        if unresolved or ambiguous:
+            opposition = max((response.opposition, "weak"), key=GRADES.index)
+            return Response("none" if unresolved else response.support, opposition, "authored-object-role.v1",
+                            "The grouping is retained. Unassigned or competing roles oppose committing to one role; this is an authored restraint, not measured negative ink or a probability.")
+    return response
 
 
 def rectangle(box):
@@ -68,6 +81,20 @@ def rectangle(box):
 
 def _box(points):
     return [min(p[0] for p in points), min(p[1] for p in points), max(p[0] for p in points), max(p[1] for p in points)]
+
+
+def _readonly(value):
+    """Freeze an already copied adapter read; providers cannot edit the source."""
+    if isinstance(value, dict):
+        return MappingProxyType({key: _readonly(item) for key, item in value.items()})
+    if isinstance(value, (list, tuple)):
+        return tuple(_readonly(item) for item in value)
+    return value
+
+
+def _comparisons(item):
+    return tuple(Comparison(value["actual"], value["expected"], value["allowance"], value["basis"])
+                 for value in item.get("comparisons", []))
 
 
 def build(packet, proposal=None, providers=None, maximum=1024):
@@ -82,11 +109,14 @@ def build(packet, proposal=None, providers=None, maximum=1024):
     observation = packet["observation"]
     spans = {s["id"]: s for s in observation.get("spans", [])}
     context = packet.get("context", {})
+    parts_by_id = {part["id"]: part for part in context.get("parts", [])}
+    if len(parts_by_id) != len(context.get("parts", [])):
+        raise ValueError("Context candidates must have distinct identities")
     rows, skipped = [], []
     known = set()
 
     def emit(key, question, support, *, dependencies=(), geometry=None, comparisons=(),
-             mode="hypotheses", meaning="", annotations=()):
+             mode="hypotheses", meaning="", annotations=(), context_parts=()):
         if key in known:
             return key
         if len(rows) >= maximum:
@@ -94,20 +124,25 @@ def build(packet, proposal=None, providers=None, maximum=1024):
             return None
         support = tuple(dict.fromkeys(support))
         dependencies = tuple(dict.fromkeys(dependencies))
+        selected_parts = tuple(dict.fromkeys(context_parts))
         if any(s not in spans for s in support) or any(d not in known for d in dependencies):
             raise ValueError("An opinion references missing or forward support")
+        if any(part not in parts_by_id for part in selected_parts):
+            raise ValueError("An opinion references a missing context part")
         expected_geometry = geometry or {"points": [], "segments": []}
-        earlier = tuple({name: deepcopy(row[name]) for name in ("id", "geometry", "support", "opposition", "context")}
+        earlier = tuple({name: deepcopy(row[name]) for name in ("id", "kind", "spans", "contextParts", "geometry", "support", "opposition", "context")}
                         for row in rows if row["id"] in dependencies)
         request = Request(key, question, support, dependencies, tuple(comparisons), mode,
                           tuple(deepcopy(spans[s]) for s in support), deepcopy(expected_geometry), earlier,
-                          deepcopy(observation.get("normalization", {})))
+                          deepcopy(observation.get("normalization", {})), selected_parts,
+                          tuple(_readonly(deepcopy(parts_by_id[part])) for part in selected_parts))
         if any(not all(math.isfinite(v) for v in (c.actual, c.expected, c.allowance)) or c.allowance < 0 for c in comparisons):
             raise ValueError("Comparison values must be finite with a nonnegative allowance")
         response = providers.get(question, heuristic)(request)
         if response.support not in GRADES or response.opposition not in GRADES:
             raise ValueError("An opinion provider must use the declared ordinal evidence ladder")
         row = {"id": key, "kind": question, "context": mode, "spans": list(support),
+               "contextParts": list(selected_parts),
                "dependencies": list(dependencies), "geometry": expected_geometry,
                "comparisons": [asdict(c) for c in comparisons], **asdict(response),
                "meaning": meaning, "annotationIds": list(annotations),
@@ -236,38 +271,65 @@ def build(packet, proposal=None, providers=None, maximum=1024):
                  comparisons=[Comparison(distance, 0, 24, "normalized page distance")] if distance is not None else (),
                  meaning="Top-down corner expectation; can support joining despite weaker local fit, without deciding it or erasing gap evidence.")
 
-    part_keys = {}
+    part_keys = {}; earlier_parts = set()
     for part in context.get("parts", []):
-        key = emit("part-scope-"+part["id"], "part-membership-candidate", part["spans"],
+        participants = part.get("participants", [])
+        if any(parent not in earlier_parts for parent in participants):
+            raise ValueError("A context part references missing or forward participants")
+        key = emit("part-scope-"+part["id"], "part-membership-candidate", part.get("spans", []),
+                   dependencies=[part_keys[parent] for parent in participants if parent in part_keys],
+                   context_parts=[part["id"]],
                    geometry=part.get("geometry"), meaning="These source profiles may participate in one part; identity and common response are hypotheses.")
         if key:
             part_keys[part["id"]] = key
+        earlier_parts.add(part["id"])
+    # Roles are separate opinions over the actual candidate and any competing
+    # candidates. These reads never feed their own scores back as new evidence.
+    for part in context.get("parts", []):
+        if "role" not in part or part["id"] not in part_keys:
+            continue
+        alternatives = part.get("conflicts", [])
+        if any(other not in parts_by_id for other in alternatives):
+            raise ValueError("An object role references a missing competing candidate")
+        selected = [part["id"]] + alternatives
+        emit("part-role-"+part["id"], "object-role-candidate", part.get("spans", []),
+             dependencies=[part_keys[p] for p in selected if p in part_keys], context_parts=selected,
+             geometry=part.get("geometry"), comparisons=_comparisons(part),
+             meaning="Local shape and placement reads may support this role. Distinct alternatives and unknown membership remain visible; no category label proves the interpretation.")
     for relation in context.get("relations", []):
         participants = relation.get("participants", [])
         if not all(p in part_keys for p in participants):
             continue
         deps = [part_keys[p] for p in participants]
-        key = emit("context-"+relation["id"], relation["kind"]+"-candidate", relation["spans"], dependencies=deps,
+        key = emit("context-"+relation["id"], relation["kind"]+"-candidate", relation.get("spans", []), dependencies=deps,
+                   context_parts=participants, comparisons=_comparisons(relation),
                    meaning="Conditional relation over previously introduced candidate parts.")
         if key and relation["kind"] == "containment":
-            emit("carry-"+relation["id"], "container-carries-contained", relation["spans"], dependencies=[key], mode="defaults",
+            emit("carry-"+relation["id"], "container-carries-contained", relation.get("spans", []), dependencies=[key], mode="defaults",
+                 context_parts=participants,
                  meaning="Child placement changes only the child; parent-frame displacement carries contained descendants once. Revisable under anchors or alternative groupings.")
     openings = [p for p in context.get("parts", []) if p["kind"] in ("window", "door") and p["id"] in part_keys]
+    # Prefer the current object read when a legacy candidate selects exactly
+    # the same ink. Rewording a candidate is not another separation witness.
+    openings.sort(key=lambda part: (not part["id"].startswith("object-"), part["id"]))
+    separation_scopes = set()
     for first, second in itertools.combinations(openings, 2):
-        if set(first["spans"]) & set(second["spans"]):
+        if (first.get("instanceId") is not None and first.get("instanceId") == second.get("instanceId") or
+                set(first["spans"]) & set(second["spans"])):
+            continue
+        signature = tuple(sorted((tuple(sorted(first["spans"])), tuple(sorted(second["spans"])))))
+        if signature in separation_scopes:
             continue
         a, b = first["bounds"], second["bounds"]
         if a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1]:
+            separation_scopes.add(signature)
             emit("separate-"+first["id"]+"-"+second["id"], "separate-part-instances", first["spans"]+second["spans"],
                  dependencies=[part_keys[first["id"]], part_keys[second["id"]]],
+                 context_parts=[first["id"], second["id"]],
                  meaning="Distinct candidate instances may share a parent/template while retaining separate identities and child edits.")
-    for roof in [p for p in context.get("parts", []) if p["kind"] == "roof" and p["id"] in part_keys]:
-        body = next((p for p in context.get("parts", []) if p["kind"] == "body" and p["id"] in part_keys), None)
-        if body:
-            emit("roof-wall-"+roof["id"], "roof-wall-attachment", roof["spans"]+body["spans"],
-                 dependencies=[part_keys[body["id"]], part_keys[roof["id"]]],
-                 meaning="Upper converging structure and lower container suggest attachment; does not manufacture an acquired join.")
+    # Roof/wall attachment is supplied by the explicit context relations above.
+    # A roof label alone does not attach it to the first building in the file.
     return {"schema": "gojo.quickdraw-opinions.v1", "sourceId": observation["sourceId"], "claims": rows,
             "ladder": list(GRADES), "learned": False, "maximumClaims": maximum,
             "capacityReached": bool(skipped), "withheldClaimIds": skipped,
-            "qualification": "Replaceable provider opinions with source support, expected geometry and earlier dependencies. No learned arbiter, probability calibration or automatic joint settlement."}
+            "qualification": "Replaceable provider opinions with source support, actual context-part selections, expected geometry and earlier dependencies. No learned arbiter, probability calibration or automatic joint settlement."}

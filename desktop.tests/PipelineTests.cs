@@ -27,7 +27,7 @@ public sealed class PipelineTests : IDisposable
         var conversion = Pipeline.Plan(PipelineAction.Convert, Options);
         Assert.Contains("--limit", conversion.Arguments);
         Assert.DoesNotContain("--limit", Pipeline.Plan(PipelineAction.Convert, Options with { AllRecords = true }).Arguments);
-        foreach (var action in new[] { PipelineAction.Review, PipelineAction.Gallery, PipelineAction.Stages, PipelineAction.ExampleProbe })
+        foreach (var action in new[] { PipelineAction.Review, PipelineAction.Gallery, PipelineAction.Refresh, PipelineAction.Stages, PipelineAction.ExampleProbe })
         {
             var plan = Pipeline.Plan(action, Options);
             Assert.Equal("..", Path.GetRelativePath(Dataset, plan.Artifact!).Split(Path.DirectorySeparatorChar)[0]);
@@ -95,6 +95,23 @@ public sealed class PipelineTests : IDisposable
         Assert.Equal("12", args[args.IndexOf("--page-size") + 1]);
         Assert.EndsWith("comparison.html", gallery.Artifact!);
         Assert.Equal(Path.Combine(Options.RunFolder!, "evidence.html"), args[args.IndexOf("--inspector") + 1]);
+    }
+
+    [Fact]
+    public void CompletedProcessingRefreshesBothViewsOnceAtTheEndOfTheBatch()
+    {
+        Assert.Equal(new[] { PipelineAction.Convert, PipelineAction.Verify, PipelineAction.Refresh },
+            Pipeline.WithAutomaticRefresh([PipelineAction.Convert, PipelineAction.Verify, PipelineAction.Review, PipelineAction.Gallery]));
+        Assert.Equal(new[] { PipelineAction.Analyze, PipelineAction.Refresh }, Pipeline.WithAutomaticRefresh([PipelineAction.Analyze]));
+        Assert.Equal(new[] { PipelineAction.Review, PipelineAction.Gallery }, Pipeline.WithAutomaticRefresh([PipelineAction.Review, PipelineAction.Gallery]));
+        var refresh = Pipeline.Plan(PipelineAction.Refresh, Options with { Limit = 50, InspectionOrder = "random", InspectionSeed = 99 });
+        var args = refresh.Arguments.ToList();
+        Assert.Contains("refresh", args);
+        Assert.Equal(Path.GetFullPath(Dataset), args[args.IndexOf("--dataset") + 1]);
+        Assert.Equal(Options.RunFolder, args[args.IndexOf("--output") + 1]);
+        Assert.Equal("50", args[args.IndexOf("--page-size") + 1]);
+        Assert.Equal("12", args[args.IndexOf("--gallery-page-size") + 1]);
+        Assert.Contains("random", args); Assert.Contains("99", args);
     }
 
     [Fact]

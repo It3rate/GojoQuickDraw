@@ -14,6 +14,12 @@
     <File Path="tests/test_stages.py" />
     <File Path="tests/test_sampling.py" />
     <File Path="tests/test_opinions.py" />
+    <File Path="tests/test_objects.py" />
+    <File Path="tests/test_object_display.py" />
+    <File Path="tests/test_analysis_selection.py" />
+    <File Path="tests/test_refresh.py" />
+    <File Path="tests/test_cli_refresh.py" />
+    <File Path="tests/check_objects.cjs" />
     <File Path="tests/check_review.cjs" />
     <File Path="tests/check_paged_review.cjs" />
     <File Path="tests/check_gallery.cjs" />
@@ -37,6 +43,9 @@
     <File Path="gojo_quickdraw/categories.json" />
     <File Path="gojo_quickdraw/analysis.py" />
     <File Path="gojo_quickdraw/opinions.py" />
+    <File Path="gojo_quickdraw/objects.py" />
+    <File Path="gojo_quickdraw/object_display.py" />
+    <File Path="gojo_quickdraw/refresh.py" />
   </Folder>
   <Folder Name="/Gojo Dependencies/">
     <Project Path="../Gojo/Gojo/Gojo.csproj" />
@@ -50,6 +59,7 @@
     <File Path="OpenQuickDraw.ps1" />
     <File Path="README.md" />
     <File Path="EVIDENCE_INVENTORY.md" />
+    <File Path="CHURCH_OBJECT_HEURISTICS.md" />
     <File Path="AGENTS.md" />
     <File Path="gojo.lock.json" />
     <File Path="docs/storage.md" />
@@ -61,6 +71,7 @@
     <File Path="reports/category-sampling-2026-10-25.json" />
     <File Path="reports/analysis-2026-10-25.json" />
     <File Path="reports/gallery-2026-10-25.json" />
+    <File Path="reports/objects-2026-10-25.json" />
   </Folder>
   <Folder Name="/Examples/">
     <File Path="examples/README.md" />

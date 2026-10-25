@@ -163,7 +163,8 @@ parent commits their journal entries in source-selection order. Completed record
 resume after hash checks. An interrupted journal tail is retained/repaired by the
 same explicit resume mechanism used for conversion.
 
-Analysis packets add `analysis` and `opinions`. `analysis.annotationModes` contains
+Analysis packets add `analysis` and `opinions`, and the bounded church pass adds
+`objects`. `analysis.annotationModes` contains
 the three source-based allowances. `analysis.proposal` caches seven authored church
 states, their operations, complement, correspondence and warnings. These previews
 are **not executed native rungs**. The independent `stages` command still creates
@@ -173,7 +174,9 @@ promoted to new human evidence or a ground-truth target.
 Native record roots accept the earlier three-field layout and an optional fourth
 opinion surface. That surface connects the actual observer frame, the existing
 `StructuralEvidenceStreams.Bundle`, claim witnesses, and adapter provenance.
-Each claim selects actual source-profile witnesses and earlier claims; its expected
+Each claim selects actual source-profile witnesses and earlier claims; an optional
+third selection group holds actual context-part witnesses. Older two-group claims
+remain readable. Part labels alone cannot satisfy these references. Its expected
 sites and ordered edges are native structure. A dependent corner can consume the
 actual earlier rectangle sites through explicit correspondence. Equal coordinates
 alone do not create this sharing, and acquired identities cannot be stolen.
@@ -191,6 +194,35 @@ containment. Its counterfactual translates a parent and reachable contained part
 once each; a child placement can vary independently. Cycles, alternative parents,
 anchored-child overrides and existing containment discrepancy remain visible.
 This is not yet general native physical settlement.
+
+## Provisional church objects
+
+`objects.candidates` is a presentation summary of additional `context.parts` and
+their connected relations. Each part selects actual source profiles and, where
+applicable, earlier part witnesses. An assembly and a wall can select the same
+profiles at different focuses; they do not duplicate acquisition. IDs derive from
+source membership and role, while `instanceId` deliberately omits role. This is
+stable for an unchanged fitted source; it is not identity tracking across a refit.
+
+Source-supported groups may span pen lifts or select a sub-contour inside a longer
+stroke. Copies remain distinct. `parentIds` is a display hierarchy; actual native
+dependencies use ordered `participants`, and relation witnesses link other parent
+alternatives. Bounds are provisional envelopes. They are not occupied regions or
+proof of physical containment. Verbal roles remain authored hypotheses, not newly
+implemented native roof/window semantics.
+
+Unknown and conflicting memberships remain separate from mere candidate coverage.
+The summary records grouping limits, withheld candidates and unread spans. Provider
+requests receive immutable snapshots and select exact native object candidates;
+ordinal support/opposition is not probability. Repeated passes over the same ink
+are not independent training examples. The new groups do not yet change the seven
+synthesis states. See [church heuristics](../CHURCH_OBJECT_HEURISTICS.md).
+
+Review HTML is a regenerable projection. `refresh` rebuilds both presentations
+from saved packets and records the collection journals in `refresh.json`. The
+desktop does this after successful processing; an open browser needs reloading.
+Changing analysis requires a new derived output, so source and earlier results
+remain inspectable under their original fingerprints.
 
 ## Paged inspection
 
