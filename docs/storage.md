@@ -279,6 +279,19 @@ Restore verifies complements by union and rejects equal-but-copied references.
 Names and heuristic scores remain adapter provenance. See
 [the detailed mapping contract](../CHURCH_BOUNDARY_MAPPING.md).
 
+### Shape refinement
+
+Area policy v4 adds open/outlined cross reads and oblique upper roof bands.
+The separate `cleanup` packet contains new ideal scaffold parts, links to earlier
+area parts, per-site before/after correspondences, explicit shared attachment
+sites, mirror residual reads, source pen-order provenance, and prior additions.
+These derived parts have no direct observed profile assignments. Their prior
+area estimates and the original mapping remain intact.
+
+The optional sixth native field retains actual selected part/site identities and
+signed displacement/mirror arithmetic. Three-, four- and five-field records
+remain readable. See [the native refinement contract](../CHURCH_SHAPE_CLEANUP.md).
+
 ### Review pages
 
 `catalog --offset N --limit K` selects a lightweight page; actual latest journal

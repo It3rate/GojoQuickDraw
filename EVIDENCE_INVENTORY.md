@@ -549,6 +549,21 @@ General object discovery, learned part/category priors, arbitration between mode
 pre-numeric generation and native physical feedback remain **plan**. Full native
 construction execution stays on demand; cached proposal views are labelled separately.
 
+## Shape refinement extension — 26 October 2026
+
+- **in:** provisional outlined-cross contour reads, including several strokes
+  and open ends; inferred center lines stay separate from outline ink.
+- **in:** oblique roof-band candidates and adjacent supported tower candidates.
+- **in:** a separate authored shape cleanup, selected before/after site
+  correspondences, actual shared parent/child attachment sites, and numeric
+  mirror residuals. Original source and earlier estimates remain intact.
+- **in:** explicitly prior-only optional entrance/window additions; acquisition
+  order is retained separately from proposed construction dependency order.
+- **plan:** learned placement/view priors, general perspective recovery,
+  autonomous feedback arbitration and causal inference from pen order.
+
+See [church shape cleanup](CHURCH_SHAPE_CLEANUP.md) for the executable scope.
+
 ## Sources
 
 - [Source annotation implementation](../Gojo/experiments/quickDraw/tools/quickdraw_annotations.py)

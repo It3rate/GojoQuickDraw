@@ -17,6 +17,7 @@ from .review import collection_stamp
 from .stages import _curve_extent
 from .object_display import read as object_read, profile_color, COLORS
 from .mapping_display import overlay as mapping_overlay
+from .cleanup_display import svg as cleanup_image
 
 
 def _relative(target, parent):
@@ -147,10 +148,12 @@ def _card(row, packet, number, links, parent):
             f'<span class="key">{escape(key)}</span></div><div class="pair">'
             f'<div class="input"><div class="label">Input</div><div class="final-output"><svg viewBox="{box}" role="img" '
             f'aria-label="Original drawing {escape(key, quote=True)}">' + "".join(acquisition) + "</svg></div>"
-            f'<div class="layout-output">{_layout_image(packet, original_only=True)}</div></div>'
+            f'<div class="layout-output">{_layout_image(packet, original_only=True)}</div>'
+            f'<div class="cleanup-output">{cleanup_image(packet, original_only=True)}</div></div>'
             f'<div class="output"><div class="final-output"><div class="label">{final_title}</div>{image}</div>'
             f'<div class="layout-output"><div class="label">Area estimates + original</div>{_layout_image(packet)}</div>'
-            f'<div class="mapping-output"><div class="label">Source ↔ shape mapping</div>{_layout_image(packet, mapping=True)}</div></div></div>'
+            f'<div class="mapping-output"><div class="label">Source ↔ shape mapping</div>{_layout_image(packet, mapping=True)}</div>'
+            f'<div class="cleanup-output"><div class="label">Church cleanup + faint original</div>{cleanup_image(packet)}</div></div></div>'
             f'<div class="cardfoot">{"Open detailed inspector ↗" if href else "Saved drawing"}'
             f'{" · expanded viewing frame" if expanded else ""}'
             f'{" · " + str(objects["candidates"]) + " object candidates" if objects["available"] else ""}</div></{tag}>')
@@ -159,6 +162,7 @@ def _card(row, packet, number, links, parent):
                 "finalStepId": final["id"] if final else None, "viewBox": view, "detailsHref": href,
                 "objectCandidates": objects["candidates"], "objectColorsAvailable": objects["available"],
                 "layoutParts": len((packet.get("layout") or {}).get("parts", [])),
+                "cleanupParts": len((packet.get("cleanup") or {}).get("parts", [])),
                 "boundaryMapping": (packet.get('boundaryMapping') or {}).get('summary')}
     return card, metadata
 
@@ -237,9 +241,10 @@ _HTML = r'''<!doctype html>
 <style>.object-ink{display:none}.object-colors .object-ink{display:block;stroke:var(--object-color);stroke-width:3.2}.object-colors .output [style]{stroke:var(--object-color)}#objectLegend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;padding:0 0 8px}#objectLegend span:before{content:'';display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--role-color);margin-right:5px}</style>
 <style>.layout-output{display:none}.area-view .layout-output{display:block}.area-view .final-output,.area-view .input .object-ink{display:none}.area-view .output [style]{stroke:inherit}.area-view #objectLegend{display:none!important}.area-view .input svg{stroke:#465852}</style>
 <style>.mapping-output{display:none}.mapping-view .output .layout-output{display:none}.mapping-view .mapping-output{display:block}</style>
+<style>.cleanup-output{display:none}.cleanup-view .cleanup-output{display:block}.cleanup-view .layout-output,.cleanup-view .mapping-output,.cleanup-view .final-output{display:none}</style>
 <header><div class="subtle">GOJO / QUICKDRAW</div><h1 id="galleryTitle">Input / final interpretation</h1>
 <p class="subtle" id="galleryNote">Final = last saved interpretation. Faint lines = retained detail. Each pair shares a viewing frame.</p>
-<label>Result <select id="resultView" aria-label="Result view"><option value="final">Final interpretation</option><option value="layout">Area estimates over original</option><option value="mapping">Source ↔ shape mapping</option></select></label>
+<label>Result <select id="resultView" aria-label="Result view"><option value="final">Final interpretation</option><option value="layout">Area estimates over original</option><option value="mapping">Source ↔ shape mapping</option><option value="cleanup">Church cleanup (final shape stage)</option></select></label>
 <nav class="toolbar" aria-label="Gallery pages"><button id="firstPage">First</button><button id="prevPage">← Previous</button><label>Page <select id="page" aria-label="Page"></select></label><button id="nextPage">Next →</button><button id="lastPage">Last</button><span id="position" class="subtle"></span><label><input id="objectColors" type="checkbox">Object colors</label><label class="detail-toggle"><input id="retainedDetail" type="checkbox" checked>Retained detail</label></nav><div id="objectLegend" hidden></div></header>
 <main><div class="grid">__CARDS__</div></main>
 <footer><div class="bottom-nav"><button id="bottomPrev">← Previous page</button><span class="subtle" id="summary"></span><button id="bottomNext">Next page →</button></div></footer>
@@ -250,8 +255,8 @@ const DATA=JSON.parse(document.getElementById('gallery-data').textContent),PAGIN
 $('retainedDetail').checked=new URL(location.href).searchParams.get('detail')!=='0';
 function detail(){document.body.classList.toggle('hide-detail',!$('retainedDetail').checked)}
 function objects(){const active=$('objectColors').checked;document.body.classList.toggle('object-colors',active);$('objectLegend').style.display=active?'flex':'none';for(const card of document.querySelectorAll('a.comparison')){const u=new URL(card.href);u.searchParams.set('objects',active?'1':'0');card.href=u.href}}
-function resultView(){const mode=$('resultView').value,area=mode!=='final',mapping=mode==='mapping';document.body.classList.toggle('area-view',area);document.body.classList.toggle('mapping-view',mapping);$('galleryTitle').textContent=mapping?'Input / source-to-shape mapping':area?'Input / area estimates':'Input / final interpretation';$('galleryNote').textContent=mapping?'Part color = assigned source intervals · ochre = shared support · rose = unresolved. Dotted shapes are proposed boundaries. Open a pair to inspect the mapping.':area?'Pale areas with dotted borders = ideal estimates. Solid ink = original. Hover a shape for its role; open a pair for evidence.':'Final = last saved interpretation. Faint lines = retained detail. Each pair shares a viewing frame.';$('objectColors').disabled=$('retainedDetail').disabled=area;for(const card of document.querySelectorAll('a.comparison')){const row=DATA.records.find(r=>r.selectionId===card.dataset.item),u=new URL(card.href),original=new URL(row.detailsHref,location.href);u.searchParams.set('view',mapping&&row.boundaryMapping?'mapping':area&&row.layoutParts?'layout':original.searchParams.get('view'));card.href=u.href}}
-$('resultView').value=['layout','mapping'].includes(new URL(location.href).searchParams.get('view'))?new URL(location.href).searchParams.get('view'):'final';
+function resultView(){const mode=$('resultView').value,area=mode!=='final',mapping=mode==='mapping',cleanup=mode==='cleanup';document.body.classList.toggle('cleanup-view',cleanup);document.body.classList.toggle('area-view',area);document.body.classList.toggle('mapping-view',mapping);$('galleryTitle').textContent=cleanup?'Input / church cleanup':mapping?'Input / source-to-shape mapping':area?'Input / area estimates':'Input / final interpretation';$('galleryNote').textContent=cleanup?'Shape-based refinement over faint original ink. Solid = refined estimate; dashed = added expectation or ground. Open a pair to inspect attachments.':mapping?'Part color = assigned source intervals · ochre = shared support · rose = unresolved. Dotted shapes are proposed boundaries. Open a pair to inspect the mapping.':area?'Pale areas with dotted borders = ideal estimates. Solid ink = original. Hover a shape for its role; open a pair for evidence.':'Final = last saved interpretation. Faint lines = retained detail. Each pair shares a viewing frame.';$('objectColors').disabled=$('retainedDetail').disabled=area;for(const card of document.querySelectorAll('a.comparison')){const row=DATA.records.find(r=>r.selectionId===card.dataset.item),u=new URL(card.href),original=new URL(row.detailsHref,location.href);u.searchParams.set('view',cleanup&&row.cleanupParts?'cleanup':mapping&&row.boundaryMapping?'mapping':area&&row.layoutParts?'layout':original.searchParams.get('view'));card.href=u.href}}
+$('resultView').value=['layout','mapping','cleanup','final'].includes(new URL(location.href).searchParams.get('view'))?new URL(location.href).searchParams.get('view'):DATA.records.some(r=>r.cleanupParts)?'cleanup':'final';
 $('resultView').onchange=()=>{resultView();const u=new URL(location.href);u.searchParams.set('view',$('resultView').value);history.replaceState(null,'',u.href)};
 $('objectColors').checked=new URL(location.href).searchParams.get('objects')==='1'||new URL(location.href).searchParams.get('objects')===null&&DATA.records.some(r=>r.objectColorsAvailable);
 for(const [role,color]of Object.entries(DATA.objectColors||{})){const item=document.createElement('span');item.textContent=role==='unknown'?'unknown / ambiguous':role;item.style.setProperty('--role-color',color);$('objectLegend').append(item)}

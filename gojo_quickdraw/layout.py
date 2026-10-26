@@ -12,7 +12,7 @@ import math
 
 COLORS = {"ground": "#63735f", "building": "#277da8", "tower": "#56729a", "roof": "#bf712a",
           "cross": "#ae3f6d", "cross-level": "#ae3f6d", "door": "#23846c", "window": "#8c68aa"}
-POLICY = {"version": "church-area-layout.v3", "learned": False, "maximumSamples": 2048,
+POLICY = {"version": "church-area-layout.v4", "learned": False, "maximumSamples": 2048,
           "maximumUprights": 16, "maximumDoors": 2, "maximumWindows": 8,
           "maximumRoofs": 6, "maximumCrosses": 6, "domePartitions": 32,
           "basis": "normalized observer page; down is a chosen church-upright premise",
@@ -94,13 +94,16 @@ def _rectangle(bounds, top_anchors=(), bottom_anchors=(), top_source=None, botto
 
 def _cap_geometry(cap, parent_id, parent_sites):
     l,top,r,base=cap['bounds'];mid=round((l+r)/2,3)
-    if cap['shape']=='dome':
+    if cap['shape']=='parallelogram':
+        points=cap['quad']
+    elif cap['shape']=='dome':
         points=[[round(mid+(r-l)/2*math.cos(math.pi-i*math.pi/POLICY['domePartitions']),3),
                  round(base-(base-top)*math.sin(math.pi-i*math.pi/POLICY['domePartitions']),3)]
                 for i in range(POLICY['domePartitions']+1)]
         points[0]=[l,base];points[-1]=[r,base]
     else:points=[[l,base],cap['apex'],[r,base]]
-    points.append([mid,base]);sources=[]
+    if cap['shape']!='parallelogram':points.append([mid,base])
+    sources=[]
     for x,y in points:
         sources.append({'part':parent_id,'index':parent_sites[x]} if y==base and x in parent_sites else None)
     geometry=_ring(points,sources)
@@ -174,7 +177,9 @@ def estimate(observed):
     if min(sw, sh) < 8:
         return {"schema": "gojo.quickdraw-area-layout.v1", "sourceId": observed.get("sourceId"),
                 "parts": [], "relations": [], "alternatives": [], "status": "open-insufficient-area", "policy": deepcopy(POLICY)}
-    cross_hints = [c for c in observed.get("crosses", []) if c["point"][1] < st+.68*sh]
+    from .layout_outlines import crosses as outline_crosses
+    outlines=outline_crosses(observed,scene)
+    cross_hints = [c for c in observed.get("crosses", []) if c["point"][1] < st+.68*sh] + outlines
     cross_spans = {sid for c in cross_hints for sid in c["spans"]}
     uprights = []
     for s in spans:
@@ -232,6 +237,8 @@ def estimate(observed):
     roofs, roof_reads = roof_regions(observed,[l,top,r,g],scene,cross_spans,POLICY['maximumRoofs'])
     towers,tower_reads=tower_regions(observed,[l,top,r,g],scene,roofs,cross_spans,
                                     POLICY['maximumRoofs']-sum(cap['towerBottom'] is not None for cap in roofs))
+    from .layout_side_roofs import regions as side_roofs
+    roofs += side_roofs(observed,[l,top,r,g],scene,roofs,towers,cross_spans)
     for cap in roofs:
         if cap['shape']=='dome':cap['apex']=[round((cap['bounds'][0]+cap['bounds'][2])/2,3),cap['bounds'][1]]
     opening_regions = _opening_regions(observed,[l,top,r,g],cross_spans)
@@ -302,7 +309,7 @@ def estimate(observed):
                    ['layout-ground' if bottom==g else building['id'],parent['id']],0)
         roof=add('roof',_cap_geometry(cap,parent['id'],sites),cap['bounds'],cap['spans'],[parent['id']],
             assumed=not cap['spans'],extra={'shape':cap['shape'],'apex':cap['apex'],'fallback':cap.get('fallback',False),
-                 'costTerms':cap['costTerms'],'shapeCosts':cap['shapeCosts'],
+                 'costTerms':cap['costTerms'],'shapeCosts':cap['shapeCosts'],'viewBasis':cap.get('viewBasis','front-cap'),
                  'construction':{'partitions':POLICY['domePartitions'] if cap['shape']=='dome' else 2,
                                  'basis':'Half ellipse or two slopes with an explicit closing base; finite proposed sites.'}})
         roof['comparisons']=[_comparison(value,0,1,'authored cap cost: '+key) for key,value in {**cap['costTerms'],**cap['shapeCosts']}.items()]
@@ -317,12 +324,13 @@ def estimate(observed):
         part=add('tower',geo,tower['bounds'],tower['spans'],['layout-ground',building['id']],
                  extra={'lowerBoundary':'inferred-level','roofOptional':True,'apex':[round((a+c)/2,3),b]})
         marker_parents.append(part)
-    cross_markers,marker_reads=markers(observed,marker_parents,[l,top,r,g],scene,POLICY['maximumCrosses'])
+    cross_markers,marker_reads=markers(observed,marker_parents,[l,top,r,g],scene,POLICY['maximumCrosses'],outlines=outlines)
     for hint in cross_markers:
         parent=marker_parents[hint['roofIndex']] if hint['roofIndex'] is not None else building
         geo,bounds,placement=marker_geometry(observed,hint,parent,scene)
         marker=add('cross',geo,bounds,hint['spans'],[parent['id']],assumed=not hint['spans'],
             extra={'placement':placement,'markerBasis':hint['markerBasis'],
+                   **({'outlineRead':{k:hint[k] for k in ('outlineBounds','stemWidth','barThickness','outlineCost','openContour')}} if 'outlineBounds' in hint else {}),
                    **({'status':'partial-marker-prior','missingHorizontalArm':True} if hint.get('missingHorizontalArm') else {})})
         x,y=geo['points'][12]
         left,right=(parent['bounds'][0]-.1*bw,parent['bounds'][2]+.1*bw) if len(cross_markers)>1 else (ground_x[0],ground_x[-1])

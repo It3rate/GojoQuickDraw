@@ -60,6 +60,13 @@ The app selects that analysis collection when ready. Running analysis again from
 its collection root resumes the original baseline rather than making another
 generation of derived drawings. Use a new output after changing the implementation.
 
+The latest full pass also supplies **Church cleanup (final shape stage)**. It
+keeps front peaks symmetric, moves crosses with their support, preserves side
+tower/roof arrangements, and labels optional added openings. Select it in the
+inspector's Read list or the gallery's Result list. Faint ink remains the original;
+dashed shapes/ground are expectation-based. Older analyses need a fresh output
+and Full analysis to acquire this stage; refreshing reviews alone cannot add it.
+
 In the browser, **Read** selects fitted source, looser/stronger source relations,
 and the seven church proposal states. The latter are marked as authored previews;
 Drawing steps independently executes native programs. The evidence list includes

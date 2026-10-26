@@ -3,11 +3,15 @@ from __future__ import annotations
 import math
 
 
-def markers(observed, roofs, building, scene, maximum=6):
+def markers(observed, roofs, building, scene, maximum=6, outlines=None):
     sh=scene[3]-scene[1]; sw=scene[2]-scene[0]
-    hints=[]
+    if outlines is None:
+        from .layout_outlines import crosses
+        outlines=crosses(observed,scene)
+    hints=list(outlines)
     for hint in observed.get('crosses',[]):
         if hint['point'][1]>scene[1]+.68*sh: continue
+        if any(set(hint['spans']) & set(h['spans']) for h in outlines):continue
         if any(math.dist(hint['point'],h['point'])<.055*min(sw,sh) or set(hint['spans'])==set(h['spans']) for h in hints): continue
         hints.append({**hint,'markerBasis':'crossing-read'})
     selected={sid for h in hints for sid in h['spans']}
@@ -43,6 +47,10 @@ def geometry(observed, hint, parent, scene):
     support=[s for s in observed['spans'] if s['id'] in hint['spans']]
     positions=[p for s in support for p in s['controls']]
     height=max(p[1] for p in positions)-min(p[1] for p in positions) if positions else .12*sh
+    if 'outlineBounds' in hint:
+        a,t,b,d=hint['outlineBounds']; x,bar=hint['point'];height=d-t
+        return cross_geometry(x,t,height,(b-a)/2,hint['stemWidth']/2,hint['barThickness']/2,bar,outline=True),\
+            [a,t,b,d],('above-' if bar<top else 'within-')+parent.get('role','building')
     height=max(.06*sh,min(.27*sh,height));x,bar=hint['point']
     above=bar<top; shape=parent.get('shape','rectangle')
     if above:
@@ -67,13 +75,18 @@ def geometry(observed, hint, parent, scene):
                 x=max(lo+.002,min(hi-.002,x));break
             height*=.8
     x,y,height=round(x,3),round(y,3),round(height,3)
-    bar=round(y+.32*height,3);k=.06*height;arm=.30*height;bottom=y+height
-    points=[[x-k,y],[x+k,y],[x+k,bar-k],[x+arm,bar-k],[x+arm,bar+k],[x+k,bar+k],
-            [x+k,bottom],[x-k,bottom],[x-k,bar+k],[x-arm,bar+k],[x-arm,bar-k],[x-k,bar-k]]
+    return cross_geometry(x,y,height),[x-.30*height,y,x+.30*height,y+height],('above-' if above else 'within-')+parent.get('role','building' if shape=='rectangle' else 'roof')
+
+
+def cross_geometry(x,y,height,arm=None,k=None,bar_half=None,bar=None,outline=False):
+    bar=round(y+.32*height,3) if bar is None else bar
+    k=.06*height if k is None else k;arm=.30*height if arm is None else arm
+    half=k if bar_half is None else bar_half;bottom=y+height
+    points=[[x-k,y],[x+k,y],[x+k,bar-half],[x+arm,bar-half],[x+arm,bar+half],[x+k,bar+half],
+            [x+k,bottom],[x-k,bottom],[x-k,bar+half],[x-arm,bar+half],[x-arm,bar-half],[x-k,bar-half]]
     points=[[round(a,3),round(b,3)] for a,b in points]+[[x,bar]]
     points += [[x,y],[x,round(bottom,3)],[round(x-arm,3),bar],[round(x+arm,3),bar]]
     return {'points':points,'segments':[[i,(i+1)%12] for i in range(12)]+[[13,14],[15,16]],
             'fillIndices':list(range(12)), 'boundaryGroups':[
-                {'name':'upright','segments':[12]}, {'name':'crossbar','segments':[13]},
-                {'name':'outline thickness','segments':list(range(12)),'priorOnly':True}]},\
-           [x-arm,y,x+arm,bottom],('above-' if above else 'within-')+parent.get('role','building' if shape=='rectangle' else 'roof')
+                {'name':'upright','segments':[12],'priorOnly':outline}, {'name':'crossbar','segments':[13],'priorOnly':outline},
+                {'name':'outline thickness','segments':list(range(12)),'priorOnly':not outline}]}

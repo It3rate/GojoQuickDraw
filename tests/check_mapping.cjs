@@ -26,7 +26,7 @@ let browser;
   assert.equal(await page.locator('#readMode').inputValue(),'mapping');
   const data=await page.evaluate(()=>({parts:packet().layout.parts,m:packet().boundaryMapping,original:packet().observation.strokes.map(s=>s.points.map(p=>p.join(',')).join(' ')),actual:[...document.querySelectorAll('#fit [data-stroke]')].map(n=>n.getAttribute('points'))}));
   assert.deepEqual(data.actual,data.original);assert(data.m.targets.length>0);
-  for(const t of data.m.targets.filter(t=>t.part==='layout-ground'||t.part.includes('cross-level')||t.name==='outline thickness'))assert.equal(t.ink.length,0);
+  for(const t of data.m.targets){const outlined=data.parts.find(p=>p.id===t.part)?.markerBasis==='outline-contour-read';if(t.part==='layout-ground'||t.part.includes('cross-level')||t.name==='outline thickness'&&!outlined||outlined&&['upright','crossbar'].includes(t.name))assert.equal(t.ink.length,0)}
   const g=page.locator('#fit [data-map-target="mapping-layout-ground-0"]').first();await g.focus();
   assert((await page.locator('#detail').innerText()).includes('No physical line is claimed'));
   const prior=data.parts.filter(p=>p.status==='prior-only');assert(data.m.targets.filter(t=>prior.some(p=>p.id===t.part)).every(t=>t.ink.length===0));

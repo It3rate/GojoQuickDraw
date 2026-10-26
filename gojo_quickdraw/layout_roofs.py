@@ -98,6 +98,12 @@ def _model_cost(arms, l, r, base, apex):
 def regions(observed, building, scene, excluded, maximum=6):
     l,t,r,g=building; sw,sh=scene[2]-scene[0],scene[3]-scene[1]; bw=r-l
     arms=_arms(observed,scene,excluded); candidates=[]; unattached=[]
+    upright_reads=list(observed['spans'])
+    for stroke in observed['strokes']:
+        path=_simplify(stroke['points'],.018*min(sw,sh))
+        for p,q in zip(path,path[1:]):
+            if abs(q[0]-p[0])<.35*abs(q[1]-p[1]) and abs(q[1]-p[1])>.10*sh:
+                upright_reads.extend({'id':sid,'controls':[p,q]} for sid in _support(observed,stroke['index'],[p,q],.015*sw))
     for a in arms:
         if a['side']!='left': continue
         for b in arms:
@@ -113,7 +119,16 @@ def regions(observed, building, scene, excluded, maximum=6):
                 gap>.10*sh or gap>.36*width): continue
             # A cap may overhang or be offset, but a wholly disconnected contour
             # has no support from this building proposal (often writing nearby).
-            if max(0,min(right,r)-max(left,l))<.25*width:
+            overlap=max(0,min(right,r)-max(left,l))
+            adjacent=max(0,l-right,left-r)<.08*sw
+            grounded_sides=[]
+            for x in (left,right):
+                grounded_sides.append(any(s['id'] not in excluded and
+                    abs(s['controls'][-1][0]-s['controls'][0][0])<.35*abs(s['controls'][-1][1]-s['controls'][0][1]) and
+                    abs((s['controls'][0][0]+s['controls'][-1][0])/2-x)<.2*width+.02*sw and
+                    max(s['controls'][0][1],s['controls'][-1][1])>g-.16*sh and
+                    min(s['controls'][0][1],s['controls'][-1][1])<base+.15*sh for s in upright_reads))
+            if overlap<.25*width and not (adjacent and all(grounded_sides)):
                 unattached.append({'bounds':[left,peak[1],right,base],
                                    'spans':sorted(set(a['spans']+b['spans'])),
                                    'reason':'insufficient overlap with the proposed building footprint'})
@@ -149,7 +164,7 @@ def regions(observed, building, scene, excluded, maximum=6):
         sides=[]
         for x in (a,b):
             rows=[]
-            for s in observed['spans']:
+            for s in upright_reads:
                 if s['id'] in excluded: continue
                 p,q=s['controls'][0],s['controls'][-1]
                 top,bottom=sorted((p[1],q[1])); dx=abs(q[0]-p[0]);dy=bottom-top

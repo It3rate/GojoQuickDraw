@@ -25,7 +25,7 @@ def regions(observed, building, scene, caps, excluded, maximum=6):
             left,right=round(a0[0],3),round(b0[0],3)
             if any(max(0,min(right,c['bounds'][2])-max(left,c['bounds'][0]))>.55*min(width,c['bounds'][2]-c['bounds'][0]) for c in caps):continue
             bottom=g if min(a1[1],b1[1])>g-.16*sh else t
-            if right<l or left>r:continue
+            if right<l-.08*sw or left>r+.08*sw:continue
             cost=abs(a0[1]-b0[1])/sh+.05*abs(sa['strokeIndex']-sb['strokeIndex'])
             candidates.append({'bounds':[left,round(top,3),right,bottom],
                 'spans':sorted({sa['id'],sb['id'],*bridges}),'cost':cost,'lowerBoundary':'inferred-level'})

@@ -70,6 +70,14 @@ and ochre marks shared support. Select a boundary or source range to inspect the
 associations. Roofs and towers are optional, including flat-topped towers with a
 cross above them. See [boundary mapping](CHURCH_BOUNDARY_MAPPING.md).
 
+**Church cleanup (final shape stage)** refines those areas into a more regular
+construction: centered front peaks, attached crosses, paired towers and contained
+openings. Outlined/open crosses and oblique roof bands have additional detection
+reads. The original stays faintly visible; dashed additions are explicit church
+expectations. The gallery defaults to this stage when available. Use a fresh
+analysis output to apply the new pass to older collections. See
+[shape cleanup and its connected evidence](CHURCH_SHAPE_CLEANUP.md).
+
 Open `GojoQuickDraw.slnx` in Visual Studio and set `GojoQuickDraw.Desktop` as the
 startup project to run the UI there. The solution includes the desktop app and
 tests, native converter and tests, linked Gojo dependencies, Python source files,

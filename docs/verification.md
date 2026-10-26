@@ -274,6 +274,34 @@ The inspector and diagnostics distinguish these review needs from execution fail
 Source reconstruction and artifact integrity are currently much better established
 than semantic part recognition or the correctness of synthesized churches.
 
+## Church shape cleanup — 26 October 2026
+
+The 36-drawing development review includes the four supplied examples and the
+earlier 24-drawing pilot. All 36 completed analysis and native capture/restore,
+with no retained errors. The audit compares source text, source records,
+observations and original programs with their baselines; source archive hashes
+remain unchanged. A deterministic rerun reproduces the layout, mapping and
+cleanup. All proposed openings remain within their selected wall/tower bounds.
+
+The results contain 260 shape parts, 270 explicit attachment references, 32
+mirror reads and 110 prior-only parts (including ground/markers when inferred).
+Native tests erase descriptive JSON and still read before/after site links and
+shared roof/cross contacts. False contact by equal coordinates, missing
+correspondence and direct ink claimed by added shapes are rejected. A finite
+rounding case verifies that an attachment uses its selected parent's actual site.
+
+Checks passed: 124 Python tests, 43 native tests, 11 desktop tests and all 5,407
+linked Gojo tests. Three fresh raw drawings converted and restored. Six generated
+archives were independently rechecked, and a second analysis reused all 36
+verified results. Browser checks cover every drawing, all three gallery pages,
+view persistence, original-point preservation, mapping/unresolved inspection,
+mobile layout and earlier final-stage gallery behavior. No script errors or
+external requests occurred.
+
+See [the recorded report](../reports/cleanup-2026-10-26.json) and
+[the scope/limitations](../CHURCH_SHAPE_CLEANUP.md). These integrity checks do not
+establish semantic recognition accuracy or learned priors.
+
 ## Reproduce
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

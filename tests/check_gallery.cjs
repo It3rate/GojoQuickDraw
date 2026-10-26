@@ -12,7 +12,7 @@ let browser;
   const page = await browser.newPage({viewport:{width:1440,height:1100}}), errors = [], requests = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.route('http**', route => {requests.push(route.request().url()); return route.abort();});
-  await page.goto(pathToFileURL(entry).href);
+  await page.goto(pathToFileURL(entry).href+'?view=final');
   const navigation = await page.evaluate(() => PAGING), identities = [], pageSizes = [], details = [];
   let finalImages = 0;
   for (let i=0; i<navigation.pages.length; i++) {

@@ -1,0 +1,1248 @@
+{
+  "date": "2026-10-26",
+  "experiment": "church-area-layout.v4 / church-shape-cleanup.v1",
+  "qualification": "Authored proposals on a 36-drawing development/review set; not trained priors or unseen semantic accuracy.",
+  "implementation": {
+    "converter": "d8a1b00b0fbebd4134a9d8456a3bd2c04c998fbf246ddcd9d63dc3b2a8ab89a9",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "86d402ce95379e3d3729169b4e1a523779277ebe680fcd48e52b6da3c2ee12ad",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "analysisFingerprint": "481a2988c8eee6686dc46afad1e4fb74d402a2d679de0e7ee61e4f3c0cf8e9bb",
+  "dataset": "D:/_quickDraw/gojo-quickdraw-evidence/church-cleanup-pilot-v3",
+  "gallery": "D:/_quickDraw/gojo-quickdraw-evidence/church-cleanup-pilot-v3-runs/inspector/comparison.html?view=cleanup",
+  "analysis": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-pilot-v3",
+    "matched": 36,
+    "converted": 36,
+    "passes": 252,
+    "storedRecords": 36,
+    "storedErrors": 0,
+    "drawings": 36,
+    "workers": 3,
+    "sourceUnchanged": true,
+    "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+    "selectedKeyIds": [
+      "4707059385761792",
+      "4745777253449728",
+      "4835826410192896",
+      "4836604000600064",
+      "5026742236348416",
+      "5037263295610880",
+      "5071232594608128",
+      "5161617551523840",
+      "5165838967504896",
+      "5231607982063616",
+      "5246955158503424",
+      "5247716256907264",
+      "5320526270562304",
+      "5389179863171072",
+      "5488048856891392",
+      "5516770007842816",
+      "5521537635450880",
+      "5650365196271616",
+      "5650520033198080",
+      "5774941733519360",
+      "5865058414362624",
+      "5901226988273664",
+      "5954572780568576",
+      "6039787817402368",
+      "6082729202417664",
+      "6114902718545920",
+      "6175065550880768",
+      "6280306992611328",
+      "6291594720313344",
+      "6292633682968576",
+      "6378596228661248",
+      "6414840786583552",
+      "6469580950077440",
+      "6492920540561408",
+      "6680427051876352",
+      "6688106352738304"
+    ],
+    "elapsedSeconds": 143.78628570001456
+  },
+  "checks": {
+    "pythonTests": 124,
+    "nativeTests": 43,
+    "desktopTests": 11,
+    "linkedGojoTests": 5407,
+    "linkedGojoWorkingTreeUnchanged": true,
+    "nativeCaptureAndRestoreAll36": true,
+    "additionalIndependentArchiveCheck": {
+      "records": 6,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "smallRawConversionAndRestore": {
+      "records": 3,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "resume": {
+      "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-pilot-v3",
+      "matched": 36,
+      "resumed": 36,
+      "storedRecords": 36,
+      "storedErrors": 0,
+      "drawings": 36,
+      "workers": 3,
+      "sourceUnchanged": true,
+      "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+      "selectedKeyIds": [
+        "4707059385761792",
+        "4745777253449728",
+        "4835826410192896",
+        "4836604000600064",
+        "5026742236348416",
+        "5037263295610880",
+        "5071232594608128",
+        "5161617551523840",
+        "5165838967504896",
+        "5231607982063616",
+        "5246955158503424",
+        "5247716256907264",
+        "5320526270562304",
+        "5389179863171072",
+        "5488048856891392",
+        "5516770007842816",
+        "5521537635450880",
+        "5650365196271616",
+        "5650520033198080",
+        "5774941733519360",
+        "5865058414362624",
+        "5901226988273664",
+        "5954572780568576",
+        "6039787817402368",
+        "6082729202417664",
+        "6114902718545920",
+        "6175065550880768",
+        "6280306992611328",
+        "6291594720313344",
+        "6292633682968576",
+        "6378596228661248",
+        "6414840786583552",
+        "6469580950077440",
+        "6492920540561408",
+        "6680427051876352",
+        "6688106352738304"
+      ]
+    },
+    "cleanupBrowser": {
+      "drawings": 36,
+      "galleryPages": 3,
+      "sourceUnchanged": true,
+      "contactsPresent": true,
+      "pagingPreserved": true,
+      "errors": [],
+      "externalRequests": 0
+    },
+    "mappingBrowser": {
+      "drawings": 36,
+      "galleryPages": 3,
+      "originalsUnchanged": true,
+      "pagingPreserved": true,
+      "errors": [],
+      "externalRequests": 0,
+      "checks": [
+        {
+          "sample": 1,
+          "key": "6291594720313344",
+          "mappedIntervals": 19,
+          "priorTargets": 4,
+          "sharedSourceRanges": 2,
+          "targets": 17,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 24
+        },
+        {
+          "sample": 2,
+          "key": "5320526270562304",
+          "mappedIntervals": 9,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 9
+        },
+        {
+          "sample": 3,
+          "key": "5954572780568576",
+          "mappedIntervals": 9,
+          "priorTargets": 4,
+          "sharedSourceRanges": 0,
+          "targets": 9,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 17
+        },
+        {
+          "sample": 4,
+          "key": "6292633682968576",
+          "mappedIntervals": 2,
+          "priorTargets": 4,
+          "sharedSourceRanges": 0,
+          "targets": 9,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 5,
+          "key": "5165838967504896",
+          "mappedIntervals": 9,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 6,
+          "key": "4745777253449728",
+          "mappedIntervals": 15,
+          "priorTargets": 4,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 7,
+          "key": "6175065550880768",
+          "mappedIntervals": 13,
+          "priorTargets": 2,
+          "sharedSourceRanges": 3,
+          "targets": 17,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 7
+        },
+        {
+          "sample": 8,
+          "key": "5071232594608128",
+          "mappedIntervals": 11,
+          "priorTargets": 3,
+          "sharedSourceRanges": 0,
+          "targets": 9,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 13
+        },
+        {
+          "sample": 9,
+          "key": "5488048856891392",
+          "mappedIntervals": 11,
+          "priorTargets": 2,
+          "sharedSourceRanges": 3,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 0
+        },
+        {
+          "sample": 10,
+          "key": "5774941733519360",
+          "mappedIntervals": 7,
+          "priorTargets": 4,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 17
+        },
+        {
+          "sample": 11,
+          "key": "4835826410192896",
+          "mappedIntervals": 13,
+          "priorTargets": 2,
+          "sharedSourceRanges": 1,
+          "targets": 17,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 12,
+          "key": "5026742236348416",
+          "mappedIntervals": 10,
+          "priorTargets": 2,
+          "sharedSourceRanges": 0,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 13,
+          "key": "6039787817402368",
+          "mappedIntervals": 16,
+          "priorTargets": 2,
+          "sharedSourceRanges": 2,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 14,
+          "key": "5389179863171072",
+          "mappedIntervals": 12,
+          "priorTargets": 4,
+          "sharedSourceRanges": 1,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 14
+        },
+        {
+          "sample": 15,
+          "key": "5247716256907264",
+          "mappedIntervals": 30,
+          "priorTargets": 3,
+          "sharedSourceRanges": 9,
+          "targets": 15,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 15
+        },
+        {
+          "sample": 16,
+          "key": "6469580950077440",
+          "mappedIntervals": 12,
+          "priorTargets": 4,
+          "sharedSourceRanges": 2,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 17,
+          "key": "5246955158503424",
+          "mappedIntervals": 12,
+          "priorTargets": 3,
+          "sharedSourceRanges": 4,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 18,
+          "key": "6114902718545920",
+          "mappedIntervals": 12,
+          "priorTargets": 5,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 19,
+          "key": "5650365196271616",
+          "mappedIntervals": 23,
+          "priorTargets": 4,
+          "sharedSourceRanges": 9,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 39
+        },
+        {
+          "sample": 20,
+          "key": "5231607982063616",
+          "mappedIntervals": 16,
+          "priorTargets": 3,
+          "sharedSourceRanges": 0,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 13
+        },
+        {
+          "sample": 21,
+          "key": "5037263295610880",
+          "mappedIntervals": 14,
+          "priorTargets": 3,
+          "sharedSourceRanges": 1,
+          "targets": 9,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 11
+        },
+        {
+          "sample": 22,
+          "key": "6082729202417664",
+          "mappedIntervals": 13,
+          "priorTargets": 4,
+          "sharedSourceRanges": 1,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 23,
+          "key": "5650520033198080",
+          "mappedIntervals": 14,
+          "priorTargets": 5,
+          "sharedSourceRanges": 3,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 5
+        },
+        {
+          "sample": 24,
+          "key": "4707059385761792",
+          "mappedIntervals": 24,
+          "priorTargets": 3,
+          "sharedSourceRanges": 6,
+          "targets": 27,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 6
+        },
+        {
+          "sample": 25,
+          "key": "6378596228661248",
+          "mappedIntervals": 20,
+          "priorTargets": 4,
+          "sharedSourceRanges": 8,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 8
+        },
+        {
+          "sample": 26,
+          "key": "6280306992611328",
+          "mappedIntervals": 15,
+          "priorTargets": 4,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 27,
+          "key": "5521537635450880",
+          "mappedIntervals": 17,
+          "priorTargets": 4,
+          "sharedSourceRanges": 7,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 5
+        },
+        {
+          "sample": 28,
+          "key": "6688106352738304",
+          "mappedIntervals": 14,
+          "priorTargets": 3,
+          "sharedSourceRanges": 0,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 12
+        },
+        {
+          "sample": 29,
+          "key": "5516770007842816",
+          "mappedIntervals": 10,
+          "priorTargets": 4,
+          "sharedSourceRanges": 1,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 7
+        },
+        {
+          "sample": 30,
+          "key": "5865058414362624",
+          "mappedIntervals": 13,
+          "priorTargets": 5,
+          "sharedSourceRanges": 2,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 31,
+          "key": "5161617551523840",
+          "mappedIntervals": 18,
+          "priorTargets": 2,
+          "sharedSourceRanges": 7,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        },
+        {
+          "sample": 32,
+          "key": "6414840786583552",
+          "mappedIntervals": 6,
+          "priorTargets": 6,
+          "sharedSourceRanges": 1,
+          "targets": 13,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 11
+        },
+        {
+          "sample": 33,
+          "key": "6492920540561408",
+          "mappedIntervals": 16,
+          "priorTargets": 3,
+          "sharedSourceRanges": 4,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 4
+        },
+        {
+          "sample": 34,
+          "key": "6680427051876352",
+          "mappedIntervals": 34,
+          "priorTargets": 5,
+          "sharedSourceRanges": 17,
+          "targets": 25,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 2
+        },
+        {
+          "sample": 35,
+          "key": "5901226988273664",
+          "mappedIntervals": 10,
+          "priorTargets": 5,
+          "sharedSourceRanges": 1,
+          "targets": 16,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 10
+        },
+        {
+          "sample": 36,
+          "key": "4836604000600064",
+          "mappedIntervals": 16,
+          "priorTargets": 2,
+          "sharedSourceRanges": 5,
+          "targets": 12,
+          "unprofiledSamples": 0,
+          "unresolvedSourceRanges": 3
+        }
+      ]
+    },
+    "earlierGalleryBrowser": {
+      "drawings": 36,
+      "finalImages": 36,
+      "pages": 3,
+      "pageSizes": [
+        12,
+        12,
+        12
+      ],
+      "detailLinksChecked": 3,
+      "columns": 3,
+      "pairsPerPage": 12,
+      "errors": [],
+      "requests": [],
+      "unclipped": true,
+      "mobileOverflow": false
+    }
+  },
+  "audit": {
+    "drawings": 36,
+    "totals": {
+      "attachments": 270,
+      "parts": 260,
+      "priorOnly": 110,
+      "symmetryPairs": 32
+    },
+    "sourceUnchanged": true,
+    "baselineHashesUnchanged": true,
+    "deterministicRerun": true,
+    "containedOpenings": true,
+    "exactProposedContacts": true,
+    "outlineMedialAxesNeverClaimInk": true,
+    "records": [
+      {
+        "keyId": "6291594720313344",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "df4ca14c76153340bf5d22f31f456ed34b1e14692ac87524de4f37edab4e3421",
+        "evidenceSha256": "5d1a98a1aa6fbf4b0928066f39fceada2ca22d60b65d88c4d6da27af4a5b0bc4",
+        "sourceSha256": "d0bfdbfff6d7ea7267bc2e3aa070ceeb8ba27cf47d661205465eda17ac159977"
+      },
+      {
+        "keyId": "5320526270562304",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 2,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "6945fbde4e5ad9eed82e92de8941f048ae3a22cbe1912a7712f0c6807a06209f",
+        "evidenceSha256": "002a980c8f8ea4253ad33974e8d5423b8a4ecfb093c9aca5f245cdd8b384d418",
+        "sourceSha256": "dec39b566e23b34b4630d72b6a812cd0c65f260a16bc10a38b9499ab95bdd8ee"
+      },
+      {
+        "keyId": "5954572780568576",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 4,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "483f86465a97de87ab32095db433372bbe382be4360066f5fb5a41070456fec2",
+        "evidenceSha256": "578ee5f0b097501a61a9378061175a1e358a39d2f59c474423a0ac70b8a8cda0",
+        "sourceSha256": "00cff0ffb5ed56af6344994c02d17ecb810b906cc1532e5046d43dcc380cca55"
+      },
+      {
+        "keyId": "6292633682968576",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 4,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "2ae079d01d7d5e828b448dcf962e369d09a10dae3ff26a217d846b9edcff63fc",
+        "evidenceSha256": "0b7ff22a8ae452e2355cd17e6399d3d8e54d8e37773c330e7c7594f23e46b560",
+        "sourceSha256": "9334200bbd63faf21f628dae61e8115af42c34eb4d70738bedc16e7401c3a35c"
+      },
+      {
+        "keyId": "5165838967504896",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "039360d1add68a3ae055b40ed926a2040892afb9cad131541534183ad20b3671",
+        "evidenceSha256": "dd9f3f7aeef515ba39addae2d811a87ca3e0f48b2d73535519430338d0b27146",
+        "sourceSha256": "3368a6abf328edd00ca2118697aef1fcf5eb01f7f50d8ecb4bde474032cc0781"
+      },
+      {
+        "keyId": "4745777253449728",
+        "summary": {
+          "attachments": 10,
+          "parts": 8,
+          "priorOnly": 4,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "one strongly offset tower",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "e0ff94270c39f25ade036d2431889cc14d84c9e308be9de4c74ae83bdcd41ee0",
+        "evidenceSha256": "09d606ee140ef9cbbea6eb87830dc733219714ee5368ef3d64dd424c7e4928b4",
+        "sourceSha256": "3093980783056d532ae6581adc8d544bcf40a82797144c83df6d2e5ee9897713"
+      },
+      {
+        "keyId": "6175065550880768",
+        "summary": {
+          "attachments": 10,
+          "parts": 8,
+          "priorOnly": 3,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "oblique roof band",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 1,
+        "nativeSha256": "aa96d3df9e27edbcd13fc6230742ae134b8ff3e91fb8a6b05cb59b1a2c4306f2",
+        "evidenceSha256": "f7f893ef7cdedc4c0796635d3aea2925b2e22fea3462fe56ab2f34f55a973336",
+        "sourceSha256": "920aa5e9270b8702b605e81f3a9a7fa26eefc0124049e178e4ebbc78cd95c5ac"
+      },
+      {
+        "keyId": "5071232594608128",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 1,
+        "obliqueRoofs": 0,
+        "nativeSha256": "02f41faf035350be9509290e21741c69627c4a8c19c0f2bff3da1824b9ab2434",
+        "evidenceSha256": "3c9c9e968326be2f407ac522943de71cf73c8cb8b435d45e6fcfe7d127565348",
+        "sourceSha256": "a1f1c1e36b919426bcff4e667469a42c88ebb559c08f378ff6769a6721827e01"
+      },
+      {
+        "keyId": "5488048856891392",
+        "summary": {
+          "attachments": 9,
+          "parts": 8,
+          "priorOnly": 3,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "one strongly offset tower",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "469d5ae5d906760b9827c446510ff2058d811909242122ec4053ad9ce4df827f",
+        "evidenceSha256": "2b83886cabd3a423f154cd7199a4054d653a5f8282de82418b6d2b0c77664cef",
+        "sourceSha256": "f34d88efc63eb16813ebc037882131fdf522f862db90b1ad04091a335731f0bf"
+      },
+      {
+        "keyId": "5774941733519360",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "d20f66db25c934f38036af95d4348d25ff7b1d33487b2f73d873ef3bd5237251",
+        "evidenceSha256": "83bb66e614e2a3d1b6c51d35fd37b7040fb9e0578dfc84d1e28bc89b80fa6b0b",
+        "sourceSha256": "a0532b7e47f33b49878ee269c1fab62269277ce0c2d1c26e1ffda361d63881db"
+      },
+      {
+        "keyId": "4835826410192896",
+        "summary": {
+          "attachments": 8,
+          "parts": 7,
+          "priorOnly": 2,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "one strongly offset tower",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "01a29e6129e56e2f93e173fa1733862eb275d97352ebaa8951fce94d1a72839f",
+        "evidenceSha256": "dbc1bf75ae341a17e797c636cd414f04a3e165e91e26b0f74b87d5d128adf2ed",
+        "sourceSha256": "602ab673f2123b04e5893b9be5b428bca07fd11bc860f9f0c27eb778b5668dba"
+      },
+      {
+        "keyId": "5026742236348416",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 2,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "531f83406d305eba7f8e769acd872bda3e8b325f52a415bd9f8bea89adedc035",
+        "evidenceSha256": "45502f8be92bb824936ae4dad8f68ba193804368f7ee7027bc9762464945cb09",
+        "sourceSha256": "93f57bfa9f41c2af135019cc295076607e05af98bd8f4b396d8b148002eb3430"
+      },
+      {
+        "keyId": "6039787817402368",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 2,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "2eb3b4cfaa87243b13c9f04c589d4f8b0a8a41a7bd3934f60798ac1fc6878b12",
+        "evidenceSha256": "89ecbdd4935046a764815767933d4c95d54932654173e1e33f1c34e984a2453b",
+        "sourceSha256": "b092724b69b65ada5ce72727c33c78644a5416a6e58121b7f732cbbeb9e95a3c"
+      },
+      {
+        "keyId": "5389179863171072",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "bc1c38676dc9434cca5324b47e4b30faa80d49f459cbe282dfd5e8604bb92322",
+        "evidenceSha256": "86a30a58bc586ba9b5b96a3b09c4966cded7ba6b4c59ececd8f50ff519dda2a5",
+        "sourceSha256": "a4a1028ed0b731b8fbacd9bc2ba2c13310d277462eab34aebb952040a2167b6c"
+      },
+      {
+        "keyId": "5247716256907264",
+        "summary": {
+          "attachments": 6,
+          "parts": 7,
+          "priorOnly": 2,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 1,
+        "obliqueRoofs": 0,
+        "nativeSha256": "b667a3f624088cb2575ff67505b3ef32ba1ceb70f889432a79f89d8422c2c951",
+        "evidenceSha256": "46ba9d431d1d080b43e325706516c602a80670cc6c571a1bb5dc4c861bf9bd5a",
+        "sourceSha256": "05475e73a220ea510eee4c8f1ac906bf2360dac2270d37cdd61ef4ce48b7f770"
+      },
+      {
+        "keyId": "6469580950077440",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 4,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "27e2af286da370832282c69fa6afc1ec3e248963541363363b688fa3f8eb95fe",
+        "evidenceSha256": "7b84e242b78d2fdd5e76a1a2c1468f521b828d514e50bafeb6700518545011ae",
+        "sourceSha256": "0ae0e5aa7f7a728c5cd47e41a4d4e3bcefd4284520696e0fe605ef6d3eef10f8"
+      },
+      {
+        "keyId": "5246955158503424",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "9fc823920b577ddaa710ad4d3653a1289920d50d10b989aec7ddbeff1a1fc07b",
+        "evidenceSha256": "64f01dfe5f56a03c9ac43cb8991497e4913dc440df32ac92d1c6f3b4c30e8ec9",
+        "sourceSha256": "9d9f2ba2173425be87d8b88d9d5d641f385d28c71d5b1b1a5e325d845e4ae517"
+      },
+      {
+        "keyId": "6114902718545920",
+        "summary": {
+          "attachments": 10,
+          "parts": 8,
+          "priorOnly": 4,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "one strongly offset tower",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "1fd40d6f780acaab3666357d3d98ed90700df274dcddfe6aef7acb9d222d4058",
+        "evidenceSha256": "a4b550af9b13593c42a068d09ca7a46ce6e8f51e82cc423ebbcbb36b2667aca4",
+        "sourceSha256": "2c4f75fb56d22cbae22f1e9c61b5a8c64a374b79fc36d9b9bdc903b5545eec61"
+      },
+      {
+        "keyId": "5650365196271616",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "9693e3ac110072fb772ef0bccafb06f8f8586b96a9bf3f02f04db06672f22bc3",
+        "evidenceSha256": "e56b3dcbcd0e6c64b3c601896ca5128c1f6dae0031262253f93e47de60543ee2",
+        "sourceSha256": "add8a25a0318f66f0ca472f7d754aaca1d2b5c009566b27be06e49e6b305e8bf"
+      },
+      {
+        "keyId": "5231607982063616",
+        "summary": {
+          "attachments": 6,
+          "parts": 7,
+          "priorOnly": 2,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "c5e5d448d00dde0d988f5af91a951584c913ad06394d77c00c09c4b98dbaa27c",
+        "evidenceSha256": "265fe4deaa7c913d500a44eca74f2cf36167e4d406811e889dbf0abcf96c3191",
+        "sourceSha256": "497e4772587f8f68d2b2cc30730201b5dcac3a270a6bccbd795f7a840279e1e5"
+      },
+      {
+        "keyId": "5037263295610880",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 1,
+        "obliqueRoofs": 0,
+        "nativeSha256": "83e5056c70e66dd9ada8e9674074208ea45afe0f37fb06e6545c1c787a5ebea1",
+        "evidenceSha256": "86b771819b44206812d3d242e31d9bceb1305c9ac1b8170b69914ce818214143",
+        "sourceSha256": "4e979f9ed88bcb59873eec537c0848383b532c73abc96a13f607af332045f019"
+      },
+      {
+        "keyId": "6082729202417664",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 4,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "a665a4294a7e06627ce76de384660fc1a49525bc2a153651b78e0b4fc23c0a46",
+        "evidenceSha256": "c78930268e5cecea05a4b5df6f09043be667b196c1a5587dc9a56d063e9ba32c",
+        "sourceSha256": "2b47767ca8465925aabbf21586731518f3fad427a215fe4d6a89890f99d58155"
+      },
+      {
+        "keyId": "5650520033198080",
+        "summary": {
+          "attachments": 9,
+          "parts": 8,
+          "priorOnly": 4,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "d6363896bf1e2461ebd716f18b17694c235ac0db35d8db3d1b142e2ea660873d",
+        "evidenceSha256": "9afd394a0390d21736021498f49e29a9d75a13301579c06cf02ac696f27e5746",
+        "sourceSha256": "a0a1c78298d8d21b66bd5cb779ce303ab006429b66befa19cef66b997c80346f"
+      },
+      {
+        "keyId": "4707059385761792",
+        "summary": {
+          "attachments": 13,
+          "parts": 10,
+          "priorOnly": 2,
+          "symmetryPairs": 3
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "1f6c4f54a07a0b16d75d21e58d24c8b7fdd0f7a6303f4e5272737513f9e7d380",
+        "evidenceSha256": "7a33eb87934232ef6ab5b6fb3d9059f2556ef38e3e03160047294bb75cdee5cc",
+        "sourceSha256": "6d8a210e7eb0f617fcc0220e868fe54429da0238eb0fa11620ea1b2712a8744b"
+      },
+      {
+        "keyId": "6378596228661248",
+        "summary": {
+          "attachments": 10,
+          "parts": 8,
+          "priorOnly": 4,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "one strongly offset tower",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "6f7ca2c2047cff98e3df50953e412855162751bf8ee858dd6f5eb043d312470b",
+        "evidenceSha256": "390de45d3bce9264e77f9fd1cb5aa1620d63b960090392322d37f448d4c82b93",
+        "sourceSha256": "7d8f0d070257a05b15795dcc2f929d02e1d14133d564ca884dacd38b07267b75"
+      },
+      {
+        "keyId": "6280306992611328",
+        "summary": {
+          "attachments": 10,
+          "parts": 8,
+          "priorOnly": 4,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "one strongly offset tower",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "1861fd67455364ed1b6ab0e13e940330910ca37f107b6c43fbf777d2e6c59f7f",
+        "evidenceSha256": "265cccea409217cbd740450eafc012b34c3ca90600a42c485800147359810df2",
+        "sourceSha256": "a8c9018486aab7825e6cc5ecaee7e2dbf822c46565d5a6008973f8a7f05246a1"
+      },
+      {
+        "keyId": "5521537635450880",
+        "summary": {
+          "attachments": 9,
+          "parts": 8,
+          "priorOnly": 4,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "ab66e42f29171ccf9c77245d5e1b4dac70eaef323997774e80211afe177c1263",
+        "evidenceSha256": "6ff187e219fa4d1437861489a76410fdacfd5edb40dbf14a21dd9fa258109481",
+        "sourceSha256": "3bdc9fc77f6deee90f00aae3b4cf5bf72f5cedd92f51eb84da5c9ff2c9c77c64"
+      },
+      {
+        "keyId": "6688106352738304",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 1,
+        "obliqueRoofs": 0,
+        "nativeSha256": "054e86ecc784b6e1cbbcb8a726bcc7963bed036a4300bcfaf6fbd4a6fbc90e36",
+        "evidenceSha256": "3a01ed5b361080ec4821a0a8d53f8f298e901fa0ade53d985c12adeac89091e6",
+        "sourceSha256": "809e9b6ddee39750bca9ef5890ce5d11cc3407b29dac389a42c6b4382ee251a6"
+      },
+      {
+        "keyId": "5516770007842816",
+        "summary": {
+          "attachments": 5,
+          "parts": 6,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "d4d1afe27c4ebe7876a2189c6ab7eceb40af89e853259afa3080a10059438dcd",
+        "evidenceSha256": "8921a9458d6934ff612fec8d772adc2ea844433d147de989d770ae08c44a48d4",
+        "sourceSha256": "bf01a5547bfb7edf2951479ded93de8db633ac6acb7392da62eef802cf853571"
+      },
+      {
+        "keyId": "5865058414362624",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "c096ae6e49fda3bc3ae383f5247e6a5183b2fa4a29114669cb46de74d040c7cd",
+        "evidenceSha256": "fd0680a2ac8450610f281a0f54711aae57d00ad412cef8fd40ecdc1c466c456b",
+        "sourceSha256": "304fddb793f8d509e8c401a8ffcbbf9197051ab20473449d5666b020d77358cd"
+      },
+      {
+        "keyId": "5161617551523840",
+        "summary": {
+          "attachments": 10,
+          "parts": 8,
+          "priorOnly": 3,
+          "symmetryPairs": 0
+        },
+        "view": {
+          "basis": "one strongly offset tower",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "side-or-oblique"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "e188c982032f8b62e6cdfd3742e8e088ba5fa810cc05c99ea1b5a15c738e179e",
+        "evidenceSha256": "584a1e7e2a76fbe7de3fdd8b952cd396b06d0e13610fe24aad721e5a23a5fbaf",
+        "sourceSha256": "6ab0d448b2ecc2713f09aa3116ada90c2b2a2ac328e922a67211c583750946c9"
+      },
+      {
+        "keyId": "6414840786583552",
+        "summary": {
+          "attachments": 6,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "8b54947ccd52c6d374f7da28067ca85904234ffb82e16346ee6e6ec3baa950c9",
+        "evidenceSha256": "5f78693af16811ccd71b9821097d9a7135e33886d3f0ebbcf02171193bb00270",
+        "sourceSha256": "91bb343a1b045829f19f012df727fd6391afef9e6a32e0f73edd0a1b23ae4bc4"
+      },
+      {
+        "keyId": "6492920540561408",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 2,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "a22e131135b3268d60463bdd426b1370dbc97a2e36bf4c7c32aaba99da3293ab",
+        "evidenceSha256": "05194ec96a86824944fa7eb6d6d48ea33fefaeee3f7f169b72762b716d65e710",
+        "sourceSha256": "2e0adc0263376010a2ffc5eb9b64c4392e022764058bddb82ff2ed8d2d0f78be"
+      },
+      {
+        "keyId": "6680427051876352",
+        "summary": {
+          "attachments": 14,
+          "parts": 11,
+          "priorOnly": 3,
+          "symmetryPairs": 3
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "091a7443e8e9db43eea7eee7bd969bf46dfb2bb7fd5a043078fe546b69eae41b",
+        "evidenceSha256": "263c203ba63d79c1bae4fa11f5f79c013f9cf3dc8d039bef63967fecb8ca9ee1",
+        "sourceSha256": "76f2411aa8e4f3cdab4781d81b7edfb82890b0dee9a8097a233be2c9a96a3593"
+      },
+      {
+        "keyId": "5901226988273664",
+        "summary": {
+          "attachments": 8,
+          "parts": 8,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "7fad106e718d1d10d4b4b2cfcceeeb389ac8b1f8d1d04a52faf01c4db5ca7339",
+        "evidenceSha256": "c1fcb13a975ebc438775d1357d9129c1b81bcfc7cf631648d23f8c8f2b520d90",
+        "sourceSha256": "90e93893662eef4330a963b490536c9a010a668929df6522e9ff2df9b452c2d7"
+      },
+      {
+        "keyId": "4836604000600064",
+        "summary": {
+          "attachments": 7,
+          "parts": 7,
+          "priorOnly": 3,
+          "symmetryPairs": 1
+        },
+        "view": {
+          "basis": "front-like symmetry prior",
+          "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint.",
+          "selected": "front-like"
+        },
+        "outlinedCrosses": 0,
+        "obliqueRoofs": 0,
+        "nativeSha256": "8639f463798a4b16135c7492b7a9c71f4fd525c8a13067eb9715138499aad2b4",
+        "evidenceSha256": "c5930375229ae083dadf17072e746f647bcea13fb567e3e3a37e5d973bd5202d",
+        "sourceSha256": "cb18a0f2b8f37f71a2d2707a27635c3af5d78e052392229f393239a8cfd04b22"
+      }
+    ]
+  },
+  "userExamples": {
+    "6688106352738304": "Open outlined cross",
+    "6175065550880768": "Side roof and flat tower",
+    "4745777253449728": "Tower adjacent to main wall",
+    "5246955158503424": "Skewed front peak with attached cross"
+  },
+  "knownLimits": [
+    "Coarse front-like / side-or-oblique read, not camera or perspective recovery.",
+    "One main wall; some sparse outlines, tilted crosses, circular windows and clock faces remain unresolved.",
+    "Multiple crosses on one support can overlap after centering.",
+    "Added doors/windows are manually seeded expectations and may disagree with intended architecture.",
+    "Python proposes geometry; native Gojo verifies references, arithmetic and shared contacts, not church semantics or learned inference."
+  ]
+}

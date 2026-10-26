@@ -38,6 +38,7 @@ def enrich(packet, category, gojo_root):
     result.pop("objects", None)
     result.pop("layout", None)
     result.pop("boundaryMapping", None)
+    result.pop("cleanup", None)
     proposal = None
     if category.casefold() == "church" and observed.get("spans"):
         from .objects import enrich_context
@@ -46,6 +47,8 @@ def enrich(packet, category, gojo_root):
         result["context"], result["layout"] = place_layout(observed, result["context"])
         from .layout_mapping import build as map_boundaries
         result['boundaryMapping'] = map_boundaries(observed, result['layout'])
+        from .cleanup import enrich_context as clean_shapes
+        result['context'], result['cleanup'] = clean_shapes(observed, result['context'], result['layout'])
         from quickdraw_gestalt_geometry import build
         from quickdraw_gestalt_completion import extend
         proposal = extend(observed, build(observed))

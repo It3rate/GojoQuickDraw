@@ -14,11 +14,11 @@ namespace GojoQuickDraw.Native;
 public static class NativeRecord
 {
     // record = group(exact source text, evidence, context, optional opinions,
-    //                optional boundary correspondences after opinions)
+    //                optional boundary correspondences, optional shape refinement)
     // evidence = native source annotations OR exact empty acquisition.
     public sealed record Read(string SourceOriginalJson, QuickDrawRecord Source,
         NativeAcquisition.Read Acquisition, QuickDrawAnnotationEvidence.Read? Annotation,
-        ContextEvidence.Read Context, OpinionEvidence.Read? Opinions, BoundaryMappingEvidence.Read? BoundaryMapping, Relation Surface);
+        ContextEvidence.Read Context, OpinionEvidence.Read? Opinions, BoundaryMappingEvidence.Read? BoundaryMapping, ShapeRefinementEvidence.Read? Refinement, Relation Surface);
 
     public static Relation Import(JsonElement packet)
     {
@@ -44,6 +44,11 @@ public static class NativeRecord
             if (fields.Count != 4) throw new InvalidDataException("Boundary mapping requires the analysis opinion envelope.");
             fields.Add(BoundaryMappingEvidence.Import(packet, evidence, annotation, contextual));
         }
+        if (packet.TryGetProperty("cleanup", out _))
+        {
+            if (fields.Count != 5) throw new InvalidDataException("Shape refinement requires the boundary correspondence envelope.");
+            fields.Add(ShapeRefinementEvidence.Import(packet, evidence, contextual));
+        }
         var result = G(fields.ToArray());
         if (!TryRead(result, out _)) throw new InvalidDataException("Complete native record does not preserve source and contextual references.");
         return result;
@@ -52,7 +57,7 @@ public static class NativeRecord
     public static bool TryRead(Relation root, out Read read)
     {
         read = null!;
-        if (!root.TryReadOrderedGroup(out var fields) || fields.Length is not (3 or 4 or 5) ||
+        if (!root.TryReadOrderedGroup(out var fields) || fields.Length is not (3 or 4 or 5 or 6) ||
             !EncodedTextSurface.TryRead(fields[0], out var text) || fields[1] is not Relation evidence || fields[2] is not Relation context) return false;
         QuickDrawRecord source;
         try { source = QuickDrawRecord.Parse(text); } catch (Exception e) when (e is JsonException or InvalidDataException or FormatException or OverflowException) { return false; }
@@ -72,8 +77,10 @@ public static class NativeRecord
         OpinionEvidence.Read? opinions = null;
         if (fields.Length >= 4 && (fields[3] is not Relation opinionRoot || !OpinionEvidence.TryRead(opinionRoot, evidence, annotation, out opinions, contextual))) return false;
         BoundaryMappingEvidence.Read? mapping = null;
-        if (fields.Length == 5 && (fields[4] is not Relation mappingRoot || !BoundaryMappingEvidence.TryRead(mappingRoot, evidence, annotation, contextual, out mapping))) return false;
-        read = new(text, source, acquisition, annotation, contextual, opinions, mapping, root); return true;
+        if (fields.Length >= 5 && (fields[4] is not Relation mappingRoot || !BoundaryMappingEvidence.TryRead(mappingRoot, evidence, annotation, contextual, out mapping))) return false;
+        ShapeRefinementEvidence.Read? refinement = null;
+        if (fields.Length == 6 && (fields[5] is not Relation refinementRoot || !ShapeRefinementEvidence.TryRead(refinementRoot, evidence, contextual, out refinement))) return false;
+        read = new(text, source, acquisition, annotation, contextual, opinions, mapping, refinement, root); return true;
     }
 
     public static string Capture(string itemKey, Relation root) => GojoStructureCompactJson.Serialize(GojoStructureCompactJson.FromElement(itemKey, root));
@@ -119,9 +126,14 @@ public static class NativeRecord
             unresolvedSourceIntervals = read.BoundaryMapping?.Unresolved.Length ?? 0,
             unprofiledSourceSamples = read.BoundaryMapping?.Unprofiled.Length ?? 0,
             mappingCoverageVerified = read.BoundaryMapping is not null,
+            refinedShapeParts = read.Refinement?.Parts.Length ?? 0,
+            refinementCorrespondences = read.Refinement?.Correspondences.Length ?? 0,
+            refinementAttachments = read.Refinement?.Contacts.Length ?? 0,
+            refinementMirrorReads = read.Refinement?.Mirrors ?? 0,
             nativeRestoreVerified = true, actualSourceAliasesVerified = true,
             sourceOrderRetained = true, sourceNumericTokensRetained = true,
             contextualHypothesesAreObservedGeometry = false, synthesizedVariantsSaved = false,
+            authoredShapeRefinementSaved = read.Refinement is not null,
             qualification = "Finite line/joint/reflection reads and exact acquisition are independently readable. Context contains supported open candidates and separate scaffold geometry; labels do not certify parts, enclosure, gravity or physical support. No learned priors or automatic feedback settlement are asserted."
         };
     }
