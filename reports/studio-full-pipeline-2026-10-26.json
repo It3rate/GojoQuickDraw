@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-26",
+  "scope": "Bounded full conversion, retained native drawing stages and integrated stage viewer",
+  "projectBaseRevision": "bd61881e2be6abc88867c4b110cbaf30a6a6dce1",
+  "linkedGojoRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "fullPipeline": {
+    "command": "process",
+    "requiredFiniteCount": true,
+    "wholeCorpusOverride": false,
+    "fixedSelectionRetainedAcrossInterruptions": true,
+    "sourceBaselinePreserved": true,
+    "nativeConstructionRungsPerChurch": 7,
+    "inspectableViewsPerChurch": 10,
+    "inspectableViewsForOtherCategories": 2,
+    "savedStageBundlesIncludedInIntegrityChecks": true,
+    "sourceEventCorrespondenceIndependentlyRestored": true,
+    "areaAndRefinementBranchDependenciesExplicit": true
+  },
+  "boundedWorkflowAudit": {
+    "folder": "D:/_quickDraw/_work/qa/full-pipeline/release-01",
+    "convertedTotal": 9,
+    "categories": ["angel", "church", "frog"],
+    "churchesWithAllTenViews": 3,
+    "repeatReusedDrawings": 9,
+    "existingDrawingsCompleted": 2,
+    "existingCompletionRepeatReused": 2,
+    "separateNativeVerifyRecords": 9,
+    "generatedHtmlRequiredForViewing": false,
+    "explicitBrowserExportPassed": true,
+    "cancellationAndRestartPassed": true,
+    "sourceArchiveHashesUnchanged": true,
+    "allTenStagesRendered": true,
+    "finalControlsFullyVisibleAt920x760": true
+  },
+  "readOnlyStartupAudit": {
+    "folder": "D:/_quickDraw/_work/qa/full-pipeline/release-startup-01",
+    "dataset": "D:/_quickDraw/data/church3000",
+    "recordsPresentAtThisAudit": 100,
+    "pageSize": 12,
+    "pageCount": 9,
+    "lastPageRecords": 4,
+    "worksWithoutPythonOrGojoTools": true,
+    "stageSelectionPreservedAcrossPages": true,
+    "bottomControlsFullyReachable": true
+  },
+  "verification": {
+    "pythonTestsPassed": 146,
+    "desktopTestsPassed": 18,
+    "nativeTestsPassed": 46,
+    "linkedGojoTestsPassed": 5407,
+    "releaseBuild": "passed",
+    "releaseWorkflowAudit": "passed",
+    "releaseStartupAudit": "passed",
+    "screenshotsInspected": true
+  },
+  "temporaryOutputPolicy": "D:/_quickDraw/_work; no QA folders, screenshots or logs loose at the data root",
+  "qualification": "Existing authored interpretation algorithms, not learned priors or new recognition accuracy. Native connected structure remains authoritative; the viewer uses saved read caches. Several stages share an acquisition and must not be treated as independent training examples."
+}

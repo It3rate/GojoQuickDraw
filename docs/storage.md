@@ -1,5 +1,55 @@
 # Storage and evidence contract
 
+## Full pipeline workspace
+
+The desktop uses `process`, which requires a positive `--limit` and has no
+all-records override. It creates a `gojo.quickdraw-pipeline.v1` workspace:
+
+```text
+pipeline.json                       fixed selection, seed, progress, last result
+acquired/<category>/...              immutable fitted baseline from raw input
+results/collection.json              derived analysis provenance
+results/<category>/records/...       complete evidence packet and view caches
+results/<category>/native/...        exact acquisition and native stage structure
+results/<category>/stages/<id>.stages.json.gz  every named view and its dependencies
+results/<category>/errors/...        retained failures
+```
+
+When completing an existing dataset, `pipeline.json` references that external
+baseline instead of copying it into `acquired`. Results stay separate. Discovery
+uses only `results` once it has a collection manifest, or `acquired` while initial
+conversion is pending. Opening the baseline explicitly remains possible. This
+prevents counting two representations of the same drawing as separate samples.
+
+The cohort and seed survive interruption, including a stop between acquisition
+and analysis. The exact selected successful source keys reach analysis; errors
+retain their raw source. A changed count/source/category/seed requires a new
+workspace. Native and evidence implementation fingerprints govern stage reuse.
+
+Each `stages` bundle includes original/fitted views, seven executed construction
+rungs (the first is the fitted view), area proposals and final cleanup. Church
+records have ten views; generic categories currently have two. The same cache is
+embedded as `packet.pipeline` so the viewer needs one evidence read per drawing.
+Artifact hashes include the stage bundle. A changed/missing stage artifact blocks
+reuse and verification. Original timestamps, full annotations, opinions, mapping,
+context and cleanup details remain in the evidence packet/native graph.
+
+Native records can now have a seventh ordered field: a correspondence envelope
+connecting the primary acquired evidence to a `QuickDrawGestaltEvidence` graph.
+It contains an ordered relation between the two acquisition surfaces, ordered
+event-to-event correspondence, and the construction graph. The acquisitions have
+distinct identities. Restore checks source stroke/sample order, exact rational
+coordinates/times, every paired event reference, source interval coverage, causal
+construction and each rung's inferred/unmatched/residue accounting. Saved visible
+curves are read from the restored native execution, not copied from unexecuted
+proposal geometry. Older three-to-six-field records remain readable.
+
+The view order is a convenient inspection sequence, not a fabricated causal
+chain. Outline rungs consume preceding construction; area proposals consume
+fitted source/context, and cleanup consumes those area proposals. These actual
+dependencies are saved. No stage is independent new acquired evidence, and no
+learned priors are claimed.
+
 ## Category collections and selection
 
 The `sample` command writes a `gojo.quickdraw-collection.v1` root:
@@ -166,9 +216,12 @@ same explicit resume mechanism used for conversion.
 Analysis packets add `analysis` and `opinions`, and the bounded church pass adds
 `objects`. `analysis.annotationModes` contains
 the three source-based allowances. `analysis.proposal` caches seven authored church
-states, their operations, complement, correspondence and warnings. These previews
-are **not executed native rungs**. The independent `stages` command still creates
-and executes the complete construction program on demand. No synthesized state is
+states, their operations, complement, correspondence and warnings. With standalone
+`analyze`, these previews are **not executed native rungs**. The full `process`
+workflow additionally saves `analysis.constructionProgram`, its history, the
+native stage graph and restored readback, and sets `proposalNativeExecuted` true.
+The independent `stages` command also exports a portable construction review.
+No synthesized state is
 promoted to new human evidence or a ground-truth target.
 
 Native record roots accept the earlier three-field layout and an optional fourth

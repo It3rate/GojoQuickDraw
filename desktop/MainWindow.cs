@@ -98,19 +98,23 @@ internal sealed partial class MainWindow : Window
             new TabItem { Header = Text("Convert drawings", 15, true), Content = Scroll(ConvertPage()) }
         };
         _tabs.Margin = new Thickness(26, 0, 26, 12);
+        _tabs.VerticalContentAlignment = VerticalAlignment.Stretch;
+        _tabs.HorizontalContentAlignment = HorizontalAlignment.Stretch;
         var jobButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         jobButtons.Children.Add(_openFolder); jobButtons.Children.Add(_stop);
         _log.IsVisible = false;
         jobButtons.Children.Add(Button("Run details", () => _log.IsVisible = !_log.IsVisible));
         var jobRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 14 };
         jobRow.Children.Add(Stack(4, _status, _statusDetail)); Grid.SetColumn(jobButtons, 1); jobRow.Children.Add(jobButtons);
-        var job = Card(Stack(8, jobRow, _progress, _log));
-        job.Margin = new Thickness(26, 0, 26, 20);
-        var main = new DockPanel();
-        DockPanel.SetDock(header, Dock.Top); main.Children.Add(header);
-        DockPanel.SetDock(job, Dock.Bottom); main.Children.Add(job);
-        var body = new DockPanel(); DockPanel.SetDock(workspace, Dock.Top); body.Children.Add(workspace); body.Children.Add(_tabs);
-        _configuration = body; main.Children.Add(body); Content = main;
+        var job = Card(Stack(5, jobRow, _progress, _log), 10);
+        job.Margin = new Thickness(26, 0, 26, 10);
+        // Give the tab's scroll viewport a finite star-sized row. Status is
+        // above it, never an overlay/footer covering the last controls.
+        var main = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,*") };
+        main.Children.Add(header); Grid.SetRow(job, 1); main.Children.Add(job);
+        var body = new Grid { RowDefinitions = new RowDefinitions("Auto,*") };
+        body.Children.Add(workspace); Grid.SetRow(_tabs, 1); body.Children.Add(_tabs);
+        _configuration = body; Grid.SetRow(body, 2); main.Children.Add(body); Content = main;
         InitializeSelectionControls();
         Closing += async (_, args) =>
         {
@@ -144,7 +148,7 @@ internal sealed partial class MainWindow : Window
         {
             convert.Content = $"Convert up to {_limit.Value:N0} drawings";
             var categories = _sourceCategories.Count == 1 ? "1 category" : $"{_sourceCategories.Count:N0} categories";
-            summary.Text = $"Select up to {_limit.Value:N0} drawings total from {categories}. Results will open in View drawings.";
+            summary.Text = $"Up to {_limit.Value:N0} drawings total from {categories} · run every available stage · open results in the viewer.";
         }
         _limit.ValueChanged += (_, _) => UpdateRequest(); _category.PropertyChanged += (_, e) => { if (e.Property == ContentControl.ContentProperty) UpdateRequest(); };
         UpdateRequest();
@@ -152,10 +156,10 @@ internal sealed partial class MainWindow : Window
             Text("Choose the source files, categories and count. Drawings are sampled across those categories and saved into the dataset folder shown above."),
             Card(Stack(12, Field("QuickDraw source folder or file", source, "Use the folder containing the category NDJSON / JSONL files, including gzip files."),
                 options, summary, convert,
-                Text("The count always limits this run. Existing drawings in the output folder are retained; choose New dataset for a fresh set.", 12),
+                Text("The count is always enforced. This folder retains one selection; choose New dataset to change the selection. Interrupted runs resume.", 12),
                 new Expander { Header = "Advanced conversion options", Content = Stack(12, _recursive, advanced,
                     Field("Sampling seed (optional)", _samplingSeed, "Leave blank for a new random selection; interrupted selections resume with the same settings."), _retry), HorizontalContentAlignment = HorizontalAlignment.Stretch })),
-            Text("Conversion saves original strokes and fitted evidence. Create final shapes in the viewer when you want to run the church interpretation passes.", 13),
+            Text("Every stage is saved: original → fitted outlines → long strokes → primitive shapes → joint and shape adjustments → reconstructed shapes. Full shape interpretation currently applies to churches; other categories retain their original and fitted evidence.", 13),
             new Expander { Header = "Tool settings", Content = SetupPage(), HorizontalContentAlignment = HorizontalAlignment.Stretch });
     }
 
@@ -268,11 +272,11 @@ internal sealed partial class MainWindow : Window
 
     private static string TitleFor(PipelineAction action) => action switch
     {
-        PipelineAction.Convert => "Converting drawings…", PipelineAction.Verify => "Verifying native archives…",
+        PipelineAction.Convert => "Converting through every drawing stage…", PipelineAction.Verify => "Verifying native archives…",
         PipelineAction.Review => "Building the evidence review…", PipelineAction.Stages => "Generating drawing steps…",
         PipelineAction.Gallery => "Building input / final comparisons…",
         PipelineAction.Refresh => "Refreshing the inspector and comparison gallery…",
-        PipelineAction.Analyze => "Analyzing converted drawings…",
+        PipelineAction.Analyze => "Completing the drawing pipeline…",
         PipelineAction.Setup => "Checking local tools…", _ => "Comparing machine responses…"
     };
 
@@ -390,6 +394,7 @@ internal sealed partial class MainWindow : Window
         _settings.Dataset = _dataset.Text ?? ""; _settings.Category = string.Join(',', _sourceCategories); _settings.Limit = (int)(_limit.Value ?? 25);
         _settings.SamplingSeed = _samplingSeed.Text ?? ""; _settings.InspectionOrder = InspectionOrder; _settings.InspectionSeed = _inspectionSeed;
         _settings.ResultView = _resultView.SelectedIndex;
+        _settings.ResultStage = ( _resultView.SelectedItem as StageOption)?.Id ?? "best";
         try { _settings.Save(); } catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppendLog("Workspace settings could not be saved: " + error.Message); }
     }
     private void Open(string? path)
@@ -408,7 +413,7 @@ internal sealed partial class MainWindow : Window
         var text = (_log.Text ?? "") + line + Environment.NewLine;
         _log.Text = text.Length > 60000 ? text[^60000..] : text;
         _log.CaretIndex = _log.Text.Length;
-        if (_cancellation is not null && (line.StartsWith("Analysis ") || line.StartsWith("Indexing ") || line.StartsWith("Category ") || line.Contains(" selected: ") || line.StartsWith("Resuming ")))
+        if (_cancellation is not null && (line.StartsWith("Pipeline:") || line.StartsWith("Analysis ") || line.StartsWith("Indexing ") || line.StartsWith("Category ") || line.Contains(" selected: ") || line.StartsWith("Resuming ")))
             _statusDetail.Text = line;
     });
 
@@ -450,5 +455,12 @@ internal sealed partial class MainWindow : Window
         ? Stack(6, Text(label, 13, true), control) : Stack(6, Text(label, 13, true), control, Text(hint, 12));
     private static Border Card(Control content, double padding = 18) => new()
     { Background = Brushes.White, BorderBrush = Brush.Parse("#D7E2DB"), BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(9), Padding = new Thickness(padding), Child = content };
-    private static ScrollViewer Scroll(Control content) => new() { Content = content, Padding = new Thickness(0, 15, 8, 10), HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
+    private static ScrollViewer Scroll(Control content) => new()
+    {
+        // Padding on the viewer itself is not included in its content extent.
+        // Keep it inside the measured content so the final control can scroll
+        // fully into view, including its bottom margin.
+        Content = new Border { Padding = new Thickness(0, 15, 8, 24), Child = content },
+        HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled
+    };
 }

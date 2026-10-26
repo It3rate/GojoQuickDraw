@@ -17,6 +17,7 @@ public sealed class WorkspaceSettings
     public long InspectionSeed { get; set; }
     public string SamplingSeed { get; set; } = "";
     public int ResultView { get; set; }
+    public string ResultStage { get; set; } = "";
 
     public static string Repository()
     {
@@ -43,6 +44,7 @@ public sealed class WorkspaceSettings
         if (string.IsNullOrWhiteSpace(settings.Dataset)) settings.Dataset = Directory.Exists("D:/_quickDraw/gojo-quickdraw-evidence/church-pilot")
             ? "D:/_quickDraw/gojo-quickdraw-evidence/church-pilot"
             : NewDataset(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GojoQuickDraw"));
+        settings.Dataset = settings.Dataset.Trim();
         return settings;
     }
 
@@ -68,7 +70,10 @@ public sealed record FolderOption(string Label, string Path) { public override s
 public sealed record Catalog(IReadOnlyList<DrawingRow> Drawings, int Stored, int Errors, int Offset = 0, int PageSize = 12,
     IReadOnlyList<string>? Warnings = null);
 public sealed record PreviewPart(string Role, string Shape, string Status, string Color, double[][] Points, int[][] Segments, int[] Fill);
-public sealed record Preview(double[][][] Strokes, double[][][] Profiles, PreviewPart[] Areas, PreviewPart[] Cleanup, string[] Warnings);
+public sealed record PreviewStage(string Id, string Title, double[][][] Profiles, PreviewPart[] Parts, bool Curves = true,
+    double[][][]? Residue = null, string Note = "", string[]? Dependencies = null);
+public sealed record Preview(double[][][] Strokes, double[][][] Profiles, PreviewPart[] Areas, PreviewPart[] Cleanup, string[] Warnings,
+    IReadOnlyList<PreviewStage>? Stages = null);
 
 public static class Workspace
 {
@@ -77,9 +82,20 @@ public static class Workspace
         if (!Directory.Exists(root)) return [];
         var found = new List<FolderOption>();
         var pending = new Stack<string>(); pending.Push(System.IO.Path.GetFullPath(root));
-        var ignored = new HashSet<string>(["records", "native", "errors", "_sampling", "_source-index", "review", "qa"], StringComparer.OrdinalIgnoreCase);
+        var ignored = new HashSet<string>(["records", "native", "errors", "stages", "_sampling", "_source-index", "review", "qa", "_work"], StringComparer.OrdinalIgnoreCase);
         while (pending.TryPop(out var folder))
         {
+            var pipeline = Path.Combine(folder, "pipeline.json");
+            if (File.Exists(pipeline))
+            {
+                using var workspace = JsonDocument.Parse(File.ReadAllText(pipeline));
+                if (workspace.RootElement.GetProperty("schema").GetString() == "gojo.quickdraw-pipeline.v1")
+                {
+                    var child = Path.Combine(folder, File.Exists(Path.Combine(folder, "results", "collection.json")) ? "results" : "acquired");
+                    if (Directory.Exists(child)) pending.Push(child);
+                    continue;
+                }
+            }
             var manifest = System.IO.Path.Combine(folder, "manifest.json");
             if (File.Exists(manifest))
             {
@@ -142,18 +158,63 @@ public static class Workspace
         }
         var warnings = packet.TryGetProperty("cleanup", out var cleanup) && cleanup.TryGetProperty("checks", out var checks)
             ? checks.EnumerateArray().Where(c => c.GetProperty("status").GetString() == "needs-review").Select(c => c.GetProperty("label").GetString()!).ToArray() : [];
-        return new(observed.GetProperty("strokes").EnumerateArray().Select(stroke => Points(stroke.GetProperty("points"))).ToArray(),
-            observed.GetProperty("spans").EnumerateArray().Select(span => Points(span.GetProperty("controls"))).ToArray(), Parts("layout"), Parts("cleanup"), warnings);
+        var strokes = observed.GetProperty("strokes").EnumerateArray().Select(stroke => Points(stroke.GetProperty("points"))).ToArray();
+        var profiles = observed.GetProperty("spans").EnumerateArray().Select(span => Points(span.GetProperty("controls"))).ToArray();
+        var areas = Parts("layout"); var final = Parts("cleanup");
+        var stages = new List<PreviewStage> { new("original", "Original drawing", strokes, [], false), new("fitted", "Close fitted outlines", profiles, []) };
+        if (packet.TryGetProperty("pipeline", out var pipeline))
+        {
+            if (pipeline.GetProperty("itemId").GetString() != row.ItemId || pipeline.GetProperty("sourceId").GetString() != row.KeyId)
+                throw new InvalidDataException("Saved stages differ from the selected acquisition.");
+            foreach (var stage in pipeline.GetProperty("stages").EnumerateArray())
+            {
+                var id = stage.GetProperty("id").GetString()!;
+                var curves = stage.GetProperty("kind").GetString() != "strokes";
+                var paths = stage.TryGetProperty("profiles", out var pathsInput) ? pathsInput.EnumerateArray().Select(Points).ToArray() : [];
+                var residue = stage.TryGetProperty("residue", out var residueInput) ? residueInput.EnumerateArray().Select(Points).ToArray() : [];
+                stages.RemoveAll(s => s.Id == id);
+                stages.Add(new(id, stage.GetProperty("title").GetString()!, paths, id == "areas" ? areas : id == "cleanup" ? final : [], curves, residue,
+                    stage.TryGetProperty("nativeRestored", out var native) && native.GetBoolean() ? "Saved native construction / evidence; independently restored." : "Saved acquired source evidence.",
+                    stage.GetProperty("dependsOn").EnumerateArray().Select(d => d.GetString()!).ToArray()));
+            }
+        }
+        else
+        {
+            // Older analysis records contain useful proposal caches. Keep their
+            // unexecuted status explicit rather than claiming native execution.
+            if (packet.TryGetProperty("analysis", out var analysis) && analysis.TryGetProperty("proposal", out var proposal) && proposal.ValueKind == JsonValueKind.Object)
+                foreach (var (step, i) in proposal.GetProperty("steps").EnumerateArray().Select((s, i) => (s, i)).Skip(1))
+                    stages.Add(new($"outline-{i}", step.GetProperty("title").GetString()!, step.GetProperty("edges").EnumerateArray().Select(e => Points(e.GetProperty("controls"))).ToArray(), [],
+                        Note: "Older saved proposal preview; native drawing-stage execution was not saved. Use Complete pipeline to retain executed stages."));
+            if (areas.Length > 0) stages.Add(new("areas", "Shape areas and attachments", [], areas));
+            if (final.Length > 0) stages.Add(new("cleanup", "Refined church shapes", [], final));
+        }
+        return new(strokes, profiles, areas, final, warnings, stages);
     }
 
     public static string RunFolder(string dataset)
     {
         var path = Path.GetFullPath(dataset);
-        return Path.Combine(Path.GetDirectoryName(path)!, Path.GetFileName(path) + "-runs", DateTime.Now.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture));
+        var work = Directory.Exists("D:/_quickDraw") ? "D:/_quickDraw/_work" : Path.Combine(Path.GetTempPath(), "GojoQuickDraw");
+        return Path.Combine(work, "runs", Path.GetFileName(path), DateTime.Now.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture));
     }
 
-    public static string InspectorFolder(string dataset) => Path.Combine(Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar) + "-runs", "inspector");
-    public static string AnalysisFolder(string dataset) => Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar) + "-analysis";
+    public static string InspectorFolder(string dataset)
+    {
+        var path = Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar);
+        var key = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(path.ToLowerInvariant())))[..12];
+        var work = Directory.Exists("D:/_quickDraw") ? "D:/_quickDraw/_work" : Path.Combine(Path.GetTempPath(), "GojoQuickDraw");
+        return Path.GetFullPath(Path.Combine(work, "reviews", Path.GetFileName(path) + "-" + key, "inspector"));
+    }
+    public static string AnalysisFolder(string dataset) => Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar) + "-processed";
+
+    public static JsonElement? PipelineManifest(string dataset)
+    {
+        var path = Path.Combine(dataset, "pipeline.json");
+        if (!File.Exists(path)) return null;
+        using var document = JsonDocument.Parse(File.ReadAllText(path));
+        return document.RootElement.GetProperty("schema").GetString() == "gojo.quickdraw-pipeline.v1" ? document.RootElement.Clone() : null;
+    }
 
     public static (string Source, string Output) AnalysisPaths(string selected, string? output = null)
     {
@@ -161,13 +222,32 @@ public static class Workspace
         if (!Directory.Exists(selected)) throw new ArgumentException("Choose an existing generated collection to analyze.");
         var source = selected;
         var destination = AnalysisFolder(selected);
+        if (PipelineManifest(selected) is { } workspace)
+        {
+            var request = workspace.GetProperty("request");
+            if (request.GetProperty("mode").GetString() == "existing")
+            { source = request.GetProperty("source").GetString()!; destination = selected; }
+            else source = Path.Combine(selected, "acquired");
+        }
+        if (File.Exists(Path.Combine(selected, "manifest.json")))
+        {
+            // A selected category may sit inside a larger collection. Keep its
+            // derived dataset outside that collection so browsing does not count
+            // both source and result as independent drawings.
+            for (var parent = Directory.GetParent(selected); parent is not null; parent = parent.Parent)
+                if (File.Exists(Path.Combine(parent.FullName, "pipeline.json")) || File.Exists(Path.Combine(parent.FullName, "collection.json")))
+                {
+                    destination = parent.FullName + "-" + Path.GetFileName(selected) + "-processed";
+                    if (File.Exists(Path.Combine(parent.FullName, "pipeline.json"))) break;
+                }
+        }
         var collection = Path.Combine(selected, "collection.json");
         if (File.Exists(collection))
         {
             using var document = JsonDocument.Parse(File.ReadAllText(collection));
             var root = document.RootElement;
             if (root.TryGetProperty("kind", out var kind) && kind.GetString() == "derived-analysis" && root.TryGetProperty("baseline", out var baseline))
-            { source = baseline.GetString()!; destination = selected; }
+            { source = baseline.GetString()!; }
         }
         return (Path.GetFullPath(source), Path.GetFullPath(output ?? destination));
     }

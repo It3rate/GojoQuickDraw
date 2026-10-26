@@ -13,18 +13,19 @@ internal sealed class DrawingCanvas : Control
     public bool Fitted { get; init; }
     public double[][][] Profiles { get => _profiles; set { _profiles = value; InvalidateVisual(); } }
     public double[][][] Underlay { get; set; } = [];
+    public double[][][] Residue { get; set; } = [];
     public PreviewPart[] Parts { get; set; } = [];
     public double[] Frame { get; set; } = [0, 0, 512, 512];
     public DrawingCanvas() { MinHeight = 160; ClipToBounds = true; }
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame));
+        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue));
     }
 }
 
 internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool fitted, double[][][] underlay,
-    PreviewPart[] parts, double[] frame) : ICustomDrawOperation
+    PreviewPart[] parts, double[] frame, double[][][] residue) : ICustomDrawOperation
 {
     public Rect Bounds { get; } = bounds;
     public void Dispose() { }
@@ -56,6 +57,7 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
             }
         }
         Paths(underlay, false, SKColor.Parse("#465852").WithAlpha(45));
+        Paths(residue, true, SKColor.Parse("#647A79").WithAlpha(90));
         Paths(profiles, fitted, SKColor.Parse(fitted ? "#247D72" : "#465852"));
         foreach (var part in parts)
         {

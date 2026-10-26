@@ -6,11 +6,17 @@ namespace GojoQuickDraw.Desktop;
 
 internal sealed partial class MainWindow
 {
+    private sealed record StageOption(string Id, string Label) { public override string ToString() => Label; }
+    private static readonly StageOption[] StageOptions = [new("best", "Latest available stage"),
+        new("original", "1. Original drawing"), new("fitted", "2. Close fitted outlines"),
+        new("outline-1", "3. Long strokes and curves"), new("outline-2", "4. Primitive shapes"),
+        new("outline-3", "5. Balance related parts"), new("outline-4", "6. Merge nearby joints"),
+        new("outline-5", "7. Regularize shapes"), new("outline-6", "8. Synthesize structure"),
+        new("areas", "9. Shape areas and attachments"), new("cleanup", "10. Refined church shapes")];
     private readonly Grid _gallery = new() { ColumnSpacing = 12, RowSpacing = 12 };
     private readonly ComboBox _resultView = new()
     {
-        ItemsSource = new[] { "Best available result", "Fitted lines", "Area estimates", "Final church shapes" },
-        SelectedIndex = 0, MinWidth = 235
+        ItemsSource = StageOptions, SelectedIndex = 0, MinWidth = 270
     };
     private readonly TextBlock _layerSummary = Text("Open a dataset folder to see original/result pairs.");
     private readonly Dictionary<string, Preview> _pagePreviews = [];
@@ -22,20 +28,20 @@ internal sealed partial class MainWindow
     {
         _resultView.SelectionChanged += (_, _) => RenderGallery();
         _gallery.SizeChanged += (_, _) => ArrangeGallery();
-        var analyze = JobButton("Create final shapes", [PipelineAction.Analyze], true);
-        _analysisCount.ValueChanged += (_, _) => analyze.Content = $"Analyze up to {_analysisCount.Value:N0} drawings";
-        analyze.Content = $"Analyze up to {_analysisCount.Value:N0} drawings";
+        var analyze = JobButton("Complete pipeline", [PipelineAction.Analyze], true);
+        _analysisCount.ValueChanged += (_, _) => analyze.Content = $"Complete up to {_analysisCount.Value:N0} drawings";
+        analyze.Content = $"Complete up to {_analysisCount.Value:N0} drawings";
         _analysisOptions = new Expander
         {
-            Header = "Create final shapes from converted drawings",
+            Header = "Complete pipeline for existing drawings",
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
             Content = Card(Stack(10,
-                Text("This adds the church area, part, mapping and cleanup passes to converted drawings. It writes an analysis dataset and opens that result here."),
-                Field("Maximum drawings to analyze", _analysisCount, "Counted from the start of the selected category scope. The count is always enforced."),
+                Text("Add all missing drawing stages, shape areas and final refinement. Older datasets get a separate result folder. An interrupted pipeline dataset resumes its saved selection."),
+                Field("Maximum drawings to complete", _analysisCount, "Counted from the start of the selected category folder. The count is always enforced."),
                 analyze,
                 new Expander { Header = "Analysis options", HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                    Content = Stack(10, Field("Analysis dataset folder (optional)", _analysisOutput,
-                        "Automatic: a separate analysis folder beside this dataset. Use a new folder when rerunning changed analysis code."),
+                    Content = Stack(10, Field("Completed dataset folder (optional)", _analysisOutput,
+                        "Automatic: this folder's name followed by -processed. Use a new folder when rerunning changed processing code."),
                         Field("Parallel workers", _analysisWorkers), _analysisRetry) }))
         };
         var exports = Stack(10, Text("Optional checks and portable browser exports. Viewing drawings here does not require these."),
@@ -50,7 +56,8 @@ internal sealed partial class MainWindow
                 new Expander { Header = "Selected drawing for advanced tools", HorizontalContentAlignment = HorizontalAlignment.Stretch, Content = Stack(8, _selection, _drawings) })
         };
         return Stack(12, InspectionControls(),
-            Buttons(Field("Show beside original", _resultView), Button("Refresh folder", async () => await LoadCatalog())),
+            Buttons(Field("Drawing stage", _resultView), Button("◀ Stage", () => MoveStage(_resultView, -1)),
+                Button("Stage ▶", () => MoveStage(_resultView, 1)), Button("Refresh folder", async () => await LoadCatalog())),
             _layerSummary, _analysisOptions, _gallery,
             Text("Click a pair to enlarge it. Faint ink is the original; gray dotted doors/windows are added expectations. Changing pages keeps the selected result view.", 12),
             expert);
@@ -73,19 +80,24 @@ internal sealed partial class MainWindow
         RenderGallery();
     }
 
-    private static (string Label, double[][][] Profiles, PreviewPart[] Parts) Result(Preview preview, int mode)
+    private static void MoveStage(ComboBox selector, int direction)
     {
-        if (mode == 1) return ("Fitted lines", preview.Profiles, []);
-        if (mode == 2) return (preview.Areas.Length > 0 ? "Area estimates" : "No area estimates saved", [], preview.Areas);
-        if (mode == 3) return (preview.Cleanup.Length > 0 ? "Final church shapes" : "No final shapes saved", [], preview.Cleanup);
-        if (preview.Cleanup.Length > 0) return ("Final church shapes", [], preview.Cleanup);
-        if (preview.Areas.Length > 0) return ("Area estimates", [], preview.Areas);
-        return ("Fitted lines", preview.Profiles, []);
+        selector.SelectedIndex = Math.Clamp(selector.SelectedIndex == 0 ? direction > 0 ? 1 : StageOptions.Length - 1 : selector.SelectedIndex + direction, 1, StageOptions.Length - 1);
     }
 
-    private static double[] DisplayFrame(Preview preview, PreviewPart[] parts)
+    private static PreviewStage Result(Preview preview, int mode)
     {
-        var points = preview.Strokes.SelectMany(s => s).Concat(preview.Profiles.SelectMany(s => s)).Concat(parts.SelectMany(p => p.Points)).ToArray();
+        var id = StageOptions[Math.Clamp(mode, 0, StageOptions.Length - 1)].Id;
+        var available = preview.Stages ?? [];
+        if (id == "best") return available.LastOrDefault() ?? new("fitted", "Close fitted outlines", preview.Profiles, []);
+        return available.FirstOrDefault(s => s.Id == id) ?? new(id, "Stage not saved / not applicable", [], [],
+            Note: "Use Complete pipeline for older converted drawings. The church-specific stages apply only to churches.");
+    }
+
+    private static double[] DisplayFrame(Preview preview, PreviewStage stage)
+    {
+        var points = preview.Strokes.SelectMany(s => s).Concat(preview.Profiles.SelectMany(s => s)).Concat(stage.Profiles.SelectMany(s => s))
+            .Concat((stage.Residue ?? []).SelectMany(s => s)).Concat(stage.Parts.SelectMany(p => p.Points)).ToArray();
         if (points.Length == 0) return [-18, -18, 530, 530];
         return [Math.Min(0, points.Min(p => p[0])) - 18, Math.Min(0, points.Min(p => p[1])) - 18,
             Math.Max(512, points.Max(p => p[0])) + 18, Math.Max(512, points.Max(p => p[1])) + 18];
@@ -93,12 +105,12 @@ internal sealed partial class MainWindow
 
     private Control Comparison(Preview preview, int mode, double height = 175)
     {
-        var result = Result(preview, mode); var frame = DisplayFrame(preview, result.Parts);
+        var result = Result(preview, mode); var frame = DisplayFrame(preview, result);
         var original = new DrawingCanvas { Profiles = preview.Strokes, Frame = frame, Height = height };
-        var output = new DrawingCanvas { Fitted = true, Underlay = preview.Strokes, Parts = result.Parts, Frame = frame, Profiles = result.Profiles, Height = height };
+        var output = new DrawingCanvas { Fitted = result.Curves, Underlay = preview.Strokes, Residue = result.Residue ?? [], Parts = result.Parts, Frame = frame, Profiles = result.Profiles, Height = height };
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), ColumnSpacing = 10 };
         grid.Children.Add(Stack(4, Text("Original", 12, true), original));
-        var right = Stack(4, Text(result.Label, 12, true), output); Grid.SetColumn(right, 1); grid.Children.Add(right);
+        var right = Stack(4, Text(result.Title, 12, true), output); Grid.SetColumn(right, 1); grid.Children.Add(right);
         return grid;
     }
 
@@ -126,8 +138,8 @@ internal sealed partial class MainWindow
         if (_pagePreviews.Count > 0)
         {
             var finals = _pagePreviews.Values.Count(p => p.Cleanup.Length > 0);
-            _layerSummary.Text = finals > 0 ? $"{finals} of {_pagePreviews.Count} drawings on this page have final shapes saved."
-                : "This page has converted stroke evidence. Use Create final shapes to add the church interpretation passes.";
+            _layerSummary.Text = finals > 0 ? $"{finals} of {_pagePreviews.Count} drawings on this page have refined shapes. Select a drawing stage above; paging keeps your choice."
+                : "This page has converted stroke evidence. Complete pipeline adds and saves the church interpretation stages.";
         }
     }
 
@@ -147,16 +159,43 @@ internal sealed partial class MainWindow
         if (!_pagePreviews.TryGetValue(row.QualifiedId, out var preview)) return;
         var window = new Window { Title = row.Category + " · " + row.KeyId, Width = 1080, Height = 780, MinWidth = 760, MinHeight = 580, Background = Avalonia.Media.Brush.Parse("#F1F5F0") };
         var view = new ComboBox { ItemsSource = _resultView.ItemsSource, SelectedIndex = _resultView.SelectedIndex, MinWidth = 235 };
-        var picture = new ContentControl();
-        void Update() { picture.Content = Comparison(preview, view.SelectedIndex, 475); }
+        var picture = new ContentControl(); var stageNote = Text("");
+        void Update()
+        {
+            picture.Content = Comparison(preview, view.SelectedIndex, 475);
+            var stage = Result(preview, view.SelectedIndex);
+            stageNote.Text = stage.Note + ((stage.Dependencies?.Length ?? 0) > 0 ? " Builds on: " + string.Join(", ", stage.Dependencies!.Select(id => StageOptions.FirstOrDefault(s => s.Id == id)?.Label ?? id)) + "." : "");
+        }
         view.SelectionChanged += (_, _) => { _resultView.SelectedIndex = view.SelectedIndex; Update(); };
         Update();
         var note = preview.Cleanup.Length > 0 ? "Proposed shapes are saved authored interpretations. Gray dotted openings were added from expectations." : "Final church shapes have not been generated for this drawing. Its original and fitted evidence are already available.";
         window.Content = Scroll(Stack(12, Text(row.Category + " · " + row.KeyId, 23, true),
-            Buttons(view, Button("Close", window.Close)), picture,
-            Text($"{row.Strokes} strokes · {row.Samples} acquired samples · {row.Intervals} fitted intervals"), Text(note),
+            Buttons(view, Button("◀ Stage", () => MoveStage(view, -1)), Button("Stage ▶", () => MoveStage(view, 1)), Button("Close", window.Close)), picture,
+            Text($"{row.Strokes} strokes · {row.Samples} acquired samples · {row.Intervals} fitted intervals"), stageNote, Text(note),
+            Buttons(Button("Open saved artifacts", () => Open(row.DatasetPath)), Button("View stage details", () => ShowStageDetails(row, preview, view.SelectedIndex))),
             Text(string.Join(" · ", preview.Warnings))), new Thickness(20));
         await window.ShowDialog(this);
+    }
+
+    private async void ShowStageDetails(DrawingRow row, Preview preview, int mode)
+    {
+        try
+        {
+            // Read-only in-app details avoid generating an HTML/temporary file.
+            using var input = new System.IO.Compression.GZipStream(File.OpenRead(Path.Combine(row.DatasetPath, row.EvidencePath)), System.IO.Compression.CompressionMode.Decompress);
+            using var document = System.Text.Json.JsonDocument.Parse(input);
+            var packet = document.RootElement; var id = Result(preview, mode).Id;
+            var details = packet;
+            if (packet.TryGetProperty("pipeline", out var pipeline))
+                foreach (var stage in pipeline.GetProperty("stages").EnumerateArray())
+                    if (stage.GetProperty("id").GetString() == id) { details = stage; break; }
+            var dialog = new Window { Title = "Saved stage evidence · " + id, Width = 850, Height = 650 };
+            dialog.Content = new TextBox { IsReadOnly = true, AcceptsReturn = true, TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                Text = System.Text.Json.JsonSerializer.Serialize(details, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }), Margin = new Thickness(15) };
+            await dialog.ShowDialog(this);
+        }
+        catch (Exception error) when (error is IOException or System.Text.Json.JsonException or InvalidOperationException)
+        { SetStatus("Saved details unavailable", error.Message, true); }
     }
 
     private static ScrollViewer Scroll(Control content, Thickness margin) => new() { Content = content, Margin = margin };

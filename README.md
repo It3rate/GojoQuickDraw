@@ -1,13 +1,13 @@
 # Gojo QuickDraw
 
-Turn QuickDraw files into source-linked Gojo evidence, then generate interpretations
-on demand. This is a separate converter project linked to [Gojo](https://github.com/It3rate/Gojo).
+Turn QuickDraw files into source-linked Gojo evidence and inspect every saved
+interpretation stage. This is a separate converter project linked to [Gojo](https://github.com/It3rate/Gojo).
 It starts with church drawings while retaining a category-independent acquisition,
 fitting, and annotation path.
 
 The saved baseline is the drawing we received and the evidence we can read from it.
 Seeded church parts and expectations are separate proposals. Later simplification,
-joint merging, and synthesis are disposable experiments, not training labels.
+joint merging, and synthesis are retained interpretations, not training labels.
 
 ## Run from a checkout
 
@@ -47,13 +47,20 @@ supports category/source order, most recent, and random selection. Existing sing
 datasets remain readable. **Open folder** loads a dataset directly, with 12
 original/result pairs per page and an enlarged view when a pair is clicked.
 Browsing uses saved records directly and needs neither Python nor a generated
-HTML file. Choose **Create final shapes** to run a separately counted church
-analysis. See the [desktop guide](docs/desktop.md).
+HTML file. **Convert drawings runs all available stages automatically**, through
+native construction and final church refinement. **Drawing stage** and the stage
+arrows show all ten church views, retaining the choice across pages. For an older
+converted folder, **Complete pipeline for existing drawings** adds the stages to
+a separate dataset with its own hard drawing count. See the [desktop guide](docs/desktop.md).
+
+The app is C# / Avalonia with Skia previews. Python orchestrates processing and
+the C# native Gojo bridge encodes and restores connected evidence. Optional HTML
+exports are separate from the desktop viewer.
 
 Conversion and analysis reload the built-in viewer, including completed records
 after Stop. **Advanced tools → Export browser inspector + gallery** creates the
 optional portable HTML reviews. Experimental drawing steps and machine probes
-are also under Advanced tools; Python and Gojo paths are under **Convert drawings
+exports are also under Advanced tools; Python and Gojo paths are under **Convert drawings
 → Tool settings**.
 
 Full church analysis also creates **Area estimates over original**: an ideal
@@ -93,6 +100,23 @@ documentation, and examples. It expects Gojo at `../Gojo`, matching the checkout
 layout above. Python files appear as solution items.
 
 ## Generate category samples
+
+The full desktop workflow is also available as a bounded CLI command:
+
+```powershell
+python -m gojo_quickdraw process --input D:/_quickDraw/quickdraw --category church --limit 100 --output D:/_quickDraw/data/church100-complete
+python -m gojo_quickdraw process --dataset D:/_quickDraw/data/church3000 --limit 100 --output D:/_quickDraw/data/church100-completed
+```
+
+A `process` dataset keeps one saved selection; repeat the same request to resume.
+It retains `acquired` baseline data (for raw input), `results` with native evidence
+and per-drawing stage bundles, and `pipeline.json` with selection/progress. The
+viewer chooses the result branch without counting the baseline twice. All stages
+are authored interpretations; the complete shape pipeline currently applies to
+churches. Other categories retain original/fitted evidence. Put test runs and logs
+under `D:/_quickDraw/_work`, and persistent datasets under `D:/_quickDraw/data`.
+
+For baseline-only sampling, the original `sample` command remains available:
 
 ```powershell
 python -m gojo_quickdraw sample --input D:/_quickDraw/quickdraw --category angel --category church --category frog --limit 90 --seed 42 --output D:/_quickDraw/samples-v1

@@ -140,10 +140,13 @@ local evidence and common source causes. It does not yet train an arbiter, distr
 belief through a recurrent network, or execute general geometric settlement.
 
 The seven existing church proposal states are also available over an entire converted
-collection. They remain disposable authored interpretation caches. Source acquisition
-and baseline archives do not change; native construction and independent output
-readback remain an on-demand operation. This keeps the inspection/training evidence
-contract separate from the cost and correctness of a particular synthesizer.
+collection. They remain authored interpretations rather than learned labels. Source
+acquisition and baseline archives do not change. The desktop's bounded `process`
+workflow now executes and retains the native construction and independent output
+readback as well as all other view stages. Standalone `analyze` still supports the
+lighter proposal-cache path. Recorded source correspondence, dependency branches,
+unmatched intervals and residue keep the evidence contract distinct from the
+correctness of a particular synthesizer.
 
 The user's container rule is now an explicit default to investigate: a child edit
 can leave the parent fixed, while a parent placement carries contained participants.

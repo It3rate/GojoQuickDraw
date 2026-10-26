@@ -1,5 +1,31 @@
 # Verification checkpoints
 
+## Full pipeline and retained stages, 26 October 2026
+
+The desktop's Convert action now runs the finite `process` workflow, retaining
+source acquisition, fitted profiles, seven native construction rungs, area
+proposals and final church refinement. The ten church views are selectable in
+the folder viewer. Independent native restore checks the correspondence between
+the record's original acquisition and the construction's acquired events, without
+merging equal coordinates into shared identities. Per-drawing stage bundles are
+included in artifact hash checks. Earlier baseline/native archives still open.
+
+A nine-drawing Release audit across angel, church and frog retains all ten views
+for the three churches and original/fitted views for the other six. A repeated
+request reuses all nine unchanged archives. Two already converted churches also
+complete and resume independently. All nine result archives pass a separate
+restore/verification. The UI audit renders every stage, enlarges a drawing,
+preserves stage choice while paging, stops and restarts a worker, and explicitly
+exports a portable review. Both tabs' final controls are fully reachable at
+920×760; scroll padding is part of the measured content, and status is above the
+workspace. A separate read-only Release startup audit pages all 100 records
+currently present in the user's selected folder with Python/Gojo unavailable.
+
+146 Python, 18 desktop, 46 native and 5,407 linked Gojo tests pass. Release builds
+have no warnings/errors. All QA output is under `D:/_quickDraw/_work/qa/full-pipeline`.
+This checkpoint changes orchestration, persistence and inspection, not recognition
+accuracy or learned priors. See [the report](../reports/studio-full-pipeline-2026-10-26.json).
+
 ## Boundary correspondence and optional construction, 25 October 2026
 
 `church-mapping-pilot-v1` recomputes the same 24 development drawings with layout

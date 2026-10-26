@@ -13,6 +13,20 @@ def parser():
     p = argparse.ArgumentParser(description="Convert QuickDraw files into native Gojo evidence; derive interpretations on demand.")
     p.add_argument("--gojo-root", type=Path, help="Linked Gojo checkout (default sibling Gojo or GOJO_ROOT)")
     commands = p.add_subparsers(dest="command", required=True)
+    process = commands.add_parser("process", help="Run the full bounded pipeline and retain every stage in one dataset workspace")
+    origin = process.add_mutually_exclusive_group(required=True)
+    origin.add_argument("--input", type=Path)
+    origin.add_argument("--dataset", type=Path)
+    process.add_argument("--output", type=Path, required=True)
+    process.add_argument("--limit", type=int, required=True)
+    process.add_argument("--category", action="append")
+    process.add_argument("--seed", type=int)
+    process.add_argument("--workers", type=int, default=4)
+    process.add_argument("--recursive", action="store_true")
+    process.add_argument("--retry-errors", action="store_true")
+    process.add_argument("--fit-tolerance", type=float, default=6.0)
+    process.add_argument("--max-points", type=int, default=20000)
+    process.add_argument("--max-spans", type=int, default=256)
     convert = commands.add_parser("convert", help="Stream a file or folder into resumable fitted evidence")
     convert.add_argument("--input", type=Path, required=True)
     convert.add_argument("--output", type=Path, required=True)
@@ -89,7 +103,13 @@ def main(argv=None):
     args = parser().parse_args(argv)
     try:
         root = upstream.activate(args.gojo_root)
-        if args.command == "convert":
+        if args.command == "process":
+            from .pipeline import run
+            result = run(args.output, root, input_path=args.input, source_dataset=args.dataset, count=args.limit,
+                         categories=args.category, seed=args.seed, workers=args.workers, recursive=args.recursive,
+                         retry_errors=args.retry_errors, fit_config={"polylineTolerance": args.fit_tolerance},
+                         max_points=args.max_points, max_spans=args.max_spans)
+        elif args.command == "convert":
             result = dataset.convert(args.input, args.output, root, limit=args.limit, categories=args.category,
                                      recursive=args.recursive, fit_config={"polylineTolerance": args.fit_tolerance},
                                      max_points=args.max_points, max_spans=args.max_spans, retry_errors=args.retry_errors)
@@ -153,7 +173,7 @@ def main(argv=None):
             else:
                 result["refresh"] = {"skipped": True, "reason": "No records were converted or reused in this invocation."}
         print(json.dumps(result, indent=2, ensure_ascii=False, allow_nan=False))
-        return 1 if args.command in ("convert", "sample", "analyze") and result.get("errors") else 0
+        return 1 if args.command in ("convert", "sample", "analyze", "process") and result.get("errors") else 0
     except (ValueError, RuntimeError, OSError, KeyError) as error:
         print(f"Gojo QuickDraw: {error}", file=sys.stderr)
         return 2

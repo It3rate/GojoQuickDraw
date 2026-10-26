@@ -11,10 +11,15 @@ Do not count several annotations or interpretation stages as independent data.
 Do not claim physical simulation, learned priors, or semantic recognition where
 only authored candidates or finite geometric tests are implemented.
 
-Default conversion saves the fitted source evidence. Later interpretations and
-perturbation experiments are explicit on-demand commands. Never silently
-process the full QuickDraw corpus during development. Keep raw data and generated
-datasets outside this repository, normally under `D:/_quickDraw`.
+Desktop conversion runs the bounded `process` pipeline, retaining acquisition,
+fitted evidence, native construction rungs, area proposals and refinement.
+The CLI `sample`/`convert` commands still create baseline evidence; `analyze`
+and `stages` remain available independently. Perturbation probes are optional.
+Never silently process the full QuickDraw corpus during development. Keep raw
+data and generated datasets outside this repository. Put temporary runs, QA
+folders, screenshots and logs under `D:/_quickDraw/_work`, never loose in
+`D:/_quickDraw` or the repository root. Persistent user datasets normally live
+under `D:/_quickDraw/data`. Do not move existing user data to tidy a workspace.
 
 Work on `master` and push completed verified checkpoints to `It3rate/GojoQuickDraw`.
 Do not publish the website without the user's milestone authorization.

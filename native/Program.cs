@@ -56,7 +56,14 @@ namespace GojoQuickDraw.Native
                             File.Move(temporary, path, overwrite: true);
                         }
                         finally { if (File.Exists(temporary)) File.Delete(temporary); }
-                        output.WriteLine(JsonSerializer.Serialize(new { ok = true, itemKey = key, archive = filename, summary = NativeRecord.Summarize(restored) }));
+                        var stageViews = restored.DrawingSteps?.Construction.Rungs.Select((rung, i) => new
+                        {
+                            index = i,
+                            profiles = rung.Visible.Select(edge => edge.Controls.Select(site => new[] { site.Position.X, site.Position.Y }).ToArray()).ToArray(),
+                            residue = restored.DrawingSteps.Passes[i].Residue.Select(edge => edge.Controls.Select(site => new[] { site.Position.X, site.Position.Y }).ToArray()).ToArray()
+                        }).ToArray();
+                        output.WriteLine(JsonSerializer.Serialize(new { ok = true, itemKey = key, archive = filename,
+                            summary = NativeRecord.Summarize(restored), stageViews }));
                     }
                     catch (Exception exception) when (exception is not OutOfMemoryException and not StackOverflowException)
                     { output.WriteLine(JsonSerializer.Serialize(new { ok = false, itemKey = key, error = exception.Message, errorType = exception.GetType().Name })); }

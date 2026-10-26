@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 ORDERS = ("category", "recent", "random")
-_INTERNAL = {"records", "native", "errors", "_sampling", "_source-index", "review", "qa"}
+_INTERNAL = {"records", "native", "errors", "stages", "_sampling", "_source-index", "review", "qa", "_work"}
 
 
 def datasets(path):
@@ -19,6 +19,12 @@ def datasets(path):
         raise ValueError("Choose a generated dataset or collection folder")
     found = []
     for directory, folders, _ in os.walk(root, followlinks=False):
+        pipeline = Path(directory) / "pipeline.json"
+        if pipeline.is_file():
+            state = json.loads(pipeline.read_text(encoding="utf-8"))
+            if state.get("schema") == "gojo.quickdraw-pipeline.v1":
+                # These are fixed child names, not paths supplied by the manifest.
+                folders[:] = ["results"] if (Path(directory) / "results" / "collection.json").exists() else ["acquired"] if "acquired" in folders else []
         folders[:] = [name for name in folders if name not in _INTERNAL and not name.startswith(".") and not name.endswith("-runs")]
         manifest = Path(directory) / "manifest.json"
         if manifest.is_file():

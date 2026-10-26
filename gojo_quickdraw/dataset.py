@@ -183,7 +183,10 @@ def _safe_path(root, relative):
 
 
 def verify_row(root, row):
-    for field, digest in (("evidencePath", "evidenceSha256"), ("nativePath", "nativeSha256")):
+    artifacts = [("evidencePath", "evidenceSha256"), ("nativePath", "nativeSha256")]
+    if "stagesPath" in row:
+        artifacts.append(("stagesPath", "stagesSha256"))
+    for field, digest in artifacts:
         path = _safe_path(root, row[field])
         if not path.is_file() or sha256(path) != row[digest]:
             raise ValueError(f"Missing or changed dataset artifact: {row[field]}")

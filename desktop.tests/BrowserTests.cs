@@ -61,6 +61,38 @@ public sealed class BrowserTests : IDisposable
     }
 
     [Fact]
+    public void PipelineWorkspaceShowsResultsOnceAndFallsBackToAcquisitionDuringConversion()
+    {
+        File.WriteAllText(Path.Combine(_root, "pipeline.json"), "{\"schema\":\"gojo.quickdraw-pipeline.v1\"}");
+        var baseline = Folder("acquired/church"); var derived = Folder("results/church");
+        File.WriteAllText(Path.Combine(baseline, "index.ndjson"), Row("a", "church"));
+        File.WriteAllText(Path.Combine(derived, "index.ndjson"), Row("b", "church"));
+        var browser = new DatasetBrowser();
+        Assert.Equal("a", Assert.Single(browser.Read(_root).Drawings).ItemId);
+        File.WriteAllText(Path.Combine(_root, "results/collection.json"), "{}");
+        Assert.Equal("b", Assert.Single(browser.Read(_root).Drawings).ItemId);
+    }
+
+    [Fact]
+    public void SavedStagesUseNativeReadbackAndRetainResidueAndActualDependencies()
+    {
+        var folder = Folder("church"); var path = Path.Combine(folder, "record.gz");
+        var packet = """
+            {"itemKey":"a","source":{"key_id":"source-a"},"observation":{"strokes":[],"spans":[]},
+             "pipeline":{"itemId":"a","sourceId":"source-a","stages":[
+              {"id":"outline-1","title":"Carry long lines","kind":"profiles","profiles":[[[1,2],[9,8]]],
+               "residue":[[[3,4],[5,6],[7,8]]],"dependsOn":["fitted"],"nativeRestored":true}]}}
+            """;
+        using (var stream = new GZipStream(File.Create(path), CompressionMode.Compress)) stream.Write(Encoding.UTF8.GetBytes(packet));
+        var row = new DrawingRow("a", "source-a", "church", 0, 0, 0, "record.gz", "ok", folder);
+        var stage = Workspace.ReadPreview(folder, row).Stages!.Single(s => s.Id == "outline-1");
+        Assert.Equal(new[] { 9.0, 8.0 }, stage.Profiles[0][1]);
+        Assert.Equal(3, Assert.Single(stage.Residue!).Length);
+        Assert.Equal("fitted", Assert.Single(stage.Dependencies!));
+        Assert.Contains("restored", stage.Note);
+    }
+
+    [Fact]
     public void SavedShapePreviewHonorsDisplaySegmentsAndKeepsAddedStatusAndIdentity()
     {
         var folder = Folder("church"); Directory.CreateDirectory(Path.Combine(folder, "records"));

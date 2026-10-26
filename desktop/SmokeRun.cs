@@ -33,6 +33,8 @@ internal sealed partial class MainWindow
             Require(Results.Count == 1 && Results[0].Successful, "Bounded conversion failed.");
             Require(_catalogTotal == 9 && _galleryCards.Count == 9, "The requested total must be nine across all categories.");
             Require(_tabs.SelectedIndex == 0, "Conversion did not open the viewer.");
+            Require(_pagePreviews.Values.Count(p => p.Stages?.Count == 10) == 3, "Convert did not retain all ten church views.");
+            Require(_pagePreviews.Values.Count(p => p.Stages?.Count == 2) == 6, "Other categories should retain acquisition and fitted evidence without invented church stages.");
             Require(!Directory.EnumerateFiles(output, "*.html", SearchOption.AllDirectories).Any(), "Conversion unexpectedly required an HTML export.");
             var baseline = _dataset.Text!; var originalHashes = ArchiveHashes(baseline);
             await Execute(PipelineAction.Convert);
@@ -60,7 +62,13 @@ internal sealed partial class MainWindow
             Require(_pagePreviews.Count == 2 && _pagePreviews.Values.All(p => p.Cleanup.Length > 0), "Saved final church shapes are missing.");
             Require(!Directory.EnumerateFiles(output, "*.html", SearchOption.AllDirectories).Any(), "Analysis unexpectedly generated HTML.");
             Require(ArchiveHashes(baseline) == originalHashes, "Analysis changed source archives.");
-            _resultView.SelectedIndex = 3; await Capture(Path.Combine(output, "final-shapes.png"));
+            _resultView.SelectedIndex = StageOptions.Length - 1; await Capture(Path.Combine(output, "final-shapes.png"));
+            for (var stage = 1; stage < StageOptions.Length; stage++)
+            {
+                _resultView.SelectedIndex = stage;
+                Require(_pagePreviews.Values.All(p => Result(p, stage).Id == StageOptions[stage].Id && Result(p, stage).Title != "Stage not saved / not applicable"), "A saved stage cannot be selected.");
+                await Capture(Path.Combine(output, $"stage-{stage:00}.png"));
+            }
             var enlarge = ShowDrawing((DrawingRow)_drawings.Items[0]!); await Task.Delay(250);
             var detail = OwnedWindows.Single(); await CaptureWindow(detail, Path.Combine(output, "enlarged.png")); detail.Close(); await enlarge;
             var before = ArchiveHashes(_dataset.Text!); _verifyAll.IsChecked = true;
@@ -71,6 +79,7 @@ internal sealed partial class MainWindow
             await Execute(PipelineAction.Refresh);
             Require(Results[^1].Successful && File.Exists(Path.Combine(Workspace.InspectorFolder(_dataset.Text!), "comparison.html")), "Explicit optional browser export failed.");
             Width = 920; Height = 760; await Capture(Path.Combine(output, "compact.png"));
+            await CheckBottomReachable(output);
         }
         catch (Exception error) { errors.Add(error.ToString()); Environment.ExitCode = 1; }
         finally
@@ -84,6 +93,26 @@ internal sealed partial class MainWindow
                 conversionCount = 9, analysisCount = 2, status = _status.Text
             }, new JsonSerializerOptions { WriteIndented = true }));
             _allowClose = true; Close();
+        }
+    }
+
+    private async Task CheckBottomReachable(string output)
+    {
+        for (var tab = 0; tab < 2; tab++)
+        {
+            _tabs.SelectedIndex = tab;
+            var scroll = (ScrollViewer)((TabItem)_tabs.Items[tab]!).Content!;
+            await Task.Delay(150); scroll.ScrollToEnd(); await Task.Delay(150);
+            Require(scroll.Bounds.Height > 0 && scroll.Viewport.Height > 0, "Tab scroll viewport is unbounded or empty.");
+            Require(Math.Abs(scroll.Extent.Height - scroll.Viewport.Height - scroll.Offset.Y) < 3 || scroll.Extent.Height <= scroll.Viewport.Height,
+                "Bottom controls cannot be reached by scrolling.");
+            var bottom = scroll.TranslatePoint(new Point(0, scroll.Bounds.Height), this);
+            Require(bottom is { } p && p.Y <= ClientSize.Height, "Tab extends below the visible window.");
+            var content = (StackPanel)((Border)scroll.Content!).Child!;
+            var last = content.Children[^1];
+            var lastBottom = last.TranslatePoint(new Point(0, last.Bounds.Height), scroll);
+            Require(lastBottom is { } end && end.Y <= scroll.Bounds.Height - 1, "The final control is clipped at the end of scrolling.");
+            await Capture(Path.Combine(output, $"bottom-tab-{tab}.png"));
         }
     }
 

@@ -50,6 +50,8 @@
     <File Path="gojo_quickdraw/selection.py" />
     <File Path="gojo_quickdraw/categories.json" />
     <File Path="gojo_quickdraw/analysis.py" />
+    <File Path="gojo_quickdraw/pipeline.py" />
+    <File Path="gojo_quickdraw/pipeline_artifacts.py" />
     <File Path="gojo_quickdraw/opinions.py" />
     <File Path="gojo_quickdraw/objects.py" />
     <File Path="gojo_quickdraw/layout.py" />
@@ -98,6 +100,7 @@
     <File Path="reports/towers-2026-10-25.json" />
     <File Path="reports/mapping-2026-10-25.json" />
     <File Path="reports/cleanup-2026-10-26.json" />
+    <File Path="reports/studio-full-pipeline-2026-10-26.json" />
   </Folder>
   <Folder Name="/Examples/">
     <File Path="examples/README.md" />

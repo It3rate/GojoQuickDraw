@@ -7,6 +7,8 @@ ones. It remembers the last folder and count. You can also pass a folder directl
 .\OpenQuickDraw.cmd D:\_quickDraw\data\church3000
 ```
 
+The UI is C# with Avalonia and Skia rendering; it is not an HTML application.
+Python orchestrates processing and the C# Gojo bridge builds native evidence.
 The launcher builds the desktop application with the .NET 10 SDK. Conversion and
 analysis require Python 3.10+ and the linked Gojo checkout. The built-in viewer
 reads saved datasets directly, without Python or a generated HTML inspector.
@@ -20,10 +22,11 @@ reads saved datasets directly, without Python or a generated HTML inspector.
 3. Use First, Previous, Next, Last or the page number to reach every drawing.
    Choose recorded order, most recent or a stable random order. **New random
    sample** changes the browsing order without converting anything.
-4. Click a pair to enlarge it. **Show beside original** selects fitted lines,
-   area estimates or final church shapes. The choice survives page changes.
+4. Click a pair to enlarge it. **Drawing stage** selects any saved stage;
+   **◀ Stage / Stage ▶** moves through them. The choice survives page changes
+   and reopening the app. The enlarged view also offers saved stage details.
 
-**Best available result** uses saved final shapes, then saved area estimates,
+**Latest available stage** uses saved final shapes, then saved area estimates,
 then fitted lines. A specifically requested layer that is absent is labeled as
 missing. Faint ink remains the original. Optional added openings are gray and
 dotted; drawing-supported openings retain their role colors.
@@ -38,8 +41,9 @@ committed entry remains an explicit read error.
 ## Convert drawings
 
 1. Use **New dataset** to choose a parent folder for a fresh destination, or edit
-   the shared Dataset folder path. Existing outputs can be reused with compatible
-   settings; existing drawings are retained.
+   the shared Dataset folder path. A pipeline folder retains one random selection.
+   Repeating its request resumes/reuses it; use New dataset to change the source,
+   categories, count or seed.
 2. In **Convert drawings**, choose the QuickDraw source folder or category file.
 3. Choose categories from the toggle-button dialog. Search, Select all and Clear
    all operate on the static 345-category catalog.
@@ -52,29 +56,53 @@ cannot bypass the count. Whole-corpus conversion remains available explicitly
 through the command line's `sample --all-records` option.
 
 Drawings are randomly sampled across categories, then stored in category
-subfolders. An optional fixed seed repeats a selection. Interrupted selections
-resume with the same settings. Indexing the source file may read many records;
-only the selected drawings are converted. The existing output can contain more
-drawings than a new request; use a new dataset for a fresh bounded set.
+subfolders. The selection and seed are saved before fitting. Indexing the source
+file may read many records; only the selected drawings are converted.
 
-Conversion saves original strokes and fitted evidence. Results open in **View
-drawings** after completion or Stop. It does not build browser reviews or silently
-start a second analysis pass.
+**Convert drawings runs the full pipeline automatically.** It saves these ten
+inspectable church views:
 
-## Create final shapes
+1. Original drawing, including order and any recorded times.
+2. Close fitted outlines.
+3. Long strokes and whole curves.
+4. Supported primitive shapes.
+5. Balanced related parts.
+6. Merged nearby joints.
+7. Regularized shapes and supported side frames.
+8. Synthesized structure.
+9. Shape areas and attachments.
+10. Refined church shapes.
 
-In the viewer, expand **Create final shapes from converted drawings**. Set the
-maximum number to analyze, then start the pass. It processes at most that many
+Stages 2–8 execute as seven native construction rungs with source correspondence.
+Area estimates read the fitted source and contextual evidence; final cleanup
+refines those areas. They are a separate branch, not a claim that stage 9 consumes
+stage 8. The saved stage dependencies make this visible. Existing algorithms and
+church expectations are retained; no model is trained. Non-church categories have
+the original and fitted views, with unavailable church stages labeled explicitly.
+
+The dataset contains `acquired/<category>` and `results/<category>` plus a
+`pipeline.json` progress/selection manifest. The viewer opens the result branch
+once analysis begins and the acquired branch while initial conversion is pending.
+Results contain compressed evidence, native Gojo archives and a `stages` bundle
+per drawing. The complete stage history and read caches are retained; no HTML is
+required. Stop keeps committed drawings; rerunning the same request resumes.
+
+## Complete older converted datasets
+
+In the viewer, expand **Complete pipeline for existing drawings**. Set the
+maximum number to complete, then start the pass. It processes at most that many
 saved drawings from the beginning of the chosen category scope. The count is
 separate from the conversion count and is always enforced.
 
 The current full shape rules are church-specific. This adds area proposals,
 objects, line mappings, interpretation steps and the final cleanup to a separate
-analysis dataset, then opens it in the same viewer. The baseline stays available
+completed dataset, then opens it in the same viewer. The baseline stays available
 in its original folder. These are authored proposals, not learned labels.
 
 Analysis options expose workers, retry and output location. The default output
-is beside the source dataset. Use a fresh output path after changing analysis
+is beside the source dataset, with `-processed` appended. Opening an interrupted
+pipeline workspace restores its requested count; Complete pipeline follows its
+original source and selection. Use a fresh output path after changing analysis
 code; interrupted compatible analyses can resume their saved output.
 
 ## Advanced tools and settings
@@ -85,7 +113,8 @@ The main workflows are View and Convert. Optional tools are grouped below them:
   evidence. It defaults to a limited check; checking the whole dataset is explicit.
 - **Export browser inspector + gallery** builds the portable detailed inspector
   and comparison pages. This is an optional export, rather than a viewing prerequisite.
-- **Drawing steps** executes the selected church's construction stages.
+- **Drawing steps** optionally exports the selected church's construction as a
+  separate portable review; ordinary conversion already saves these stages.
 - **Machine probes** tests placement and containment assumptions; it does not
   convert drawings or train priors.
 - **Convert drawings → Tool settings** selects Python and the linked Gojo checkout.
@@ -93,6 +122,9 @@ The main workflows are View and Convert. Optional tools are grouped below them:
 Run details contains worker output. Stop terminates the worker and its children.
 Completed records remain available. Settings are saved under
 `%LOCALAPPDATA%/GojoQuickDraw/desktop-settings.json`.
+Status and Stop are above the workspace; the tabs scroll within the remaining
+window height, with no bottom status overlay. Temporary tool runs and exported
+reviews are grouped under `D:/_quickDraw/_work`, not loose at the data-drive root.
 
 ## Developer verification
 
@@ -105,7 +137,7 @@ The read-only startup audit opens an existing folder, pages to its end and check
 the viewer while Python and Gojo tool paths are unavailable:
 
 ```powershell
-dotnet run --project desktop -- --startup-smoke --dataset D:/_quickDraw/data/church3000 --qa-output D:/path/new-viewer-audit
+dotnet run --project desktop -- --startup-smoke --dataset D:/_quickDraw/data/church3000 --qa-output D:/_quickDraw/_work/qa/new-viewer-audit
 ```
 
 The bounded integration audit converts nine real drawings across angel, church
@@ -113,7 +145,7 @@ and frog, analyzes two churches, checks native gallery rendering and enlargement
 stopping/restarting, unchanged source archives and explicit browser export:
 
 ```powershell
-dotnet run --project desktop -- --smoke --qa-input D:/_quickDraw/quickdraw --qa-output D:/path/new-workflow-audit
+dotnet run --project desktop -- --smoke --qa-input D:/_quickDraw/quickdraw --qa-output D:/_quickDraw/_work/qa/new-workflow-audit
 ```
 
 Both audits write screenshots and a summary into a new requested QA directory;

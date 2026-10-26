@@ -41,14 +41,14 @@ public static class Pipeline
             case PipelineAction.Convert:
                 if (!File.Exists(options.Input) && !Directory.Exists(options.Input)) throw new ArgumentException("Choose a QuickDraw input file or folder.");
                 if (string.IsNullOrWhiteSpace(options.Category)) throw new ArgumentException("Choose at least one source category.");
-                arguments.AddRange(["sample", "--input", Path.GetFullPath(options.Input), "--output", Path.GetFullPath(options.Dataset),
+                arguments.AddRange(["process", "--input", Path.GetFullPath(options.Input), "--output", Path.GetFullPath(options.Dataset),
                     "--fit-tolerance", options.FitTolerance.ToString(CultureInfo.InvariantCulture), "--max-points", options.MaxPoints.ToString(),
                     "--max-spans", options.MaxSpans.ToString()]);
                 foreach (var category in options.Category.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
                     arguments.AddRange(["--category", category]);
                 // The desktop's count is always a hard selection limit. Whole
                 // corpus conversion remains an explicit CLI-only operation.
-                arguments.AddRange(["--limit", options.Limit.ToString()]);
+                arguments.AddRange(["--limit", options.Limit.ToString(), "--workers", options.Workers.ToString()]);
                 if (options.SamplingSeed is { } samplingSeed) arguments.AddRange(["--seed", samplingSeed.ToString(CultureInfo.InvariantCulture)]);
                 if (options.Recursive) arguments.Add("--recursive");
                 if (options.RetryErrors) arguments.Add("--retry-errors");
@@ -99,12 +99,26 @@ public static class Pipeline
                 arguments.AddRange(["--limit", options.Limit.ToString(), "--offset", options.Offset.ToString()]);
                 break;
             case PipelineAction.Analyze:
+                if (Workspace.PipelineManifest(options.Dataset) is { } workspace && workspace.GetProperty("request").GetProperty("mode").GetString() == "raw"
+                    && (options.AnalysisOutput is null || Path.GetFullPath(options.AnalysisOutput).Equals(Path.GetFullPath(options.Dataset), StringComparison.OrdinalIgnoreCase)))
+                {
+                    // Resume the original selection, including a stop during
+                    // acquisition; never sample this result as a new raw source.
+                    var request = workspace.GetProperty("request");
+                    var fit = request.GetProperty("fitConfig");
+                    var original = options with { Input = request.GetProperty("source").GetString()!,
+                        Category = string.Join(',', request.GetProperty("categories").EnumerateArray().Select(c => c.GetString())),
+                        Recursive = request.GetProperty("recursive").GetBoolean(), SamplingSeed = workspace.GetProperty("seed").GetInt64(),
+                        FitTolerance = fit.ValueKind == JsonValueKind.Object && fit.TryGetProperty("polylineTolerance", out var tolerance) ? tolerance.GetDouble() : 6,
+                        MaxPoints = request.GetProperty("maxPoints").GetInt32(), MaxSpans = request.GetProperty("maxSpans").GetInt32() };
+                    return Plan(PipelineAction.Convert, original) with { Action = action, Artifact = Path.Combine(options.Dataset, "pipeline.json") };
+                }
                 var (analysisSource, analyzed) = Workspace.AnalysisPaths(options.Dataset, options.AnalysisOutput);
-                arguments.AddRange(["analyze", "--dataset", analysisSource]);
+                arguments.AddRange(["process", "--dataset", analysisSource]);
                 arguments.AddRange(["--output", Path.GetFullPath(analyzed), "--workers", options.Workers.ToString()]);
-                if (!options.AllRecords) arguments.AddRange(["--limit", options.Limit.ToString()]);
+                arguments.AddRange(["--limit", options.Limit.ToString()]);
                 if (options.RetryErrors) arguments.Add("--retry-errors");
-                artifact = Path.Combine(analyzed, "collection.json");
+                artifact = Path.Combine(analyzed, "pipeline.json");
                 break;
         }
         return new(action, options.Python, options.Repository, arguments, artifact);

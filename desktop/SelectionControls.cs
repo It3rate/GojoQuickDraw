@@ -36,7 +36,8 @@ internal sealed partial class MainWindow
     {
         _samplingSeed.Text = _settings.SamplingSeed; _inspectionSeed = _settings.InspectionSeed;
         _analysisCount.Value = Math.Max(1, _settings.Limit);
-        _resultView.SelectedIndex = Math.Clamp(_settings.ResultView, 0, 3);
+        var stageId = string.IsNullOrWhiteSpace(_settings.ResultStage) ? _settings.ResultView switch { 1 => "fitted", 2 => "areas", 3 => "cleanup", _ => "best" } : _settings.ResultStage;
+        _resultView.SelectedIndex = Math.Max(0, Array.FindIndex(StageOptions, stage => stage.Id == stageId));
         _inspectionOrder.SelectedIndex = _settings.InspectionOrder switch { "recent" => 1, "random" => 2, _ => 0 };
         _folderScope.SelectionChanged += async (_, _) => { if (!_updatingFolders && _folderScope.SelectedItem is not null) await LoadCatalog(refreshFolders: false); };
         _inspectionOrder.SelectionChanged += async (_, _) => { if (!_updatingFolders && _loadedDataset is not null) await LoadCatalog(refreshFolders: false); };
@@ -110,6 +111,8 @@ internal sealed partial class MainWindow
         try
         {
             if (announce) SetStatus("Loading drawings…", "Discovering generated folders and selecting drawings from their saved journals.");
+            var savedPipeline = Workspace.PipelineManifest(root);
+            if (savedPipeline is { } request) _analysisCount.Value = request.GetProperty("request").GetProperty("count").GetInt32();
             if (refreshFolders || _folderScope.SelectedItem is null)
             {
                 var folders = await Task.Run(() => Workspace.GeneratedFolders(root));
@@ -126,8 +129,9 @@ internal sealed partial class MainWindow
                     _gallery.Children.Clear();
                     _catalogTotal = 0; _pageLabel.Text = "No drawings";
                     _firstPage.IsEnabled = _previousPage.IsEnabled = _nextPage.IsEnabled = _lastPage.IsEnabled = false;
-                    _datasetSummary.Text = "No converted drawings in this folder yet. Use Convert drawings to create a dataset here.";
-                    if (announce) SetStatus("No drawings here yet", "Open an existing dataset folder, or use Convert drawings.");
+                    _datasetSummary.Text = savedPipeline is not null ? "This pipeline has a saved selection but no completed records yet. Use Complete pipeline to resume."
+                        : "No converted drawings in this folder yet. Use Convert drawings to create a dataset here.";
+                    if (announce) SetStatus("No drawings here yet", _datasetSummary.Text);
                     return;
                 }
             }
@@ -146,7 +150,9 @@ internal sealed partial class MainWindow
             _drawings.SelectedItem = catalog.Drawings.FirstOrDefault(row => row.QualifiedId == key) ?? catalog.Drawings.FirstOrDefault();
             _datasetSummary.Text = $"{catalog.Stored:N0} drawings in scope · {catalog.Errors:N0} conversion errors · showing {catalog.Offset + (catalog.Drawings.Count > 0 ? 1 : 0):N0}–{catalog.Offset + catalog.Drawings.Count:N0}";
             if (catalog.Warnings?.Count > 0) _datasetSummary.Text += " · " + string.Join(" ", catalog.Warnings);
-            if (catalog.Stored > 0) _analysisCount.Value = Math.Min(_analysisCount.Value ?? 1000, catalog.Stored);
+            if (scope == root && savedPipeline is { } pipeline)
+                _analysisCount.Value = pipeline.GetProperty("request").GetProperty("count").GetInt32();
+            else if (catalog.Stored > 0) _analysisCount.Value = Math.Min(_analysisCount.Value ?? 1000, catalog.Stored);
             await LoadGallery(catalog.Drawings, revision, cancellation.Token);
             var inspector = Path.Combine(Workspace.InspectorFolder(InspectionPath), "evidence.html");
             if (_lastArtifact is null && File.Exists(inspector))

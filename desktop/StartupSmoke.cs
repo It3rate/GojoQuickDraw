@@ -41,6 +41,7 @@ internal sealed partial class MainWindow
             if (File.Exists(inspector)) Require(_openResult.IsEnabled, "Existing inspector was not available on cold start.");
             await Capture(Path.Combine(output, "first-page.png"));
             _tabs.SelectedIndex = 1; await Capture(Path.Combine(output, "convert.png")); _tabs.SelectedIndex = 0;
+            Width = 920; Height = 760; await CheckBottomReachable(output);
         }
         catch (Exception error) { errors.Add(error.ToString()); Environment.ExitCode = 1; }
         finally

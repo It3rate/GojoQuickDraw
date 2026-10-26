@@ -1,8 +1,9 @@
 """Resumable full analysis of already converted collections, never raw corpora.
 
 Baseline archives remain immutable. Source-linked native opinion structures are
-saved in a separate category collection. Seven authored proposal states are a
-review cache; full native construction execution remains the explicit stages run.
+saved in a separate category collection. The complete pipeline requests native
+construction execution and retained stage views; standalone analysis can keep
+the lighter proposal cache without asserting that it executed those rungs.
 """
 from __future__ import annotations
 
@@ -89,6 +90,9 @@ def _one(task):
     try:
         result = enrich(packet, row["category"], _gojo)
         result["itemKey"] = row["itemId"]
+        if row.get("executeStages"):
+            from .pipeline_artifacts import prepare
+            prepare(result)
         result["provenance"] = {**packet.get("provenance", {}), "analysisBaseline": row["baseline"], "analysisFingerprint": row["analysisFingerprint"]}
         result["opinions"]["provenance"] = {"baseline": row["baseline"], "analysisFingerprint": row["analysisFingerprint"],
                                             "sourceSha256": row["sourceSha256"], "qualification": "These dependent opinions share the original acquisition cause."}
@@ -101,8 +105,16 @@ def _one(task):
             raise ValueError("Analysis native archive changed acquisition identity")
         evidence_path = folder / "records" / (row["itemId"] + ".evidence.json.gz")
         native_path = folder / "native" / (row["itemId"] + ".gojo.json.gz")
+        artifacts = {}
+        if row.get("executeStages"):
+            from .pipeline_artifacts import capture
+            result["pipeline"] = capture(result, native)
+            stage_path = folder / "stages" / (row["itemId"] + ".stages.json.gz")
+            dataset._gzip_json(stage_path, result["pipeline"])
+            artifacts = {"stagesPath": stage_path.relative_to(folder).as_posix(), "stagesSha256": dataset.sha256(stage_path),
+                         "savedStages": len(result["pipeline"]["stages"])}
         dataset._gzip_json(evidence_path, result)
-        return {**row, "status": "ok", "evidencePath": evidence_path.relative_to(folder).as_posix(),
+        return {**row, **artifacts, "status": "ok", "evidencePath": evidence_path.relative_to(folder).as_posix(),
                 "nativePath": native_path.relative_to(folder).as_posix(), "evidenceSha256": dataset.sha256(evidence_path),
                 "nativeSha256": dataset.sha256(native_path), "counts": result["observation"]["counts"],
                 "nativeSummary": native["summary"], "convertedUtc": datetime.now(timezone.utc).isoformat(),
@@ -113,7 +125,7 @@ def _one(task):
         return {**row, "status": "error", "error": str(problem), "retainedSource": path.relative_to(folder).as_posix()}
 
 
-def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False, key_ids=None):
+def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False, key_ids=None, execute_stages=False):
     from .selection import datasets, selected_rows
     source, output, gojo_root = (Path(p).resolve() for p in (source, output, gojo_root))
     if source == output or source in output.parents or output in source.parents:
@@ -132,7 +144,7 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
     else:
         selected_keys = None
     folders = datasets(source)
-    implementation = {"converter": dataset._pipeline_fingerprint(), "upstream": upstream.fingerprint(gojo_root)}
+    implementation = {"converter": dataset._pipeline_fingerprint(), "upstream": upstream.fingerprint(gojo_root), "executeStages": execute_stages}
     signature = hashlib.sha256(dataset._canonical(implementation).encode()).hexdigest()
     # Build once before spawning so workers never race the compiler.
     executable = bridge.executable(gojo_root)
@@ -160,7 +172,7 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
             if folder in indexes:
                 return folder
             folder.mkdir(exist_ok=True)
-            for name in ("records", "native", "errors"):
+            for name in ("records", "native", "errors", "stages"):
                 (folder / name).mkdir(exist_ok=True)
             config = json.loads((baseline_folder / "manifest.json").read_text(encoding="utf-8")).get("config", {})
             manifest = {"schema": dataset.SCHEMA, "kind": "derived-analysis", "fingerprint": signature,
@@ -201,7 +213,7 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
                 if packet["itemKey"] != stored["itemId"] or packet["source"]["key_id"] != stored["keyId"]:
                     raise ValueError("Baseline source and selected index disagree")
                 row = {"itemId": identity, "keyId": stored["keyId"], "category": category,
-                       "sourceSha256": stored["sourceSha256"], "baseline": baseline, "analysisFingerprint": signature}
+                       "sourceSha256": stored["sourceSha256"], "baseline": baseline, "analysisFingerprint": signature, "executeStages": execute_stages}
                 yield str(folder), row, packet
 
         def publish(folder, row):
@@ -232,7 +244,8 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
             dataset._atomic_json(folder / "manifest.json", manifests[folder])
         result = {"output": str(output), **dict(counters), "storedRecords": total["ok"], "storedErrors": total["error"],
                   "drawings": total["ok"], "workers": workers, "sourceUnchanged": True,
-                  "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver."}
+                  "executedStages": execute_stages,
+                  "qualification": "Authored analysis and native source-linked opinions. " + ("Drawing stages executed and saved." if execute_stages else "Proposal states cached; construction execution not requested.") + " No learned priors or general feedback solver."}
         if selected_keys is not None:
             result["selectedKeyIds"] = sorted(selected_keys)
         collection["lastRun"] = result

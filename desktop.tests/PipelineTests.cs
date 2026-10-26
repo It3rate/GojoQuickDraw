@@ -79,7 +79,7 @@ public sealed class PipelineTests : IDisposable
     public void CollectionSamplingAndInspectionArgumentsKeepDifferentSeeds()
     {
         var convert = Pipeline.Plan(PipelineAction.Convert, Options with { Category = "angel,church", SamplingSeed = 42 });
-        Assert.Contains("sample", convert.Arguments);
+        Assert.Contains("process", convert.Arguments);
         Assert.Equal(2, convert.Arguments.Count(argument => argument == "--category"));
         var review = Pipeline.Plan(PipelineAction.Review, Options with { InspectionOrder = "random", InspectionSeed = 99 });
         Assert.Contains("random", review.Arguments); Assert.Contains("99", review.Arguments);
@@ -119,10 +119,11 @@ public sealed class PipelineTests : IDisposable
         var page = Pipeline.Plan(PipelineAction.Catalog, Options with { Limit = 50, Offset = 950 });
         Assert.Contains("950", page.Arguments); Assert.Contains("--offset", page.Arguments);
         var analysis = Pipeline.Plan(PipelineAction.Analyze, Options with { AllRecords = true, Workers = 2 });
-        Assert.Contains("analyze", analysis.Arguments); Assert.DoesNotContain("--limit", analysis.Arguments);
-        Assert.StartsWith(Path.GetFullPath(Dataset) + "-analysis", analysis.Artifact!);
+        Assert.Contains("process", analysis.Arguments); Assert.Contains("--limit", analysis.Arguments);
+        Assert.StartsWith(Path.GetFullPath(Dataset) + "-processed", analysis.Artifact!);
         Assert.Contains("--limit", Pipeline.Plan(PipelineAction.Analyze, Options with { AllRecords = false }).Arguments);
-        Assert.EndsWith(Path.Combine("dataset-runs", "inspector"), Workspace.InspectorFolder(Dataset));
+        Assert.EndsWith("inspector", Workspace.InspectorFolder(Dataset));
+        Assert.DoesNotContain("dataset-runs", Workspace.InspectorFolder(Dataset));
         Assert.NotEqual(Workspace.RunFolder(Dataset), Workspace.InspectorFolder(Dataset));
     }
 
@@ -134,7 +135,31 @@ public sealed class PipelineTests : IDisposable
         var plan = Pipeline.Plan(PipelineAction.Analyze, Options with { Dataset = analyzed, AllRecords = true });
         var args = plan.Arguments.ToList();
         Assert.Equal(Dataset, args[args.IndexOf("--dataset") + 1]);
-        Assert.Equal(analyzed, args[args.IndexOf("--output") + 1]);
+        Assert.Equal(Workspace.AnalysisFolder(analyzed), args[args.IndexOf("--output") + 1]);
+    }
+
+    [Fact]
+    public void CompletingAStoppedPipelineUsesItsOriginalSourceAndDestination()
+    {
+        var raw = new
+        {
+            schema = "gojo.quickdraw-pipeline.v1", seed = 42,
+            request = new { mode = "raw", source = _root, categories = new[] { "church" }, count = 25, recursive = true,
+                fitConfig = new { polylineTolerance = 3.0 }, maxPoints = 20000, maxSpans = 256 }
+        };
+        File.WriteAllText(Path.Combine(Dataset, "pipeline.json"), JsonSerializer.Serialize(raw));
+        var plan = Pipeline.Plan(PipelineAction.Analyze, Options with { Input = "unrelated", Category = "frog", SamplingSeed = 9 });
+        var args = plan.Arguments.ToList();
+        Assert.Equal("42", args[args.IndexOf("--seed") + 1]);
+        Assert.Equal(_root, args[args.IndexOf("--input") + 1]);
+        Assert.Equal(Dataset, args[args.IndexOf("--output") + 1]);
+        Assert.Equal("church", args[args.IndexOf("--category") + 1]);
+        Assert.Equal("3", args[args.IndexOf("--fit-tolerance") + 1]);
+        File.WriteAllText(Path.Combine(Dataset, "pipeline.json"), JsonSerializer.Serialize(new
+            { schema = "gojo.quickdraw-pipeline.v1", request = new { mode = "existing", source = _root, count = 25 } }));
+        args = Pipeline.Plan(PipelineAction.Analyze, Options).Arguments.ToList();
+        Assert.Equal(_root, args[args.IndexOf("--dataset") + 1]);
+        Assert.Equal(Dataset, args[args.IndexOf("--output") + 1]);
     }
 
     [Fact]
