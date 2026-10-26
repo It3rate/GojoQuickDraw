@@ -8,7 +8,7 @@ has been trained, no AI service is called, and these are review proposals.
 
 Choose a converted collection in QuickDraw Studio, keep **Analyze every drawing
 in the selected generated folder and subfolders** selected, choose a fresh
-analysis output, and run **Full analysis → review**. Select **Church cleanup
+analysis output, and run **Full analysis â†’ review**. Select **Church cleanup
 (final shape stage)** in either review. The gallery defaults to this stage when
 it is present. Page changes retain the selected stage.
 
@@ -49,9 +49,9 @@ have no direct source intervals. Refined shapes refer to their earlier area
 estimates; those retain their source-to-boundary mappings. A cleaned boundary
 does not acquire ink simply because it resembles a nearby stroke.
 
-The viewer uses faint original strokes, solid refined boundaries, and dashed
-expectation additions/ground. Hover or select a part for its changes, provenance,
-construction references and source stroke order. The original ink is never
+The viewer uses faint original strokes, solid refined boundaries, light gray
+dotted added doors/windows, and dashed other expectations/ground. Select a part
+for its changes, provenance, construction references and source stroke order. The original ink is never
 removed. Unresolved ink remains inspectable in the mapping view.
 
 Cleanup policy v2 removes the narrow-tower and shallow-cap cross-size ceilings.
@@ -66,9 +66,12 @@ Area policy v5 also accepts sloping outline arms while still requiring inset
 upper/lower stems, preventing an open outlined cross from becoming a default
 small marker merely because its arms were uneven.
 
-Wall partitioning subtracts the selected tower rectangles from the proposed
-wall frame. Remaining rectangles have disjoint interiors and keep all remaining
-area, including pieces on both sides of a central tower. Neighboring boundaries
+Wall partitioning subtracts foreground tower rectangles from the proposed
+wall frame. An upper tower supported by the wall top stays above that boundary;
+an unbroken wall-top interval and short upper uprights can instead select the
+lower wall as foreground and trim the tower. Remaining rectangles have disjoint
+interiors and keep all remaining area, including pieces on both sides of a
+central tower. Neighboring boundaries
 share explicit sites. Openings select a visible enclosing section; optional
 windows are omitted on very narrow residual sections. This does not recover
 missing wings or guarantee that the earlier tower hypotheses were correct.
@@ -79,6 +82,41 @@ attachment dependencies. This does not claim that the person's mental hierarchy
 has been recovered from pen order.
 
 ## Connected native evidence
+
+Policy v3 keeps the selected roof peak as an attachment
+reference, using the earlier cross foot and its selected source endpoints to
+recognize that relationship. The revised foot shares the revised peak's actual
+site. A detached or clearly offset motif remains a different proposal. Paired
+supports also propose a mirror read of their crosses; signed bound differences
+remain native observations, with an authored review allowance in the adapter.
+
+A tower ending at the wall top retains that support. A continuous wall-top
+interval across the tower, together with upper uprights that stop near that
+level, can select the lower wall as foreground and trim the upper rectangle.
+The selection retains its source intervals and before/after correspondence;
+it is an occlusion hypothesis, not a claim of measured physical depth.
+Conversely, selected side-tower uprights that continue down through the wall
+level retain a grounded tower, even if its earlier regional bounds stopped short.
+
+Door/window clearance is a local read between two opening bounds in their
+common wall. Candidate translations preserve size and containment; a mirrored
+pair moves together where possible. Added windows may stay unplaced if no
+clearance-preserving position exists. Drawing-supported openings are retained
+with an unresolved review warning if the available wall cannot satisfy the
+authored separation. Connected opening/wall relations retain the native bound
+reads; thresholds and search choices are authored adapter policy.
+
+Added doors and windows are light gray and dotted in both viewers. Other
+opening colors retain the distinction between a refined drawing-supported
+estimate and an optional addition. Crossbar correction changes only the final
+proposal, keeping its bar above the midpoint and retaining the original ink.
+
+The current minimum opening gap is 6% of the enclosing section's width,
+measured between axis-aligned opening bounds. The search considers a finite set
+of translations without shrinking the openings. Mirror checks use the existing
+four signed bound differences; the review allowance is the larger of 4% of the
+axis section's width and 8% of the smaller part height. These are explicit
+starting assumptions, not learned architectural laws.
 
 The refinement keeps a partition as connected construction, using the
 existing context and correspondence grammar:

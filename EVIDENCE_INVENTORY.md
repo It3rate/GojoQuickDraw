@@ -562,6 +562,11 @@ construction execution stays on demand; cached proposal views are labelled separ
 - **in:** increasing cross-scale refinement with face-relative placement;
   wall rectangles partitioned around towers with connected construction frames,
   earlier-source correspondence and explicitly shared boundary sites.
+- **in:** peak-following cross attachments using selected source endpoints;
+  paired-cross mirror residual checks and an upper-half crossbar prior.
+- **in, bounded authored read:** continuous wall-top foreground selection;
+  door/window clearance in a common enclosing section, optional unplaced slots,
+  and visible warnings when drawing-supported openings cannot satisfy the gap.
 - **plan:** learned placement/view priors, general perspective recovery,
   autonomous feedback arbitration and causal inference from pen order.
 

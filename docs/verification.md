@@ -334,6 +334,39 @@ See [the recorded report](../reports/cross-scale-partitions-2026-10-26.json).
 These are bounded development checks; missing wings and incorrect earlier
 part interpretations remain possible.
 
+## Peak attachments, opening clearance and foreground — 26 October 2026
+
+Cleanup policy v3 was checked on the same 36 development drawings. Samples 6
+and 17 now follow the relocated triangle peak. In sample 34 the selected source
+upright reaches the dome even though the earlier cross envelope stops short;
+both revised crosses now share their respective cap peak sites. A paired-cross
+mirror read detects the previous mismatch and falls within its authored
+allowance after this correction. Cross heights stay unchanged across the pilot.
+
+Samples 13–15 now satisfy the authored door/window clearance. Sample 21's
+crossbar moves above halfway without reducing its scale. Sample 11 keeps the
+continuous lower wall whole with the upper tower ending at its top. Sample 7's
+long source upright still supports a tower reaching the ground. Drawing-supported
+openings retain their colors; optional doors/windows are light gray and dotted.
+
+All 36 complete native capture/restore with no retained errors. Source text,
+fitted observations, programs, earlier area estimates and boundary mappings are
+unchanged. Deterministic reruns reproduce the new cleanup. All occupied wall/tower
+rectangles are disjoint and all openings remain contained. The results contain
+265 proposed parts, 298 shared attachment references, 31 mirror reads and 104
+prior-only parts. None of the finite clearance/mirror checks require review in
+this pilot; that does not establish semantic recognition accuracy.
+
+Checks passed: 141 Python tests, 44 native tests and all 5,407 linked Gojo tests.
+Negative controls cover a genuinely offset cross, unrelated endpoints, a
+grounded side tower, impossible opening placement, preserved observed openings
+with warnings, and an asymmetric pair of crosses. Three fresh raw drawings
+converted and restored; six derived archives were independently restored; all
+36 analysis records resumed unchanged. Browser checks cover all drawings, both
+views' opening styles, check listings, pagination and mapping inspection.
+
+See [the recorded report](../reports/cleanup-details-2026-10-26.json).
+
 ## Reproduce
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

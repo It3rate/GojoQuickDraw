@@ -75,8 +75,12 @@ construction: centered front peaks, prominent crosses, paired towers and contain
 openings. Wall sections meet towers without overlapping their interiors; crosses
 on a facade keep their placement instead of being moved onto a roof tip.
 Outlined/open crosses and oblique roof bands have additional detection
-reads. The original stays faintly visible; dashed additions are explicit church
-expectations. The gallery defaults to this stage when available. Use a fresh
+reads. Crosses attached to peaks follow their revised peaks; the crossbar stays
+above halfway. Continuous foreground walls can remain whole below an upper tower.
+Doors and windows have a local clearance check; optional additions are light gray
+and dotted, while drawing-supported openings keep their role colors. Unmet
+clearance and mirror expectations are visible review checks. The original stays
+faintly visible. The gallery defaults to this stage when available. Use a fresh
 analysis output to apply the new pass to older collections. See
 [shape cleanup and its connected evidence](CHURCH_SHAPE_CLEANUP.md).
 

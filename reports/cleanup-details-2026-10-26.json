@@ -1,0 +1,563 @@
+{
+  "date": "2026-10-26",
+  "scope": "Peak-following cross attachments, optional opening presentation and clearance, foreground wall continuity; authored proposals, not learned priors.",
+  "dataset": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-details-pilot-v2",
+  "review": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-details-pilot-v2-runs\\inspector\\comparison.html?view=cleanup",
+  "implementation": {
+    "converter": "16fb487a53a6dc558f3cb34ea2825a0ea8f0676cfad7904c9dddc80389f632e0",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "86d402ce95379e3d3729169b4e1a523779277ebe680fcd48e52b6da3c2ee12ad",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "analysisFingerprint": "77496dbf16acef756bbef207177e9ec481c0bac4a5354b116881417efabfad60",
+  "analysis": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-details-pilot-v2",
+    "matched": 36,
+    "converted": 36,
+    "passes": 252,
+    "storedRecords": 36,
+    "storedErrors": 0,
+    "drawings": 36,
+    "workers": 3,
+    "sourceUnchanged": true,
+    "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+    "selectedKeyIds": [
+      "4707059385761792",
+      "4745777253449728",
+      "4835826410192896",
+      "4836604000600064",
+      "5026742236348416",
+      "5037263295610880",
+      "5071232594608128",
+      "5161617551523840",
+      "5165838967504896",
+      "5231607982063616",
+      "5246955158503424",
+      "5247716256907264",
+      "5320526270562304",
+      "5389179863171072",
+      "5488048856891392",
+      "5516770007842816",
+      "5521537635450880",
+      "5650365196271616",
+      "5650520033198080",
+      "5774941733519360",
+      "5865058414362624",
+      "5901226988273664",
+      "5954572780568576",
+      "6039787817402368",
+      "6082729202417664",
+      "6114902718545920",
+      "6175065550880768",
+      "6280306992611328",
+      "6291594720313344",
+      "6292633682968576",
+      "6378596228661248",
+      "6414840786583552",
+      "6469580950077440",
+      "6492920540561408",
+      "6680427051876352",
+      "6688106352738304"
+    ],
+    "elapsedSeconds": 118.30850079999072
+  },
+  "integrity": {
+    "drawings": 36,
+    "totals": {
+      "attachments": 298,
+      "parts": 265,
+      "priorOnly": 104,
+      "reviewWarnings": 0,
+      "symmetryPairs": 31
+    },
+    "sourceUnchanged": true,
+    "baselineHashesUnchanged": true,
+    "deterministicRerun": true,
+    "containedOpenings": true,
+    "exactProposedContacts": true,
+    "outlineMedialAxesNeverClaimInk": true
+  },
+  "regression": {
+    "drawings": 36,
+    "sourceAndEarlierEstimatesUnchanged": true,
+    "wallAndTowerInteriorsDisjoint": true,
+    "crossProminenceUnchanged": true,
+    "allCrossbarsAboveHalfway": true,
+    "flaggedPeakContactsShareActualSites": true,
+    "lowerWallForegroundPreserved": true,
+    "flaggedDoorWindowClearancesSatisfied": true,
+    "pairedCrossMismatchDetectedBeforeAndResolvedAfter": true,
+    "genuinelyOffsetMotifRetained": true,
+    "groundedSideTowerRetained": true
+  },
+  "examples": [
+    {
+      "sample": 6,
+      "keyId": "4745777253449728",
+      "parts": 9,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            89.228,
+            0.241,
+            118.93,
+            49.743
+          ],
+          "bar": 16.082,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "sample": 7,
+      "keyId": "6175065550880768",
+      "parts": 9,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            382.718,
+            43.989,
+            407.705,
+            85.634
+          ],
+          "bar": 57.315,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "sample": 11,
+      "keyId": "4835826410192896",
+      "parts": 7,
+      "foregroundSelections": 1,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            318.942,
+            49.311,
+            357.163,
+            113.014
+          ],
+          "bar": 69.696,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "sample": 13,
+      "keyId": "6039787817402368",
+      "parts": 7,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            245.95,
+            52.788,
+            283.836,
+            115.931
+          ],
+          "bar": 72.994,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": [
+        {
+          "actual": 21.81,
+          "id": "cleanup-door-1--cleanup-window-prior-6-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 21.811,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-prior-6-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-prior-6"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0.001,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 21.811,
+          "id": "cleanup-door-1--cleanup-window-prior-7-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 21.811,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-prior-7-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-prior-7"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 165.904,
+          "id": "cleanup-window-prior-6--cleanup-window-prior-7-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 21.811,
+          "nativeRead": {
+            "id": "cleanup-window-prior-6--cleanup-window-prior-7-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-window-prior-6",
+            "cleanup-window-prior-7"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        }
+      ]
+    },
+    {
+      "sample": 14,
+      "keyId": "5389179863171072",
+      "parts": 6,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            270.805,
+            221.629,
+            288.013,
+            250.309
+          ],
+          "bar": 230.807,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": [
+        {
+          "actual": 23.636,
+          "id": "cleanup-door-1--cleanup-window-prior-5-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 23.636,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-prior-5-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-prior-5"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0.0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 23.636,
+          "id": "cleanup-door-1--cleanup-window-prior-6-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 23.636,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-prior-6-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-prior-6"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0.0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 196.97,
+          "id": "cleanup-window-prior-5--cleanup-window-prior-6-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 23.636,
+          "nativeRead": {
+            "id": "cleanup-window-prior-5--cleanup-window-prior-6-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-window-prior-5",
+            "cleanup-window-prior-6"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        }
+      ]
+    },
+    {
+      "sample": 15,
+      "keyId": "5247716256907264",
+      "parts": 7,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            186.342,
+            171.594,
+            308.034,
+            282.899
+          ],
+          "bar": 210.55072463768118,
+          "placement": "on-face"
+        }
+      ],
+      "checks": [
+        {
+          "actual": 25.432,
+          "id": "cleanup-door-1--cleanup-window-prior-6-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 25.433,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-prior-6-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-prior-6"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0.001,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 25.433,
+          "id": "cleanup-door-1--cleanup-window-prior-7-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 25.433,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-prior-7-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-prior-7"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0.0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 177.01,
+          "id": "cleanup-window-prior-6--cleanup-window-prior-7-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 25.433,
+          "nativeRead": {
+            "id": "cleanup-window-prior-6--cleanup-window-prior-7-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-window-prior-6",
+            "cleanup-window-prior-7"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        }
+      ]
+    },
+    {
+      "sample": 17,
+      "keyId": "5246955158503424",
+      "parts": 7,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            244.078,
+            45.255,
+            275.892,
+            98.277
+          ],
+          "bar": 62.221999999999994,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "sample": 21,
+      "keyId": "5037263295610880",
+      "parts": 6,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            191.798,
+            53.039,
+            312.272,
+            239.481
+          ],
+          "bar": 133.43427771812082,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "sample": 28,
+      "keyId": "6688106352738304",
+      "parts": 7,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            156.91,
+            12.947,
+            321.718,
+            235.565
+          ],
+          "bar": 93.30423750031984,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": []
+    },
+    {
+      "sample": 34,
+      "keyId": "6680427051876352",
+      "parts": 11,
+      "foregroundSelections": 0,
+      "crosses": [
+        {
+          "id": "cleanup-cross",
+          "bounds": [
+            182.968,
+            65.437,
+            232.161,
+            147.424
+          ],
+          "bar": 91.673,
+          "placement": "attached-top"
+        },
+        {
+          "id": "cleanup-cross-2",
+          "bounds": [
+            269.708,
+            62.247,
+            320.814,
+            147.424
+          ],
+          "bar": 89.50399999999999,
+          "placement": "attached-top"
+        }
+      ],
+      "checks": [
+        {
+          "allowance": 7.703,
+          "id": "cleanup-mirror-check-3",
+          "kind": "mirror-check",
+          "label": "Cross pair symmetry",
+          "nativeRead": {
+            "index": 2,
+            "surface": "cleanup.symmetries"
+          },
+          "participants": [
+            "cleanup-cross",
+            "cleanup-cross-2",
+            "cleanup-building-frame"
+          ],
+          "qualification": "Finite bound differences from the native mirror read; review allowance is authored, not learned.",
+          "signedResiduals": [
+            0.957,
+            -0.956,
+            3.19,
+            0.0
+          ],
+          "status": "within-allowance"
+        }
+      ]
+    }
+  ],
+  "tests": {
+    "pythonPassed": 141,
+    "nativePassed": 44,
+    "linkedGojoPassed": 5407
+  },
+  "freshRawConversion": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-final-details-qa\\raw-smoke-v2",
+    "scanned": 4,
+    "matched": 3,
+    "converted": 3,
+    "resumed": 0,
+    "errors": 0,
+    "storedRecords": 3,
+    "storedErrors": 0,
+    "synthesisGenerated": false
+  },
+  "rawRestore": {
+    "records": 3,
+    "nativeRestoreVerified": true,
+    "artifactHashesVerified": true
+  },
+  "extraDerivedRestore": {
+    "records": 6,
+    "nativeRestoreVerified": true,
+    "artifactHashesVerified": true
+  },
+  "resume": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-details-pilot-v2",
+    "matched": 36,
+    "resumed": 36,
+    "storedRecords": 36,
+    "storedErrors": 0,
+    "drawings": 36,
+    "workers": 3,
+    "sourceUnchanged": true,
+    "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver."
+  },
+  "browser": {
+    "drawings": 36,
+    "galleryPages": 3,
+    "sourceUnchanged": true,
+    "contactsPresent": true,
+    "pagingPreserved": true,
+    "optionalOpeningStylesVerified": true,
+    "checksListed": true,
+    "errors": [],
+    "externalRequests": 0
+  },
+  "mappingBrowser": {
+    "drawings": 36,
+    "errors": []
+  },
+  "qualification": "The 36 drawings are a selected development set. Empty review warnings mean only that these authored finite checks passed; source-part interpretations may still be wrong."
+}

@@ -11,8 +11,11 @@ from .layout_markers import cross_geometry
 from .layout_openings import geometry as opening_geometry
 from .cleanup_crosses import placement as cross_placement
 from .cleanup_partitions import intersection, subtract
+from .cleanup_foreground import wall_in_front, ground_support
+from .cleanup_openings import separate as separate_openings
+from .cleanup_checks import mirrors as mirror_checks
 
-POLICY = {'version':'church-shape-cleanup.v2','learned':False,
+POLICY = {'version':'church-shape-cleanup.v3','learned':False,
           'qualification':'Authored church expectations; not a learned likelihood or physical simulation.',
           'windowCountWhenAbsent':2,'sourceInkUnchanged':True}
 
@@ -28,7 +31,7 @@ def build(observed, layout):
     body = next((p for p in original.values() if p['role']=='building'),None)
     result={'schema':'gojo.quickdraw-shape-cleanup.v1','sourceId':observed.get('sourceId'),
             'policy':deepcopy(POLICY),'parts':[],'relations':[],'correspondences':[],
-            'attachments':[],'symmetries':[],'sourceUnchanged':True}
+            'attachments':[],'symmetries':[],'checks':[],'sourceUnchanged':True}
     if not body:
         result['status']='open-no-building-area';return result
     l,t,r,g=body['bounds'];w,h=r-l,g-t;cx=(l+r)/2
@@ -56,9 +59,19 @@ def build(observed, layout):
         'qualification':'A provisional presentation read; not a recovered camera or proven viewpoint.'}
     for tower in towers:
         bounds=list(tower['bounds']); reason=[]
-        if side and (bounds[0]<l+.20*w or bounds[2]>r-.20*w):
-            bounds[3]=g;reason.append('Side tower extends to the shared ground premise.')
-        spec('tower',bounds,tower,ground['id'] if bounds[3]==g else building['id'],reason=reason)
+        foreground=wall_in_front(observed,body,tower)
+        ground_spans=ground_support(observed,body,tower)
+        if foreground:
+            bounds[3]=t;reason.append('Lower wall stays whole in front; the visible tower ends at its continuous top boundary.')
+        elif ground_spans and side and (bounds[0]<l+.20*w or bounds[2]>r-.20*w):
+            bounds[3]=g;reason.append('Selected side-tower uprights continue through the wall level to the ground.')
+        elif bounds[1]<t and abs(bounds[3]-t)<.03*max(w,h):
+            bounds[3]=t;reason.append('Upper tower stays supported by the wall top instead of extending through it.')
+        refined=spec('tower',bounds,tower,ground['id'] if bounds[3]==g else building['id'],reason=reason,groundSupportSpans=ground_spans)
+        if foreground:
+            result['relations'].append({'id':refined['id']+'-foreground','kind':'shape-refinement-foreground',
+                'participants':[building['id'],refined['id']], 'spans':foreground['spans'],
+                'status':'conditional-construction','residue':[foreground['basis'],'Foreground selection is an authored interpretation, not recovered physical depth.']})
     grounded=[s for s in specs if s['role'] in ('building','tower') and s['bounds'][3]==g]
     ground['bounds']=[round(min(p['bounds'][0] for p in grounded)-.04*w,3),g,
                       round(max(p['bounds'][2] for p in grounded)+.04*w,3),g]
@@ -75,7 +88,7 @@ def build(observed, layout):
             if abs(_center(right['bounds'])+_center(left['bounds'])-2*cx)>.28*w:continue
             tw=(_width(left['bounds'])+_width(right['bounds']))/2
             top=(left['bounds'][1]+right['bounds'][1])/2;bottom=(left['bounds'][3]+right['bounds'][3])/2
-            distance=(_center(right['bounds'])-_center(left['bounds']))/2
+            distance=max(tw/2,(_center(right['bounds'])-_center(left['bounds']))/2)
             for p,sign in ((left,-1),(right,1)):
                 x=cx+sign*distance;p['bounds']=_round([x-tw/2,top,x+tw/2,bottom]);p['changes'].append('Paired towers use equal size and mirrored placement.')
                 paired.add(p['id'])
@@ -98,6 +111,8 @@ def build(observed, layout):
             if tower['parent']==old_id:tower['parent']=building['id']
         for pair in result['symmetries']:
             if pair['axisPart']==old_id:pair['axisPart']=building['id']
+        for relation in result['relations']:
+            relation['participants']=[building['id'] if i==old_id else i for i in relation['participants']]
         result['relations'].append({'id':'cleanup-wall-partition','kind':'shape-refinement-partition',
             'participants':[building['id']]+[p['id'] for p in walls+occupied], 'spans':[],
             'status':'conditional-construction','residue':['Partition of a proposed frame, not independent acquired surfaces.']})
@@ -138,8 +153,12 @@ def build(observed, layout):
             # The face motif extends below the cap: use the broader facade
             # frame, not the cap's changing width, as its placement reference.
             parent=building
-        bounds,options=cross_placement(cross,parent,original[parent['sourcePart']],max(w,h))
+        bounds,options=cross_placement(cross,parent,original[parent['sourcePart']],max(w,h),observed)
         spec('cross',bounds,cross,parent['id'],shape='cross',**options)
+    for pair in list(result['symmetries']):
+        markers=[[p for p in specs if p['role']=='cross' and p['parent']==ident] for ident in (pair['left'],pair['right'])]
+        if all(len(items)==1 for items in markers):
+            result['symmetries'].append({'left':markers[0][0]['id'],'right':markers[1][0]['id'],'axisPart':pair['axisPart']})
     # Openings inherit their enclosing frame, not an arbitrary global center.
     owners=walls+[s for s in specs if s['role']=='tower']
     def owner_for(bounds,grounded=False):
@@ -189,6 +208,7 @@ def build(observed, layout):
         for p,sign in ((left,-1),(right,1)):
             x=axis+sign*distance;p['bounds']=_round([x-ww/2,y-wh/2,x+ww/2,y+wh/2]);p['changes'].append('Paired openings share size and height.')
         if mirrored:result['symmetries'].append({'left':left['id'],'right':right['id'],'axisPart':owner['id']})
+    result['checks']=separate_openings(specs,result)+mirror_checks(specs,result['symmetries'])
     by_id={s['id']:s for s in specs}
     # Build all geometry first, then split each support edge at requested
     # attachment sites. Explicit aliases, never coordinate coincidence, create
@@ -271,7 +291,8 @@ def build(observed, layout):
                 'status':'conditional-construction','residue':['Parent choice and containment are authored expectations.']})
     result['parts']=specs;result['status']='proposed'
     result['summary']={'parts':len(specs),'priorOnly':sum(p['status']=='prior-only' for p in specs),
-                       'attachments':len(result['attachments']),'symmetryPairs':len(result['symmetries'])}
+                       'attachments':len(result['attachments']),'symmetryPairs':len(result['symmetries']),
+                       'reviewWarnings':sum(c['status']=='needs-review' for c in result['checks'])}
     return result
 
 

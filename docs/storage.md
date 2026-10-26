@@ -296,6 +296,21 @@ site correspondence; selected tower edges meet it through actual shared sites.
 This is repeated non-draining observation of one source. Face-relative crosses
 retain a selected support frame without inventing a contact with its boundary.
 
+Policy v3 selects roof-peak attachments using the earlier cross foot and selected
+interval endpoints; the refined cross foot shares the refined peak's actual site.
+`supportRead` retains that selection separately from physical source mapping.
+Paired-support crosses also select native mirror reads. `checks` presents these
+signed differences against authored allowances and links opening-clearance reads
+to context relations selecting the actual openings and their wall bounds.
+Review warnings do not claim native semantic arbitration or calibrated likelihoods.
+
+A foreground relation can select continuous wall-top profiles and short tower
+uprights, retaining the lower rectangle whole and ending the upper one at that
+boundary. Optional openings that cannot be placed keep open context proposals;
+drawing-supported openings remain with an unresolved clearance warning. Added
+doors/windows use light gray dots in the viewer; their role and `prior-only`
+status stay separate fields, and their source intervals remain empty.
+
 The optional sixth native field retains actual selected part/site identities and
 signed displacement/mirror arithmetic. Three-, four- and five-field records
 remain readable. See [the native refinement contract](../CHURCH_SHAPE_CLEANUP.md).
