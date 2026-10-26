@@ -559,6 +559,9 @@ construction execution stays on demand; cached proposal views are labelled separ
   mirror residuals. Original source and earlier estimates remain intact.
 - **in:** explicitly prior-only optional entrance/window additions; acquisition
   order is retained separately from proposed construction dependency order.
+- **in:** increasing cross-scale refinement with face-relative placement;
+  wall rectangles partitioned around towers with connected construction frames,
+  earlier-source correspondence and explicitly shared boundary sites.
 - **plan:** learned placement/view priors, general perspective recovery,
   autonomous feedback arbitration and causal inference from pen order.
 

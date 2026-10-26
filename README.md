@@ -71,8 +71,10 @@ associations. Roofs and towers are optional, including flat-topped towers with a
 cross above them. See [boundary mapping](CHURCH_BOUNDARY_MAPPING.md).
 
 **Church cleanup (final shape stage)** refines those areas into a more regular
-construction: centered front peaks, attached crosses, paired towers and contained
-openings. Outlined/open crosses and oblique roof bands have additional detection
+construction: centered front peaks, prominent crosses, paired towers and contained
+openings. Wall sections meet towers without overlapping their interiors; crosses
+on a facade keep their placement instead of being moved onto a roof tip.
+Outlined/open crosses and oblique roof bands have additional detection
 reads. The original stays faintly visible; dashed additions are explicit church
 expectations. The gallery defaults to this stage when available. Use a fresh
 analysis output to apply the new pass to older collections. See

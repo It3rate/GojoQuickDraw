@@ -22,7 +22,7 @@ let browser;
   await page.screenshot({path:path.join(output,`gallery-${n+1}.png`),fullPage:true});
  }
  for(const row of links){
-  await page.goto(row.href);await page.reload();await page.waitForSelector('#fit [data-cleanup="cleanup-building"]');
+  await page.goto(row.href);await page.reload();await page.waitForSelector('#fit [data-cleanup]:has(polygon)');
   const read=await page.evaluate(()=>({key:packet().source.key_id,mode:$('readMode').value,
    original:packet().observation.strokes.map(s=>s.points.map(p=>p.join(',')).join(' ')),
    faint:[...document.querySelectorAll('#fit [data-stroke]')].map(e=>e.getAttribute('points')),
@@ -30,8 +30,8 @@ let browser;
    count:document.querySelectorAll('#fit [data-cleanup]').length,expected:packet().cleanup.parts.length,
    physical:packet().cleanup.parts.reduce((n,p)=>n+p.spans.length,0),contacts:packet().cleanup.attachments.length}));
   assert.equal(read.mode,'cleanup');assert.equal(read.key,row.key);assert.deepEqual(read.raw,read.original);assert.deepEqual(read.faint,read.original);assert.equal(read.count,read.expected);assert.equal(read.physical,0);assert(read.contacts>0);
-  await page.locator('#fit [data-cleanup="cleanup-building"]').focus();assert((await page.locator('#detail').innerText()).includes('Earlier estimate'));
-  if(['6688106352738304','6175065550880768','4745777253449728','5246955158503424'].includes(row.key))
+  await page.locator('#fit [data-cleanup]:has(polygon)').first().focus();assert((await page.locator('#detail').innerText()).includes('Earlier estimate'));
+  if(['6688106352738304','6175065550880768','4745777253449728','5246955158503424','4707059385761792','5521537635450880','5954572780568576','5774941733519360','5247716256907264','5037263295610880','5165838967504896'].includes(row.key))
    await page.screenshot({path:path.join(output,`example-${row.key}.png`),fullPage:true});
  }
  await page.goto(links[0].href);await page.click('#nextPage');await page.waitForFunction(()=>typeof PAGING!=='undefined'&&PAGING.page===2);assert.equal(await page.locator('#readMode').inputValue(),'cleanup');

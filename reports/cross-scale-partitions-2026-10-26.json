@@ -1,0 +1,739 @@
+{
+  "date": "2026-10-26",
+  "scope": "Monotone cross prominence and separate wall rectangles around towers; authored proposals, not learned priors.",
+  "dataset": "D:/_quickDraw/gojo-quickdraw-evidence/church-cleanup-scale-pilot-v2",
+  "review": "D:/_quickDraw/gojo-quickdraw-evidence/church-cleanup-scale-pilot-v2-runs/inspector/comparison.html?view=cleanup",
+  "implementation": {
+    "converter": "3d47ddfb89197b82998718419b5a78f1454d18ddb354d406b2208a59398ee702",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "86d402ce95379e3d3729169b4e1a523779277ebe680fcd48e52b6da3c2ee12ad",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "analysisFingerprint": "45ffaa12e069fe78d8a401753d1d9e4517e2c373923cac832df80aed5533cda8",
+  "analysis": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-scale-pilot-v2",
+    "matched": 36,
+    "converted": 36,
+    "passes": 252,
+    "storedRecords": 36,
+    "storedErrors": 0,
+    "drawings": 36,
+    "workers": 3,
+    "sourceUnchanged": true,
+    "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+    "selectedKeyIds": [
+      "4707059385761792",
+      "4745777253449728",
+      "4835826410192896",
+      "4836604000600064",
+      "5026742236348416",
+      "5037263295610880",
+      "5071232594608128",
+      "5161617551523840",
+      "5165838967504896",
+      "5231607982063616",
+      "5246955158503424",
+      "5247716256907264",
+      "5320526270562304",
+      "5389179863171072",
+      "5488048856891392",
+      "5516770007842816",
+      "5521537635450880",
+      "5650365196271616",
+      "5650520033198080",
+      "5774941733519360",
+      "5865058414362624",
+      "5901226988273664",
+      "5954572780568576",
+      "6039787817402368",
+      "6082729202417664",
+      "6114902718545920",
+      "6175065550880768",
+      "6280306992611328",
+      "6291594720313344",
+      "6292633682968576",
+      "6378596228661248",
+      "6414840786583552",
+      "6469580950077440",
+      "6492920540561408",
+      "6680427051876352",
+      "6688106352738304"
+    ],
+    "elapsedSeconds": 112.39979719999246
+  },
+  "regression": {
+    "drawings": 36,
+    "wallTowerInteriorsDisjoint": true,
+    "wallInteriorsDisjoint": true,
+    "frameAreaRetained": true,
+    "noWindowAcrossTowerSeams": true,
+    "uniqueAttachmentWitnesses": true,
+    "examples": [
+      {
+        "sample": 1,
+        "keyId": "6291594720313344",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          38.071
+        ],
+        "newCrossHeights": [
+          52.505
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 2,
+        "keyId": "5320526270562304",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          71.504
+        ],
+        "newCrossHeights": [
+          86.338
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 3,
+        "keyId": "5954572780568576",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          50.924
+        ],
+        "newCrossHeights": [
+          157.211
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 4,
+        "keyId": "6292633682968576",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          53.76
+        ],
+        "newCrossHeights": [
+          53.76
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 5,
+        "keyId": "5165838967504896",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          22.0
+        ],
+        "newCrossHeights": [
+          77.194
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 6,
+        "keyId": "4745777253449728",
+        "wallRectangles": 1,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          39.122
+        ],
+        "newCrossHeights": [
+          49.502
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 7,
+        "keyId": "6175065550880768",
+        "wallRectangles": 1,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          41.645
+        ],
+        "newCrossHeights": [
+          41.645
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 8,
+        "keyId": "5071232594608128",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          76.083
+        ],
+        "newCrossHeights": [
+          173.557
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 9,
+        "keyId": "5488048856891392",
+        "wallRectangles": 1,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          61.536
+        ],
+        "newCrossHeights": [
+          77.73
+        ],
+        "placements": [
+          "on-face"
+        ]
+      },
+      {
+        "sample": 10,
+        "keyId": "5774941733519360",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          53.76
+        ],
+        "newCrossHeights": [
+          208.598
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 11,
+        "keyId": "4835826410192896",
+        "wallRectangles": 2,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          33.735
+        ],
+        "newCrossHeights": [
+          63.703
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 12,
+        "keyId": "5026742236348416",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          90.015
+        ],
+        "newCrossHeights": [
+          120.96
+        ],
+        "placements": [
+          "on-face"
+        ]
+      },
+      {
+        "sample": 13,
+        "keyId": "6039787817402368",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          63.143
+        ],
+        "newCrossHeights": [
+          63.143
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 14,
+        "keyId": "5389179863171072",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          28.68
+        ],
+        "newCrossHeights": [
+          28.68
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 15,
+        "keyId": "5247716256907264",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          27.845
+        ],
+        "newCrossHeights": [
+          111.305
+        ],
+        "placements": [
+          "on-face"
+        ]
+      },
+      {
+        "sample": 16,
+        "keyId": "6469580950077440",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          37.684
+        ],
+        "newCrossHeights": [
+          41.297
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 17,
+        "keyId": "5246955158503424",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          44.573
+        ],
+        "newCrossHeights": [
+          53.022
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 18,
+        "keyId": "6114902718545920",
+        "wallRectangles": 2,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          32.944
+        ],
+        "newCrossHeights": [
+          53.76
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 19,
+        "keyId": "5650365196271616",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          30.787
+        ],
+        "newCrossHeights": [
+          30.787
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 20,
+        "keyId": "5231607982063616",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          68.758
+        ],
+        "newCrossHeights": [
+          68.758
+        ],
+        "placements": [
+          "on-face"
+        ]
+      },
+      {
+        "sample": 21,
+        "keyId": "5037263295610880",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          63.672
+        ],
+        "newCrossHeights": [
+          186.442
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 22,
+        "keyId": "6082729202417664",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          53.76
+        ],
+        "newCrossHeights": [
+          53.76
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 23,
+        "keyId": "5650520033198080",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          52.375
+        ],
+        "newCrossHeights": [
+          52.375
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 24,
+        "keyId": "4707059385761792",
+        "wallRectangles": 1,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          79.377
+        ],
+        "newCrossHeights": [
+          90.202
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 25,
+        "keyId": "6378596228661248",
+        "wallRectangles": 1,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          47.285
+        ],
+        "newCrossHeights": [
+          47.285
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 26,
+        "keyId": "6280306992611328",
+        "wallRectangles": 2,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          39.63
+        ],
+        "newCrossHeights": [
+          53.76
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 27,
+        "keyId": "5521537635450880",
+        "wallRectangles": 1,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          46.433
+        ],
+        "newCrossHeights": [
+          53.76
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 28,
+        "keyId": "6688106352738304",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          54.124
+        ],
+        "newCrossHeights": [
+          222.618
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 29,
+        "keyId": "5516770007842816",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          51.437
+        ],
+        "newCrossHeights": [
+          51.437
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 30,
+        "keyId": "5865058414362624",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          46.779
+        ],
+        "newCrossHeights": [
+          53.76
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 31,
+        "keyId": "5161617551523840",
+        "wallRectangles": 1,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          69.515
+        ],
+        "newCrossHeights": [
+          77.028
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 32,
+        "keyId": "6414840786583552",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          30.848,
+          30.848
+        ],
+        "newCrossHeights": [
+          108.313,
+          108.313
+        ],
+        "placements": [
+          "attached-top",
+          "above-detached"
+        ]
+      },
+      {
+        "sample": 33,
+        "keyId": "6492920540561408",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          44.977
+        ],
+        "newCrossHeights": [
+          102.081
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 34,
+        "keyId": "6680427051876352",
+        "wallRectangles": 2,
+        "hasConstructionFrame": true,
+        "oldCrossHeights": [
+          36.832,
+          36.832
+        ],
+        "newCrossHeights": [
+          81.987,
+          85.177
+        ],
+        "placements": [
+          "above-detached",
+          "attached-top"
+        ]
+      },
+      {
+        "sample": 35,
+        "keyId": "5901226988273664",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          67.091,
+          67.091
+        ],
+        "newCrossHeights": [
+          105.386,
+          73.907
+        ],
+        "placements": [
+          "on-face",
+          "on-face"
+        ]
+      },
+      {
+        "sample": 36,
+        "keyId": "4836604000600064",
+        "wallRectangles": 1,
+        "hasConstructionFrame": false,
+        "oldCrossHeights": [
+          48.635
+        ],
+        "newCrossHeights": [
+          86.078
+        ],
+        "placements": [
+          "attached-top"
+        ]
+      }
+    ]
+  },
+  "integrity": {
+    "drawings": 36,
+    "totals": {
+      "attachments": 319,
+      "parts": 271,
+      "priorOnly": 104,
+      "symmetryPairs": 30
+    },
+    "sourceUnchanged": true,
+    "baselineHashesUnchanged": true,
+    "deterministicRerun": true,
+    "containedOpenings": true,
+    "exactProposedContacts": true,
+    "outlineMedialAxesNeverClaimInk": true
+  },
+  "rawConversion": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-cross-scale-qa\\raw-smoke",
+    "scanned": 4,
+    "matched": 3,
+    "converted": 3,
+    "resumed": 0,
+    "errors": 0,
+    "storedRecords": 3,
+    "storedErrors": 0,
+    "synthesisGenerated": false
+  },
+  "rawRestore": {
+    "records": 3,
+    "nativeRestoreVerified": true,
+    "artifactHashesVerified": true
+  },
+  "additionalArchiveRestore": {
+    "records": 6,
+    "nativeRestoreVerified": true,
+    "artifactHashesVerified": true
+  },
+  "resume": {
+    "output": "D:\\_quickDraw\\gojo-quickdraw-evidence\\church-cleanup-scale-pilot-v2",
+    "matched": 36,
+    "resumed": 36,
+    "storedRecords": 36,
+    "storedErrors": 0,
+    "drawings": 36,
+    "workers": 3,
+    "sourceUnchanged": true,
+    "qualification": "Full authored analysis and native source-linked opinions. Seven proposal states are cached; native drawing-step execution stays on demand. No learned priors or general feedback solver.",
+    "selectedKeyIds": [
+      "4707059385761792",
+      "4745777253449728",
+      "4835826410192896",
+      "4836604000600064",
+      "5026742236348416",
+      "5037263295610880",
+      "5071232594608128",
+      "5161617551523840",
+      "5165838967504896",
+      "5231607982063616",
+      "5246955158503424",
+      "5247716256907264",
+      "5320526270562304",
+      "5389179863171072",
+      "5488048856891392",
+      "5516770007842816",
+      "5521537635450880",
+      "5650365196271616",
+      "5650520033198080",
+      "5774941733519360",
+      "5865058414362624",
+      "5901226988273664",
+      "5954572780568576",
+      "6039787817402368",
+      "6082729202417664",
+      "6114902718545920",
+      "6175065550880768",
+      "6280306992611328",
+      "6291594720313344",
+      "6292633682968576",
+      "6378596228661248",
+      "6414840786583552",
+      "6469580950077440",
+      "6492920540561408",
+      "6680427051876352",
+      "6688106352738304"
+    ]
+  },
+  "browser": {
+    "drawings": 36,
+    "galleryPages": 3,
+    "sourceUnchanged": true,
+    "contactsPresent": true,
+    "pagingPreserved": true,
+    "errors": [],
+    "externalRequests": 0
+  },
+  "mappingBrowser": {
+    "drawings": 36,
+    "errors": []
+  },
+  "tests": {
+    "python": 130,
+    "native": 44,
+    "linkedGojo": 5407,
+    "allPassed": true
+  },
+  "limitations": [
+    "Selected development examples, not an unseen accuracy benchmark.",
+    "Partitioning preserves the existing wall estimate; missing wings and incorrect part assignments remain unresolved.",
+    "Decorative face motifs may intentionally span roof and wall areas.",
+    "Multiple cross candidates can still be alternative interpretations of the same motif."
+  ]
+}

@@ -35,8 +35,11 @@ The earlier area estimate stays intact. A separate `cleanup` surface proposes:
 - symmetric front triangular caps and centered domes;
 - roof placement relative to the selected wall or tower;
 - equal dimensions and mirrored placement for plausible paired towers and caps;
-- crosses centered within their cap or attached at its revised top;
+- crosses that keep their approximate prominence, with distinct face-relative
+  placement or attachment to the revised roof/tower;
 - separate side towers, joined to the main wall, without forcing global symmetry;
+- visible wall rectangles partitioned around intruding towers, retaining the
+  earlier complete bounds as a construction frame;
 - contained openings and ground-attached entrances;
 - at most one prior entrance when no entrance was detected, and a pair of prior
   windows when none were detected and there is sufficient wall area.
@@ -51,12 +54,49 @@ expectation additions/ground. Hover or select a part for its changes, provenance
 construction references and source stroke order. The original ink is never
 removed. Unresolved ink remains inspectable in the mapping view.
 
+Cleanup policy v2 removes the narrow-tower and shallow-cap cross-size ceilings.
+Cross height stays unchanged up to 60% of the larger main-wall dimension; above
+that threshold it retains 55% of the excess. This response is increasing: making
+an input cross larger cannot make its refined height smaller. Width retains 80%
+of the bounded earlier aspect ratio, with 20% toward a conventional cross ratio.
+These are inspectable authored choices, not estimates of real-world dimensions.
+Face motifs retain their vertical placement, including motifs spanning a roof
+and wall; large horizontal offsets are softened rather than removed outright.
+Area policy v5 also accepts sloping outline arms while still requiring inset
+upper/lower stems, preventing an open outlined cross from becoming a default
+small marker merely because its arms were uneven.
+
+Wall partitioning subtracts the selected tower rectangles from the proposed
+wall frame. Remaining rectangles have disjoint interiors and keep all remaining
+area, including pieces on both sides of a central tower. Neighboring boundaries
+share explicit sites. Openings select a visible enclosing section; optional
+windows are omitted on very narrow residual sections. This does not recover
+missing wings or guarantee that the earlier tower hypotheses were correct.
+
 Pen order and construction dependency order are distinct. The pass retains the
 selected source stroke indices, while its proposed hierarchy follows the
 attachment dependencies. This does not claim that the person's mental hierarchy
 has been recovered from pen order.
 
 ## Connected native evidence
+
+The refinement keeps a partition as connected construction, using the
+existing context and correspondence grammar:
+
+```text
+earlier wall -> construction frame
+construction frame -> group(wall rectangle A, wall rectangle B, tower)
+earlier wall -> each refined wall rectangle
+wall boundary site -> shared tower boundary site
+```
+
+The construction frame exposes bounds and sites but no occupied outline.
+Visible wall rectangles cover its area outside the selected tower rectangles;
+their actual ordered edges and shared contacts carry the partition. This is
+non-draining observation of one estimate, not duplicated acquired material.
+Cross refinement similarly retains its earlier scaffold and signed site changes.
+An on-face cross need not be squeezed into its associated roof's height; an
+above-roof attachment and a face-relative placement remain different reads.
 
 The native record accepts an optional sixth field after boundary mapping:
 
@@ -97,8 +137,9 @@ readable proposal snapshot, not an autonomous learned generative machine.
 ## Current limits
 
 View selection is a coarse front-like versus side/oblique hypothesis. It does
-not recover perspective or a camera. One main wall remains; some sparse or
-curved buildings, tilted crosses, multiple crosses on one support, windows and
+not recover perspective or a camera. The main frame can have several visible
+wall rectangles; some sparse or curved buildings, missing wings, tilted
+crosses, multiple crosses on one support, windows and
 clock faces can still be missed or misinterpreted. Prior openings may disagree
 with intended architecture. Earlier alternatives and unresolved ink remain
 available for later training and feedback.

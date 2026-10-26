@@ -9,8 +9,10 @@ import math
 from .layout import COLORS, _ring, _rectangle, _clamp
 from .layout_markers import cross_geometry
 from .layout_openings import geometry as opening_geometry
+from .cleanup_crosses import placement as cross_placement
+from .cleanup_partitions import intersection, subtract
 
-POLICY = {'version':'church-shape-cleanup.v1','learned':False,
+POLICY = {'version':'church-shape-cleanup.v2','learned':False,
           'qualification':'Authored church expectations; not a learned likelihood or physical simulation.',
           'windowCountWhenAbsent':2,'sourceInkUnchanged':True}
 
@@ -57,12 +59,6 @@ def build(observed, layout):
         if side and (bounds[0]<l+.20*w or bounds[2]>r-.20*w):
             bounds[3]=g;reason.append('Side tower extends to the shared ground premise.')
         spec('tower',bounds,tower,ground['id'] if bounds[3]==g else building['id'],reason=reason)
-    if side:
-        for tower in [s for s in specs if s['role']=='tower' and s['bounds'][3]==g]:
-            a,_,b,_=tower['bounds']
-            if a>cx and a<r:building['bounds'][2]=a
-            elif b<cx and b>l:building['bounds'][0]=b
-        building['changes'].append('Main wall meets the adjacent side tower without an interior seam through it.')
     grounded=[s for s in specs if s['role'] in ('building','tower') and s['bounds'][3]==g]
     ground['bounds']=[round(min(p['bounds'][0] for p in grounded)-.04*w,3),g,
                       round(max(p['bounds'][2] for p in grounded)+.04*w,3),g]
@@ -84,6 +80,27 @@ def build(observed, layout):
                 x=cx+sign*distance;p['bounds']=_round([x-tw/2,top,x+tw/2,bottom]);p['changes'].append('Paired towers use equal size and mirrored placement.')
                 paired.add(p['id'])
             result['symmetries'].append({'left':left['id'],'right':right['id'],'axisPart':building['id']})
+    walls=[building]
+    occupied=[s for s in specs if s['role']=='tower' and intersection(building['bounds'],s['bounds'])]
+    if occupied:
+        bounds=list(building['bounds']);old_id=building['id'];at=specs.index(building)
+        specs.remove(building)
+        building=spec('building',bounds,body,ground['id'],shape='frame',id='cleanup-building-frame',
+            reason=['Construction bounds retained; occupied walls are the separate rectangles outside the towers.'])
+        specs.remove(building);specs.insert(at,building)
+        walls=[]
+        for i,cell in enumerate(subtract(bounds,[p['bounds'] for p in occupied])):
+            wall=spec('building',cell,body,building['id'],id=old_id+('' if not i else '-'+str(i+1)),
+                reason=['Wall partition meets tower boundaries without overlapping their interior.'])
+            specs.remove(wall);specs.insert(at+1+i,wall);walls.append(wall)
+        by_source[body['id']]=building
+        for tower in [s for s in specs if s['role']=='tower']:
+            if tower['parent']==old_id:tower['parent']=building['id']
+        for pair in result['symmetries']:
+            if pair['axisPart']==old_id:pair['axisPart']=building['id']
+        result['relations'].append({'id':'cleanup-wall-partition','kind':'shape-refinement-partition',
+            'participants':[building['id']]+[p['id'] for p in walls+occupied], 'spans':[],
+            'status':'conditional-construction','residue':['Partition of a proposed frame, not independent acquired surfaces.']})
     for roof in [p for p in original.values() if p['role']=='roof']:
         parent=next((by_source[i] for i in roof['participants'] if i in by_source),building)
         a,peak,b,base=roof['bounds'];pa,pt,pb,pbase=parent['bounds'];shape=roof.get('shape','triangle')
@@ -117,29 +134,29 @@ def build(observed, layout):
         if cross['status']=='prior-only':
             supports=[s for s in specs if s['role'] in ('roof','tower')]
             if supports:parent=min(supports,key=lambda p:p['bounds'][1])
-        a,pt,b,base=parent['bounds'];height=_clamp(_height(cross['bounds']),.06*max(w,h),.22*max(w,h))
-        height=min(height,.42*(b-a));x=(a+b)/2
-        within=cross.get('placement','').startswith('within') and parent['role']=='roof' and parent['shape']!='parallelogram'
-        if within:
-            height=min(height,.38*(base-pt));top=pt+.42*(base-pt)
-        else:top=pt-height
-        spec('cross',[x-.3*height,top,x+.3*height,top+height],cross,parent['id'],shape='cross',
-             reason=['Cross follows the support center/peak after refinement.'],placement='within' if within else 'attached-top',
-             outlined=cross.get('markerBasis')=='outline-contour-read')
+        elif cross.get('placement','').startswith('within') and parent['role']=='roof' and cross['bounds'][3]>original[parent['sourcePart']]['bounds'][3]+.03*max(w,h):
+            # The face motif extends below the cap: use the broader facade
+            # frame, not the cap's changing width, as its placement reference.
+            parent=building
+        bounds,options=cross_placement(cross,parent,original[parent['sourcePart']],max(w,h))
+        spec('cross',bounds,cross,parent['id'],shape='cross',**options)
     # Openings inherit their enclosing frame, not an arbitrary global center.
-    owners=[building]+[s for s in specs if s['role']=='tower' and s['bounds'][3]==g]
-    def owner_for(bounds):
+    owners=walls+[s for s in specs if s['role']=='tower']
+    def owner_for(bounds,grounded=False):
         x=_center(bounds)
-        fits=[p for p in owners if p['bounds'][0]<=x<=p['bounds'][2]]
-        return min(fits,key=lambda p:_width(p['bounds'])) if fits else building
+        eligible=[p for p in owners if not grounded or abs(p['bounds'][3]-g)<.002] or owners
+        y=(bounds[1]+bounds[3])/2
+        fits=[p for p in eligible if p['bounds'][0]<=x<=p['bounds'][2] and (grounded or p['bounds'][1]<=y<=p['bounds'][3])]
+        return min(fits,key=lambda p:_width(p['bounds'])) if fits else min(eligible,key=lambda p:abs(_center(p['bounds'])-x))
     doors=[p for p in original.values() if p['role']=='door']
     if not doors:
-        owner=next((p for p in owners[1:] if side),building)
+        owner=next((p for p in owners if side and p['role']=='tower' and p['bounds'][3]==g),None)
+        if owner is None:owner=max((p for p in owners if p['bounds'][3]==g),key=lambda p:_width(p['bounds']),default=owners[0])
         a,pt,b,base=owner['bounds'];dw=.23*(b-a);dh=min(.42*(base-pt),2.1*dw);x=(a+b)/2
         spec('door',[x-dw/2,base-dh,x+dw/2,base],None,owner['id'],shape='arch',reason=['Optional entrance supplied by the church prior.'])
     else:
         for door in doors:
-            owner=owner_for(door['bounds']);a,pt,b,base=owner['bounds'];dw=min(_width(door['bounds']),.38*(b-a));dh=min(_height(door['bounds']),.65*(base-pt))
+            owner=owner_for(door['bounds'],grounded=True);a,pt,b,base=owner['bounds'];dw=min(_width(door['bounds']),.38*(b-a));dh=min(_height(door['bounds']),.65*(base-pt))
             x=(a+b)/2 if len(doors)==1 else _clamp(_center(door['bounds']),a+.08*(b-a)+dw/2,b-.08*(b-a)-dw/2)
             spec('door',[x-dw/2,base-dh,x+dw/2,base],door,owner['id'],shape=door.get('shape','rectangle'),reason=['Entrance contained in its wall and attached to ground.'])
     windows=[p for p in original.values() if p['role']=='window']
@@ -152,15 +169,12 @@ def build(observed, layout):
     else:
         # A bounded prior addition: two small openings on the main wall. Avoid
         # overlap with the doorway/tower by using the exposed wall area.
-        a,pt,b,base=building['bounds']
-        if side:
-            for tower in owners[1:]:
-                if _center(tower['bounds'])>cx:b=min(b,tower['bounds'][0])
-                else:a=max(a,tower['bounds'][2])
-        if b-a>.22*w:
-            ww=.12*(b-a);wh=min(.20*h,1.6*ww);cy=pt+.39*h
+        owner=max(walls or owners,key=lambda p:_width(p['bounds']))
+        a,pt,b,base=owner['bounds']
+        if b-a>.30*w:
+            ww=.12*(b-a);wh=min(.20*(base-pt),1.6*ww);cy=pt+.39*(base-pt)
             for x in (a+.25*(b-a),a+.75*(b-a)):
-                spec('window',[x-ww/2,cy-wh/2,x+ww/2,cy+wh/2],None,building['id'],shape='arch',reason=['Optional paired windows supplied by the church prior.'])
+                spec('window',[x-ww/2,cy-wh/2,x+ww/2,cy+wh/2],None,owner['id'],shape='arch',reason=['Optional paired windows supplied by the church prior inside an exposed wall section.'])
     # Match a plausible pair inside the same wall; keep separate identities.
     wins=[s for s in specs if s['role']=='window']
     if len(wins)==2 and wins[0]['parent']==wins[1]['parent']:
@@ -170,6 +184,8 @@ def build(observed, layout):
         axis=owner_axis if mirrored else average
         ww=(_width(left['bounds'])+_width(right['bounds']))/2;wh=(_height(left['bounds'])+_height(right['bounds']))/2
         y=sum(p['bounds'][1]+p['bounds'][3] for p in wins)/4;distance=(_center(right['bounds'])-_center(left['bounds']))/2
+        distance=min(distance,axis-owner['bounds'][0]-.04*_width(owner['bounds'])-ww/2,
+                     owner['bounds'][2]-axis-.04*_width(owner['bounds'])-ww/2)
         for p,sign in ((left,-1),(right,1)):
             x=axis+sign*distance;p['bounds']=_round([x-ww/2,y-wh/2,x+ww/2,y+wh/2]);p['changes'].append('Paired openings share size and height.')
         if mirrored:result['symmetries'].append({'left':left['id'],'right':right['id'],'axisPart':owner['id']})
@@ -179,13 +195,14 @@ def build(observed, layout):
     # the native contacts. Parent order is construction order, not pen order.
     for p in specs:
         a,pt,b,base=p['bounds'];shape=p['shape']
-        if shape=='level':geo={'points':[[a,pt],[b,base]],'segments':[[0,1]]}
+        if shape=='frame':geo={'points':[[a,pt],[b,pt],[b,base],[a,base]],'segments':[]}
+        elif shape=='level':geo={'points':[[a,pt],[b,base]],'segments':[[0,1]]}
         elif shape=='rectangle':geo=_ring([[a,pt],[b,pt],[b,base],[a,base]])
         elif shape=='triangle':geo=_ring([[a,base],[(a+b)/2,pt],[b,base]])
         elif shape=='dome':geo=_ring([[round((a+b)/2-(b-a)/2*math.cos(i*math.pi/32),3),round(base-(base-pt)*math.sin(i*math.pi/32),3)] for i in range(33)])
         elif shape=='parallelogram':geo=_ring([[a,base],[a+p['shear'],pt],[b+p['shear'],pt],[b,base]])
         elif shape=='cross':
-            geo=cross_geometry((a+b)/2,pt,base-pt)
+            geo=cross_geometry((a+b)/2,pt,base-pt,(b-a)/2,p['stemWidth']/2,p['barThickness']/2,p['bar'])
             geo['displaySegments']=list(range(12)) if p['outlined'] else [12,13]
         else:geo=opening_geometry(p['bounds'],{'shape':shape,'archFraction':.35})
         geo['points']=[_round(point) for point in geo['points']]
@@ -203,7 +220,9 @@ def build(observed, layout):
     for p in specs:
         if not p['parent']:continue
         parent=by_id[p['parent']];contacts=[];geo=p['geometry']
-        if p['role'] in ('building','tower'):contacts=[2,3]
+        if p['role'] in ('building','tower'):
+            contacts=[2,3]
+            if abs(p['bounds'][3]-g)<.002:parent=ground
         elif p['role']=='roof':contacts=[0,2 if p['shape']=='triangle' else 32 if p['shape']=='dome' else 3]
         elif p['role']=='door':
             contacts=[i for i,point in enumerate(geo['points']) if abs(point[1]-g)<.002]
@@ -217,14 +236,23 @@ def build(observed, layout):
             geo['siteSources'][index]={'part':parent['id'],'index':pi}
             result['attachments'].append({'parent':parent['id'],'child':p['id'],'parentPoint':pi,'childPoint':index})
         p['participants']=list(dict.fromkeys([i for i in (p['sourcePart'],p['parent'],parent['id']) if i]))
-    if side:
-        for tower in [s for s in specs if s['role']=='tower' and s['bounds'][3]==g]:
-            for bi in (0,1):
-                point=building['geometry']['points'][bi]
-                if min(abs(point[0]-tower['bounds'][0]),abs(point[0]-tower['bounds'][2]))<.002 and tower['bounds'][1]<=point[1]<=g:
-                    ti=anchor(tower,point);tower['geometry']['siteSources'][ti]={'part':building['id'],'index':bi}
-                    if building['id'] not in tower['participants']:tower['participants'].append(building['id'])
-                    result['attachments'].append({'parent':building['id'],'child':tower['id'],'parentPoint':bi,'childPoint':ti})
+    # Explicitly join neighboring occupied rectangles. Construction frames have
+    # no edges and cannot accidentally become an extra visible wall here.
+    rectangles=[s for s in specs if s['role'] in ('building','tower') and s['shape']=='rectangle']
+    for i,first in enumerate(rectangles):
+        for second in rectangles[i+1:]:
+            a,t,b,d=first['bounds'];l,y,r,z=second['bounds'];points=[]
+            if (b==l or a==r) and max(t,y)<min(d,z):points=[[b if b==l else a,v] for v in (max(t,y),min(d,z))]
+            elif (d==y or t==z) and max(a,l)<min(b,r):points=[[v,d if d==y else t] for v in (max(a,l),min(b,r))]
+            for point in points:
+                ai=anchor(first,point);bi=anchor(second,point)
+                # A point may already be bound to the common ground. Reuse
+                # that explicit site through the earlier rectangle as well.
+                second['geometry']['points'][bi]=list(first['geometry']['points'][ai])
+                second['geometry']['siteSources'][bi]={'part':first['id'],'index':ai}
+                if first['id'] not in second['participants']:second['participants'].append(first['id'])
+                contact={'parent':first['id'],'child':second['id'],'parentPoint':ai,'childPoint':bi}
+                if contact not in result['attachments']:result['attachments'].append(contact)
     for p in specs:
         p.setdefault('participants',[p['sourcePart']] if p['sourcePart'] else [])
         p.update(kind='shape-cleanup-'+p['role'],color=COLORS[p['role']],comparisons=[],

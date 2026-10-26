@@ -12,7 +12,7 @@ import math
 
 COLORS = {"ground": "#63735f", "building": "#277da8", "tower": "#56729a", "roof": "#bf712a",
           "cross": "#ae3f6d", "cross-level": "#ae3f6d", "door": "#23846c", "window": "#8c68aa"}
-POLICY = {"version": "church-area-layout.v4", "learned": False, "maximumSamples": 2048,
+POLICY = {"version": "church-area-layout.v5", "learned": False, "maximumSamples": 2048,
           "maximumUprights": 16, "maximumDoors": 2, "maximumWindows": 8,
           "maximumRoofs": 6, "maximumCrosses": 6, "domePartitions": 32,
           "basis": "normalized observer page; down is a chosen church-upright premise",

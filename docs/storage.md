@@ -281,12 +281,20 @@ Names and heuristic scores remain adapter provenance. See
 
 ### Shape refinement
 
-Area policy v4 adds open/outlined cross reads and oblique upper roof bands.
+Area policy v5 retains open/outlined cross reads and oblique upper roof bands,
+including uneven outline arms supported by inset stems.
 The separate `cleanup` packet contains new ideal scaffold parts, links to earlier
 area parts, per-site before/after correspondences, explicit shared attachment
 sites, mirror residual reads, source pen-order provenance, and prior additions.
 These derived parts have no direct observed profile assignments. Their prior
 area estimates and the original mapping remain intact.
+
+Cleanup policy v2 can replace a wall's occupied outline with a construction
+frame (bounds and sites, no edges) plus several visible rectangle parts. Each
+rectangle selects that frame and the same earlier wall witness, with complete
+site correspondence; selected tower edges meet it through actual shared sites.
+This is repeated non-draining observation of one source. Face-relative crosses
+retain a selected support frame without inventing a contact with its boundary.
 
 The optional sixth native field retains actual selected part/site identities and
 signed displacement/mirror arithmetic. Three-, four- and five-field records

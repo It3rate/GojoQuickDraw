@@ -30,7 +30,9 @@ def crosses(observed, scene):
         w,h = r-l,b-t
         if w < .035*sw or h < .06*sh or not .28 < w/h < 1.8 or t > scene[1]+.60*sh: continue
         edges = [(a,c) for path in paths for a,c in zip(path,path[1:])]
-        horizontal = [(a,c) for a,c in edges if abs(c[1]-a[1]) < .30*abs(c[0]-a[0]) and abs(c[0]-a[0])>.14*w]
+        # Uneven arms may slope noticeably while retaining the two inset
+        # stems and wider middle band. Those structural checks still apply.
+        horizontal = [(a,c) for a,c in edges if abs(c[1]-a[1]) < .55*abs(c[0]-a[0]) and abs(c[0]-a[0])>.14*w]
         vertical = [(a,c) for a,c in edges if abs(c[0]-a[0]) < .35*abs(c[1]-a[1])]
         if len(horizontal) < 3 or len(vertical) < 3: continue
         levels = sorted((a[1]+c[1])/2 for a,c in horizontal if t+.12*h < (a[1]+c[1])/2 < b-.16*h)

@@ -302,6 +302,38 @@ See [the recorded report](../reports/cleanup-2026-10-26.json) and
 [the scope/limitations](../CHURCH_SHAPE_CLEANUP.md). These integrity checks do not
 establish semantic recognition accuracy or learned priors.
 
+## Cross prominence and wall partitions — 26 October 2026
+
+The same 36 development drawings were reprocessed with area policy v5 and
+cleanup policy v2. All 36 completed native capture/restore without errors;
+source text, fitted observations, programs and baseline archive hashes stayed
+unchanged. A deterministic rerun reproduces the proposals and mappings.
+
+Cross heights in flagged samples 3, 5, 10, 15 and 21 changed approximately from
+51→157, 22→77, 54→209, 28→111 and 64→186 normalized page units. Samples 3 and 10
+now use their uneven outline evidence rather than prior-only default markers.
+Sample 15 retains its face-relative placement. Tests also verify an increasing
+size response and that a narrow tower cannot force a large cross to be tiny.
+
+Across the pilot, wall interiors are disjoint from tower interiors, wall cells
+do not overlap one another, partitioned frame area is retained, and windows do
+not cross wall/tower seams. Samples 24 and 27 retain only the exposed wall area
+beside the towers. A central-tower control splits one wall into two rectangles.
+Native save/restore with descriptive JSON removed retains their common earlier
+source, frame selection, separate edges and actual shared tower-boundary sites.
+Duplicate attachment claims are explicitly tested.
+
+Checks passed: 130 Python tests, 44 native tests and all 5,407 linked Gojo tests.
+Three fresh raw drawings converted and independently restored; six additional
+analysis archives were rechecked, and all 36 analyses resumed unchanged. Browser
+checks visited every drawing and all three gallery pages, preserving original
+points, mode selection and pagination; mapping inspection passed for all 36.
+No browser script errors or external requests occurred.
+
+See [the recorded report](../reports/cross-scale-partitions-2026-10-26.json).
+These are bounded development checks; missing wings and incorrect earlier
+part interpretations remain possible.
+
 ## Reproduce
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The
