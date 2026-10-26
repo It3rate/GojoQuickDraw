@@ -20,20 +20,11 @@ public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, 
 
 public static class Pipeline
 {
-    public static IReadOnlyList<PipelineAction> WithAutomaticRefresh(IReadOnlyList<PipelineAction> actions)
-    {
-        if (!actions.Any(action => action is PipelineAction.Convert or PipelineAction.Analyze)) return actions;
-        // Processing may change both collection membership and saved proposals.
-        // One refresh after the batch replaces any separately requested views.
-        return actions.Where(action => action is not (PipelineAction.Review or PipelineAction.Gallery or PipelineAction.Refresh))
-            .Append(PipelineAction.Refresh).ToArray();
-    }
-
     public static CommandPlan Plan(PipelineAction action, PipelineOptions options)
     {
-        if (string.IsNullOrWhiteSpace(options.Python)) throw new ArgumentException("Choose a Python executable in Setup.");
+        if (string.IsNullOrWhiteSpace(options.Python)) throw new ArgumentException("Choose a Python executable under Tool settings in Convert drawings.");
         if (!File.Exists(Path.Combine(options.Gojo, "experiments", "quickDraw", "QuickDraw.csproj")))
-            throw new ArgumentException("Choose the linked Gojo checkout in Setup.");
+            throw new ArgumentException("Choose the linked Gojo checkout under Tool settings in Convert drawings.");
         if (options.Limit < 1 || options.MaxPoints < 1 || options.MaxSpans < 1 || !double.IsFinite(options.FitTolerance) || options.FitTolerance <= 0)
             throw new ArgumentException("Counts and fitting tolerance must be positive.");
         var arguments = new List<string> { "-u", "-m", "gojo_quickdraw", "--gojo-root", Path.GetFullPath(options.Gojo) };
@@ -55,8 +46,9 @@ public static class Pipeline
                     "--max-spans", options.MaxSpans.ToString()]);
                 foreach (var category in options.Category.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
                     arguments.AddRange(["--category", category]);
-                if (!options.AllRecords) arguments.AddRange(["--limit", options.Limit.ToString()]);
-                else arguments.Add("--all-records");
+                // The desktop's count is always a hard selection limit. Whole
+                // corpus conversion remains an explicit CLI-only operation.
+                arguments.AddRange(["--limit", options.Limit.ToString()]);
                 if (options.SamplingSeed is { } samplingSeed) arguments.AddRange(["--seed", samplingSeed.ToString(CultureInfo.InvariantCulture)]);
                 if (options.Recursive) arguments.Add("--recursive");
                 if (options.RetryErrors) arguments.Add("--retry-errors");

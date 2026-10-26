@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-26",
+  "scope": "Unified folder-based desktop viewer and bounded conversion workflow",
+  "projectBaseRevision": "46b660f3639f96340a9c641c82da9daa0b532968",
+  "linkedGojoRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "mainWorkflows": ["View drawings", "Convert drawings"],
+  "conversion": {
+    "alwaysPassesLimit": true,
+    "legacyAllRecordsCannotOverrideCount": true,
+    "automaticHtmlExport": false,
+    "stopReturnsToSavedDrawings": true
+  },
+  "existingDatasetAudit": {
+    "dataset": "D:/_quickDraw/data/church3000",
+    "successfulRecords": 45208,
+    "retainedErrors": 3,
+    "pageSize": 12,
+    "pages": 3768,
+    "lastPageRecords": 4,
+    "worksWithoutPythonOrGojoTools": true,
+    "resultViewPreservedAcrossPages": true,
+    "loadsOnlyVisiblePageEvidence": true,
+    "sourceJournalRepairRequired": false
+  },
+  "boundedWorkflowAudit": {
+    "convertedTotal": 9,
+    "categories": ["angel", "church", "frog"],
+    "analyzedChurches": 2,
+    "savedFinalShapePreviews": 2,
+    "nativeEnlargedView": true,
+    "explicitBrowserExport": true,
+    "cancellationAndRestart": true,
+    "sourceArchivesUnchanged": true
+  },
+  "verification": {
+    "pythonTestsPassed": 141,
+    "desktopTestsPassed": 15,
+    "nativeTestsPassed": 44,
+    "linkedGojoTestsPassed": 5407,
+    "releaseBuild": "passed",
+    "releaseStartupAudit": "passed",
+    "releaseWorkflowAudit": "passed",
+    "renderedScreenshotsInspected": true
+  },
+  "qualification": "Presentation and workflow changes. Stored evidence and native structure remain authoritative; no learned recognition or new interpretation algorithms are asserted."
+}

@@ -16,13 +16,16 @@ public sealed class WorkspaceSettings
     public string InspectionOrder { get; set; } = "category";
     public long InspectionSeed { get; set; }
     public string SamplingSeed { get; set; } = "";
+    public int ResultView { get; set; }
 
     public static string Repository()
     {
         foreach (var start in new[] { Environment.CurrentDirectory, AppContext.BaseDirectory })
             for (var directory = new DirectoryInfo(start); directory is not null; directory = directory.Parent)
                 if (File.Exists(Path.Combine(directory.FullName, "gojo_quickdraw", "cli.py"))) return directory.FullName;
-        throw new DirectoryNotFoundException("Keep the desktop app in the GojoQuickDraw checkout.");
+        // The saved-dataset viewer also works from a copied application folder.
+        // Conversion tools still require a checkout, selected in Tool settings.
+        return AppContext.BaseDirectory;
     }
 
     public static string SettingsFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -55,15 +58,17 @@ public sealed class WorkspaceSettings
 }
 
 public sealed record DrawingRow(string ItemId, string KeyId, string Category, int Strokes, int Samples, int Intervals,
-    string EvidencePath, string Status, string DatasetPath = "")
+    string EvidencePath, string Status, string DatasetPath = "", DateTimeOffset ConvertedUtc = default)
 {
     public string QualifiedId => DatasetPath + "::" + ItemId;
     public override string ToString() => $"{Category} · {KeyId} · {Intervals} intervals";
 }
 public sealed record FolderOption(string Label, string Path) { public override string ToString() => Label; }
 
-public sealed record Catalog(IReadOnlyList<DrawingRow> Drawings, int Stored, int Errors, int Offset = 0, int PageSize = 50);
-public sealed record Preview(double[][][] Strokes, double[][][] Profiles);
+public sealed record Catalog(IReadOnlyList<DrawingRow> Drawings, int Stored, int Errors, int Offset = 0, int PageSize = 12,
+    IReadOnlyList<string>? Warnings = null);
+public sealed record PreviewPart(string Role, string Shape, string Status, string Color, double[][] Points, int[][] Segments, int[] Fill);
+public sealed record Preview(double[][][] Strokes, double[][][] Profiles, PreviewPart[] Areas, PreviewPart[] Cleanup, string[] Warnings);
 
 public static class Workspace
 {
@@ -120,8 +125,25 @@ public static class Workspace
             throw new InvalidDataException("Preview identity differs from the selected drawing.");
         var observed = packet.GetProperty("observation");
         double[][] Points(JsonElement points) => points.EnumerateArray().Select(point => point.EnumerateArray().Select(n => n.GetDouble()).ToArray()).ToArray();
+        PreviewPart[] Parts(string section)
+        {
+            if (!packet.TryGetProperty(section, out var layer) || layer.ValueKind != JsonValueKind.Object || !layer.TryGetProperty("parts", out var parts)) return [];
+            var result = new List<PreviewPart>();
+            foreach (var part in parts.EnumerateArray())
+            {
+                if (!part.TryGetProperty("geometry", out var geometry) || !geometry.TryGetProperty("points", out var p)) continue;
+                var segments = geometry.GetProperty("segments").EnumerateArray().Select(s => s.EnumerateArray().Select(n => n.GetInt32()).ToArray()).ToArray();
+                var shown = geometry.TryGetProperty("displaySegments", out var display) ? display.EnumerateArray().Select(n => n.GetInt32()) : Enumerable.Range(0, segments.Length);
+                result.Add(new(part.GetProperty("role").GetString()!, part.TryGetProperty("shape", out var shape) ? shape.GetString()! : "area", part.GetProperty("status").GetString()!,
+                    part.TryGetProperty("color", out var color) ? color.GetString()! : "#7C8784", Points(p), shown.Select(i => segments[i]).ToArray(),
+                    geometry.TryGetProperty("fillIndices", out var fill) ? fill.EnumerateArray().Select(n => n.GetInt32()).ToArray() : []));
+            }
+            return result.ToArray();
+        }
+        var warnings = packet.TryGetProperty("cleanup", out var cleanup) && cleanup.TryGetProperty("checks", out var checks)
+            ? checks.EnumerateArray().Where(c => c.GetProperty("status").GetString() == "needs-review").Select(c => c.GetProperty("label").GetString()!).ToArray() : [];
         return new(observed.GetProperty("strokes").EnumerateArray().Select(stroke => Points(stroke.GetProperty("points"))).ToArray(),
-            observed.GetProperty("spans").EnumerateArray().Select(span => Points(span.GetProperty("controls"))).ToArray());
+            observed.GetProperty("spans").EnumerateArray().Select(span => Points(span.GetProperty("controls"))).ToArray(), Parts("layout"), Parts("cleanup"), warnings);
     }
 
     public static string RunFolder(string dataset)

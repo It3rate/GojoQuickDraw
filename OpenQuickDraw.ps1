@@ -1,3 +1,4 @@
+param([string]$Dataset = '')
 $ErrorActionPreference = 'Stop'
 $quickDrawProject = Join-Path $PSScriptRoot 'desktop/GojoQuickDraw.Desktop.csproj'
 & dotnet build $quickDrawProject --configuration Release --verbosity quiet
@@ -6,4 +7,10 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 $quickDrawApp = Join-Path $PSScriptRoot 'desktop/bin/Release/net10.0/GojoQuickDraw.Desktop.exe'
-Start-Process -FilePath $quickDrawApp -WorkingDirectory $PSScriptRoot
+$quickDrawArguments = @()
+if ($Dataset) { $quickDrawArguments = @('--dataset', ('"' + [IO.Path]::GetFullPath($Dataset) + '"')) }
+if ($quickDrawArguments.Count) {
+    Start-Process -FilePath $quickDrawApp -WorkingDirectory $PSScriptRoot -ArgumentList $quickDrawArguments
+} else {
+    Start-Process -FilePath $quickDrawApp -WorkingDirectory $PSScriptRoot
+}

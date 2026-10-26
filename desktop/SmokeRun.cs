@@ -1,115 +1,76 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 
 namespace GojoQuickDraw.Desktop;
 
 internal sealed partial class MainWindow
 {
-    // Explicit local integration harness: real controls, worker commands, and rendered screenshots.
-    // It writes only to a new requested QA directory and never persists desktop settings.
+    // Explicit bounded real-data integration check. All generated data goes to
+    // a new QA folder, and this mode never saves the user's settings.
     private async Task RunSmoke()
     {
         string Argument(string key) => Program.Arguments.SkipWhile(value => value != key).Skip(1).FirstOrDefault()
             ?? throw new ArgumentException("Missing " + key);
-        var output = Path.GetFullPath(Argument("--qa-output"));
-        var input = Path.GetFullPath(Argument("--qa-input"));
+        var output = Path.GetFullPath(Argument("--qa-output")); var input = Path.GetFullPath(Argument("--qa-input"));
         if (Directory.Exists(output) && Directory.EnumerateFileSystemEntries(output).Any())
-        {
-            Environment.ExitCode = 1; _allowClose = true; Close(); return;
-        }
+        { Environment.ExitCode = 1; _allowClose = true; Close(); return; }
         var errors = new List<string>();
         try
         {
-            Directory.CreateDirectory(output);
-            _autoOpen.IsChecked = false; _dataset.Text = Path.Combine(output, "dataset");
-            _input.Text = input; _limit.Value = 9; _reviewLimit.Value = 9; _samplingSeed.Text = "42";
-            var picker = new CategoryPicker([]);
-            picker.Show(this); picker.SetAll(true);
-            Require(picker.Selected.Count == 345, "Select all did not select every static category.");
-            picker.SetAll(false); Require(picker.Selected.Count == 0, "Clear all did not clear categories.");
+            Directory.CreateDirectory(output); _autoOpen.IsChecked = false;
+            _dataset.Text = Path.Combine(output, "dataset"); _input.Text = input;
+            _limit.Value = 9; _samplingSeed.Text = "42"; _tabs.SelectedIndex = 1;
+            var picker = new CategoryPicker([]); picker.Show(this); picker.SetAll(true);
+            Require(picker.Selected.Count == 345, "Select all failed."); picker.SetAll(false);
+            Require(picker.Selected.Count == 0, "Clear all failed.");
             foreach (var category in new[] { "angel", "church", "frog" }) picker.SelectCategory(category, true);
-            Require(picker.Selected.Count == 3, "Category toggle selection failed.");
-            await Task.Delay(200);
-            using (var image = new RenderTargetBitmap(new PixelSize((int)picker.ClientSize.Width, (int)picker.ClientSize.Height), new Vector(96, 96)))
-            { image.Render(picker); image.Save(Path.Combine(output, "category-picker.png")); }
             SetSourceCategories(picker.Selected); picker.Close();
-            await Execute(PipelineAction.Convert, PipelineAction.Verify, PipelineAction.Review);
-            Require(Results.Count == 3 && Results.All(result => result.Successful), "Convert / verify / review did not all succeed.");
-            Require(_drawings.Items.Count == 9, "Drawing catalog did not load all nine records.");
-            Require(_folderScope.Items.Count == 4, "Generated folder selector should contain all plus three actual category folders.");
-            Require(Results[^1].Data!.Value.GetProperty("gallery").GetProperty("linkedDrawings").GetInt32() == 9,
-                "Conversion did not automatically refresh both linked reviews.");
-            var originalHashes = ArchiveHashes(_dataset.Text!);
-            await Execute(PipelineAction.Convert);
-            Require(Results.TakeLast(2).All(result => result.Successful) && Results[^2].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Explicit-seed repeat did not reuse all nine records and refresh reviews.");
-            Require(ArchiveHashes(_dataset.Text!) == originalHashes, "Repeating a selected sample changed baseline archives.");
-            Require(_configuration.IsEnabled && !_stop.IsEnabled && !_progress.IsVisible, "Idle controls did not restore.");
             await Capture(Path.Combine(output, "convert.png"));
-            _tabs.SelectedIndex = 1;
-            _updatingFolders = true; _folderScope.SelectedItem = _folderScope.Items.Cast<FolderOption>().Single(folder => Path.GetFileName(folder.Path) == "church"); _updatingFolders = false;
-            await LoadCatalog(refreshFolders: false); await LoadPreview();
-            Require(_drawings.Items.Count == 3 && _drawings.Items.Cast<DrawingRow>().All(row => row.Category == "church"), "Generated church folder filter failed.");
-            Require(_raw.Profiles.Length > 0 && _fitted.Profiles.Length > 0, "Selected drawing preview is empty.");
-            await Capture(Path.Combine(output, "evidence.png"));
-            _updatingFolders = true; _folderScope.SelectedIndex = 0; _inspectionOrder.SelectedIndex = 1; _updatingFolders = false;
+            await Execute(PipelineAction.Convert);
+            Require(Results.Count == 1 && Results[0].Successful, "Bounded conversion failed.");
+            Require(_catalogTotal == 9 && _galleryCards.Count == 9, "The requested total must be nine across all categories.");
+            Require(_tabs.SelectedIndex == 0, "Conversion did not open the viewer.");
+            Require(!Directory.EnumerateFiles(output, "*.html", SearchOption.AllDirectories).Any(), "Conversion unexpectedly required an HTML export.");
+            var baseline = _dataset.Text!; var originalHashes = ArchiveHashes(baseline);
+            await Execute(PipelineAction.Convert);
+            Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Seeded repeat did not reuse nine drawings.");
+            Require(ArchiveHashes(baseline) == originalHashes, "Repeat changed saved archives.");
+            _updatingFolders = true;
+            _folderScope.SelectedItem = _folderScope.Items.Cast<FolderOption>().Single(folder => Path.GetFileName(folder.Path) == "church");
+            _updatingFolders = false; await LoadCatalog(refreshFolders: false);
+            Require(_catalogTotal == 3 && _galleryCards.Count == 3, "Category browsing failed.");
+            Require(_raw.Profiles.Length > 0 && _fitted.Profiles.Length > 0, "Saved previews are empty.");
+            _resultView.SelectedIndex = 1; _reviewLimit.Value = 2; await LoadCatalog(refreshFolders: false);
+            await ChangePage(2); Require(_galleryCards.Count == 1 && _resultView.SelectedIndex == 1, "Page or result view changed unexpectedly.");
+            await ChangePage(0); await Capture(Path.Combine(output, "viewer.png"));
+            _updatingFolders = true; _folderScope.SelectedIndex = 0; _inspectionOrder.SelectedIndex = 2; _inspectionSeed = 123; _updatingFolders = false;
+            await LoadCatalog(refreshFolders: false); var random = _drawings.Items.Cast<DrawingRow>().Select(row => row.QualifiedId).ToArray();
             await LoadCatalog(refreshFolders: false);
-            Require(_drawings.Items.Count == 9 && ((DrawingRow)_drawings.Items[0]!).Category == "frog", "Most-recent ordering did not select the latest generated category.");
-            _updatingFolders = true; _inspectionOrder.SelectedIndex = 2; _inspectionSeed = 123; _updatingFolders = false;
-            await LoadCatalog(refreshFolders: false);
-            var randomOrder = _drawings.Items.Cast<DrawingRow>().Select(row => row.QualifiedId).ToArray();
-            await LoadCatalog(refreshFolders: false);
-            Require(randomOrder.SequenceEqual(_drawings.Items.Cast<DrawingRow>().Select(row => row.QualifiedId)), "Random inspection order did not retain its seed.");
-            _reviewLimit.Value = 4; await Execute(PipelineAction.Review);
-            Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("drawings").GetInt32() == 9 && Results[^1].Data!.Value.GetProperty("pages").GetInt32() == 3, "Paged random multi-folder review failed.");
-            Require(_drawings.Items.Count == 4, "Catalog page should contain four records.");
-            await ChangePage(8); Require(_drawings.Items.Count == 1, "Final catalog page should contain one record.");
-            await ChangePage(0); Require(_drawings.Items.Count == 4, "First catalog page did not reload.");
-            await Capture(Path.Combine(output, "all-categories.png"));
-            _updatingFolders = true; _folderScope.SelectedItem = _folderScope.Items.Cast<FolderOption>().Single(folder => Path.GetFileName(folder.Path) == "church"); _updatingFolders = false;
-            await LoadCatalog(refreshFolders: false);
-            _tabs.SelectedIndex = 2; await Execute(PipelineAction.Stages);
-            Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("passes").GetInt32() == 7, "Seven stages were not generated.");
-            await Capture(Path.Combine(output, "steps.png"));
-            _tabs.SelectedIndex = 3; await Execute(PipelineAction.Probe); await Execute(PipelineAction.ExampleProbe);
-            Require(Results.TakeLast(2).All(result => result.Successful), "Machine probes failed.");
-            Require(Results[^1].Data!.Value.GetProperty("probes").GetArrayLength() == 4, "Example did not compare all four groups.");
-            Require(Results[^1].Data!.Value.GetProperty("containmentMovement").GetArrayLength() == 1, "Example did not expose the container-carry default.");
-            await Capture(Path.Combine(output, "probes.png"));
-            var before = ArchiveHashes(_dataset.Text!);
-            var cancel = Execute(PipelineAction.Verify);
-            Require(!_configuration.IsEnabled && _stop.IsEnabled, "Running controls were not disabled.");
-            await Task.Delay(200); _cancellation?.Cancel(); await cancel;
-            Require(Results[^1].Cancelled, "Stop did not cancel the worker.");
-            Require(ArchiveHashes(_dataset.Text!) == before, "Stopping verification changed baseline archives.");
-            _tabs.SelectedIndex = 4; await Execute(PipelineAction.Setup);
-            Require(Results[^1].Successful, "Setup did not recover after cancellation.");
-            _tabs.SelectedIndex = 1;
-            _updatingFolders = true; _folderScope.SelectedIndex = 0; _updatingFolders = false;
-            await LoadCatalog(refreshFolders: false);
-            _analysisOutput.Text = Path.Combine(output, "analysis"); _analysisWorkers.Value = 2;
-            await Execute(PipelineAction.Analyze, PipelineAction.Review);
-            Require(Results.TakeLast(2).All(result => result.Successful), "Full analysis / paged review failed.");
-            Require(Results[^2].Data!.Value.GetProperty("storedRecords").GetInt32() == 9, "Analysis did not include all nine drawings.");
-            Require(ArchiveHashes(Path.Combine(output, "dataset")) == before, "Analysis modified baseline archives.");
-            Require(_dataset.Text == Path.Combine(output, "analysis"), "Analysis collection was not selected for inspection.");
-            Require(Results[^1].Data!.Value.GetProperty("gallery").GetProperty("finals").GetInt32() == 3,
-                "Full analysis did not automatically refresh the final interpretations.");
-            await Capture(Path.Combine(output, "analysis.png"));
-            await Execute(PipelineAction.Gallery);
-            Require(Results[^1].Successful && Results[^1].Data!.Value.GetProperty("drawings").GetInt32() == 9,
-                "Input / final gallery did not include all nine analyzed drawings.");
-            Require(Results[^1].Data!.Value.GetProperty("linkedDrawings").GetInt32() == 9
-                && Results[^1].Data!.Value.GetProperty("finals").GetInt32() == 3,
-                "Gallery links or church final interpretations are missing.");
-            Require(ArchiveHashes(Path.Combine(output, "dataset")) == before, "Gallery changed baseline archives.");
+            Require(random.SequenceEqual(_drawings.Items.Cast<DrawingRow>().Select(row => row.QualifiedId)), "Random order did not retain its seed.");
+            _updatingFolders = true;
+            _folderScope.SelectedItem = _folderScope.Items.Cast<FolderOption>().Single(folder => Path.GetFileName(folder.Path) == "church");
+            _inspectionOrder.SelectedIndex = 0; _updatingFolders = false; await LoadCatalog(refreshFolders: false);
+            _analysisCount.Value = 2; _analysisOutput.Text = Path.Combine(output, "analysis"); _analysisWorkers.Value = 2;
             await Execute(PipelineAction.Analyze);
-            Require(Results.TakeLast(2).All(result => result.Successful) && Results[^2].Data!.Value.GetProperty("resumed").GetInt32() == 9, "Analysis did not resume its original baseline and refresh reviews.");
-            Require(Results[^1].Successful, "Worker could not restart after cancellation.");
-            await Capture(Path.Combine(output, "setup.png"));
-            _tabs.SelectedIndex = 1; Width = 920; Height = 760;
-            await Capture(Path.Combine(output, "compact.png"));
+            Require(Results[^1].Successful && _catalogTotal == 2, "Analysis did not honor its separate count of two.");
+            Require(_dataset.Text == _analysisOutput.Text, "The analysis dataset did not open in the viewer.");
+            Require(_pagePreviews.Count == 2 && _pagePreviews.Values.All(p => p.Cleanup.Length > 0), "Saved final church shapes are missing.");
+            Require(!Directory.EnumerateFiles(output, "*.html", SearchOption.AllDirectories).Any(), "Analysis unexpectedly generated HTML.");
+            Require(ArchiveHashes(baseline) == originalHashes, "Analysis changed source archives.");
+            _resultView.SelectedIndex = 3; await Capture(Path.Combine(output, "final-shapes.png"));
+            var enlarge = ShowDrawing((DrawingRow)_drawings.Items[0]!); await Task.Delay(250);
+            var detail = OwnedWindows.Single(); await CaptureWindow(detail, Path.Combine(output, "enlarged.png")); detail.Close(); await enlarge;
+            var before = ArchiveHashes(_dataset.Text!); _verifyAll.IsChecked = true;
+            var cancel = Execute(PipelineAction.Verify); await Task.Delay(200); _cancellation?.Cancel(); await cancel;
+            Require(Results[^1].Cancelled, "Stop did not terminate verification.");
+            Require(ArchiveHashes(_dataset.Text!) == before, "Stopped verification changed saved data.");
+            await Execute(PipelineAction.Setup); Require(Results[^1].Successful, "Tools did not recover after Stop.");
+            await Execute(PipelineAction.Refresh);
+            Require(Results[^1].Successful && File.Exists(Path.Combine(Workspace.InspectorFolder(_dataset.Text!), "comparison.html")), "Explicit optional browser export failed.");
+            Width = 920; Height = 760; await Capture(Path.Combine(output, "compact.png"));
         }
         catch (Exception error) { errors.Add(error.ToString()); Environment.ExitCode = 1; }
         finally
@@ -119,12 +80,8 @@ internal sealed partial class MainWindow
             {
                 success = errors.Count == 0, errors, dataset = _dataset.Text,
                 jobs = Results.Select(result => new { result.ExitCode, result.Cancelled, result.Successful }),
-                status = _status.Text, detail = _statusDetail.Text,
-                catalogDrawings = _drawings.Items.Count, generatedFolderOptions = _folderScope.Items.Count,
-                selectedSourceCategories = _sourceCategories, totalSampleSize = _limit.Value,
-                acquiredStrokesInPreview = _raw.Profiles.Length,
-                fittedIntervalsInPreview = _fitted.Profiles.Length,
-                cancellationPreservedArchives = errors.Count == 0
+                nativeGalleryCards = _galleryCards.Count, finalShapePreviews = _pagePreviews.Values.Count(p => p.Cleanup.Length > 0),
+                conversionCount = 9, analysisCount = 2, status = _status.Text
             }, new JsonSerializerOptions { WriteIndented = true }));
             _allowClose = true; Close();
         }
@@ -133,11 +90,11 @@ internal sealed partial class MainWindow
     private static void Require(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private static string ArchiveHashes(string dataset) => string.Join("\n", Directory.EnumerateFiles(dataset, "*.gz", SearchOption.AllDirectories)
         .Order().Select(file => Path.GetRelativePath(dataset, file) + ":" + Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file)))));
-    private async Task Capture(string path)
+    private Task Capture(string path) => CaptureWindow(this, path);
+    private static async Task CaptureWindow(Window window, string path)
     {
         await Task.Delay(350);
-        var size = new PixelSize((int)Math.Ceiling(ClientSize.Width), (int)Math.Ceiling(ClientSize.Height));
-        using var bitmap = new RenderTargetBitmap(size, new Vector(96, 96));
-        bitmap.Render(this); bitmap.Save(path);
+        var size = new PixelSize((int)Math.Ceiling(window.ClientSize.Width), (int)Math.Ceiling(window.ClientSize.Height));
+        using var bitmap = new RenderTargetBitmap(size, new Vector(96, 96)); bitmap.Render(window); bitmap.Save(path);
     }
 }

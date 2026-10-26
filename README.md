@@ -37,22 +37,24 @@ checkout at the commit in the lock.
 
 On Windows, double-click **`OpenQuickDraw.cmd`**. It builds and opens QuickDraw
 Studio. Choose a source file or folder, choose categories from the toggle-button
-dialog, create a collection, and use
-**Convert → verify → review** to run the main workflow. The app remembers your
-paths and provides drawing previews, archive verification, on-demand drawing
-steps, machine probes, progress details, and a Stop button.
+dialog and set the total drawing count, then **Convert drawings**. The app opens
+the completed results in its built-in **View drawings** tab. The count always
+limits conversion; whole-corpus conversion is an explicit command-line option.
 
 The sample count is a total spread across the selected categories. Generation saves
 one dataset per category folder. Inspection discovers actual generated folders and
 supports category/source order, most recent, and random selection. Existing single
-datasets remain readable. The Evidence tab pages through every record and has
-**Full analysis → review** for an existing collection. See the [desktop guide](docs/desktop.md).
+datasets remain readable. **Open folder** loads a dataset directly, with 12
+original/result pairs per page and an enlarged view when a pair is clicked.
+Browsing uses saved records directly and needs neither Python nor a generated
+HTML file. Choose **Create final shapes** to run a separately counted church
+analysis. See the [desktop guide](docs/desktop.md).
 
-After conversion or analysis completes, the app automatically rebuilds both the
-inspector and the input/final gallery for that output collection. **Refresh both
-reviews** rebuilds them for the selected generated folder without processing the
-source again. The entry paths remain stable. Reload an already open browser tab
-to see updated files; the pages do not watch the filesystem or reload themselves.
+Conversion and analysis reload the built-in viewer, including completed records
+after Stop. **Advanced tools → Export browser inspector + gallery** creates the
+optional portable HTML reviews. Experimental drawing steps and machine probes
+are also under Advanced tools; Python and Gojo paths are under **Convert drawings
+→ Tool settings**.
 
 Full church analysis also creates **Area estimates over original**: an ideal
 building rectangle, separate tower rectangles, triangular or domed roofs,
@@ -160,7 +162,7 @@ entry for every run. Copy its adjacent `evidence-pages` folder when sharing it.
 The selected **Read** view is carried in the URL across page changes, drawing
 changes, and reloads. Selecting step 7 once keeps the synthesized view while browsing.
 
-**Input / final gallery** in the desktop Evidence tab builds a compact overview:
+**Advanced tools → Export browser inspector + gallery** builds a portable overview:
 12 input/result pairs per page, three pairs across and four rows. Each pair opens
 the corresponding inspector page at its final interpretation. It reads existing
 analysis; it does not rerun synthesis. On the command line, `refresh` builds both
@@ -180,7 +182,7 @@ The individual `review` and `gallery` commands remain available.
 
 Add `--refresh` to command-line `convert`, `sample`, or `analyze` to rebuild both
 views after records are converted or reused. This is optional for CLI jobs and
-automatic in the desktop workflow. An empty or entirely failed invocation skips
+an explicit export in the desktop app. An empty or entirely failed invocation skips
 refresh; successful records in a partly failed batch can still be reviewed.
 
 Copy `comparison.html` with its `comparison-pages` folder for offline viewing;

@@ -26,7 +26,9 @@ public sealed class PipelineTests : IDisposable
     {
         var conversion = Pipeline.Plan(PipelineAction.Convert, Options);
         Assert.Contains("--limit", conversion.Arguments);
-        Assert.DoesNotContain("--limit", Pipeline.Plan(PipelineAction.Convert, Options with { AllRecords = true }).Arguments);
+        var legacy = Pipeline.Plan(PipelineAction.Convert, Options with { AllRecords = true, Limit = 3000 }).Arguments.ToList();
+        Assert.Equal("3000", legacy[legacy.IndexOf("--limit") + 1]);
+        Assert.DoesNotContain("--all-records", legacy);
         foreach (var action in new[] { PipelineAction.Review, PipelineAction.Gallery, PipelineAction.Refresh, PipelineAction.Stages, PipelineAction.ExampleProbe })
         {
             var plan = Pipeline.Plan(action, Options);
@@ -98,12 +100,9 @@ public sealed class PipelineTests : IDisposable
     }
 
     [Fact]
-    public void CompletedProcessingRefreshesBothViewsOnceAtTheEndOfTheBatch()
+    public void PortableReviewExportRemainsAnExplicitOperation()
     {
-        Assert.Equal(new[] { PipelineAction.Convert, PipelineAction.Verify, PipelineAction.Refresh },
-            Pipeline.WithAutomaticRefresh([PipelineAction.Convert, PipelineAction.Verify, PipelineAction.Review, PipelineAction.Gallery]));
-        Assert.Equal(new[] { PipelineAction.Analyze, PipelineAction.Refresh }, Pipeline.WithAutomaticRefresh([PipelineAction.Analyze]));
-        Assert.Equal(new[] { PipelineAction.Review, PipelineAction.Gallery }, Pipeline.WithAutomaticRefresh([PipelineAction.Review, PipelineAction.Gallery]));
+        Assert.Null(Pipeline.Plan(PipelineAction.Convert, Options).Artifact);
         var refresh = Pipeline.Plan(PipelineAction.Refresh, Options with { Limit = 50, InspectionOrder = "random", InspectionSeed = 99 });
         var args = refresh.Arguments.ToList();
         Assert.Contains("refresh", args);
