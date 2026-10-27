@@ -5,12 +5,13 @@ using System.Text.Json;
 
 namespace GojoQuickDraw.Desktop;
 
-public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery, Refresh }
+public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery, Refresh, Train }
 public sealed record PipelineOptions(string Repository, string Python, string Gojo, string Input, string Dataset,
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
     double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
     string InspectionOrder = "category", long InspectionSeed = 0, long? SamplingSeed = null,
-    int Offset = 0, int Workers = 4, string? AnalysisOutput = null, string Recognition = "all");
+    int Offset = 0, int Workers = 4, string? AnalysisOutput = null, string Recognition = "all",
+    int TrainingSynthetic = 2500, int TrainingEpochs = 35, long TrainingSeed = 31, string? TrainingOutput = null);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -38,6 +39,13 @@ public static class Pipeline
         void Ordering() => arguments.AddRange(["--order", options.InspectionOrder, "--seed", options.InspectionSeed.ToString(CultureInfo.InvariantCulture)]);
         switch (action)
         {
+            case PipelineAction.Train:
+                arguments.Add("train"); Dataset();
+                var modelOutput=string.IsNullOrWhiteSpace(options.TrainingOutput) ? Workspace.ModelFolder(options.Dataset) : Path.GetFullPath(options.TrainingOutput);
+                arguments.AddRange(["--output",modelOutput,"--limit",options.Limit.ToString(),"--synthetic",options.TrainingSynthetic.ToString(),
+                    "--epochs",options.TrainingEpochs.ToString(),"--seed",options.TrainingSeed.ToString(CultureInfo.InvariantCulture),"--recognition",options.Recognition]);
+                artifact=Path.Combine(modelOutput,"report.html");
+                break;
             case PipelineAction.Convert:
                 if (!File.Exists(options.Input) && !Directory.Exists(options.Input)) throw new ArgumentException("Choose a QuickDraw input file or folder.");
                 if (string.IsNullOrWhiteSpace(options.Category)) throw new ArgumentException("Choose at least one source category.");

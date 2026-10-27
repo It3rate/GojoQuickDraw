@@ -26,7 +26,7 @@ internal sealed partial class MainWindow
             Require(_loadedDataset == _dataset.Text?.Trim(), "Cold-start folder was not loaded.");
             Require(_drawings.Items.Count > 0, "Cold start left the first page empty.");
             _tabs.SelectedIndex = 0; await LoadPreview();
-            Require(_tabs.Items.Count == 2, "The main workflows should be View and Convert.");
+            Require(_tabs.Items.Count == 3, "The main workflows should be View, Convert and Train.");
             Require(_galleryCards.Count == _drawings.Items.Count, "Native comparison cards are missing.");
             await Task.Delay(100);
             Require(!_datasetDrawer.IsVisible && !_inspectionDrawer.IsVisible,"Browsing drawers should start collapsed.");
@@ -95,6 +95,27 @@ internal sealed partial class MainWindow
                 _recognition.SelectedIndex = 1;
             }
             _tabs.SelectedIndex = 1; await Capture(Path.Combine(output, "convert.png")); _tabs.SelectedIndex = 0;
+            _tabs.SelectedIndex = 2; await Capture(Path.Combine(output,"training.png"));
+            var modelArgument=Array.IndexOf(Program.Arguments,"--qa-model");
+            if(modelArgument>=0&&modelArgument+1<Program.Arguments.Length)
+            {
+                var modelPath=Program.Arguments[modelArgument+1];
+                using var modelReport=JsonDocument.Parse(File.ReadAllText(Path.Combine(modelPath,"report.json")));
+                ShowTrainingMetrics(modelReport.RootElement,modelPath);
+                Require(_trainingReview.IsEnabled&&_trainingFolder.IsEnabled,"Saved model results cannot be opened.");
+                await Capture(Path.Combine(output,"training-results.png"));
+            }
+            if(Program.Arguments.Contains("--qa-train"))
+            {
+                _python.Text=new WorkspaceSettings().Python;_gojo.Text=Path.GetFullPath(Path.Combine(_repository,"..","Gojo"));
+                _trainingCount.Value=2;_trainingSynthetic.Value=100;_trainingEpochs.Value=4;
+                _trainingOutput.Text=Path.Combine(output,"training-run");
+                await Execute(PipelineAction.Train);
+                Require(Results[^1].Successful&&Results[^1].Data!.Value.GetProperty("trained").GetBoolean(),"Desktop training command did not complete.");
+                Require(_trainingRun==_trainingOutput.Text&&_tabs.SelectedIndex==2,"Training changed the drawing dataset or lost the results page.");
+                await Capture(Path.Combine(output,"training-executed.png"));
+            }
+            _tabs.SelectedIndex = 0;
             Width = 920; Height = 760; await CheckBottomReachable(output);
         }
         catch (Exception error) { errors.Add(error.ToString()); Environment.ExitCode = 1; }

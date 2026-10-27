@@ -87,6 +87,17 @@ develops the next experiment: coarse partitions and gaps, competing T/cross
 constructions, local frames, shape feedback, and dependent doorway details.
 It distinguishes present evidence from the proposed learned selector.
 
+**Train model** now trains a small CPU ranker from the selected converted
+folder and controlled local examples. It publishes separate held-out control
+and weak drawing-reference results, saved weights, coarse native feature
+reads, connected candidate constructions, learned opinions and a patch review.
+It does not rerun conversion or automatically alter church shapes. Saved model
+runs reopen from the same tab. See [the first model and results](docs/local-joint-model.md).
+
+```powershell
+python -m gojo_quickdraw train --dataset D:/_quickDraw/data/church3000 --limit 300 --synthetic 2500 --epochs 35 --output D:/_quickDraw/data/church3000-models/new-run
+```
+
 The app is C# / Avalonia with Skia previews. Python orchestrates processing and
 the C# native Gojo bridge encodes and restores connected evidence. Optional HTML
 exports are separate from the desktop viewer.

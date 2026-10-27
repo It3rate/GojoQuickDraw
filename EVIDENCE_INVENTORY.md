@@ -27,6 +27,14 @@ whole/partial fitted intervals, actual endpoints and existing construction parts
 It retains shared support and the complete unresolved source complement. These
 are **in** as authored correspondence hypotheses, not confirmed semantic ownership.
 
+The optional [local joint model](docs/local-joint-model.md) adds **in** native
+coarse before/after subdivisions, gap ratios, chord bend, accumulated turning,
+turn concentration and terminal-hook reach. A small trained ranker proposes
+five connected local constructions, keeping all alternatives and unresolved
+roles. These are learned opinions over source-linked reads; they do not replace
+the original joint annotations or automatically refine the drawing. Larger
+shape feedback and learned object/door-detail recognition remain **plan**.
+
 ## 1. Acquisition and source
 
 | Evidence | Status | Scope |

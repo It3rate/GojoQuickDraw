@@ -22,6 +22,17 @@ public sealed class PipelineTests : IDisposable
         RunFolder: Path.Combine(_root, "runs"));
 
     [Fact]
+    public void TrainingUsesItsOwnBoundedCommandAndNeverReentersConversion()
+    {
+        var plan=Pipeline.Plan(PipelineAction.Train,Options with{Limit=300,TrainingSynthetic=500,TrainingEpochs=12,Recognition="recognized"});
+        var args=plan.Arguments.ToList();
+        Assert.Contains("train",args);Assert.DoesNotContain("process",args);Assert.DoesNotContain("--input",args);
+        Assert.Equal("300",args[args.IndexOf("--limit")+1]);Assert.Equal("500",args[args.IndexOf("--synthetic")+1]);
+        Assert.Equal("recognized",args[args.IndexOf("--recognition")+1]);Assert.EndsWith("report.html",plan.Artifact);
+        Assert.DoesNotContain(Path.GetFullPath(Dataset)+Path.DirectorySeparatorChar,plan.Artifact!);
+    }
+
+    [Fact]
     public void RecognitionSelectionIsForwardedWithTheBoundedCount()
     {
         var args = Pipeline.Plan(PipelineAction.Convert, Options with { Recognition = "recognized", Limit = 300 }).Arguments.ToList();

@@ -44,7 +44,7 @@ namespace GojoQuickDraw.Native
                             throw new InvalidDataException("itemKey must contain 1..128 ASCII letters, digits, '-' or '_'.");
                         var root = NativeRecord.Import(packet.RootElement);
                         var json = NativeRecord.Capture(key, root);
-                        var restored = NativeRecord.Restore(json);
+                        NativeRecord.Read restored;
                         var filename = key + ".gojo.json.gz";
                         var path = Path.Combine(destination, filename); var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
                         try
@@ -53,7 +53,7 @@ namespace GojoQuickDraw.Native
                             using (var gzip = new GZipStream(file, CompressionLevel.SmallestSize))
                             using (var writer = new StreamWriter(gzip, new UTF8Encoding(false))) writer.Write(json);
                             // Validate bytes actually stored, including gzip integrity, before publishing.
-                            NativeRecord.Restore(ReadCompressed(temporary));
+                            restored = NativeRecord.Restore(ReadCompressed(temporary));
                             File.Move(temporary, path, overwrite: true);
                         }
                         finally { if (File.Exists(temporary)) File.Delete(temporary); }

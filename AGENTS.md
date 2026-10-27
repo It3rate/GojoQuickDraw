@@ -24,6 +24,13 @@ folders, screenshots and logs under `D:/_quickDraw/_work`, never loose in
 `D:/_quickDraw` or the repository root. Persistent user datasets normally live
 under `D:/_quickDraw/data`. Do not move existing user data to tidy a workspace.
 
+`train` is a separate bounded, read-only local construction experiment. Keep
+controlled targets, weak authored correspondences and unlabelled inference
+distinct. Split by original acquisition/template before variations; never use
+held-out test labels to select weights. Native coarse reads and connected
+candidates underlie exported feature cells. Learned opinions do not currently
+alter conversion or establish source contact. See `docs/local-joint-model.md`.
+
 Work on `master` and push completed verified checkpoints to `It3rate/GojoQuickDraw`.
 Do not publish the website without the user's milestone authorization.
 

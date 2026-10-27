@@ -99,6 +99,14 @@ def parser():
     probes.add_argument("--key-id")
     probes.add_argument("--example", action="store_true", help="Use an authored two-window/door intervention fixture")
     probes.add_argument("--output", type=Path, required=True)
+    training = commands.add_parser("train", help="Train a small local construction ranker from a saved folder and controlled patches")
+    training.add_argument("--dataset", type=Path, required=True)
+    training.add_argument("--output", type=Path, required=True)
+    training.add_argument("--limit", type=int, default=300, help="Maximum completed original drawings in the read-only snapshot")
+    training.add_argument("--synthetic", type=int, default=2500)
+    training.add_argument("--epochs", type=int, default=35)
+    training.add_argument("--seed", type=int, default=31)
+    training.add_argument("--recognition", choices=MODES, default="all")
     commands.add_parser("doctor", help="Check linked revision and build the native bridge")
     return p
 
@@ -167,6 +175,10 @@ def main(argv=None):
                 raise ValueError("Choose a new probe output to retain earlier results")
             args.output.parent.mkdir(parents=True, exist_ok=True)
             dataset._atomic_json(args.output, result)
+        elif args.command == "train":
+            from .training import run
+            result = run(args.dataset, args.output, root, limit=args.limit, synthetic=args.synthetic,
+                         epochs=args.epochs, seed=args.seed, recognition=args.recognition)
         else:
             from .bridge import executable
             result = {"gojoRoot": str(root), "upstream": upstream.fingerprint(root), "native": executable(root)}

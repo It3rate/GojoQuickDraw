@@ -3,6 +3,11 @@
 This is an exploratory training proposal, with an implemented **untrained**
 retrieval baseline. No model has been trained by this checkpoint.
 
+This whole-drawing baseline remains historical. A later
+[local patch experiment](local-joint-model.md) has now trained a small model;
+its controlled and weak-reference results are separate from these retrieval
+scores.
+
 ## What the current evidence says
 
 The 27 October 2026 check selected the existing 300 church records in

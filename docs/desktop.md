@@ -1,7 +1,8 @@
 # QuickDraw Studio
 
-Double-click `OpenQuickDraw.cmd`. The same app creates datasets and opens existing
-ones. It remembers the last folder and count. You can also pass a folder directly:
+Double-click `OpenQuickDraw.cmd`. The same app creates datasets, opens existing
+ones and trains the local pilot model. It remembers the last drawing folder
+and count. You can also pass a folder directly:
 
 ```powershell
 .\OpenQuickDraw.cmd D:\_quickDraw\data\church3000
@@ -9,9 +10,25 @@ ones. It remembers the last folder and count. You can also pass a folder directl
 
 The UI is C# with Avalonia and Skia rendering; it is not an HTML application.
 Python orchestrates processing and the C# Gojo bridge builds native evidence.
-The launcher builds the desktop application with the .NET 10 SDK. Conversion and
-analysis require Python 3.10+ and the linked Gojo checkout. The built-in viewer
-reads saved datasets directly, without Python or a generated HTML inspector.
+The launcher builds the desktop application with the .NET 10 SDK. Conversion
+and training require Python 3.10+ and the linked Gojo checkout. Viewing saved
+drawings requires neither Python nor a generated HTML inspector.
+
+## Train a local model
+
+**Train model** is a separate workflow from conversion. Choose a converted
+drawings folder with the shared Dataset controls or **Choose drawings folder**,
+set the maximum source count, then **Train joint model**. It uses the current
+category/recognition filters and a read-only snapshot of completed records.
+Controlled examples and weak earlier source/final mappings supply the initial
+targets. Results distinguish held-out controls from unreviewed drawing references.
+
+**Open patch review** shows source runs against their highest-ranked connected
+construction, including unresolved alternatives, faint drawing context, and
+filters for controls/reference/unlabelled examples. **Open saved model run**
+loads a previous result. Model folders retain the weights and native evidence.
+This pilot does not automatically alter the conversion output. See
+[model scope, measured results and limitations](local-joint-model.md).
 
 ## View an existing dataset
 

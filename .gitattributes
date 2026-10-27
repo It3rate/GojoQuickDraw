@@ -2,6 +2,8 @@
 *.py text eol=lf
 *.md text eol=lf
 *.json text eol=lf
+# Native learned opinions reference exact weight-file bytes, including endings.
+models/*.json -text whitespace=cr-at-eol
 *.ndjson -text
 *.gz -text
 *.png -text

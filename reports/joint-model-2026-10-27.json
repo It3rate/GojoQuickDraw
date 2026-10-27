@@ -1,0 +1,753 @@
+{
+  "schema": "gojo.local-joint-training.v1",
+  "sourceDrawings": 299,
+  "controlledPatches": 2500,
+  "realPatches": 5571,
+  "realWeakLabels": 881,
+  "selectedModel": "curves+weak-real",
+  "parameterCount": 520,
+  "modelSha256": "1f308c654d5a1d7f1df8fd8a1e0214bccda20385d995c29d916054d7e8a2db46",
+  "controlledTest": {
+    "examples": 392,
+    "top1Agreement": 0.9566326530612245,
+    "crossEntropy": 0.12988779822324772,
+    "proposalCoverage": 0.9897959183673469,
+    "agreementWhenProposed": 0.9639175257731959,
+    "confusion": [
+      [
+        54,
+        3,
+        3,
+        0,
+        0
+      ],
+      [
+        0,
+        90,
+        6,
+        0,
+        0
+      ],
+      [
+        0,
+        4,
+        100,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        55,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        76
+      ]
+    ],
+    "candidateOrder": [
+      "separate",
+      "continuation",
+      "corner",
+      "tee",
+      "crossing"
+    ],
+    "targets": {
+      "separate": 60,
+      "corner": 104,
+      "crossing": 76,
+      "continuation": 96,
+      "tee": 56
+    }
+  },
+  "realWeakTest": {
+    "examples": 121,
+    "top1Agreement": 0.6942148760330579,
+    "crossEntropy": 0.9488646944410565,
+    "proposalCoverage": 0.8264462809917356,
+    "agreementWhenProposed": 0.69,
+    "confusion": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        9,
+        17,
+        1
+      ],
+      [
+        0,
+        0,
+        12,
+        55,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        6,
+        20
+      ]
+    ],
+    "candidateOrder": [
+      "separate",
+      "continuation",
+      "corner",
+      "tee",
+      "crossing"
+    ],
+    "targets": {
+      "crossing": 27,
+      "tee": 67,
+      "corner": 27
+    },
+    "originalDrawings": 44
+  },
+  "ablations": {
+    "topology": {
+      "controlledValidation": {
+        "examples": 376,
+        "top1Agreement": 0.6303191489361702,
+        "crossEntropy": 0.8079821250743131,
+        "proposalCoverage": 0.723404255319149,
+        "agreementWhenProposed": 0.7573529411764706,
+        "confusion": [
+          [
+            18,
+            12,
+            34,
+            0,
+            0
+          ],
+          [
+            8,
+            57,
+            3,
+            0,
+            0
+          ],
+          [
+            1,
+            7,
+            60,
+            0,
+            0
+          ],
+          [
+            7,
+            1,
+            31,
+            2,
+            35
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            100
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "tee": 76,
+          "crossing": 100,
+          "continuation": 68,
+          "separate": 64,
+          "corner": 68
+        }
+      },
+      "controlledTest": {
+        "examples": 392,
+        "top1Agreement": 0.7244897959183674,
+        "crossEntropy": 0.6085169266220218,
+        "proposalCoverage": 0.7729591836734694,
+        "agreementWhenProposed": 0.8415841584158416,
+        "confusion": [
+          [
+            18,
+            10,
+            32,
+            0,
+            0
+          ],
+          [
+            5,
+            90,
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            4,
+            100,
+            0,
+            0
+          ],
+          [
+            7,
+            0,
+            22,
+            0,
+            27
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            76
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "separate": 60,
+          "corner": 104,
+          "crossing": 76,
+          "continuation": 96,
+          "tee": 56
+        }
+      },
+      "realWeakTest": {
+        "examples": 121,
+        "top1Agreement": 0.4049586776859504,
+        "crossEntropy": 3.444925930587931,
+        "proposalCoverage": 0.9338842975206612,
+        "agreementWhenProposed": 0.4247787610619469,
+        "confusion": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            24,
+            1,
+            1
+          ],
+          [
+            2,
+            0,
+            56,
+            1,
+            8
+          ],
+          [
+            0,
+            0,
+            3,
+            0,
+            24
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "crossing": 27,
+          "tee": 67,
+          "corner": 27
+        }
+      }
+    },
+    "partitions": {
+      "controlledValidation": {
+        "examples": 376,
+        "top1Agreement": 0.9574468085106383,
+        "crossEntropy": 0.16640689247052162,
+        "proposalCoverage": 0.9707446808510638,
+        "agreementWhenProposed": 0.9671232876712329,
+        "confusion": [
+          [
+            61,
+            1,
+            2,
+            0,
+            0
+          ],
+          [
+            0,
+            63,
+            5,
+            0,
+            0
+          ],
+          [
+            0,
+            7,
+            61,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            76,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            99
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "tee": 76,
+          "crossing": 100,
+          "continuation": 68,
+          "separate": 64,
+          "corner": 68
+        }
+      },
+      "controlledTest": {
+        "examples": 392,
+        "top1Agreement": 0.9591836734693877,
+        "crossEntropy": 0.14120427093434987,
+        "proposalCoverage": 0.9872448979591837,
+        "agreementWhenProposed": 0.9664082687338501,
+        "confusion": [
+          [
+            53,
+            3,
+            4,
+            0,
+            0
+          ],
+          [
+            0,
+            92,
+            4,
+            0,
+            0
+          ],
+          [
+            0,
+            4,
+            100,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            55,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            76
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "separate": 60,
+          "corner": 104,
+          "crossing": 76,
+          "continuation": 96,
+          "tee": 56
+        }
+      },
+      "realWeakTest": {
+        "examples": 121,
+        "top1Agreement": 0.47107438016528924,
+        "crossEntropy": 2.0443301986846745,
+        "proposalCoverage": 0.7272727272727273,
+        "agreementWhenProposed": 0.5113636363636364,
+        "confusion": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            21,
+            5,
+            1
+          ],
+          [
+            0,
+            0,
+            47,
+            17,
+            3
+          ],
+          [
+            0,
+            0,
+            3,
+            5,
+            19
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "crossing": 27,
+          "tee": 67,
+          "corner": 27
+        }
+      }
+    },
+    "curves": {
+      "controlledValidation": {
+        "examples": 376,
+        "top1Agreement": 0.9547872340425532,
+        "crossEntropy": 0.13530868670377025,
+        "proposalCoverage": 0.9813829787234043,
+        "agreementWhenProposed": 0.964769647696477,
+        "confusion": [
+          [
+            61,
+            1,
+            2,
+            0,
+            0
+          ],
+          [
+            0,
+            62,
+            6,
+            0,
+            0
+          ],
+          [
+            0,
+            7,
+            61,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            76,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            99
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "tee": 76,
+          "crossing": 100,
+          "continuation": 68,
+          "separate": 64,
+          "corner": 68
+        }
+      },
+      "controlledTest": {
+        "examples": 392,
+        "top1Agreement": 0.9617346938775511,
+        "crossEntropy": 0.12175400391115504,
+        "proposalCoverage": 0.9846938775510204,
+        "agreementWhenProposed": 0.9637305699481865,
+        "confusion": [
+          [
+            54,
+            3,
+            3,
+            0,
+            0
+          ],
+          [
+            0,
+            92,
+            4,
+            0,
+            0
+          ],
+          [
+            0,
+            4,
+            100,
+            0,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            55,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            76
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "separate": 60,
+          "corner": 104,
+          "crossing": 76,
+          "continuation": 96,
+          "tee": 56
+        }
+      },
+      "realWeakTest": {
+        "examples": 121,
+        "top1Agreement": 0.45454545454545453,
+        "crossEntropy": 2.1159672388689907,
+        "proposalCoverage": 0.6694214876033058,
+        "agreementWhenProposed": 0.5061728395061729,
+        "confusion": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            3,
+            14,
+            8,
+            2
+          ],
+          [
+            0,
+            0,
+            42,
+            22,
+            3
+          ],
+          [
+            0,
+            0,
+            3,
+            5,
+            19
+          ]
+        ],
+        "candidateOrder": [
+          "separate",
+          "continuation",
+          "corner",
+          "tee",
+          "crossing"
+        ],
+        "targets": {
+          "crossing": 27,
+          "tee": 67,
+          "corner": 27
+        }
+      }
+    }
+  },
+  "weakTrial": {
+    "trained": true,
+    "selected": true
+  },
+  "timingsSeconds": {
+    "snapshotAndRequests": 10.544807900034357,
+    "build": 5.1446832999936305,
+    "nativeFeatureExportAndRestore": 158.63266960001783,
+    "fitAllModels": 5.396804299962241,
+    "nativeOpinionsAndRestore": 233.41493899998022
+  },
+  "totalSeconds": 416.7498515000334,
+  "zeroExtentProfilesKeptUnresolved": 42,
+  "nativePatchBatches": 324,
+  "nativeFeatureAndOpinionRestoresVerified": true,
+  "qualification": "Known controlled generators provide synthetic targets. Real labels are dependent authored final correspondences, not human ground truth. No source drawing or conversion stage is changed. Global settlement, part recognition and learned physical priors are not claimed.",
+  "date": "2026-10-27",
+  "upstreamRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "tests": {
+    "python": 193,
+    "desktop": 36,
+    "native": 50,
+    "learning": 6,
+    "linkedGojo": 5407
+  },
+  "challengeCases": [
+    {
+      "name": "tee-clean",
+      "expected": "tee",
+      "best": "tee",
+      "status": "proposed"
+    },
+    {
+      "name": "tee-overrun",
+      "expected": "tee",
+      "best": "tee",
+      "status": "proposed"
+    },
+    {
+      "name": "tee-gap",
+      "expected": "tee",
+      "best": "tee",
+      "status": "proposed"
+    },
+    {
+      "name": "separate-large-gap",
+      "expected": "separate",
+      "best": "separate",
+      "status": "proposed"
+    },
+    {
+      "name": "genuine-cross",
+      "expected": "crossing",
+      "best": "crossing",
+      "status": "proposed"
+    },
+    {
+      "name": "corner-with-overruns",
+      "expected": "corner",
+      "best": "tee",
+      "status": "unresolved"
+    },
+    {
+      "name": "tee-with-tiny-hook",
+      "expected": "tee",
+      "best": "tee",
+      "status": "proposed"
+    },
+    {
+      "name": "smooth-curved-continuation",
+      "expected": "continuation",
+      "best": "continuation",
+      "status": "proposed"
+    }
+  ],
+  "conversionOptimization": {
+    "seconds": {
+      "before": [
+        7.0870732999756,
+        11.272191900003236,
+        5.317003200005274,
+        9.982836499984842
+      ],
+      "after": [
+        5.0326864999951795,
+        8.144682699989062,
+        3.9963705000118352,
+        7.400574399973266
+      ]
+    },
+    "sourceAndAllSavedStageViewsIdentical": true,
+    "jointReadbacksIdentical": true,
+    "storedNativeRestoreStillRequired": true,
+    "warmMeanBefore": 8.85734386666445,
+    "warmMeanAfter": 6.513875866658054,
+    "warmWallTimeReduction": 0.264579092252056
+  },
+  "desktop": {
+    "trainingTabAndSavedModelResultsOpened": true,
+    "boundedTrainingRunCompleted": true,
+    "sourceDatasetNotReplaced": true
+  },
+  "artifactLocation": "D:\\_quickDraw\\data\\church3000-models\\joints-2026-10-27-v2",
+  "sourceCohortSha256": "773f35fb920990668bc08a34b9c2d444c5e811e8c20b20c5fcaaf57ab2ac644c"
+}

@@ -574,6 +574,31 @@ multiple frames and a small model experiment. That interface, learned model
 and door-handle/seam recognizers remain planned. This checkpoint does not add
 learned joint correction or general autonomous network convergence.
 
+## First trained local model — 27 October 2026
+
+The [first trained local model](local-joint-model.md) is verified separately
+from the historical whole-drawing retrieval baseline. This checkpoint passed
+193 Python tests, 36 desktop tests, 50 native conversion tests, six native
+learning tests and all 5,407 linked Gojo tests. Native tests distinguish smooth
+arcs, concentrated turns, short hooks, shared subdivision cuts, separate source
+sites, connected target topology, restored feature cells and learned opinion
+source links. Python checks include source-level splits, no test-label leakage,
+read-only live snapshots, degeneracy and actual weight learning.
+
+The full experiment selected 299 distinct completed drawings, exported 2,500
+controls and 5,571 real patches, and published independently restored native
+feature/opinion archives. A separate desktop cold-start audit opened the saved
+model results and executed a bounded two-drawing training job. Source selection
+stayed a drawing folder, the training tab kept its result view, and both native
+UI and portable review screenshots were inspected. The archived model's SHA-256
+matches the model hash referenced by the native learned opinions.
+
+The conversion optimization was checked against the previous executable using
+the same two full church packets twice. Every source summary, stage view and
+joint readback matched. Warm encoder mean time was 8.86 versus 6.51 seconds;
+the written archive still receives an independent restore before publication.
+See [the experiment report](../reports/joint-model-2026-10-27.json).
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

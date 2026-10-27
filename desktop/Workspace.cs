@@ -201,6 +201,8 @@ public static class Workspace
         var work = Directory.Exists("D:/_quickDraw") ? "D:/_quickDraw/_work" : Path.Combine(Path.GetTempPath(), "GojoQuickDraw");
         return Path.Combine(work, "runs", Path.GetFileName(path), DateTime.Now.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture));
     }
+    public static string ModelFolder(string dataset) => Path.Combine(Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar) + "-models",
+        "joints-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff", CultureInfo.InvariantCulture));
 
     public static string InspectorFolder(string dataset)
     {

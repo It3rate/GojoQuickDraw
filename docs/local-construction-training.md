@@ -1,11 +1,12 @@
 # Local construction proposals from coarse drawing evidence
 
-Status: **exploratory design** for a first learned patch experiment. Recognition
-selection is implemented. Archives retain acquired stroke order, point times
-when present, fitted profiles, native joint witnesses, parameter locations,
-gaps, final edges and before/after correspondence. The coarse partition/gap
-interface and learned construction selector below are not yet implemented.
-No new model was trained in this checkpoint.
+Status: the proposal below now has a first implemented pilot. See
+[the local joint model](local-joint-model.md) for its actual scope and measured
+results. It includes coarse native partition/gap/curve reads, five competing
+constructions, a small trained ranker, native learned opinion witnesses, a CLI
+and a Studio training tab. Larger neighborhoods, shape feedback, handle/door
+details and general automatic settlement remain exploratory. The first model
+does not change converted drawings.
 
 ## Recognition is an external observation
 
