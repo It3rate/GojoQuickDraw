@@ -36,8 +36,10 @@ def datasets(path):
     return sorted(found, key=lambda entry: entry[0].relative_to(root).as_posix().casefold())
 
 
-def selected_rows(path, key_id=None, limit=None, *, order="category", seed=0, offset=0):
+def selected_rows(path, key_id=None, limit=None, *, order="category", seed=0, offset=0, recognition="all"):
     from .dataset import _index, _safe_path
+    from . import recognition as recognition_read
+    recognition_read.validate(recognition)
     if limit is not None and (isinstance(limit, bool) or not isinstance(limit, int) or limit < 1):
         raise ValueError("Limit must be a positive integer")
     if order not in ORDERS:
@@ -58,6 +60,11 @@ def selected_rows(path, key_id=None, limit=None, *, order="category", seed=0, of
                 for stored in rows.values():
                     if stored.get("status") != "ok" or key_id is not None and stored.get("keyId") != key_id:
                         continue
+                    if recognition != "all":
+                        value = recognition_read.from_row(folder, stored)
+                        if not recognition_read.accepts(value, recognition):
+                            continue
+                        stored = dict(stored, recognized=value)
                     relative = folder.relative_to(root).as_posix()
                     yield folder, dict(stored, selectionId=relative + "::" + stored["itemId"])
 
@@ -87,22 +94,23 @@ def selected_rows(path, key_id=None, limit=None, *, order="category", seed=0, of
         yield from heapq.nsmallest(offset + limit, all_rows(), key=rank)[offset:]
 
 
-def catalog(path, limit=1000, *, order="category", seed=0, offset=0):
+def catalog(path, limit=1000, *, order="category", seed=0, offset=0, recognition="all"):
     root = Path(path).resolve()
     folders = datasets(root)
-    fields = ("itemId", "keyId", "category", "counts", "evidencePath", "nativePath", "convertedUtc", "selectionId")
+    fields = ("itemId", "keyId", "category", "counts", "evidencePath", "nativePath", "convertedUtc", "selectionId", "recognized")
     records = [{**{key: row[key] for key in fields if key in row}, "datasetPath": str(folder)}
-               for folder, row in selected_rows(root, limit=limit, order=order, seed=seed, offset=offset)]
+               for folder, row in selected_rows(root, limit=limit, order=order, seed=seed, offset=offset, recognition=recognition)]
     # Journals, rather than last-run summaries, determine the actual page count.
     from .dataset import _index
     totals = {"ok": 0, "error": 0}
+    from . import recognition as recognition_read
     for folder, _ in folders:
         with _index(folder) as rows:
             for row in rows.values():
-                if row.get("status") in totals:
+                if row.get("status") in totals and (recognition == "all" or recognition_read.accepts(recognition_read.from_row(folder, row), recognition)):
                     totals[row["status"]] += 1
     return {"records": records, "folders": [{"path": str(folder), "label": folder.relative_to(root).as_posix()} for folder, _ in folders],
             "storedRecords": totals["ok"], "storedErrors": totals["error"],
             "offset": offset, "pageSize": limit, "pageCount": (totals["ok"] + limit - 1) // limit,
-            "order": order, "seed": seed, "recursive": True,
+            "order": order, "seed": seed, "recursive": True, "recognition": recognition,
             "qualification": "Catalog metadata and cached previews are observations; archive integrity is checked by verify."}

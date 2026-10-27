@@ -12,6 +12,7 @@ internal sealed partial class MainWindow
     private readonly ComboBox _folderScope = new() { HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly ComboBox _inspectionOrder = new() { ItemsSource = new[] { "Category / source order", "Most recent", "Random" }, SelectedIndex = 0,
         HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly ComboBox _inspectionRecognition = new() { ItemsSource = Recognition.Labels, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
     private bool _updatingFolders;
     private long _inspectionSeed, _catalogRevision;
     private readonly DatasetBrowser _browser = new();
@@ -21,6 +22,7 @@ internal sealed partial class MainWindow
     private readonly TextBlock _pageLabel = Text("Page 1");
     private Button _firstPage = null!, _previousPage = null!, _nextPage = null!, _lastPage = null!;
     private string InspectionOrder => _inspectionOrder.SelectedIndex switch { 1 => "recent", 2 => "random", _ => "category" };
+    private string InspectionRecognition => Recognition.Modes[Math.Max(0, _inspectionRecognition.SelectedIndex)];
     private string InspectionPath
     {
         get
@@ -39,8 +41,10 @@ internal sealed partial class MainWindow
         var stageId = string.IsNullOrWhiteSpace(_settings.ResultStage) ? _settings.ResultView switch { 1 => "fitted", 2 => "areas", 3 => "cleanup", _ => "best" } : _settings.ResultStage;
         _resultView.SelectedIndex = Math.Max(0, Array.FindIndex(StageOptions, stage => stage.Id == stageId));
         _inspectionOrder.SelectedIndex = _settings.InspectionOrder switch { "recent" => 1, "random" => 2, _ => 0 };
+        _inspectionRecognition.SelectedIndex = Math.Max(0, Array.IndexOf(Recognition.Modes, _settings.InspectionRecognition));
         _folderScope.SelectionChanged += async (_, _) => { if (!_updatingFolders && _folderScope.SelectedItem is not null) await LoadCatalog(refreshFolders: false); };
         _inspectionOrder.SelectionChanged += async (_, _) => { if (!_updatingFolders && _loadedDataset is not null) await LoadCatalog(refreshFolders: false); };
+        _inspectionRecognition.SelectionChanged += async (_, _) => { if (!_updatingFolders && _loadedDataset is not null) await LoadCatalog(refreshFolders: false); };
         _reviewLimit.ValueChanged += async (_, _) => { if (_loadedDataset is not null) await LoadCatalog(refreshFolders: false); };
     }
 
@@ -87,7 +91,7 @@ internal sealed partial class MainWindow
         { control.VerticalAlignment = VerticalAlignment.Center; paging.Children.Add(control); }
         _reviewLimit.Width = 125;
         paging.Children.Add(Text("Per page")); paging.Children.Add(_reviewLimit);
-        return Card(Stack(8, grid, paging), 10);
+        return Card(Stack(8, grid, Field("Game recognition", _inspectionRecognition, "Game AI outcome; older saved records are read without changing them."), paging), 10);
     }
 
     private async Task ChangePage(int offset)
@@ -136,7 +140,8 @@ internal sealed partial class MainWindow
                 }
             }
             var scope = InspectionPath; var size = (int)_reviewLimit.Value!; var order = InspectionOrder; var seed = _inspectionSeed;
-            var catalog = await Task.Run(() => _browser.Read(scope, size, _catalogOffset, order, seed, cancellation.Token), cancellation.Token);
+            var recognition = InspectionRecognition;
+            var catalog = await Task.Run(() => _browser.Read(scope, size, _catalogOffset, order, seed, cancellation.Token, recognition), cancellation.Token);
             if (revision != _catalogRevision || _dataset.Text?.Trim() != root) return;
             _catalogOffset = catalog.Offset;
             _catalogTotal = catalog.Stored;

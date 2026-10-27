@@ -21,7 +21,7 @@ def by_source(rows):
     return found
 
 
-def existing(path):
+def existing(path, *, resolve_recognition=False):
     from .selection import datasets
     if not path.is_dir():
         return {}
@@ -35,6 +35,9 @@ def existing(path):
     for folder, _ in folders:
         with dataset._index(folder) as rows:
             for key, row in by_source(rows.values()).items():
+                if resolve_recognition and 'recognized' not in row:
+                    from .recognition import from_row
+                    row = dict(row, recognized=from_row(folder, row))
                 if key not in found or row.get("status") == "ok":
                     found[key] = row
     return found

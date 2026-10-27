@@ -158,6 +158,8 @@ internal sealed partial class MainWindow
             _layerSummary.Text = finals > 0 ? $"{finals} of {_pagePreviews.Count} drawings on this page have refined shapes. Select a drawing stage above; paging keeps your choice."
                 : "This page has converted stroke evidence. Complete pipeline adds and saves the church interpretation stages.";
         }
+        else _layerSummary.Text = rows.Length == 0 ? "No drawings match these filters. Change Game recognition or the selected category to view other drawings."
+            : "Saved previews are unavailable for this page; inspect the drawing's error details.";
     }
 
     private void ArrangeGallery()

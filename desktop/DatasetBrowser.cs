@@ -11,17 +11,19 @@ public sealed class DatasetBrowser
 {
     private sealed record Snapshot(long Length, DateTime Modified, DrawingRow[] Rows, string[] Warnings);
     private readonly Dictionary<string, Snapshot> _cache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, (long Length, DateTime Modified, bool? Outcome)> _recognition = new(StringComparer.OrdinalIgnoreCase);
 
     public Catalog Read(string root, int size = 12, int offset = 0, string order = "category", long seed = 0,
-        CancellationToken cancellation = default)
+        CancellationToken cancellation = default, string recognition = "all")
     {
-        lock (_cache) return ReadPage(root, size, offset, order, seed, cancellation);
+        lock (_cache) return ReadPage(root, size, offset, order, seed, cancellation, recognition);
     }
 
-    private Catalog ReadPage(string root, int size, int offset, string order, long seed, CancellationToken cancellation)
+    private Catalog ReadPage(string root, int size, int offset, string order, long seed, CancellationToken cancellation, string recognition)
     {
         if (size < 1 || offset < 0) throw new ArgumentException("Page size must be positive and offset nonnegative.");
         if (order is not ("category" or "recent" or "random")) throw new ArgumentException("Unknown drawing order.");
+        Recognition.Accepts(null, recognition);
         var rows = new List<DrawingRow>(); var warnings = new List<string>();
         foreach (var folder in Workspace.GeneratedFolders(root))
         {
@@ -38,9 +40,18 @@ public sealed class DatasetBrowser
         }
         var errors = rows.Count(row => row.Status == "error");
         IEnumerable<DrawingRow> successful = rows.Where(row => row.Status == "ok");
+        if (recognition != "all") successful = successful.Select(row =>
+        {
+            cancellation.ThrowIfCancellationRequested();
+            if (row.RecognitionRecorded) return row;
+            var path = Path.GetFullPath(Path.Combine(row.DatasetPath, row.EvidencePath)); var info = new FileInfo(path);
+            if (!_recognition.TryGetValue(path, out var cached) || cached.Length != info.Length || cached.Modified != info.LastWriteTimeUtc)
+                _recognition[path] = cached = (info.Length, info.LastWriteTimeUtc, Recognition.ReadLegacy(row));
+            return row with { Recognized = cached.Outcome, RecognitionRecorded = true };
+        }).Where(row => Recognition.Accepts(row.Recognized, recognition)).ToArray();
         if (order == "recent") successful = successful.OrderByDescending(row => row.ConvertedUtc).ThenBy(row => row.QualifiedId, StringComparer.Ordinal);
         if (order == "random") successful = successful.OrderBy(row => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(seed.ToString(CultureInfo.InvariantCulture) + ":" + row.QualifiedId))), StringComparer.Ordinal);
-        var total = rows.Count(row => row.Status == "ok");
+        var total = successful.Count();
         offset = Math.Min(offset / size * size, Math.Max(0, (total - 1) / size * size));
         return new(successful.Skip(offset).Take(size).ToArray(), total, errors, offset, size, warnings);
     }
@@ -68,7 +79,7 @@ public sealed class DatasetBrowser
             int Count(string key) => row.TryGetProperty("counts", out var counts) && counts.TryGetProperty(key, out var value) ? value.GetInt32() : 0;
             var time = DateTimeOffset.TryParse(Text("convertedUtc"), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var stamp) ? stamp : DateTimeOffset.MinValue;
             var entry = new DrawingRow(id, Text("keyId"), Text("category"), Count("strokes"), Count("samples"), Count("spans"),
-                Text("evidencePath"), Text("status"), folder, time);
+                Text("evidencePath"), Text("status"), folder, time, Recognition.Outcome(row), row.TryGetProperty("recognized", out _));
             if (!latest.ContainsKey(id)) sequence.Add(id);
             latest[id] = entry;
         }

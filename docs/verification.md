@@ -545,6 +545,35 @@ matching, nor a trained-model or semantic-accuracy claim. The
 correspondence-training proposal; [the retrieval report](../reports/joint-retrieval-2026-10-27.json)
 retains the cohort, scores and per-drawing rankings.
 
+## Recognition selection and local construction design — 27 October 2026
+
+Game recognition is now an optional acquisition and browsing filter. Selection
+precedes sampling/counting and paging; unknown differs from false. Legacy
+records are read without rewriting source archives. Changing filters can grow
+an existing pipeline, counting only eligible acquisitions toward the target
+while preserving other records. Selection plans and pipeline requests retain
+the filter, and source exhaustion produces an explicit shortfall.
+
+Passed: 184 Python tests, 35 desktop tests, 50 native tests and all 5,407 linked
+Gojo tests at `4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51`. The desktop
+cancellation fixture now publishes its child PID only after closing the file,
+removing a Windows reader/writer race exposed during this run.
+
+A bounded real-data pilot processed two recognized then two unrecognized
+drawings through all ten views and independently restored all four native
+archives. Changing the filter preserved the earlier artifact hashes. The
+read-only viewer audit over the existing 300 drawings showed 264 recognized,
+36 unrecognized and zero unknown, handled the empty filtered view, preserved
+the selected stage, and ran without Python or a Gojo path. Conversion and
+filtered-view screenshots were inspected. The normal Release desktop build
+also passed.
+
+The [local construction design](local-construction-training.md) specifies a
+proposed coarse partition/gap interface, candidate T/cross applications,
+multiple frames and a small model experiment. That interface, learned model
+and door-handle/seam recognizers remain planned. This checkpoint does not add
+learned joint correction or general autonomous network convergence.
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

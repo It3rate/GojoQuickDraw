@@ -14,7 +14,10 @@ SCHEMA = "gojo.quickdraw-pipeline.v1"
 
 
 def run(output, gojo_root, *, input_path=None, source_dataset=None, count=25, categories=None,
-        seed=None, workers=4, recursive=False, retry_errors=False, fit_config=None, max_points=20000, max_spans=256):
+        seed=None, workers=4, recursive=False, retry_errors=False, fit_config=None, max_points=20000, max_spans=256,
+        recognition="all"):
+    from .recognition import validate
+    validate(recognition)
     if (input_path is None) == (source_dataset is None):
         raise ValueError("Choose raw source files or an existing dataset")
     if isinstance(count, bool) or not isinstance(count, int) or count < 1:
@@ -32,6 +35,8 @@ def run(output, gojo_root, *, input_path=None, source_dataset=None, count=25, ca
     request = {"source": str(source), "mode": "raw" if raw else "existing", "count": count,
                "categories": sorted(categories or []), "recursive": recursive,
                "fitConfig": fit_config, "maxPoints": max_points, "maxSpans": max_spans}
+    if recognition != "all":
+        request['recognition'] = recognition
     manifest_path = output / "pipeline.json"
     with dataset._writer_lock(output):
         if manifest_path.exists():
@@ -60,11 +65,11 @@ def run(output, gojo_root, *, input_path=None, source_dataset=None, count=25, ca
             print(f"Pipeline: grow selected categories to {count} drawings, keeping existing records", file=sys.stderr, flush=True)
             acquisition = sampling.convert_collection(source, baseline, gojo_root, categories=categories, count=count,
                 seed=state["seed"], recursive=recursive, retry_errors=retry_errors, fit_config=fit_config,
-                max_points=max_points, max_spans=max_spans, target_total=True, append=True)
+                max_points=max_points, max_spans=max_spans, target_total=True, append=True, recognition=recognition)
             # Growing a collection preserves its exact earlier acquisitions and
             # completes pending interpretations before accepting another target.
             scope = {name.casefold() for name in acquisition['sourceCategories']}
-            keys = {row['keyId'] for _, row in selected_rows(baseline) if row.get('category', '').casefold() in scope} if acquisition['storedRecords'] else set()
+            keys = {row['keyId'] for _, row in selected_rows(baseline, recognition=recognition) if row.get('category', '').casefold() in scope} if acquisition['storedRecords'] else set()
         state["status"] = "analyzing"
         dataset._atomic_json(manifest_path, state)
         print("Pipeline: saving source, fitted outlines, construction stages, shape areas and refinement", file=sys.stderr, flush=True)
@@ -77,12 +82,15 @@ def run(output, gojo_root, *, input_path=None, source_dataset=None, count=25, ca
         else:
             result = analysis.run(baseline, output / "results", gojo_root, limit=count, workers=workers,
                                   retry_errors=retry_errors, key_ids=sorted(keys) if keys is not None else None, execute_stages=True,
-                                  append=True, categories=acquisition['sourceCategories'] if raw else None)
+                                  append=True, categories=acquisition['sourceCategories'] if raw else None, recognition=recognition)
         result["output"] = str(output)
         result["seed"] = state["seed"]
         result['targetTotal'] = count
+        result['recognition'] = recognition
         if acquisition:
             result["acquisition"] = acquisition
+            result['matchingAcquisitions'] = acquisition['matchingStoredRecords']
+            result['selectionShortfall'] = acquisition.get('selectionShortfall', 0)
             result["errors"] = result.get("errors", 0) + acquisition["errors"]
             result["storedErrors"] += acquisition["storedErrors"]
         result["allStagesSaved"] = not result.get("errors")

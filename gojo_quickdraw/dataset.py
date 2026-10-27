@@ -275,8 +275,11 @@ def convert(input_path, output, gojo_root, **kwargs):
 
 
 def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recursive=False,
-            fit_config=None, max_points=20000, max_spans=256, retry_errors=False, encoder_factory=None, records=None, append=False):
+            fit_config=None, max_points=20000, max_spans=256, retry_errors=False, encoder_factory=None, records=None, append=False,
+            recognition="all"):
     """Append one verified source evidence record at a time. Resume by content."""
+    from . import recognition as recognition_read
+    recognition_read.validate(recognition)
     gojo_root = activate(gojo_root)
     root = Path(output).resolve()
     source_path = Path(input_path).resolve()
@@ -336,6 +339,8 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
                 source, category, error = {}, file_category or file.name.split(".")[0], problem
             if wanted and category.casefold() not in wanted:
                 continue
+            if not recognition_read.accepts(recognition_read.outcome(source), recognition):
+                continue
             item_id = hashlib.sha256(_canonical([signature, raw_hash, category]).encode()).hexdigest()[:32]
             counters["matched"] += 1
             if limit is not None and counters["matched"] > limit:
@@ -355,7 +360,8 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
             if prior:
                 item_id = prior["itemId"]  # Retry a retained failure, never duplicate its journal identity.
             row = {"itemId": item_id, "keyId": source.get("key_id"), "category": category,
-                   "sourceFile": str(file), "sourceLine": line_number, "sourceSha256": raw_hash, "extractionFingerprint": signature}
+                   "sourceFile": str(file), "sourceLine": line_number, "sourceSha256": raw_hash, "extractionFingerprint": signature,
+                   "recognized": recognition_read.outcome(source)}
             try:
                 if error:
                     raise error

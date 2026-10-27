@@ -20,7 +20,7 @@ import struct
 import sys
 import uuid
 
-from . import dataset
+from . import dataset, recognition as recognition_read
 
 SCHEMA = "gojo.quickdraw-collection.v1"
 
@@ -74,10 +74,11 @@ def _cache_root():
     return Path(os.environ.get("LOCALAPPDATA", Path.home() / ".cache")) / "GojoQuickDraw" / "source-index"
 
 
-def index_source(path, cache=None):
+def index_source(path, cache=None, recognition="all"):
+    recognition_read.validate(recognition)
     path = Path(path).resolve()
     stamp = _stamp(path)
-    key = hashlib.sha256(dataset._canonical([str(path), stamp, 1]).encode()).hexdigest()
+    key = hashlib.sha256(dataset._canonical([str(path), stamp, 1] + ([recognition] if recognition != "all" else [])).encode()).hexdigest()
     # Resolve Windows profile/package redirection before atomic rename operations.
     folder = (Path(cache or _cache_root()) / key).resolve()
     with dataset._writer_lock(folder):
@@ -89,14 +90,19 @@ def index_source(path, cache=None):
         print(f"Indexing {path.name} for random record selection (saved for future runs)…", file=sys.stderr, flush=True)
         temporary = folder / ("locations-" + uuid.uuid4().hex + ".tmp")
         count, position, next_notice = 0, 0, 64 * 1024 * 1024
+        outcomes = Counter()
         digest = hashlib.sha256()
         opener = gzip.open if path.suffix.lower() == ".gz" else open
         try:
             with opener(path, "rb") as source, temporary.open("wb") as output:
                 for line_number, line in enumerate(source, 1):
                     if line.strip():
-                        entry = struct.pack("<QQ", position, line_number)
-                        output.write(entry); digest.update(entry); count += 1
+                        value = recognition_read.from_original(line) if recognition != "all" else None
+                        if recognition != "all":
+                            outcomes["recognized" if value is True else "unrecognized" if value is False else "unknown"] += 1
+                        if recognition_read.accepts(value, recognition):
+                            entry = struct.pack("<QQ", position, line_number)
+                            output.write(entry); digest.update(entry); count += 1
                     position += len(line)
                     if position >= next_notice:
                         print(f"Indexing {path.name}: {position // (1024*1024)} MB read", file=sys.stderr, flush=True)
@@ -105,13 +111,16 @@ def index_source(path, cache=None):
                 raise ValueError(f"Source changed while indexing: {path}")
             os.replace(temporary, locations)
             info = {"sourceFile": str(path), "sourceStamp": stamp, "count": count, "sha256": digest.hexdigest()}
+            if recognition != "all":
+                info.update(recognition=recognition, recognitionCounts=dict(outcomes))
             dataset._atomic_json(meta, info)
             return {**info, "locations": str(locations)}
         finally:
             temporary.unlink(missing_ok=True)
 
 
-def make_plan(files, count, seed, cache=None):
+def make_plan(files, count, seed, cache=None, recognition="all"):
+    recognition_read.validate(recognition)
     if count < 1:
         raise ValueError("Sample count must be positive")
     rng, quotas, indexes = random.Random(seed), Counter(), {}
@@ -124,7 +133,7 @@ def make_plan(files, count, seed, cache=None):
             if total >= count:
                 break
             if name not in indexes:
-                indexes[name] = index_source(files[name], cache)
+                indexes[name] = index_source(files[name], cache, recognition)
             if quotas[name] >= indexes[name]["count"]:
                 exhausted.append(name)
             else:
@@ -147,7 +156,7 @@ def make_plan(files, count, seed, cache=None):
         for entry, (_, _, original, _) in zip(selected, read_group(group)):
             entry["sourceSha256"] = hashlib.sha256(original.encode()).hexdigest()
         groups.append(group)
-    return {"seed": seed, "requested": count, "selected": sum(quotas.values()), "groups": groups,
+    return {"seed": seed, "requested": count, "selected": sum(quotas.values()), "groups": groups, "recognition": recognition,
             "basis": "Randomized balanced category rounds; uniform record selection without replacement within each category."}
 
 
@@ -165,7 +174,7 @@ def read_group(group):
             yield path, selected["line"], original, group["category"]
 
 
-def make_growth_plan(files, count, seed, saved, cache=None):
+def make_growth_plan(files, count, seed, saved, cache=None, recognition="all"):
     """Reach a total across selected categories, excluding retained identities.
 
     A bounded random permutation supplies candidates. Reading sorted chunks
@@ -175,13 +184,14 @@ def make_growth_plan(files, count, seed, saved, cache=None):
     from .growth import identity
     known = set(saved)
     known_hashes = {(row['category'].casefold(), row['sourceSha256']) for row in saved.values()}
-    counts = Counter(key[0] for key in known)
+    recognition_read.validate(recognition)
+    counts = Counter(key[0] for key, row in saved.items() if recognition_read.accepts(recognition_read.outcome(row), recognition))
     retained = sum(counts[name.casefold()] for name in files)
     needed = max(0, count - retained)
     groups = {}
 
     def candidates(name):
-        info = index_source(files[name], cache)
+        info = index_source(files[name], cache, recognition)
         local = random.Random(hashlib.sha256(f"{seed}:{name}".encode()).digest())
         def positions():
             remaining, swaps = info['count'], {}
@@ -236,14 +246,15 @@ def make_growth_plan(files, count, seed, saved, cache=None):
             iterator.close()
     for group in groups.values():
         group['selected'].sort(key=lambda entry: entry['offset'])
-    return {'seed': seed, 'requested': count, 'targetTotal': count, 'retained': retained, 'selected': selected,
+    return {'seed': seed, 'requested': count, 'targetTotal': count, 'retained': retained, 'selected': selected, 'recognition': recognition,
             'shortfall': max(0, needed - selected), 'groups': [groups[name] for name in sorted(groups)],
             'basis': 'Grow selected categories to the requested total; retain existing source identities; balance new additions without replacement.'}
 
 
 def convert_collection(input_path, output, gojo_root, *, categories=None, count=25, seed=None, recursive=False,
                        all_records=False, cache=None, fit_config=None, max_points=20000, max_spans=256,
-                       retry_errors=False, encoder_factory=None, target_total=False, append=False):
+                       retry_errors=False, encoder_factory=None, target_total=False, append=False, recognition="all"):
+    recognition_read.validate(recognition)
     root, source = Path(output).resolve(), Path(input_path).resolve()
     library = source.parent if source.is_file() else source
     if root.is_relative_to(library):
@@ -251,6 +262,8 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
     files = source_files(source, categories, recursive)
     request = {"input": str(library), "categories": list(files), "count": None if all_records else count,
                "files": {name: {"path": str(file), **_stamp(file)} for name, file in files.items()}}
+    if recognition != "all":
+        request['recognition'] = recognition
     if target_total:
         if all_records:
             raise ValueError('A target total cannot process all records')
@@ -281,6 +294,8 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
                         continue
                     with gzip.open(dataset._safe_path(root / name, row['retainedSource']), 'rt', encoding='utf-8') as retained:
                         original = json.load(retained)['sourceOriginalJson']
+                    if not recognition_read.accepts(recognition_read.from_original(original), recognition):
+                        continue
                     if hashlib.sha256(original.encode()).hexdigest() != row['sourceSha256']:
                         raise ValueError('Retained failed source changed; cannot retry it')
                     retry_records.append((Path(row['sourceFile']), row['sourceLine'], original, name))
@@ -297,13 +312,14 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
             print(f"Resuming saved random selection (seed {plan['seed']})", file=sys.stderr, flush=True)
         elif target_total:
             from .growth import existing
-            plan = make_growth_plan(files, count, seed if seed is not None else secrets.randbits(63), existing(root), cache)
+            plan = make_growth_plan(files, count, seed if seed is not None else secrets.randbits(63),
+                existing(root, resolve_recognition=recognition != "all"), cache, recognition)
         elif all_records:
             plan = {"seed": seed if seed is not None else secrets.randbits(63), "requested": None, "selected": None,
                     "basis": "All records in selected category files", "groups": [
                         {"category": name, "sourceFile": str(file), "sourceStamp": _stamp(file)} for name, file in files.items()]}
         else:
-            plan = make_plan(files, count, seed if seed is not None else secrets.randbits(63), cache)
+            plan = make_plan(files, count, seed if seed is not None else secrets.randbits(63), cache, recognition)
         state = {"request": request, "plan": plan, "status": "running"}
         if target_total:
             print(f"Target {count}: retain {plan.get('retained', 0)} selected drawings; {plan['selected']} new selections in this batch", file=sys.stderr, flush=True)
@@ -317,6 +333,8 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
             name, file = group["category"], Path(group["sourceFile"])
             print(f"Category {name}: " + ("all records" if all_records else f"{len(group['selected'])} randomly selected drawings"), file=sys.stderr, flush=True)
             records = ((f, line, original, name) for f, line, original, _ in dataset.source_records([file])) if all_records else read_group(group)
+            if recognition != "all":
+                records = (record for record in records if recognition_read.accepts(recognition_read.from_original(record[2]), recognition))
             if retried_hashes:
                 records = (record for record in records if (record[3].casefold(), hashlib.sha256(record[2].encode()).hexdigest()) not in retried_hashes)
             result = dataset.convert(file, root / name, gojo_root, records=records, fit_config=fit_config,
@@ -333,6 +351,16 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
                   "storedErrors": sum(data.get("lastRun", {}).get("storedErrors", 0) for _, data in folders), "seed": plan["seed"],
                   "selected": plan["selected"], "categories": [group["category"] for group in plan["groups"]], "sourceCategories": list(files),
                   "samplingBasis": plan["basis"], "selectionPlan": str(archive_plan), "synthesisGenerated": False}
+        result['recognition'] = recognition
+        if recognition == 'all':
+            result['matchingStoredRecords'] = result['storedRecords']
+        else:
+            from .growth import existing
+            result['matchingStoredRecords'] = sum(row['status'] == 'ok' and row.get('category', '').casefold() in {name.casefold() for name in files}
+                and recognition_read.accepts(recognition_read.outcome(row), recognition)
+                for row in existing(root, resolve_recognition=True).values()) if folders else 0
+        if not all_records and not target_total:
+            result['selectionShortfall'] = max(0, count - plan['selected'])
         if target_total:
             result.update(targetTotal=count, selectionShortfall=plan.get('shortfall', 0))
         state["status"] = "retained-errors" if result["errors"] else "completed"

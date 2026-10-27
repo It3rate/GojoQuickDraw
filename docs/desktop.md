@@ -78,7 +78,22 @@ stopped runs remain available. An incomplete last index entry is skipped with
 a visible notice, while the original journal is left intact. A malformed
 committed entry remains an explicit read error.
 
+**Filters & pages → Game recognition** selects the game's recognized,
+unrecognized or unavailable outcomes. It filters before paging, and switching
+back to All shows the complete dataset. Older folders lack an index projection
+of this flag: the first filtered read checks the flag in each saved source
+packet and caches that metadata for the browsing session. It does not rewrite
+the records or run conversion. This is the game's AI judgment, not human review.
+
 ## Convert drawings
+
+**Game recognition** also appears in the conversion form. Selection happens
+before sampling, so a target of 300 with Recognized by game means up to 300
+matching acquisitions across selected categories. Other saved outcomes remain
+in the dataset and do not count toward that filtered target. A reported shortfall
+means the eligible source pool ran out. All remains the default; unknown flags
+are not silently treated as unrecognized. Completing an interrupted raw pipeline
+uses its saved recognition selection, just as it uses the saved source and seed.
 
 1. Open an existing pipeline dataset to add drawings, or use **New dataset**
    for a separate collection. Existing converted drawings are preserved.

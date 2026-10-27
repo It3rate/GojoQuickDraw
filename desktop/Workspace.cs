@@ -16,6 +16,8 @@ public sealed class WorkspaceSettings
     public string InspectionOrder { get; set; } = "category";
     public long InspectionSeed { get; set; }
     public string SamplingSeed { get; set; } = "";
+    public string Recognition { get; set; } = "all";
+    public string InspectionRecognition { get; set; } = "all";
     public int ResultView { get; set; }
     public string ResultStage { get; set; } = "";
 
@@ -60,7 +62,8 @@ public sealed class WorkspaceSettings
 }
 
 public sealed record DrawingRow(string ItemId, string KeyId, string Category, int Strokes, int Samples, int Intervals,
-    string EvidencePath, string Status, string DatasetPath = "", DateTimeOffset ConvertedUtc = default)
+    string EvidencePath, string Status, string DatasetPath = "", DateTimeOffset ConvertedUtc = default,
+    bool? Recognized = null, bool RecognitionRecorded = false)
 {
     public string QualifiedId => DatasetPath + "::" + ItemId;
     public override string ToString() => $"{Category} · {KeyId} · {Intervals} intervals";

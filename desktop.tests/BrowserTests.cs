@@ -23,6 +23,43 @@ public sealed class BrowserTests : IDisposable
     }) + "\n";
 
     [Fact]
+    public void RecognitionFiltersLegacySourcesBeforePagingWithoutRewritingArtifacts()
+    {
+        var folder = Folder("church"); Directory.CreateDirectory(Path.Combine(folder, "records"));
+        var journal = Path.Combine(folder, "index.ndjson");
+        File.WriteAllText(journal, Row("a", "church") + Row("b", "church") + Row("c", "church") + Row("d", "church"));
+        foreach (var (id, flag) in new[] { ("a", "true"), ("b", "false"), ("c", "true"), ("d", "null") })
+        {
+            using var stream = new GZipStream(File.Create(Path.Combine(folder, "records/" + id + ".gz")), CompressionMode.Compress);
+            stream.Write(Encoding.UTF8.GetBytes("{\"itemKey\":\"" + id + "\",\"source\":{\"key_id\":\"source-" + id + "\",\"recognized\":" + flag + "}}"));
+        }
+        var before = Directory.GetFiles(folder, "*", SearchOption.AllDirectories).ToDictionary(path => path, File.ReadAllBytes);
+        var browser = new DatasetBrowser();
+        var first = browser.Read(_root, 1, recognition: "recognized");
+        Assert.Equal(2, first.Stored); Assert.Equal("a", Assert.Single(first.Drawings).ItemId);
+        Assert.Equal("c", Assert.Single(browser.Read(_root, 1, 1, recognition: "recognized").Drawings).ItemId);
+        Assert.Equal("b", Assert.Single(browser.Read(_root, recognition: "unrecognized").Drawings).ItemId);
+        Assert.Equal("d", Assert.Single(browser.Read(_root, recognition: "unknown").Drawings).ItemId);
+        Assert.Equal(4, browser.Read(_root).Stored);
+        foreach (var (path, contents) in before) Assert.Equal(contents, File.ReadAllBytes(path));
+    }
+
+    [Fact]
+    public void RecognitionJournalProjectionWorksWithoutSourceFilesAndUnknownIsNotFalse()
+    {
+        var folder = Folder("church");
+        var a = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(Row("a", "church"))!;
+        a["recognized"] = JsonSerializer.SerializeToElement(true);
+        var b = new Dictionary<string, JsonElement>(a) { ["itemId"] = JsonSerializer.SerializeToElement("b"), ["recognized"] = JsonSerializer.SerializeToElement((bool?)null) };
+        File.WriteAllText(Path.Combine(folder, "index.ndjson"), JsonSerializer.Serialize(a) + "\n" + JsonSerializer.Serialize(b) + "\n");
+        var browser = new DatasetBrowser();
+        Assert.Equal("a", Assert.Single(browser.Read(_root, recognition: "recognized").Drawings).ItemId);
+        Assert.Equal("b", Assert.Single(browser.Read(_root, recognition: "unknown").Drawings).ItemId);
+        Assert.Empty(browser.Read(_root, recognition: "unrecognized").Drawings);
+        Assert.Throws<ArgumentException>(() => browser.Read(_root, recognition: "human"));
+    }
+
+    [Fact]
     public void FolderViewerPagesAllCategoriesAndLatestCommittedStatusWithoutPythonOrHtml()
     {
         var angel = Folder("angel"); var church = Folder("church");

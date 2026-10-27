@@ -17,6 +17,7 @@ internal sealed partial class MainWindow
         Directory.CreateDirectory(output);
         var errors = new List<string>();
         var first = 0; var last = 0; var total = 0;
+        var recognitionCounts = new Dictionary<string, int>();
         try
         {
             // Browsing must remain available independently of conversion tools.
@@ -76,6 +77,23 @@ internal sealed partial class MainWindow
                 }
                 _resultView.SelectedIndex = 1; await ChangePage(0);
             }
+            if (Program.Arguments.Contains("--qa-recognition"))
+            {
+                for (var i = 0; i < Recognition.Modes.Length; i++)
+                {
+                    _updatingFolders = true; _inspectionRecognition.SelectedIndex = i; _updatingFolders = false;
+                    await LoadCatalog(refreshFolders: false);
+                    recognitionCounts[InspectionRecognition] = _catalogTotal;
+                    if (_catalogTotal == 0) Require(_layerSummary.Text?.StartsWith("No drawings match") == true, "Empty filter kept a stale result summary.");
+                    Require(_drawings.Items.Cast<DrawingRow>().All(row => Recognition.Accepts(row.Recognized, InspectionRecognition)), "Recognition filter admitted a different outcome.");
+                    _inspectionDrawer.IsVisible = true;
+                    await Capture(Path.Combine(output, "recognition-" + InspectionRecognition + ".png"));
+                }
+                Require(recognitionCounts["all"] == recognitionCounts["recognized"] + recognitionCounts["unrecognized"] + recognitionCounts["unknown"], "Recognition outcomes do not partition the dataset.");
+                _updatingFolders = true; _inspectionRecognition.SelectedIndex = 0; _updatingFolders = false;
+                await LoadCatalog(refreshFolders: false); _inspectionDrawer.IsVisible = false;
+                _recognition.SelectedIndex = 1;
+            }
             _tabs.SelectedIndex = 1; await Capture(Path.Combine(output, "convert.png")); _tabs.SelectedIndex = 0;
             Width = 920; Height = 760; await CheckBottomReachable(output);
         }
@@ -87,7 +105,7 @@ internal sealed partial class MainWindow
                 success = errors.Count == 0, errors, dataset = _dataset.Text, total, firstPageRecords = first,
                 lastPageRecords = last, pageText = _pageLabel.Text, existingInspectorAvailable = _openResult.IsEnabled,
                 startupRequiredManualLoad = false, viewerWorksWithoutPythonOrGojo = true,
-                nativeGalleryCards = _galleryCards.Count, resultViewPreserved = _resultView.SelectedIndex == 1
+                nativeGalleryCards = _galleryCards.Count, resultViewPreserved = _resultView.SelectedIndex == 1, recognitionCounts
             }, new JsonSerializerOptions { WriteIndented = true }));
             _allowClose = true; Close();
         }

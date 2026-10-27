@@ -85,6 +85,10 @@ def parser():
     analysis.add_argument("--key-id", action="append", help="Analyze only this source key; repeat for a reviewed subset")
     analysis.add_argument("--workers", type=int, default=4)
     analysis.add_argument("--retry-errors", action="store_true")
+    from .recognition import MODES
+    for command in (process, convert, sample, catalog, analysis):
+        command.add_argument("--recognition", choices=MODES, default="all",
+                             help="Game AI outcome, not human review; filter before sampling or paging (default all)")
     for command in (convert, sample, analysis):
         command.add_argument("--refresh", action="store_true", help="Refresh the inspector and gallery after processing or reusing records")
     for command in (check, review, gallery, refresh, stages, catalog):
@@ -108,22 +112,22 @@ def main(argv=None):
             result = run(args.output, root, input_path=args.input, source_dataset=args.dataset, count=args.limit,
                          categories=args.category, seed=args.seed, workers=args.workers, recursive=args.recursive,
                          retry_errors=args.retry_errors, fit_config={"polylineTolerance": args.fit_tolerance},
-                         max_points=args.max_points, max_spans=args.max_spans)
+                         max_points=args.max_points, max_spans=args.max_spans, recognition=args.recognition)
         elif args.command == "convert":
             result = dataset.convert(args.input, args.output, root, limit=args.limit, categories=args.category,
                                      recursive=args.recursive, fit_config={"polylineTolerance": args.fit_tolerance},
-                                     max_points=args.max_points, max_spans=args.max_spans, retry_errors=args.retry_errors)
+                                     max_points=args.max_points, max_spans=args.max_spans, retry_errors=args.retry_errors, recognition=args.recognition)
         elif args.command == "sample":
             from .sampling import convert_collection
             result = convert_collection(args.input, args.output, root, categories=args.category, count=args.limit,
                                         seed=args.seed, all_records=args.all_records, recursive=args.recursive, cache=args.index_cache,
                                         fit_config={"polylineTolerance": args.fit_tolerance}, max_points=args.max_points,
-                                        max_spans=args.max_spans, retry_errors=args.retry_errors)
+                                        max_spans=args.max_spans, retry_errors=args.retry_errors, recognition=args.recognition)
         elif args.command == "verify":
             result = dataset.verify(args.dataset, root, args.limit, order=args.order, seed=args.seed)
         elif args.command == "catalog":
             from .selection import catalog
-            result = catalog(args.dataset, args.limit, order=args.order, seed=args.seed, offset=args.offset)
+            result = catalog(args.dataset, args.limit, order=args.order, seed=args.seed, offset=args.offset, recognition=args.recognition)
         elif args.command == "review":
             from .review import build
             result = build(args.dataset, args.output, args.limit, order=args.order, seed=args.seed, paged=not args.sample_only)
@@ -137,7 +141,7 @@ def main(argv=None):
         elif args.command == "analyze":
             from .analysis import run
             result = run(args.dataset, args.output, root, limit=args.limit, workers=args.workers,
-                         retry_errors=args.retry_errors, key_ids=args.key_id)
+                         retry_errors=args.retry_errors, key_ids=args.key_id, recognition=args.recognition)
         elif args.command == "stages":
             from .stages import generate
             result = generate(args.dataset, args.output, root, key_id=args.key_id, limit=args.limit, order=args.order, seed=args.seed)

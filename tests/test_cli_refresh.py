@@ -56,7 +56,7 @@ class CliRefreshTests(unittest.TestCase):
                                             "--key-id", "first-key", "--key-id", "second-key", "--limit", "2"])
             self.assertEqual((0, ""), (status, error))
             analyze.assert_called_once_with(Path("saved"), Path("derived"), Path("linked-gojo"),
-                                            limit=2, workers=4, retry_errors=False, key_ids=["first-key", "second-key"])
+            limit=2, workers=4, retry_errors=False, key_ids=["first-key", "second-key"], recognition="all")
 
     def test_empty_or_failed_batch_does_not_attempt_to_build_empty_reviews(self):
         with patch.object(cli.dataset, "convert", return_value={"output": "generated", "errors": 1}), \

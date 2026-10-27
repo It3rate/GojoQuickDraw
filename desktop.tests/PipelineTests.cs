@@ -22,6 +22,16 @@ public sealed class PipelineTests : IDisposable
         RunFolder: Path.Combine(_root, "runs"));
 
     [Fact]
+    public void RecognitionSelectionIsForwardedWithTheBoundedCount()
+    {
+        var args = Pipeline.Plan(PipelineAction.Convert, Options with { Recognition = "recognized", Limit = 300 }).Arguments.ToList();
+        Assert.Equal("recognized", args[args.IndexOf("--recognition") + 1]);
+        Assert.Equal("300", args[args.IndexOf("--limit") + 1]);
+        var analyze = Pipeline.Plan(PipelineAction.Analyze, Options with { Recognition = "unrecognized" }).Arguments.ToList();
+        Assert.Equal("unrecognized", analyze[analyze.IndexOf("--recognition") + 1]);
+    }
+
+    [Fact]
     public void DerivedRunsStayOutsideBaselineAndFullCorpusIsExplicit()
     {
         var conversion = Pipeline.Plan(PipelineAction.Convert, Options);
@@ -178,7 +188,7 @@ public sealed class PipelineTests : IDisposable
     {
         var script = Path.Combine(_root, "parent.py");
         var pidFile = Path.Combine(_root, "child.json");
-        File.WriteAllText(script, "import json,subprocess,sys,time\np=subprocess.Popen([sys.executable,'-c','import time;time.sleep(120)'])\nwith open(sys.argv[1],'w') as f: json.dump({'pid':p.pid},f)\ntime.sleep(120)\n");
+        File.WriteAllText(script, "import json,os,subprocess,sys,time\np=subprocess.Popen([sys.executable,'-c','import time;time.sleep(120)'])\nwith open(sys.argv[1]+'.tmp','w') as f: json.dump({'pid':p.pid},f)\nos.replace(sys.argv[1]+'.tmp',sys.argv[1])\ntime.sleep(120)\n");
         using var cancel = new CancellationTokenSource();
         var running = Pipeline.Run(new(PipelineAction.Verify, Options.Python, _root, [script, pidFile], null), _ => { }, cancel.Token);
         var timeout = Stopwatch.StartNew();

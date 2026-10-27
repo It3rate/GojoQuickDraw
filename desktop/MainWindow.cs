@@ -17,6 +17,7 @@ internal sealed partial class MainWindow : Window
     private readonly WorkspaceSettings _settings;
     private readonly TextBox _input = new(), _dataset = new(), _python = new(), _gojo = new();
     private readonly Button _category;
+    private readonly ComboBox _recognition = new() { ItemsSource = Recognition.Labels, SelectedIndex = 0, HorizontalAlignment = HorizontalAlignment.Stretch };
     private readonly NumericUpDown _limit = Number(25, 1, 5000000), _reviewLimit = Number(12, 1, 48), _stageCount = Number(5, 1, 1000),
         _fit = Number(6, .1m, 100), _maxPoints = Number(20000, 1, 10000000), _maxSpans = Number(256, 1, 100000);
     private readonly CheckBox _recursive = new() { Content = "Include source subfolders" }, _retry = new() { Content = "Retry retained errors" },
@@ -64,6 +65,7 @@ internal sealed partial class MainWindow : Window
         if (datasetArgument >= 0 && datasetArgument + 1 < Program.Arguments.Length) _dataset.Text = Program.Arguments[datasetArgument + 1].Trim();
         _observedDatasetPath = _dataset.Text?.Trim();
         _python.Text = _settings.Python; _gojo.Text = _settings.Gojo; _limit.Value = Math.Max(1, _settings.Limit);
+        _recognition.SelectedIndex = Math.Max(0, Array.IndexOf(Recognition.Modes, _settings.Recognition));
         _stop = Button("Stop", () => { _cancellation?.Cancel(); SetStatus("Stopping…", "Completed records remain available. Conversion can be resumed."); });
         _stop.IsEnabled = false;
         _openResult = Button("Open exported review", () => Open(_lastArtifact)); _openResult.IsEnabled = false;
@@ -156,14 +158,14 @@ internal sealed partial class MainWindow : Window
         {
             convert.Content = $"Create / extend to {_limit.Value:N0} drawings";
             var categories = _sourceCategories.Count == 1 ? "1 category" : $"{_sourceCategories.Count:N0} categories";
-            summary.Text = $"Target: {_limit.Value:N0} drawings across {categories}. Keep saved drawings; run new ones through every available stage.";
+            summary.Text = $"Target: {_limit.Value:N0} matching drawings across {categories}. Keep saved drawings; run new ones through every available stage.";
         }
         _limit.ValueChanged += (_, _) => UpdateRequest(); _category.PropertyChanged += (_, e) => { if (e.Property == ContentControl.ContentProperty) UpdateRequest(); };
         UpdateRequest();
         return Stack(14, Text("Create or extend a dataset", 21, true),
             Text("Choose source files, categories and a target total. Raise the total to add drawings to the current dataset. Existing drawings are kept."),
             Card(Stack(12, Field("QuickDraw source folder or file", source, "Use the folder containing the category NDJSON / JSONL files, including gzip files."),
-                options, summary, convert,
+                options, Field("Game recognition", _recognition, "The game's AI outcome, not human review. The target counts matching drawings; other saved drawings are kept."), summary, convert,
                 Text("For example: 100 saved + a target of 300 adds up to 200 new drawings. A lower target deletes nothing. Use New dataset for a separate collection; interrupted runs resume.", 12),
                 new Expander { Header = "Advanced conversion options", Content = Stack(12, _recursive, advanced,
                     Field("Sampling seed (optional)", _samplingSeed, "Leave blank for a new random selection; interrupted selections resume with the same settings."), _retry), HorizontalContentAlignment = HorizontalAlignment.Stretch })),
@@ -212,7 +214,8 @@ internal sealed partial class MainWindow : Window
             _recursive.IsChecked == true, action == PipelineAction.Analyze ? _analysisRetry.IsChecked == true : _retry.IsChecked == true, (double)(_fit.Value ?? 6), (int)(_maxPoints.Value ?? 20000), (int)(_maxSpans.Value ?? 256),
             action != PipelineAction.Stages || _stageSelection.SelectedIndex == 0 ? selected?.KeyId : null, run,
             InspectionOrder, _inspectionSeed, sampleSeed, _catalogOffset, (int)_analysisWorkers.Value!,
-            string.IsNullOrWhiteSpace(_analysisOutput.Text) ? null : _analysisOutput.Text.Trim());
+            string.IsNullOrWhiteSpace(_analysisOutput.Text) ? null : _analysisOutput.Text.Trim(),
+            action is PipelineAction.Analyze or PipelineAction.Catalog ? InspectionRecognition : Recognition.Modes[Math.Max(0, _recognition.SelectedIndex)]);
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
@@ -294,7 +297,9 @@ internal sealed partial class MainWindow : Window
         int Count(string field) => data.TryGetProperty(field, out var value) ? value.GetInt32() : 0;
         return action switch
         {
-            PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings",
+            PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings"
+                + (data.TryGetProperty("recognition", out var filter) && filter.GetString() != "all" ? $" · {Count("matchingAcquisitions")} match the recognition filter" : "")
+                + (Count("selectionShortfall") > 0 ? $" · source has {Count("selectionShortfall")} fewer eligible drawings than the target" : ""),
             PipelineAction.Verify => $"{Count("records")} drawings independently restored; artifact hashes checked.",
             PipelineAction.Review => $"Visual review ready for {Count("drawings")} drawings across {Math.Max(1, Count("pages"))} page(s). Use Open last result to inspect it.",
             PipelineAction.Gallery => $"Comparison gallery ready: {Count("drawings")} drawings across {Count("pages")} pages, 12 pairs per page. Use Open last result to inspect it.",
@@ -401,6 +406,8 @@ internal sealed partial class MainWindow : Window
         _settings.Python = _python.Text ?? "python"; _settings.Gojo = _gojo.Text ?? ""; _settings.Input = _input.Text ?? "";
         _settings.Dataset = _dataset.Text ?? ""; _settings.Category = string.Join(',', _sourceCategories); _settings.Limit = (int)(_limit.Value ?? 25);
         _settings.SamplingSeed = _samplingSeed.Text ?? ""; _settings.InspectionOrder = InspectionOrder; _settings.InspectionSeed = _inspectionSeed;
+        _settings.Recognition = Recognition.Modes[Math.Max(0, _recognition.SelectedIndex)];
+        _settings.InspectionRecognition = InspectionRecognition;
         _settings.ResultView = _resultView.SelectedIndex;
         _settings.ResultStage = ( _resultView.SelectedItem as StageOption)?.Id ?? "best";
         try { _settings.Save(); } catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppendLog("Workspace settings could not be saved: " + error.Message); }

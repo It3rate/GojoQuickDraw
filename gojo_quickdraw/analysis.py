@@ -127,7 +127,7 @@ def _one(task):
 
 
 def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False, key_ids=None, execute_stages=False,
-        append=False, categories=None):
+        append=False, categories=None, recognition="all"):
     from .selection import datasets, selected_rows
     source, output, gojo_root = (Path(p).resolve() for p in (source, output, gojo_root))
     wanted = {name.casefold() for name in categories} if categories is not None else None
@@ -141,7 +141,7 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
         if isinstance(key_ids, (str, bytes)) or not key_ids or any(not isinstance(key, str) or not key for key in key_ids):
             raise ValueError("Key selection must contain nonempty source key strings")
         selected_keys = set(key_ids)
-        available = {row["keyId"] for _, row in selected_rows(source) if row["keyId"] in selected_keys
+        available = {row["keyId"] for _, row in selected_rows(source, recognition=recognition) if row["keyId"] in selected_keys
                      and (wanted is None or row.get('category', '').casefold() in wanted)}
         if available != selected_keys:
             raise ValueError("Selected source keys are absent: " + ", ".join(sorted(selected_keys - available)))
@@ -204,7 +204,7 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
 
         def tasks():
             seen = set()
-            for baseline_folder, stored in selected_rows(source):
+            for baseline_folder, stored in selected_rows(source, recognition=recognition):
                 if wanted is not None and stored.get('category', '').casefold() not in wanted:
                     continue
                 if selected_keys is not None and stored["keyId"] not in selected_keys:
@@ -237,7 +237,8 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
                 if packet["itemKey"] != stored["itemId"] or packet["source"]["key_id"] != stored["keyId"]:
                     raise ValueError("Baseline source and selected index disagree")
                 row = {"itemId": identity, "keyId": stored["keyId"], "category": category,
-                       "sourceSha256": stored["sourceSha256"], "baseline": baseline, "analysisFingerprint": signature, "executeStages": execute_stages}
+                       "sourceSha256": stored["sourceSha256"], "baseline": baseline, "analysisFingerprint": signature, "executeStages": execute_stages,
+                       "recognized": packet["source"].get("recognized")}
                 yield str(folder), row, packet
 
         def publish(folder, row):

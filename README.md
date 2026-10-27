@@ -74,6 +74,19 @@ coordinate-free retrieval baseline and describes a small local correspondence
 model. Its scores compare authored interpretations; no learned model or
 recognition-accuracy claim is implied.
 
+**Game recognition** filters conversion before sampling; **Filters & pages →
+Game recognition** filters saved drawings before paging. Choose All, Recognized
+by game, Not recognized by game, or Outcome unavailable. This is the game's AI
+outcome, not human review. A filtered target counts matching saved acquisitions;
+other saved drawings are kept. Eligible-source exhaustion reports a shortfall.
+The CLI exposes `--recognition all|recognized|unrecognized|unknown` for `process`,
+`sample`, `convert`, `catalog` and `analyze`.
+
+The [local construction training design](docs/local-construction-training.md)
+develops the next experiment: coarse partitions and gaps, competing T/cross
+constructions, local frames, shape feedback, and dependent doorway details.
+It distinguishes present evidence from the proposed learned selector.
+
 The app is C# / Avalonia with Skia previews. Python orchestrates processing and
 the C# native Gojo bridge encodes and restores connected evidence. Optional HTML
 exports are separate from the desktop viewer.

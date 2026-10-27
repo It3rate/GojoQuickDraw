@@ -1,0 +1,59 @@
+{
+  "schema": "gojo.quickdraw-recognition-verification.v1",
+  "date": "2026-10-27",
+  "upstreamRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "recognitionMeaning": "QuickDraw game AI recognized the prompted word; not human recognition or a part-quality label.",
+  "cohortSha256": "a6ba5c4307e99f160d77aef8aef336350a98345b405204e7d5739b2303690765",
+  "sourceOutcomes": {
+    "recognized": 264,
+    "unrecognized": 36,
+    "unknown": 0
+  },
+  "realPipelinePilot": {
+    "drawings": 4,
+    "savedStagesPerDrawing": 10,
+    "independentRestores": 4,
+    "outcomes": {
+      "True": 2,
+      "False": 2
+    },
+    "priorArtifactsUnchangedAcrossFilterChange": true
+  },
+  "tests": {
+    "python": 184,
+    "desktop": 35,
+    "native": 50,
+    "linkedGojo": 5407
+  },
+  "viewer": {
+    "success": true,
+    "total": 300,
+    "recognitionCounts": {
+      "all": 300,
+      "recognized": 264,
+      "unrecognized": 36,
+      "unknown": 0
+    },
+    "viewerWorksWithoutPythonOrGojo": true,
+    "resultViewPreserved": true
+  },
+  "visualChecks": [
+    "Recognized/unrecognized/unknown filter forms and native gallery",
+    "Conversion recognition control",
+    "Cold-start compact gallery and paging"
+  ],
+  "implemented": [
+    "Eligibility before sampling and target counting",
+    "Recognition before browsing order and paging",
+    "Read-only legacy flag lookup",
+    "Separate false and unavailable outcomes",
+    "Retained acquisition outcome projection in new journals",
+    "Saved request/selection filter and explicit eligible-source shortfall"
+  ],
+  "planned": [
+    "Coarse native patch partition/gap interface",
+    "Learned local construction application proposals",
+    "Door leaf, seam and handle patterns"
+  ],
+  "trainedModel": false
+}

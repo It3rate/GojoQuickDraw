@@ -10,7 +10,7 @@ public sealed record PipelineOptions(string Repository, string Python, string Go
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
     double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
     string InspectionOrder = "category", long InspectionSeed = 0, long? SamplingSeed = null,
-    int Offset = 0, int Workers = 4, string? AnalysisOutput = null);
+    int Offset = 0, int Workers = 4, string? AnalysisOutput = null, string Recognition = "all");
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -49,6 +49,7 @@ public static class Pipeline
                 // The desktop's count is always a hard selection limit. Whole
                 // corpus conversion remains an explicit CLI-only operation.
                 arguments.AddRange(["--limit", options.Limit.ToString(), "--workers", options.Workers.ToString()]);
+                arguments.AddRange(["--recognition", options.Recognition]);
                 if (options.SamplingSeed is { } samplingSeed) arguments.AddRange(["--seed", samplingSeed.ToString(CultureInfo.InvariantCulture)]);
                 if (options.Recursive) arguments.Add("--recursive");
                 if (options.RetryErrors) arguments.Add("--retry-errors");
@@ -96,7 +97,7 @@ public static class Pipeline
             case PipelineAction.Setup: arguments.Add("doctor"); break;
             case PipelineAction.Catalog:
                 arguments.Add("catalog"); Dataset(); Ordering();
-                arguments.AddRange(["--limit", options.Limit.ToString(), "--offset", options.Offset.ToString()]);
+                arguments.AddRange(["--limit", options.Limit.ToString(), "--offset", options.Offset.ToString(), "--recognition", options.Recognition]);
                 break;
             case PipelineAction.Analyze:
                 if (Workspace.PipelineManifest(options.Dataset) is { } workspace && workspace.GetProperty("request").GetProperty("mode").GetString() == "raw"
@@ -109,6 +110,7 @@ public static class Pipeline
                     var original = options with { Input = request.GetProperty("source").GetString()!,
                         Category = string.Join(',', request.GetProperty("categories").EnumerateArray().Select(c => c.GetString())),
                         Recursive = request.GetProperty("recursive").GetBoolean(), SamplingSeed = workspace.GetProperty("seed").GetInt64(),
+                        Recognition = request.TryGetProperty("recognition", out var recognition) ? recognition.GetString()! : "all",
                         FitTolerance = fit.ValueKind == JsonValueKind.Object && fit.TryGetProperty("polylineTolerance", out var tolerance) ? tolerance.GetDouble() : 6,
                         MaxPoints = request.GetProperty("maxPoints").GetInt32(), MaxSpans = request.GetProperty("maxSpans").GetInt32() };
                     return Plan(PipelineAction.Convert, original) with { Action = action, Artifact = Path.Combine(options.Dataset, "pipeline.json") };
@@ -116,7 +118,7 @@ public static class Pipeline
                 var (analysisSource, analyzed) = Workspace.AnalysisPaths(options.Dataset, options.AnalysisOutput);
                 arguments.AddRange(["process", "--dataset", analysisSource]);
                 arguments.AddRange(["--output", Path.GetFullPath(analyzed), "--workers", options.Workers.ToString()]);
-                arguments.AddRange(["--limit", options.Limit.ToString()]);
+                arguments.AddRange(["--limit", options.Limit.ToString(), "--recognition", options.Recognition]);
                 if (options.RetryErrors) arguments.Add("--retry-errors");
                 artifact = Path.Combine(analyzed, "pipeline.json");
                 break;
