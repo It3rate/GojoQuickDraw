@@ -2,9 +2,75 @@
 
 This is an implemented, trained pilot. It proposes five connected local
 constructions: separate runs, continuation, corner, end-to-span T, and four-arm
-crossing. It does not automatically modify drawings or replace the church
-heuristics. Y/K junctions, closed-loop interpretation, larger neighborhoods,
+crossing. The opt-in Encoding comparison replaces covered local joint opinions
+with this model's opinions, preserving the default as a paired baseline. It
+does not automatically modify drawings or replace the church shape heuristics.
+Y/K junctions, closed-loop interpretation, larger neighborhoods,
 rectangle/triangle feedback and general settlement remain future work.
+
+## Encoding comparison: structural contract
+
+The implemented application exposes two reads of the same acquisition, not two
+independent observations. Its connected shape is:
+
+```text
+source annotation -> source profiles / measured joint witnesses
+  -> selected pair -> finite cells -> five candidate constructions
+  -> external model score witnesses -> candidate placement frames
+  -> selected local opinion / open choice + uncovered source witnesses
+
+baseline read(source annotation, measured witnesses)
+selected read(same source, checked provider, candidates, uncovered remainder)
+  -> paired comparison witness(baseline, selected)
+```
+
+Placement uses the existing source parameter/orientation hints. These are
+algorithmic conditional estimates, not an orientation model or confirmed
+source contact. The candidate sites remain separate from acquisition sites.
+All five scores remain available, including second and third choices. A
+selected provider replaces the local heuristic opinion in the comparison
+surface; it is not added as an independent vote on the same evidence. The
+source heuristic witnesses remain inspectable as the paired baseline.
+
+This integration does not implement rectangle/church feedback, introduce
+missing corners without a two-profile proposal, or settle the whole drawing.
+Inference proposal selection must not consult final interpretations or labels.
+
+Open **Encoding**, expand **Encoding settings**, choose a completed drawings
+folder and a saved joint model, then **Create paired encodings**. The model
+checkbox selects the provider. Unchecking it is a no-op control: both native
+reads alias the same baseline joint surface. One joint provider is currently
+available; competing versions of that provider are not combined as if they
+were independent evidence.
+
+Results appear in the app, twelve pairs per page, and reopen from **Open saved
+encoding run** without Python or Gojo. Opening a paired run with the shared
+folder picker also routes to this view. Click a drawing to select a patch;
+its source runs and joint position are highlighted and the leading three
+oriented constructions are shown. All five candidates, finite scores,
+placement frames, replaced baseline witnesses and uncovered source witnesses
+survive independent native capture/restore. Unresolved choices can be toggled
+in the overview. Unchanged no-join opinions remain in the data/detail selector
+without cluttering the overview.
+
+```powershell
+python -m gojo_quickdraw encode --dataset D:/_quickDraw/data/church3000 --limit 25 --model models/joint-pilot-2026-10-27.json --output D:/_quickDraw/data/church3000-encodings/new-run
+```
+
+Omit `--model` for the unchecked-provider control. `--recognition` and the
+current category folder bound the source snapshot, and `--max-patches` bounds
+local proposals per drawing (default 128, up to 512). Proposal-cap hits are
+visible. No final correspondences enter proposal selection or features.
+Archives under `baseline` and `selected` are the two native reads; `drawings`
+contains derived viewer projections, `models` retains the exact selected
+weight bytes, and `encoding.json` retains source fingerprints and run scope.
+Every run uses a new folder, normally beside the source under `-encodings`.
+The original drawings and their ten saved stages are read-only.
+
+The first paired run used 25 drawings and 661 source-only local patches. It
+produced 522 provisional proposals, retained 139 open choices and had 359
+different/additional patch opinions, in 36.2 seconds. This is an inference
+review, not a held-out accuracy experiment or a count of improved joints.
 
 ## Run it
 
@@ -200,3 +266,23 @@ intentional gaps and non-matches, followed by a small neighboring-shape model.
 Keep local geometric support and category-conditioned expectations separately
 inspectable when combining them. Automatic shape feedback and guaranteed
 convergence are not implemented by this first ranker.
+
+## Research reading
+
+These are relevant precedents, not claims that Gojo implements their inference
+laws. The first three are a useful starting order for this project. In an
+eventual combination, a rectangle opinion, a corner opinion and a church prior
+may depend on the same source evidence. Their scores cannot automatically be
+multiplied as independent probabilities. Preserve the common acquisition,
+conditional premises and response routes when adding feedback.
+
+1. Rosenfeld, Hummel and Zucker (1976), [Scene Labeling by Relaxation Operations](https://doi.org/10.1109/TSMC.1976.4309519). Local ambiguities revised through compatibility with neighboring interpretations.
+2. Kschischang, Frey and Loeliger (2001), [Factor Graphs and the Sum-Product Algorithm](https://www.isiweb.ee.ethz.ch/papers/arch/aloe-2001-1.pdf). Local factors and message passing over connected variables.
+3. Zhu and Mumford (2006), [A Stochastic Grammar of Images](https://dash.harvard.edu/entities/publication/73120378-84d2-6bd4-e053-0100007fdf3b). Hierarchical parts, alternative configurations and contextual spatial relations.
+4. Hinton (2002), [Training Products of Experts by Minimizing Contrastive Divergence](https://www.cs.toronto.edu/~hinton/absps/nccd.pdf). Combining specialized probabilistic constraints.
+5. Tu, Chen, Yuille and Zhu (2005), [Image Parsing: Unifying Segmentation, Detection, and Recognition](https://people.eecs.berkeley.edu/~efros/courses/AP06/Papers/tu-ijcv-05.pdf). Competing and cooperating interpretations at several visual levels.
+6. LeCun, Chopra, Hadsell, Ranzato and Huang (2006), [A Tutorial on Energy-Based Learning](https://cs.nyu.edu/~yann/research/ebm/). Scoring structured alternatives through compatibility, without requiring every score to be a normalized probability; the author's page links the tutorial chapter and slides.
+7. Lafferty, McCallum and Pereira (2001), [Conditional Random Fields: Probabilistic Models for Segmenting and Labeling Sequence Data](https://web.cs.ucla.edu/~yzsun/classes/2014Spring_CS7280/Papers/Probabilistic_Models/crf_sequence.pdf). Learning contextual compatibility from overlapping observation features.
+8. Lake, Salakhutdinov and Tenenbaum (2015), [Human-level concept learning through probabilistic program induction](https://www.cs.cmu.edu/~rsalakhu/papers/LakeEtAl2015Science.pdf). Visual concepts as generative programs, with compositional stroke structure.
+9. Kulkarni, Kohli, Tenenbaum and Mansinghka (2015), [Picture: A Probabilistic Programming Language for Scene Perception](https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Kulkarni_Picture_A_Probabilistic_2015_CVPR_paper.html). Analysis by synthesis: propose generating structure and compare its output with observations.
+10. Battaglia et al. (2018), [Relational inductive biases, deep learning, and graph networks](https://arxiv.org/abs/1806.01261). Learned local updates over entities, relations and larger connected structures.

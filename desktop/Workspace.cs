@@ -20,6 +20,8 @@ public sealed class WorkspaceSettings
     public string InspectionRecognition { get; set; } = "all";
     public int ResultView { get; set; }
     public string ResultStage { get; set; } = "";
+    public string EncodingModel { get; set; } = "";
+    public bool EncodingUseModel { get; set; } = true;
 
     public static string Repository()
     {
@@ -80,6 +82,8 @@ public sealed record Preview(double[][][] Strokes, double[][][] Profiles, Previe
 
 public static class Workspace
 {
+    public static string EncodingFolder(string dataset) => Path.Combine(Path.GetFullPath(dataset).TrimEnd(Path.DirectorySeparatorChar)+"-encodings",
+        "joints-"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff"));
     public static IReadOnlyList<FolderOption> GeneratedFolders(string root)
     {
         if (!Directory.Exists(root)) return [];

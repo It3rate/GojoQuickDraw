@@ -1,0 +1,185 @@
+{
+  "schema": "gojo.paired-joint-encoding.v1",
+  "provider": "joint-model",
+  "sourceDrawings": 25,
+  "localPatches": 661,
+  "changedPatches": 359,
+  "proposed": 522,
+  "unresolved": 139,
+  "modelSha256": "1f308c654d5a1d7f1df8fd8a1e0214bccda20385d995c29d916054d7e8a2db46",
+  "totalSeconds": 36.16254069999559,
+  "nativeRestoresVerified": true,
+  "qualification": "Paired joint evidence only. The selected provider replaces the local heuristic read, not the source acquisition. Scores are relative model support, not calibrated human probabilities. Placement is algorithmic. Shape/category feedback and whole-drawing settlement are not applied.",
+  "sourceSnapshot": [
+    {
+      "sourceSha256": "9f087d2df178b10e0c1cb210019790d1f15a6f0beb3e48bf1de8b7adf72383b6",
+      "evidenceSha256": "f17bc33469b52a143f67a4c3bacec4f86a05bcd665a227d3ccea2c935c112129",
+      "nativeSha256": "6b9af7565cce1ea970e5e9bcd2596ae8cbc9e3e1b57411a88427622363030f4f",
+      "key": "5283351252434944"
+    },
+    {
+      "sourceSha256": "334521f9b53e9008766ce81ab6a575cf622e80a996352ea3016c3bfd7d7a9620",
+      "evidenceSha256": "ed99ec531b6eef4330eaefc028544da9dac4d3eca51a56d6637ee1b5b517c5f6",
+      "nativeSha256": "2b10d723e3e19afbaab5011f654606051ca634d61db3f4f4f790f0d4fcc5c842",
+      "key": "4938611923353600"
+    },
+    {
+      "sourceSha256": "e2eaae3ceef202f8964536b554b1d7855a69ec06b52df391a4f19f377a1f6873",
+      "evidenceSha256": "7d4045898d82bffa489eade2faa5ef1aefdd7976fcd3a02a184de20af6eb696a",
+      "nativeSha256": "e91ae813776aea7b2aed005b08f60ecf1d3faba3ad1f4fcdcecd5be92f856ff3",
+      "key": "4726561485881344"
+    },
+    {
+      "sourceSha256": "8562cfe7892e42b876fca0128a79ea86f0471f755b36d43e31f4a893dbd66389",
+      "evidenceSha256": "b14344d3fa505b607cd092f866ceccf5f6a9884ffbf1b60c4a115950b1653160",
+      "nativeSha256": "8d67d3d8e53dd7769fc0d4355027a27fe6489ef1375466a7079b4bca68e78593",
+      "key": "4866133544927232"
+    },
+    {
+      "sourceSha256": "5c839bf233a0a3f585f3fa7e2add583b77733ab10994f10ee808f6350117eef3",
+      "evidenceSha256": "b3ac78fbc5c5d59c7f3c50073dc810718b917e69d417ce5ff33a7179290ed9d8",
+      "nativeSha256": "cec0c3ba0027486d592c1e643fec3fd047995793cb18868624c18182c1b364f3",
+      "key": "5151559375650816"
+    },
+    {
+      "sourceSha256": "c394136a8d46ec38a9774be45703b42bf683943b23f78dc3da367530f04c66e8",
+      "evidenceSha256": "a91016e23121f54f19dad302bf887ad05d883c8aa2e34dece9baf9dcbb5effd4",
+      "nativeSha256": "d2c4fbbbab70998bffccfeaa681286ca8399b266e838472672601b39d391706b",
+      "key": "5717277435494400"
+    },
+    {
+      "sourceSha256": "9e033e333ee5041ec9d200de4066c35a5f8dce2491fea76aad8076b1b6f54d6d",
+      "evidenceSha256": "4c988bea0dafb127c049b7b0a33a5e82991efa691baa19e3db7cdaecbb7970a3",
+      "nativeSha256": "2eef53b3841ca71f74c83cc24dc416aa75de74646cc7a3de9ef90935a429d729",
+      "key": "6330481861722112"
+    },
+    {
+      "sourceSha256": "f14a3608b141b7ce26495bd5dbbf9a3c86c3d8463f1f939ecd7713f419851bb1",
+      "evidenceSha256": "bda4b2135beebe8efd408707a152ffe32c190ac476d70bcb510c60c69afb47c7",
+      "nativeSha256": "6c6b738445dec4618d914443683495b41e4bd1dcd9f76457d9e744bb28ae66f7",
+      "key": "5175692595560448"
+    },
+    {
+      "sourceSha256": "b8209d0a12780cba5bc7164da771f6a271973b263b0e035eb2c0459b5747d1ad",
+      "evidenceSha256": "76dcac2742a32c21c107fac744dbd26acfc167f121a96d90d3abaeee820c49cd",
+      "nativeSha256": "1cfaedfcc6999d54872e1d093d7c138c65db64e4249bcad475b29f6d8d4c011a",
+      "key": "6590584305221632"
+    },
+    {
+      "sourceSha256": "2567d0b661eb1c3c41658a07d72360869710232d42966d8312a3c0ce4ea9fa3a",
+      "evidenceSha256": "9c8bf69c8502cb5afee10fad948055819a6f3133d1f65d373955dda40663e695",
+      "nativeSha256": "03989697e030ea2ee1972f1cf0f27644c1841fc34fc3e0d0990e129197506086",
+      "key": "5159902429315072"
+    },
+    {
+      "sourceSha256": "6e9b684e8db29ab08a91db7269b2b8f70932fa87f68326b0d1981169f443cccb",
+      "evidenceSha256": "ffbceffef09be76bb2ce373e84256627df6319d0f0318946de7835d09e271c6d",
+      "nativeSha256": "5621a5ce0f45419461669901e1bde8b4db4847eafa1e60e8dc971e5d556427fe",
+      "key": "5892277551497216"
+    },
+    {
+      "sourceSha256": "44963f6c59116e06fd66419e8944216a04b1fd21299683bf4cb03f0c0de2411c",
+      "evidenceSha256": "7aa21cb7415c1ef0b88cb78d4e72aedd908b22c62bccf6b22fa9455425fed57a",
+      "nativeSha256": "9ac151105029f52636ee45aefdcd3bd4295a4ab870772b6ddf787c47da29d89e",
+      "key": "5165426227019776"
+    },
+    {
+      "sourceSha256": "dfe54f820af7d8296efb892253c679e93552ed4c10d404b5c5fca2836b7073e8",
+      "evidenceSha256": "ac28d110a80ba550bf84d8debb888ecd7630b7051864553592f8602c88a27d46",
+      "nativeSha256": "8f32a79021ad31b5fb9889cace7b48095ca464d0ec5d15316980edcaebf674e3",
+      "key": "4869894090784768"
+    },
+    {
+      "sourceSha256": "6eaf0c437817a14581feed2eef7d90eb7c5d1081c1c5d1c1cf431efa780842a4",
+      "evidenceSha256": "a2a4e4b463b97232cbf961ba94d2e2da5fe29edcbde207447cef9a7844bdfb48",
+      "nativeSha256": "af2f4f1d8f9b1106c7e0c397c716e65e07757448720ded31a2b07cf54fdd04ba",
+      "key": "4606718614962176"
+    },
+    {
+      "sourceSha256": "203429356b652777c97bd84816611efaf540d2cfff48a43f0174cfde6f6c549e",
+      "evidenceSha256": "8b2b979681dc298cf845510da9d7afce4e4b8a338f69f09f8b8d3977335539e5",
+      "nativeSha256": "b9a92ef25c0b80d5ba97c20dd837326592beffefbdd91035d0a3f4ea9321e032",
+      "key": "5367764808105984"
+    },
+    {
+      "sourceSha256": "f14a1426395aaa335edd9c24e7994f6c35b17df55482b109f5bd11a5148eb7f3",
+      "evidenceSha256": "49789d771a3ee7896dc080ec4f7b4eeea06c65c9ddf032b87fd127fdf3d21ae7",
+      "nativeSha256": "47a6c94fd794245256c52853f13bea756235dfcd5bcd9254d46c5e91ce7aba54",
+      "key": "6211219138543616"
+    },
+    {
+      "sourceSha256": "0394734e54dd39c87a023ee21e97dfcc5301ff4c02fc4dc3df70d657256e8b66",
+      "evidenceSha256": "b25a07fe80f28261ed3859f883970a0fa684d0acb714e41d0a286116b83b443c",
+      "nativeSha256": "d27d2a80b76b8b9294a5c3c11f23eb6bc3aa22c262316f1679a575557a58f5c3",
+      "key": "5961662685249536"
+    },
+    {
+      "sourceSha256": "a8c36a6a37def9e54b23efb357cdfe468aa687dd1ba31088d4a559de6f6074bd",
+      "evidenceSha256": "9be8146167298923b3c3f53062c4d197490d077035cf48a568a6130912559919",
+      "nativeSha256": "1cdcfb3c065159ea60cb64049da3de2700199440b62c93a720baa442fb2536f5",
+      "key": "5966164863746048"
+    },
+    {
+      "sourceSha256": "ab40d661ea6fc142b2f9c5ff06ad2f50769523b6d51aa1fa639779e695d0c9fe",
+      "evidenceSha256": "3366f96e90679fb2858a77cedbe99dcd8f8c5693b7e5dd79c0d2fcc243db4749",
+      "nativeSha256": "89dcf7e868e11446250850b073ef5e771bdb2b5e818c6a2dfe7bd9505827af48",
+      "key": "4984296701952000"
+    },
+    {
+      "sourceSha256": "1ffa5b96b0cad918f9238e9669c790a5e6623281298dc571c9bb7375c6192f22",
+      "evidenceSha256": "da1f2906e1c7e07090dfd513a7b1beb836cd5ebd1f83de8ea10bfd2633ab7baa",
+      "nativeSha256": "bbdf18d2534948ec133922dbb39ac1af5123e4a375a4ea5142feac73b4ba638f",
+      "key": "5543777110327296"
+    },
+    {
+      "sourceSha256": "6cfefec21dd4741db7db1f5aae3dbdf239eda8e3ea7b3455eeacfc695f683aca",
+      "evidenceSha256": "59d5ee4c1977c455dcec8f3cdbe805e85e6bd1da97032f869957ccde2ce207df",
+      "nativeSha256": "d2b54fc1e1464a54d4f628e5c7ffd24ab8db1618d5ff001549a735eceafbb6fc",
+      "key": "5781446004310016"
+    },
+    {
+      "sourceSha256": "4f1f1479a02edb3d28835c72afc2f54b8e43825a69e32b774262de484641b044",
+      "evidenceSha256": "d8aa2ff34227c84447a4b5c8d47420a10082053c6aa4f9f7bc5a04d624a37414",
+      "nativeSha256": "0fa075a475a05982efd689b5a7dce360d181d1c9b720eb45d6d842510165e447",
+      "key": "5634530595569664"
+    },
+    {
+      "sourceSha256": "aa3ec80f02af16f74c3eeb217d8faeb72f83c533bc0b11093b3683878a596228",
+      "evidenceSha256": "22343217b7df6dc32a44e54669bbe96f915bee9ba886010920cb0ecb558ba881",
+      "nativeSha256": "b509b640cfe3d8fd684cebb3d26e1d73c0d1ed4df169f772950d1571dae7ccb3",
+      "key": "6726794063380480"
+    },
+    {
+      "sourceSha256": "e1eb8729b2ea8a377ba9cc8c193d6dd94c7737f020f9d2e7be33af11b178dcef",
+      "evidenceSha256": "f451727a4a04e7f2e3233951e31fdf14453f893f5273059149c9d062ec2ada64",
+      "nativeSha256": "3e4627bc6b6d03921ba9ce9d6899656e28d7c0cd6804e3a8f2b2e3cdb2480334",
+      "key": "5426031844392960"
+    },
+    {
+      "sourceSha256": "0e7af05e0f61a836e63f8410cb832394f3d79eed2250969b39c34110d9a88b2f",
+      "evidenceSha256": "7b4a10cba55db57459a5008028b66b45067fd1c06da0aa1fd53b9f078e519dcb",
+      "nativeSha256": "e1b60237c736cab45750c37e2847f7b51612ab7cda6ab2e2b7610702955af28c",
+      "key": "5191517851353088"
+    }
+  ],
+  "upstream": {
+    "repository": "https://github.com/It3rate/Gojo.git",
+    "revision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+    "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "matchesPinnedRevision": false,
+    "sourceSha256": "2b279085e3767437f077ecf98625216703602027330f037cabf05eac2fd8741d",
+    "dirtyPaths": [],
+    "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+  },
+  "evaluationBasis": "Bounded inference review, not a held-out accuracy experiment. Originals may overlap the model training cohort.",
+  "checks": {
+    "python": 198,
+    "desktop": 37,
+    "nativeConversion": 50,
+    "nativeLearning": 11,
+    "upstreamGojo": 5407,
+    "uncheckedControlIdentical": true,
+    "nativeViewerWithoutPythonOrGojo": true,
+    "portableViewerInteractions": true
+  }
+}

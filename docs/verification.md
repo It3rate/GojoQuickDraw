@@ -599,6 +599,35 @@ joint readback matched. Warm encoder mean time was 8.86 versus 6.51 seconds;
 the written archive still receives an independent restore before publication.
 See [the experiment report](../reports/joint-model-2026-10-27.json).
 
+## Paired learned encoding — 27 October 2026
+
+The Encoding tab and `encode` command are an opt-in local joint application.
+The checked provider replaces covered two-profile heuristic opinions in a
+paired read. It preserves all five candidates, conditional orientation frames,
+actual replacement correspondences, uncovered source joints, and the original
+baseline. It does not apply shape/category feedback or change church geometry.
+
+Passed: 198 Python tests, 37 desktop tests, 50 native conversion tests,
+11 learning tests, and all 5,407 linked Gojo tests. New checks cover inference
+independence from final interpretations, malformed models, exact unchecked
+baseline aliasing, preserved alternatives, rotated placement, open choices,
+and rejection of provider/source lookalikes.
+
+A bounded 25-drawing run published 661 patches, with 522 provisional proposals
+and 139 open choices, in 36.2 seconds. There were 359 patch opinions different
+from or additional to the source heuristic. These counts are a review
+demonstration, not an accuracy estimate or count of corrections. Every baseline
+and selected archive independently restored, including explicit replaced and
+uncovered source witnesses. A separate unchecked two-drawing control produced
+identical baseline/selected projections and zero changed opinions.
+
+The desktop cold-start audit reopened the saved comparison without Python or a
+Gojo path, showed the three leading oriented constructions, collapsed settings,
+and paged the 25 results. The portable browser audit checked twelve pairs on
+the first page, one on the last page, patch selection, three alternatives,
+drawing navigation and zero JavaScript errors. Native and browser screenshots
+were visually inspected. Original drawing datasets were read-only throughout.
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

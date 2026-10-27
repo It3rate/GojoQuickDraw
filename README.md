@@ -98,6 +98,20 @@ runs reopen from the same tab. See [the first model and results](docs/local-join
 python -m gojo_quickdraw train --dataset D:/_quickDraw/data/church3000 --limit 300 --synthetic 2500 --epochs 35 --output D:/_quickDraw/data/church3000-models/new-run
 ```
 
+**Encoding** applies a checked model to saved source evidence and retains a
+paired default/selected-provider comparison. Uncheck the joint model for an
+identical-baseline control. Results reopen in the app, twelve drawings per
+page; a drawing opens local patches with their three leading oriented
+constructions. All five scores, source-based placement hints, replaced
+heuristic witnesses and uncovered source joints remain encoded. This first
+integration changes the local joint opinion layer, not the ten church drawing
+stages. The source dataset remains read-only. See [the encoding contract and
+research references](docs/local-joint-model.md).
+
+```powershell
+python -m gojo_quickdraw encode --dataset D:/_quickDraw/data/church3000 --limit 25 --model models/joint-pilot-2026-10-27.json --output D:/_quickDraw/data/church3000-encodings/new-run
+```
+
 The app is C# / Avalonia with Skia previews. Python orchestrates processing and
 the C# native Gojo bridge encodes and restores connected evidence. Optional HTML
 exports are separate from the desktop viewer.

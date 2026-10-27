@@ -66,13 +66,14 @@ def load_packet(folder, row):
     return packet
 
 
-def real_request(packet, group, max_patches=24):
+def real_request(packet, group, max_patches=24, *, inference=False):
     spans = packet['observation']['spans']
     if len(spans) < 2:
         return None
     degenerate = {i for i, span in enumerate(spans) if len({tuple(round(value*1000) for value in point) for point in span['controls']}) < 2}
     labels = defaultdict(set)
-    comparison = packet.get('jointComparison', {})
+    # Inference proposals must be independent of authored finals and labels.
+    comparison = {} if inference else packet.get('jointComparison', {})
     nodes = {node['id']: node for node in comparison.get('source', {}).get('nodes', [])}
     final = {node['id']: node for node in comparison.get('final', {}).get('nodes', [])}
     names = {'I': 1, 'L': 2, 'T': 3, 'X': 4}

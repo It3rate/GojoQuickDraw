@@ -107,6 +107,14 @@ def parser():
     training.add_argument("--epochs", type=int, default=35)
     training.add_argument("--seed", type=int, default=31)
     training.add_argument("--recognition", choices=MODES, default="all")
+    encoding = commands.add_parser("encode", help="Compare default joint evidence with selected learned providers")
+    encoding.add_argument("--dataset", type=Path, required=True)
+    encoding.add_argument("--output", type=Path, required=True)
+    encoding.add_argument("--model", type=Path, action="append", default=[], help="Selected joint provider; omit for an identical baseline control")
+    encoding.add_argument("--limit", type=int, default=25)
+    encoding.add_argument("--max-patches", type=int, default=128)
+    encoding.add_argument("--seed", type=int, default=31)
+    encoding.add_argument("--recognition", choices=MODES, default="all")
     commands.add_parser("doctor", help="Check linked revision and build the native bridge")
     return p
 
@@ -175,6 +183,10 @@ def main(argv=None):
                 raise ValueError("Choose a new probe output to retain earlier results")
             args.output.parent.mkdir(parents=True, exist_ok=True)
             dataset._atomic_json(args.output, result)
+        elif args.command == "encode":
+            from .encoding import run
+            result = run(args.dataset, args.output, root, models=args.model, limit=args.limit,
+                         max_patches=args.max_patches, seed=args.seed, recognition=args.recognition)
         elif args.command == "train":
             from .training import run
             result = run(args.dataset, args.output, root, limit=args.limit, synthetic=args.synthetic,

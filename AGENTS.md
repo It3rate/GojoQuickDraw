@@ -31,6 +31,15 @@ held-out test labels to select weights. Native coarse reads and connected
 candidates underlie exported feature cells. Learned opinions do not currently
 alter conversion or establish source contact. See `docs/local-joint-model.md`.
 
+`encode` is an opt-in, bounded paired application. It replaces the covered
+two-profile heuristic opinion in a selected read, retaining the unchanged
+default baseline, all scored candidates, conditional placement frames, actual
+replacement correspondences and uncovered source witnesses. Inference proposal
+selection must not consult final interpretations or weak training labels.
+Unchecked providers must retain an identical baseline. Do not count provider
+outputs or repeated routes from one acquisition as independent observations.
+The church shape stages and source dataset are unchanged by this experiment.
+
 Work on `master` and push completed verified checkpoints to `It3rate/GojoQuickDraw`.
 Do not publish the website without the user's milestone authorization.
 

@@ -5,13 +5,14 @@ using System.Text.Json;
 
 namespace GojoQuickDraw.Desktop;
 
-public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery, Refresh, Train }
+public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery, Refresh, Train, Encode }
 public sealed record PipelineOptions(string Repository, string Python, string Gojo, string Input, string Dataset,
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
     double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
     string InspectionOrder = "category", long InspectionSeed = 0, long? SamplingSeed = null,
     int Offset = 0, int Workers = 4, string? AnalysisOutput = null, string Recognition = "all",
-    int TrainingSynthetic = 2500, int TrainingEpochs = 35, long TrainingSeed = 31, string? TrainingOutput = null);
+    int TrainingSynthetic = 2500, int TrainingEpochs = 35, long TrainingSeed = 31, string? TrainingOutput = null,
+    IReadOnlyList<string>? EncodingModels = null, string? EncodingOutput = null, int EncodingPatches = 128);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -39,6 +40,14 @@ public static class Pipeline
         void Ordering() => arguments.AddRange(["--order", options.InspectionOrder, "--seed", options.InspectionSeed.ToString(CultureInfo.InvariantCulture)]);
         switch (action)
         {
+            case PipelineAction.Encode:
+                arguments.Add("encode"); Dataset();
+                var encodingOutput=string.IsNullOrWhiteSpace(options.EncodingOutput) ? Workspace.EncodingFolder(options.Dataset) : Path.GetFullPath(options.EncodingOutput);
+                arguments.AddRange(["--output",encodingOutput,"--limit",options.Limit.ToString(),"--max-patches",options.EncodingPatches.ToString(),
+                    "--seed",options.TrainingSeed.ToString(CultureInfo.InvariantCulture),"--recognition",options.Recognition]);
+                foreach(var model in options.EncodingModels ?? [])arguments.AddRange(["--model",Path.GetFullPath(model)]);
+                artifact=Path.Combine(encodingOutput,"report.html");
+                break;
             case PipelineAction.Train:
                 arguments.Add("train"); Dataset();
                 var modelOutput=string.IsNullOrWhiteSpace(options.TrainingOutput) ? Workspace.ModelFolder(options.Dataset) : Path.GetFullPath(options.TrainingOutput);

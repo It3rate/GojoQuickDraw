@@ -26,7 +26,7 @@ internal sealed partial class MainWindow
             Require(_loadedDataset == _dataset.Text?.Trim(), "Cold-start folder was not loaded.");
             Require(_drawings.Items.Count > 0, "Cold start left the first page empty.");
             _tabs.SelectedIndex = 0; await LoadPreview();
-            Require(_tabs.Items.Count == 3, "The main workflows should be View, Convert and Train.");
+            Require(_tabs.Items.Count == 4, "The main workflows should be View, Convert, Train and Encoding.");
             Require(_galleryCards.Count == _drawings.Items.Count, "Native comparison cards are missing.");
             await Task.Delay(100);
             Require(!_datasetDrawer.IsVisible && !_inspectionDrawer.IsVisible,"Browsing drawers should start collapsed.");
@@ -114,6 +114,22 @@ internal sealed partial class MainWindow
                 Require(Results[^1].Successful&&Results[^1].Data!.Value.GetProperty("trained").GetBoolean(),"Desktop training command did not complete.");
                 Require(_trainingRun==_trainingOutput.Text&&_tabs.SelectedIndex==2,"Training changed the drawing dataset or lost the results page.");
                 await Capture(Path.Combine(output,"training-executed.png"));
+            }
+            var encodingArgument=Array.IndexOf(Program.Arguments,"--qa-encoding");
+            if(encodingArgument>=0&&encodingArgument+1<Program.Arguments.Length)
+            {
+                await LoadEncodingRun(Program.Arguments[encodingArgument+1]);
+                Require(_encodingRun is not null&&_encodingGallery.Children.Count>0,"Saved paired encoding is unavailable.");
+                Require(!_encodingSettings.IsExpanded,"Encoding controls should collapse above results.");
+                await Capture(Path.Combine(output,"encoding.png"));
+                var drawing=EncodingWorkspace.Drawing(_encodingRun!,0);var detailTask=ShowEncodingDrawing(drawing);
+                await Task.Delay(150);var detail=OwnedWindows.Single();await CaptureWindow(detail,Path.Combine(output,"encoding-alternatives.png"));
+                detail.Close();await detailTask;
+                if(_encodingRun!.SourceDrawings>12)
+                {
+                    await EncodingPageAt(12);Require(_encodingOffset==12,"Encoding paging did not advance.");
+                    await EncodingPageAt(0);
+                }
             }
             _tabs.SelectedIndex = 0;
             Width = 920; Height = 760; await CheckBottomReachable(output);

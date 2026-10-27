@@ -34,6 +34,24 @@ public static class Program
                     if(count<3||count%10==0)Console.Error.WriteLine($"Native patches: {count} source batches restored ({rows.Count} patches in this batch)");
                 }
             }
+            else if(args[0]=="encode")
+            {
+                Directory.CreateDirectory(args[2]);var count=0;
+                foreach(var line in File.ReadLines(args[1],Encoding.UTF8))
+                {
+                    using var request=JsonDocument.Parse(line);var inputPath=request.RootElement.GetProperty("sourceArchive").GetString()!;
+                    using var input=new StreamReader(new GZipStream(File.OpenRead(inputPath),CompressionMode.Decompress));
+                    var source=PatchEvidence.Restore(input.ReadToEnd());var root=EncodingEvidence.Build(source,request.RootElement);
+                    var text=PatchEvidence.Capture("paired-encoding-"+count,root);var path=Path.Combine(args[2],Path.GetFileName(inputPath));
+                    using(var gzip=new GZipStream(File.Create(path),CompressionLevel.Fastest))gzip.Write(Encoding.UTF8.GetBytes(text));
+                    using var stored=new StreamReader(new GZipStream(File.OpenRead(path),CompressionMode.Decompress));
+                    var document=Gojo.Encoding.Structures.GojoStructureCompactJson.Deserialize(stored.ReadToEnd());
+                    if(!Gojo.Encoding.Structures.GojoStructureCompactJson.TryToElement(document,out var graph)||graph.Root is not Gojo.Core.Relation restored)
+                        throw new InvalidDataException("Paired native encoding did not independently restore.");
+                    Console.WriteLine(JsonSerializer.Serialize(EncodingEvidence.Read(restored),Json));
+                    count++;if(count<3||count%10==0)Console.Error.WriteLine($"Paired encoding: {count} drawings independently restored");
+                }
+            }
             else if(args[0]=="opinions")
             {
                 Directory.CreateDirectory(args[2]);var count=0;

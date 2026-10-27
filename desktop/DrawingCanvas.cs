@@ -14,10 +14,13 @@ internal sealed class DrawingCanvas : Control
     public bool Fitted { get; init; }
     public double[][][] Profiles { get => _profiles; set { _profiles = value; InvalidateVisual(); } }
     public double[][][] Underlay { get; set; } = [];
+    public byte UnderlayAlpha { get; init; } = 45;
     public double[][][] Residue { get; set; } = [];
     public PreviewPart[] Parts { get; set; } = [];
     public double[] Frame { get; set; } = [0, 0, 512, 512];
     public JointNode[] Joints { get; init; } = [];
+    public bool ShowJointDirections { get; init; }
+    public bool IncludeContinuations { get; init; }
     public IReadOnlyDictionary<string,string> JointStatuses { get; init; } = new Dictionary<string,string>();
     public HashSet<string> Highlighted { get; set; } = [];
     public Action<JointNode?>? JointHovered { get; set; }
@@ -30,7 +33,7 @@ internal sealed class DrawingCanvas : Control
             var scale=Math.Max(.01,Math.Min((Bounds.Width-16)/(Frame[2]-Frame[0]),(Bounds.Height-16)/(Frame[3]-Frame[1])));
             var p=e.GetPosition(this);var x=(p.X-(Bounds.Width-(Frame[2]-Frame[0])*scale)/2)/scale+Frame[0];
             var y=(p.Y-(Bounds.Height-(Frame[3]-Frame[1])*scale)/2)/scale+Frame[1];
-            var found=Joints.Where(JointGraphRead.Significant).OrderBy(n=>JointGraphRead.Distance(n.Point,[x,y])).FirstOrDefault();
+            var found=Joints.Where(n=>JointGraphRead.Significant(n)||IncludeContinuations&&n.Kind=="I").OrderBy(n=>JointGraphRead.Distance(n.Point,[x,y])).FirstOrDefault();
             if(found is not null && JointGraphRead.Distance(found.Point,[x,y])*scale>13)found=null;
             if(found?.Id==_hover)return;_hover=found?.Id;JointHovered?.Invoke(found);
             if(found is not null)
@@ -45,12 +48,12 @@ internal sealed class DrawingCanvas : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue,Joints,JointStatuses,Highlighted));
+        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue,Joints,JointStatuses,Highlighted,ShowJointDirections,IncludeContinuations,UnderlayAlpha));
     }
 }
 
 internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool fitted, double[][][] underlay,
-    PreviewPart[] parts, double[] frame, double[][][] residue,JointNode[] joints,IReadOnlyDictionary<string,string> statuses,HashSet<string> highlighted) : ICustomDrawOperation
+    PreviewPart[] parts, double[] frame, double[][][] residue,JointNode[] joints,IReadOnlyDictionary<string,string> statuses,HashSet<string> highlighted,bool showDirections,bool includeContinuations,byte underlayAlpha) : ICustomDrawOperation
 {
     public Rect Bounds { get; } = bounds;
     public void Dispose() { }
@@ -81,7 +84,7 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
                 if (points.Length == 1) canvas.DrawCircle((float)points[0][0], (float)points[0][1], 1.5f / scale, paint);
             }
         }
-        Paths(underlay, false, SKColor.Parse("#465852").WithAlpha(45));
+        Paths(underlay, false, SKColor.Parse("#465852").WithAlpha(underlayAlpha));
         Paths(residue, true, SKColor.Parse("#647A79").WithAlpha(90));
         Paths(profiles, fitted, SKColor.Parse(fitted ? "#247D72" : "#465852"));
         foreach (var part in parts)
@@ -105,15 +108,24 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
             paint.PathEffect = null;
         }
         using var font=new SKFont(SKTypeface.Default,10/scale);
-        foreach(var joint in joints.Where(JointGraphRead.Significant))
+        foreach(var joint in joints.Where(n=>JointGraphRead.Significant(n)||includeContinuations&&n.Kind=="I"))
         {
             var color=SKColor.Parse(joint.Added ? "#899398" : statuses.GetValueOrDefault(joint.Id) switch
-                {"same type"=>"#247D72","changed type"=>"#B56C19","ambiguous"=>"#9B5A62",_=>"#7963A4"});
+                {"same type"=>"#247D72","changed type"=>"#B56C19","ambiguous"=>"#9B5A62","unresolved"=>"#899398",_=>"#7963A4"});
             var x=(float)joint.Point[0];var y=(float)joint.Point[1];
+            if(showDirections)
+            {
+                paint.Style=SKPaintStyle.Stroke;paint.Color=color;paint.StrokeWidth=1.3f/scale;
+                foreach(var angle in joint.Directions)
+                {
+                    var radians=angle*Math.PI/180;
+                    canvas.DrawLine(x,y,x+(float)Math.Cos(radians)*12/scale,y+(float)Math.Sin(radians)*12/scale,paint);
+                }
+            }
             paint.PathEffect=null;paint.Style=SKPaintStyle.Fill;paint.Color=SKColors.White.WithAlpha(225);
             canvas.DrawCircle(x,y,5/scale,paint);paint.Style=SKPaintStyle.Stroke;paint.Color=color;
             paint.StrokeWidth=(highlighted.Contains(joint.Id) ? 2.7f : 1.1f)/scale;canvas.DrawCircle(x,y,4/scale,paint);
-            var label=joint.Kind is "unresolved" or "coincident rays" ? "?" : joint.Kind;
+            var label=joint.Kind is "unresolved" or "coincident rays" ? "?" : joint.Kind=="separate" ? "none" : joint.Kind;
             paint.Style=SKPaintStyle.Stroke;paint.Color=SKColors.White;paint.StrokeWidth=3/scale;
             canvas.DrawText(label,x+6/scale,y-5/scale,font,paint);
             paint.Style=SKPaintStyle.Fill;paint.Color=color;canvas.DrawText(label,x+6/scale,y-5/scale,font,paint);

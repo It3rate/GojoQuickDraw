@@ -101,7 +101,8 @@ internal sealed partial class MainWindow : Window
         {
             new TabItem { Header = Text("View drawings", 15, true), Content = Scroll(EvidencePage()) },
             new TabItem { Header = Text("Convert drawings", 15, true), Content = Scroll(ConvertPage()) },
-            new TabItem { Header = Text("Train model", 15, true), Content = Scroll(TrainingPage()) }
+            new TabItem { Header = Text("Train model", 15, true), Content = Scroll(TrainingPage()) },
+            new TabItem { Header = Text("Encoding", 15, true), Content = Scroll(EncodingPage()) }
         };
         _tabs.Margin = new Thickness(16, 0, 16, 6);
         _tabs.VerticalContentAlignment = VerticalAlignment.Stretch;
@@ -141,6 +142,7 @@ internal sealed partial class MainWindow : Window
             if (_smoke) { await RunSmoke(); return; }
             if (Directory.Exists(_dataset.Text)) await LoadCatalog(); else _tabs.SelectedIndex = 1;
             OpenRequestedTrainingRun();
+            await OpenRequestedEncodingRun();
         };
     }
 
@@ -202,7 +204,7 @@ internal sealed partial class MainWindow : Window
 
     private PipelineOptions Options(PipelineAction action, string run)
     {
-        var limit = action is PipelineAction.Catalog or PipelineAction.Review or PipelineAction.Refresh or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Analyze ? (int)_analysisCount.Value! : action == PipelineAction.Train ? (int)_trainingCount.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
+        var limit = action is PipelineAction.Catalog or PipelineAction.Review or PipelineAction.Refresh or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Analyze ? (int)_analysisCount.Value! : action == PipelineAction.Train ? (int)_trainingCount.Value! : action == PipelineAction.Encode ? (int)_encodingCount.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
         var selected = _drawings.SelectedItem as DrawingRow;
         var target = action is PipelineAction.Convert or PipelineAction.Setup ? _dataset.Text?.Trim() ?? "" : InspectionPath;
         if ((action == PipelineAction.Probe || action == PipelineAction.Stages && _stageSelection.SelectedIndex == 0) && selected is not null)
@@ -217,9 +219,11 @@ internal sealed partial class MainWindow : Window
             action != PipelineAction.Stages || _stageSelection.SelectedIndex == 0 ? selected?.KeyId : null, run,
             InspectionOrder, _inspectionSeed, sampleSeed, _catalogOffset, (int)_analysisWorkers.Value!,
             string.IsNullOrWhiteSpace(_analysisOutput.Text) ? null : _analysisOutput.Text.Trim(),
-            action is PipelineAction.Analyze or PipelineAction.Catalog or PipelineAction.Train ? InspectionRecognition : Recognition.Modes[Math.Max(0, _recognition.SelectedIndex)],
+            action is PipelineAction.Analyze or PipelineAction.Catalog or PipelineAction.Train or PipelineAction.Encode ? InspectionRecognition : Recognition.Modes[Math.Max(0, _recognition.SelectedIndex)],
             (int)_trainingSynthetic.Value!, (int)_trainingEpochs.Value!, (long)_trainingSeed.Value!,
-            string.IsNullOrWhiteSpace(_trainingOutput.Text) ? Workspace.ModelFolder(_dataset.Text ?? "") : _trainingOutput.Text.Trim());
+            string.IsNullOrWhiteSpace(_trainingOutput.Text) ? Workspace.ModelFolder(_dataset.Text ?? "") : _trainingOutput.Text.Trim(),
+            _encodingUseModel.IsChecked==true ? [_encodingModel.Text?.Trim() ?? ""] : [],
+            string.IsNullOrWhiteSpace(_encodingOutput.Text) ? null : _encodingOutput.Text.Trim(), (int)_encodingPatches.Value!);
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
@@ -270,6 +274,7 @@ internal sealed partial class MainWindow : Window
                 }
                 SetStatus(result.RetainedErrors ? "Converted with retained errors" : "Completed", Describe(action, result));
                 if (action == PipelineAction.Train) ShowTraining(result);
+                if (action == PipelineAction.Encode && result.Data is { } encoded) await LoadEncodingRun(encoded.GetProperty("output").GetString()!);
                 if (action is PipelineAction.Probe or PipelineAction.ExampleProbe) ShowProbes(result);
             }
             if (retained) SetStatus("Finished with records to review", "Successful records were processed. Failed sources remain in the dataset's errors folder; see run details.", true);
@@ -294,6 +299,7 @@ internal sealed partial class MainWindow : Window
         PipelineAction.Refresh => "Refreshing the inspector and comparison gallery…",
         PipelineAction.Analyze => "Completing the drawing pipeline…",
         PipelineAction.Train => "Training the local joint model…",
+        PipelineAction.Encode => "Comparing default and selected joint encodings…",
         PipelineAction.Setup => "Checking local tools…", _ => "Comparing machine responses…"
     };
 
@@ -304,6 +310,7 @@ internal sealed partial class MainWindow : Window
         return action switch
         {
             PipelineAction.Train => $"Trained {Count("parameterCount")} weights from {Count("controlledPatches")} controls and {Count("sourceDrawings")} source drawings. Open the model review for held-out results.",
+            PipelineAction.Encode => $"{Count("sourceDrawings")} paired drawings · {Count("localPatches")} local opinions · {Count("changedPatches")} different / additional patch opinions. Inspect alternatives in Encoding.",
             PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings"
                 + (data.TryGetProperty("recognition", out var filter) && filter.GetString() != "all" ? $" · {Count("matchingAcquisitions")} match the recognition filter" : "")
                 + (Count("selectionShortfall") > 0 ? $" · source has {Count("selectionShortfall")} fewer eligible drawings than the target" : ""),
@@ -417,6 +424,7 @@ internal sealed partial class MainWindow : Window
         _settings.InspectionRecognition = InspectionRecognition;
         _settings.ResultView = _resultView.SelectedIndex;
         _settings.ResultStage = ( _resultView.SelectedItem as StageOption)?.Id ?? "best";
+        _settings.EncodingModel = _encodingModel.Text ?? ""; _settings.EncodingUseModel = _encodingUseModel.IsChecked==true;
         try { _settings.Save(); } catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppendLog("Workspace settings could not be saved: " + error.Message); }
     }
     private void Open(string? path)

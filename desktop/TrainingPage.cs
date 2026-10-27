@@ -69,5 +69,6 @@ internal sealed partial class MainWindow
             +$"Held-out controls: {Percent(controlled,"top1Agreement")} reference agreement. Real weak references: {Percent(weak,"top1Agreement")} ({weak.GetProperty("examples").GetInt32():N0} labelled patches).\n"
             +"Real references are generated interpretations, not human labels. Open the review to inspect individual patches and unresolved choices.";
         _trainingRun=path;_trainingReview.IsEnabled=File.Exists(Path.Combine(path,"report.html"));_trainingFolder.IsEnabled=Directory.Exists(path);
+        if(File.Exists(Path.Combine(path,"model.json")))_encodingModel.Text=Path.Combine(path,"model.json");
     }
 }

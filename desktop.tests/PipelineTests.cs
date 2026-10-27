@@ -22,6 +22,19 @@ public sealed class PipelineTests : IDisposable
         RunFolder: Path.Combine(_root, "runs"));
 
     [Fact]
+    public void EncodingSelectsProvidersExplicitlyWithoutTrainingOrChangingTheSourceFolder()
+    {
+        var model=Path.Combine(_root,"weights with spaces.json");
+        var plan=Pipeline.Plan(PipelineAction.Encode,Options with{Limit=12,EncodingModels=[model],EncodingPatches=64,Recognition="recognized"});
+        var args=plan.Arguments.ToList();Assert.Contains("encode",args);Assert.DoesNotContain("process",args);Assert.DoesNotContain("train",args);
+        Assert.Equal(model,args[args.IndexOf("--model")+1]);Assert.Equal("12",args[args.IndexOf("--limit")+1]);
+        Assert.Equal("64",args[args.IndexOf("--max-patches")+1]);Assert.Equal("recognized",args[args.IndexOf("--recognition")+1]);
+        Assert.StartsWith(Dataset+"-encodings",plan.Artifact);
+        Assert.DoesNotContain("--model",Pipeline.Plan(PipelineAction.Encode,Options).Arguments);
+        Assert.Throws<InvalidDataException>(()=>EncodingWorkspace.Artifact(_root,"../outside.json"));
+    }
+
+    [Fact]
     public void TrainingUsesItsOwnBoundedCommandAndNeverReentersConversion()
     {
         var plan=Pipeline.Plan(PipelineAction.Train,Options with{Limit=300,TrainingSynthetic=500,TrainingEpochs=12,Recognition="recognized"});

@@ -105,6 +105,21 @@ internal sealed partial class MainWindow
     {
         if (resetPage) _catalogOffset = 0;
         var root = _dataset.Text?.Trim() ?? "";
+        if(File.Exists(Path.Combine(root,"encoding.json")))
+        {
+            try
+            {
+                using var saved=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root,"encoding.json")));
+                if(saved.RootElement.GetProperty("schema").GetString()=="gojo.paired-joint-encoding.v1")
+                {
+                    var source=saved.RootElement.GetProperty("source").GetString()!;
+                    if(Path.GetFullPath(source).Equals(Path.GetFullPath(root),StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("An encoding run cannot be its own source drawings folder.");
+                    _dataset.Text=source;
+                    await LoadCatalog(announce:false);await LoadEncodingRun(root);return;
+                }
+            }
+            catch(Exception error){SetStatus("Encoding run could not be opened",error.Message,true);return;}
+        }
         // TextChanged can be delivered after a picker has already requested
         // this catalog. Do not cancel that same request as a deferred text edit.
         _observedDatasetPath = root;
