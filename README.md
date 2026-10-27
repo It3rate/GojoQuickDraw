@@ -53,6 +53,10 @@ arrows show all ten church views, retaining the choice across pages. For an olde
 converted folder, **Complete pipeline for existing drawings** adds the stages to
 a separate dataset with its own hard drawing count. See the [desktop guide](docs/desktop.md).
 
+In both desktop gallery and enlarged view: **Left/Right** selects a drawing,
+**Shift+Left/Right** changes page, and **Up/Down** changes stage. Drawing navigation
+crosses page boundaries without resetting the stage. Text fields keep their normal keys.
+
 The app is C# / Avalonia with Skia previews. Python orchestrates processing and
 the C# native Gojo bridge encodes and restores connected evidence. Optional HTML
 exports are separate from the desktop viewer.
@@ -65,7 +69,7 @@ exports are also under Advanced tools; Python and Gojo paths are under **Convert
 
 Full church analysis also creates **Area estimates over original**: an ideal
 building rectangle, separate tower rectangles, triangular or domed roofs,
-independent crosses and optional rectangular or arched openings. Several towers, roofs and
+independent crosses and source-supported rectangular, arched or round openings. Several towers, roofs and
 crosses can coexist. Tower dividers can be implied and a narrow roof can keep its
 own position. Choose this view in the inspector's **Read** or the gallery's
 **Result** selector. Pale fills and dotted outlines stay behind the original ink.
@@ -86,8 +90,12 @@ on a facade keep their placement instead of being moved onto a roof tip.
 Outlined/open crosses and oblique roof bands have additional detection
 reads. Crosses attached to peaks follow their revised peaks; the crossbar stays
 above halfway. Continuous foreground walls can remain whole below an upper tower.
-Doors and windows have a local clearance check; optional additions are light gray
-and dotted, while drawing-supported openings keep their role colors. Unmet
+Drawn doors and windows keep their supported shape and scale; large round windows
+need not be smaller than doors. Missing windows are not filled with a default pair.
+Only a strongly supported empty front facade can receive an optional rectangular
+entrance. Doors and windows have a local clearance check; optional additions,
+including prior-only crosses, are light gray and dotted, while drawing-supported
+parts keep their role colors. Unmet
 clearance and mirror expectations are visible review checks. The original stays
 faintly visible. The gallery defaults to this stage when available. Use a fresh
 analysis output to apply the new pass to older collections. See

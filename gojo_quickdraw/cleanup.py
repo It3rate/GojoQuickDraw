@@ -15,9 +15,10 @@ from .cleanup_foreground import wall_in_front, ground_support
 from .cleanup_openings import separate as separate_openings
 from .cleanup_checks import mirrors as mirror_checks
 
-POLICY = {'version':'church-shape-cleanup.v3','learned':False,
+POLICY = {'version':'church-shape-cleanup.v4','learned':False,
           'qualification':'Authored church expectations; not a learned likelihood or physical simulation.',
-          'windowCountWhenAbsent':2,'sourceInkUnchanged':True}
+          'windowCountWhenAbsent':0,'sourceInkUnchanged':True,
+          'openingAddition':'Rectangle entrance only with supported front facade, roof and cross, and an empty lower facade.'}
 
 
 def _center(bounds):return (bounds[0]+bounds[2])/2
@@ -169,34 +170,48 @@ def build(observed, layout):
         return min(fits,key=lambda p:_width(p['bounds'])) if fits else min(eligible,key=lambda p:abs(_center(p['bounds'])-x))
     doors=[p for p in original.values() if p['role']=='door']
     if not doors:
-        owner=next((p for p in owners if side and p['role']=='tower' and p['bounds'][3]==g),None)
-        if owner is None:owner=max((p for p in owners if p['bounds'][3]==g),key=lambda p:_width(p['bounds']),default=owners[0])
+        owner=max((p for p in owners if p['bounds'][3]==g),key=lambda p:_width(p['bounds']),default=owners[0])
         a,pt,b,base=owner['bounds'];dw=.23*(b-a);dh=min(.42*(base-pt),2.1*dw);x=(a+b)/2
-        spec('door',[x-dw/2,base-dh,x+dw/2,base],None,owner['id'],shape='arch',reason=['Optional entrance supplied by the church prior.'])
+        # Absence is not permission to overwrite unresolved interior ink. A
+        # central entrance is optional only for a well-supported empty facade.
+        evidence=[p for p in specs if p['role'] in ('roof','cross') and p['sourceStrokeOrder'] and p['status']!='prior-only']
+        from .layout_openings import source_paths
+        lower_ink=[]
+        for span in observed['spans']:
+            points=[q for path in source_paths(observed,[span['id']]) for q in path
+                    if a+.10*(b-a)<q[0]<b-.10*(b-a) and pt+.45*(base-pt)<q[1]<base-.08*(base-pt)]
+            if len(points)>1 and sum(math.dist(u,v) for u,v in zip(points,points[1:]))>.08*(base-pt):lower_ink.append(span['id'])
+        terms=body.get('costTerms',{})
+        supported_wall=all(terms.get(key,4)<.65 for key in ('leftBoundaryRegion','rightBoundaryRegion'))
+        if not side and supported_wall and {'roof','cross'}<={p['role'] for p in evidence} and not lower_ink:
+            added=spec('door',[x-dw/2,base-dh,x+dw/2,base],None,owner['id'],shape='rectangle',
+                reason=['Optional rectangular entrance: supported front facade, roof and cross; no unresolved lower interior ink.'])
+            result['relations'].append({'id':added['id']+'-expectation','kind':'shape-refinement-entrance-expectation',
+                'participants':[owner['id']]+[p['id'] for p in evidence]+[added['id']], 'spans':[],
+                'status':'prior-only','comparisons':[{'actual':max(terms[k] for k in ('leftBoundaryRegion','rightBoundaryRegion')),
+                    'expected':0,'allowance':.65,'basis':'authored front facade boundary costs'}],
+                'residue':['These existing parts suggest an entrance; no door ink was acquired.']})
     else:
         for door in doors:
-            owner=owner_for(door['bounds'],grounded=True);a,pt,b,base=owner['bounds'];dw=min(_width(door['bounds']),.38*(b-a));dh=min(_height(door['bounds']),.65*(base-pt))
-            x=(a+b)/2 if len(doors)==1 else _clamp(_center(door['bounds']),a+.08*(b-a)+dw/2,b-.08*(b-a)-dw/2)
-            spec('door',[x-dw/2,base-dh,x+dw/2,base],door,owner['id'],shape=door.get('shape','rectangle'),reason=['Entrance contained in its wall and attached to ground.'])
+            owner=owner_for(door['bounds'],grounded=True);a,pt,b,base=owner['bounds'];dw=min(_width(door['bounds']),.90*(b-a));dh=min(_height(door['bounds']),.90*(base-pt))
+            x=_clamp(_center(door['bounds']),a+.04*(b-a)+dw/2,b-.04*(b-a)-dw/2)
+            spec('door',[x-dw/2,base-dh,x+dw/2,base],door,owner['id'],shape=door.get('shape','rectangle'),
+                 archFraction=door.get('archFraction',.35),reason=['Source-supported entrance retains its size, location and outline; base attached to ground.'])
     windows=[p for p in original.values() if p['role']=='window']
     if windows:
         for window in windows:
-            owner=owner_for(window['bounds']);a,pt,b,base=owner['bounds'];ww=min(_width(window['bounds']),.18*(b-a));wh=min(_height(window['bounds']),.24*(base-pt))
-            x=_clamp(_center(window['bounds']),a+.08*(b-a)+ww/2,b-.08*(b-a)-ww/2)
-            y=_clamp((window['bounds'][1]+window['bounds'][3])/2,pt+.12*(base-pt)+wh/2,base-.22*(base-pt)-wh/2)
-            spec('window',[x-ww/2,y-wh/2,x+ww/2,y+wh/2],window,owner['id'],shape=window.get('shape','rectangle'),reason=['Window constrained within its enclosing wall.'])
-    else:
-        # A bounded prior addition: two small openings on the main wall. Avoid
-        # overlap with the doorway/tower by using the exposed wall area.
-        owner=max(walls or owners,key=lambda p:_width(p['bounds']))
-        a,pt,b,base=owner['bounds']
-        if b-a>.30*w:
-            ww=.12*(b-a);wh=min(.20*(base-pt),1.6*ww);cy=pt+.39*(base-pt)
-            for x in (a+.25*(b-a),a+.75*(b-a)):
-                spec('window',[x-ww/2,cy-wh/2,x+ww/2,cy+wh/2],None,owner['id'],shape='arch',reason=['Optional paired windows supplied by the church prior inside an exposed wall section.'])
+            owner=owner_for(window['bounds']);a,pt,b,base=owner['bounds'];ww=min(_width(window['bounds']),.90*(b-a));wh=min(_height(window['bounds']),.86*(base-pt))
+            if window.get('shape')=='circle':ww=wh=min(ww,wh)
+            x=_clamp(_center(window['bounds']),a+.04*(b-a)+ww/2,b-.04*(b-a)-ww/2)
+            y=_clamp((window['bounds'][1]+window['bounds'][3])/2,pt+.06*(base-pt)+wh/2,base-.06*(base-pt)-wh/2)
+            spec('window',[x-ww/2,y-wh/2,x+ww/2,y+wh/2],window,owner['id'],shape=window.get('shape','rectangle'),
+                 archFraction=window.get('archFraction',.35),reason=['Source-supported window retains its scale and outline within its enclosing wall.'])
     # Match a plausible pair inside the same wall; keep separate identities.
     wins=[s for s in specs if s['role']=='window']
-    if len(wins)==2 and wins[0]['parent']==wins[1]['parent']:
+    if (len(wins)==2 and wins[0]['parent']==wins[1]['parent'] and wins[0]['shape']==wins[1]['shape'] and
+        .75<_width(wins[0]['bounds'])/_width(wins[1]['bounds'])<1.33 and
+        .75<_height(wins[0]['bounds'])/_height(wins[1]['bounds'])<1.33 and
+        abs(wins[0]['bounds'][1]-wins[1]['bounds'][1])<.15*h):
         left,right=sorted(wins,key=lambda p:_center(p['bounds']));owner=next(p for p in specs if p['id']==left['parent'])
         average=(_center(left['bounds'])+_center(right['bounds']))/2;owner_axis=_center(owner['bounds'])
         mirrored=not side and _center(left['bounds'])<owner_axis<_center(right['bounds']) and abs(average-owner_axis)<.20*_width(owner['bounds'])
@@ -224,7 +239,7 @@ def build(observed, layout):
         elif shape=='cross':
             geo=cross_geometry((a+b)/2,pt,base-pt,(b-a)/2,p['stemWidth']/2,p['barThickness']/2,p['bar'])
             geo['displaySegments']=list(range(12)) if p['outlined'] else [12,13]
-        else:geo=opening_geometry(p['bounds'],{'shape':shape,'archFraction':.35})
+        else:geo=opening_geometry(p['bounds'],{'shape':shape,'archFraction':p.get('archFraction',.35)})
         geo['points']=[_round(point) for point in geo['points']]
         p['geometry']=geo;geo['siteSources']=[None]*len(geo['points'])
     def anchor(parent,point):
@@ -259,6 +274,26 @@ def build(observed, layout):
     # Explicitly join neighboring occupied rectangles. Construction frames have
     # no edges and cannot accidentally become an extra visible wall here.
     rectangles=[s for s in specs if s['role'] in ('building','tower') and s['shape']=='rectangle']
+    order={p['id']:i for i,p in enumerate(specs)}
+    def origin(part,index):
+        while part['geometry']['siteSources'][index]:
+            ref=part['geometry']['siteSources'][index];part,index=by_id[ref['part']],ref['index']
+        return part,index
+    def connect(first,ai,second,bi):
+        # A corner can already be bound through the frame or a third wall.
+        # Join the two explicit construction sites before routing the later
+        # rectangle through the earlier one; overwriting an alias alone would
+        # silently detach an older contact despite equal coordinates.
+        a,ia=origin(first,ai);b,ib=origin(second,bi)
+        if (a['id'],ia)!=(b['id'],ib):
+            early,ei,late,li=(a,ia,b,ib) if order[a['id']]<order[b['id']] else (b,ib,a,ia)
+            if early['id']==late['id']:raise ValueError('Distinct sites within one frame cannot be joined by a forward alias')
+            late['geometry']['siteSources'][li]={'part':early['id'],'index':ei}
+            if early['id'] not in late['participants']:late['participants'].append(early['id'])
+            contact={'parent':early['id'],'child':late['id'],'parentPoint':ei,'childPoint':li}
+            if contact not in result['attachments']:result['attachments'].append(contact)
+        second['geometry']['siteSources'][bi]={'part':first['id'],'index':ai}
+        if first['id'] not in second['participants']:second['participants'].append(first['id'])
     for i,first in enumerate(rectangles):
         for second in rectangles[i+1:]:
             a,t,b,d=first['bounds'];l,y,r,z=second['bounds'];points=[]
@@ -269,8 +304,7 @@ def build(observed, layout):
                 # A point may already be bound to the common ground. Reuse
                 # that explicit site through the earlier rectangle as well.
                 second['geometry']['points'][bi]=list(first['geometry']['points'][ai])
-                second['geometry']['siteSources'][bi]={'part':first['id'],'index':ai}
-                if first['id'] not in second['participants']:second['participants'].append(first['id'])
+                connect(first,ai,second,bi)
                 contact={'parent':first['id'],'child':second['id'],'parentPoint':ai,'childPoint':bi}
                 if contact not in result['attachments']:result['attachments'].append(contact)
     for p in specs:

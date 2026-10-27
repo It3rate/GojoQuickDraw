@@ -116,6 +116,7 @@ internal sealed partial class MainWindow : Window
         body.Children.Add(workspace); Grid.SetRow(_tabs, 1); body.Children.Add(_tabs);
         _configuration = body; Grid.SetRow(body, 2); main.Children.Add(body); Content = main;
         InitializeSelectionControls();
+        AttachViewerKeys(this);
         Closing += async (_, args) =>
         {
             _catalogCancellation?.Cancel();

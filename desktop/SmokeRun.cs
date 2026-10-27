@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media.Imaging;
 
 namespace GojoQuickDraw.Desktop;
@@ -48,6 +49,7 @@ internal sealed partial class MainWindow
             _resultView.SelectedIndex = 1; _reviewLimit.Value = 2; await LoadCatalog(refreshFolders: false);
             await ChangePage(2); Require(_galleryCards.Count == 1 && _resultView.SelectedIndex == 1, "Page or result view changed unexpectedly.");
             await ChangePage(0); await Capture(Path.Combine(output, "viewer.png"));
+            await CheckViewerKeyboard(output);
             _updatingFolders = true; _folderScope.SelectedIndex = 0; _inspectionOrder.SelectedIndex = 2; _inspectionSeed = 123; _updatingFolders = false;
             await LoadCatalog(refreshFolders: false); var random = _drawings.Items.Cast<DrawingRow>().Select(row => row.QualifiedId).ToArray();
             await LoadCatalog(refreshFolders: false);
@@ -94,6 +96,47 @@ internal sealed partial class MainWindow
             }, new JsonSerializerOptions { WriteIndented = true }));
             _allowClose = true; Close();
         }
+    }
+
+    private async Task CheckViewerKeyboard(string output)
+    {
+        async Task Key(Window window, Key key, KeyModifiers modifiers = KeyModifiers.None)
+        {
+            window.RaiseEvent(new KeyEventArgs { RoutedEvent = KeyDownEvent, Source = window, Key = key, KeyModifiers = modifiers });
+            await _navigation;
+        }
+        _resultView.SelectedIndex = 10; _drawings.SelectedIndex = 0;
+        await Key(this, Avalonia.Input.Key.Right);
+        Require(_drawings.SelectedIndex == 1 && _catalogOffset == 0, "Right did not select next drawing.");
+        await Key(this, Avalonia.Input.Key.Right);
+        Require(_drawings.SelectedIndex == 0 && _catalogOffset == 2, "Right did not cross the page boundary.");
+        await Key(this, Avalonia.Input.Key.Left);
+        Require(_drawings.SelectedIndex == 1 && _catalogOffset == 0, "Left did not return to previous page's last drawing.");
+        await Key(this, Avalonia.Input.Key.Right, KeyModifiers.Shift);
+        Require(_catalogOffset == 2 && _drawings.SelectedIndex == 0 && _resultView.SelectedIndex == 10, "Shift+Right did not preserve the stage on the short final page.");
+        await Key(this, Avalonia.Input.Key.Left, KeyModifiers.Shift);
+        Require(_catalogOffset == 0 && _drawings.SelectedIndex == 0, "Shift+Left did not select previous page.");
+        var edit = new KeyEventArgs { RoutedEvent = KeyDownEvent, Source = _dataset, Key = Avalonia.Input.Key.Right };
+        _dataset.RaiseEvent(edit); await _navigation;
+        Require(_drawings.SelectedIndex == 0, "Viewer shortcut stole text editing.");
+        // A closed stage selector also accepts the global drawing shortcuts.
+        _resultView.RaiseEvent(new KeyEventArgs { RoutedEvent = KeyDownEvent, Key = Avalonia.Input.Key.Right });
+        await _navigation;
+        Require(_drawings.SelectedIndex == 1, "Closed stage selector blocked drawing navigation.");
+        await Key(this, Avalonia.Input.Key.Left);
+        var enlarged = ShowDrawing((DrawingRow)_drawings.Items[0]!); await Task.Delay(150);
+        var detail = OwnedWindows.Single(); var firstTitle = detail.Title;
+        await Key(detail, Avalonia.Input.Key.Up);
+        Require(_resultView.SelectedIndex == 9 && _drawingStage?.SelectedIndex == 9, "Up did not select the previous stage.");
+        await Key(detail, Avalonia.Input.Key.Down);
+        await Key(detail, Avalonia.Input.Key.Right);
+        Require(detail.Title != firstTitle && detail.Title!.Contains(((DrawingRow)_drawings.SelectedItem!).KeyId), "Enlarged drawing did not update.");
+        await Key(detail, Avalonia.Input.Key.Right, KeyModifiers.Shift);
+        Require(_catalogOffset == 2 && _resultView.SelectedIndex == 10 && detail.Title!.Contains(((DrawingRow)_drawings.SelectedItem!).KeyId), "Enlarged page movement lost drawing or stage.");
+        await CaptureWindow(detail, Path.Combine(output,"keyboard-enlarged.png"));
+        detail.Close(); await enlarged;
+        Require(_updateDrawing is null && _drawingStage is null, "Closed modal left navigation callbacks attached.");
+        await ChangePage(0);
     }
 
     private async Task CheckBottomReachable(string output)

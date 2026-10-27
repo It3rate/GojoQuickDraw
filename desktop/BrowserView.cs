@@ -59,7 +59,7 @@ internal sealed partial class MainWindow
             Buttons(Field("Drawing stage", _resultView), Button("◀ Stage", () => MoveStage(_resultView, -1)),
                 Button("Stage ▶", () => MoveStage(_resultView, 1)), Button("Refresh folder", async () => await LoadCatalog())),
             _layerSummary, _analysisOptions, _gallery,
-            Text("Click a pair to enlarge it. Faint ink is the original; gray dotted doors/windows are added expectations. Changing pages keeps the selected result view.", 12),
+            Text("Click a pair to enlarge it. ← / → drawing · Shift + ← / → page · ↑ / ↓ stage. Gray dotted doors, windows and crosses are added expectations. Paging keeps the stage.", 12),
             expert);
     }
 
@@ -135,6 +135,7 @@ internal sealed partial class MainWindow
             _galleryCards.Add(button);
         }
         ArrangeGallery();
+        MarkSelection();
         if (_pagePreviews.Count > 0)
         {
             var finals = _pagePreviews.Values.Count(p => p.Cleanup.Length > 0);
@@ -160,21 +161,33 @@ internal sealed partial class MainWindow
         var window = new Window { Title = row.Category + " · " + row.KeyId, Width = 1080, Height = 780, MinWidth = 760, MinHeight = 580, Background = Avalonia.Media.Brush.Parse("#F1F5F0") };
         var view = new ComboBox { ItemsSource = _resultView.ItemsSource, SelectedIndex = _resultView.SelectedIndex, MinWidth = 235 };
         var picture = new ContentControl(); var stageNote = Text("");
+        var heading = Text("", 23, true); var counts = Text(""); var note = Text(""); var warnings = Text(""); var position = Text("");
         void Update()
         {
+            if (_drawings.SelectedItem is not DrawingRow current || !_pagePreviews.TryGetValue(current.QualifiedId, out var currentPreview)) return;
+            row = current; preview = currentPreview;
+            heading.Text = window.Title = row.Category + " · " + row.KeyId;
+            counts.Text = $"{row.Strokes} strokes · {row.Samples} acquired samples · {row.Intervals} fitted intervals";
+            note.Text = preview.Cleanup.Length > 0 ? "Proposed shapes are saved authored interpretations. Gray dotted doors, windows and crosses were added from expectations."
+                : "Final church shapes have not been generated for this drawing. Its original and fitted evidence are already available.";
+            warnings.Text = string.Join(" · ", preview.Warnings);
+            position.Text = $"{_catalogOffset + _drawings.SelectedIndex + 1:N0} of {_catalogTotal:N0} · Page {_catalogOffset / (int)_reviewLimit.Value! + 1:N0}";
             picture.Content = Comparison(preview, view.SelectedIndex, 475);
             var stage = Result(preview, view.SelectedIndex);
             stageNote.Text = stage.Note + ((stage.Dependencies?.Length ?? 0) > 0 ? " Builds on: " + string.Join(", ", stage.Dependencies!.Select(id => StageOptions.FirstOrDefault(s => s.Id == id)?.Label ?? id)) + "." : "");
         }
         view.SelectionChanged += (_, _) => { _resultView.SelectedIndex = view.SelectedIndex; Update(); };
         Update();
-        var note = preview.Cleanup.Length > 0 ? "Proposed shapes are saved authored interpretations. Gray dotted openings were added from expectations." : "Final church shapes have not been generated for this drawing. Its original and fitted evidence are already available.";
-        window.Content = Scroll(Stack(12, Text(row.Category + " · " + row.KeyId, 23, true),
-            Buttons(view, Button("◀ Stage", () => MoveStage(view, -1)), Button("Stage ▶", () => MoveStage(view, 1)), Button("Close", window.Close)), picture,
-            Text($"{row.Strokes} strokes · {row.Samples} acquired samples · {row.Intervals} fitted intervals"), stageNote, Text(note),
+        window.Content = Scroll(Stack(12, heading,
+            Buttons(view, Button("◀ Stage", () => MoveStage(view, -1)), Button("Stage ▶", () => MoveStage(view, 1)), Button("Close", window.Close)),
+            Buttons(Button("← Previous drawing", async () => await NavigateDrawing(-1)), Button("Next drawing →", async () => await NavigateDrawing(1)), position),
+            Text("← / → drawing · Shift + ← / → page · ↑ / ↓ stage", 12), picture,
+            counts, stageNote, note,
             Buttons(Button("Open saved artifacts", () => Open(row.DatasetPath)), Button("View stage details", () => ShowStageDetails(row, preview, view.SelectedIndex))),
-            Text(string.Join(" · ", preview.Warnings))), new Thickness(20));
-        await window.ShowDialog(this);
+            warnings), new Thickness(20));
+        _drawingStage = view; _updateDrawing = Update; AttachViewerKeys(window); MarkSelection();
+        try { await window.ShowDialog(this); }
+        finally { _drawingStage = null; _updateDrawing = null; }
     }
 
     private async void ShowStageDetails(DrawingRow row, Preview preview, int mode)

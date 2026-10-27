@@ -142,6 +142,23 @@ class CleanupTests(unittest.TestCase):
         identities=[(c['parent'],c['child'],c['parentPoint']) for c in result['attachments']]
         self.assertEqual(len(identities),len(set(identities)))
 
+    def test_top_strip_and_three_wall_corners_keep_earlier_shared_frame_sites(self):
+        observed=church(openings=False);layout=estimate(observed)
+        body=next(p for p in layout['parts'] if p['role']=='building');l,t,r,g=body['bounds'];cx=(l+r)/2
+        layout['parts'].append({'id':'layout-tower-1','role':'tower','bounds':[cx-40,t+30,cx+40,g],
+            'geometry':_ring([[cx-40,t+30],[cx+40,t+30],[cx+40,g],[cx-40,g]]),
+            'status':'regional-estimate','spans':[],'participants':[body['id']]})
+        result=build(observed,layout);parts={p['id']:p for p in result['parts']};order=list(parts)
+        def site(ident,index):
+            while parts[ident]['geometry']['siteSources'][index]:
+                ref=parts[ident]['geometry']['siteSources'][index]
+                self.assertLess(order.index(ref['part']),order.index(ident))
+                ident,index=ref['part'],ref['index']
+            return ident,index
+        self.assertEqual(3,sum(p['role']=='building' and p['shape']=='rectangle' for p in parts.values()))
+        for c in result['attachments']:
+            self.assertEqual(site(c['parent'],c['parentPoint']),site(c['child'],c['childPoint']))
+
     def test_sloping_cross_arms_keep_inset_stems_without_requiring_closure(self):
         path=[[230,280],[230,170],[120,180],[130,115],[165,130],[235,135],
               [232,32],[295,47],[292,119],[351,143],[254,176],[270,229]]

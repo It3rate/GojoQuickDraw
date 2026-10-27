@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-27",
+  "scope": "Prefer drawn openings, conservative rectangular additions, round windows and desktop keyboard navigation",
+  "projectBaseRevision": "70af4e3e2de7a41a13e24d68c61d40466ae30cbb",
+  "linkedGojoRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "layoutPolicy": "church-area-layout.v6",
+  "cleanupPolicy": "church-shape-cleanup.v4",
+  "dataset": {
+    "baseline": "D:/_quickDraw/data/church3000",
+    "output": "D:/_quickDraw/data/church3000-openings",
+    "analysisFingerprint": "2ac534985cec03fa527deb3954f02c101b6c092b6c11d3f4458cc890735a2207",
+    "converterSourceFingerprint": "ba5c35dcfe28c1dd7cbcdbe0660f96722f1cbac97adf44325dcd1435a29ae66f",
+    "requested": 100,
+    "completed": 100,
+    "errors": 0,
+    "nativeConstructionRungs": 700,
+    "inspectableStagesPerDrawing": 10,
+    "sourceJsonAndObservationUnchanged": true,
+    "sourceEvidenceHashesVerified": true,
+    "allNativeRestoresVerified": true,
+    "allBoundaryCoverageVerified": true
+  },
+  "proposals": {
+    "sourceSupportedRectangularDoors": 16,
+    "sourceSupportedArchedDoors": 13,
+    "sourceSupportedRectangularWindows": 10,
+    "sourceSupportedArchedWindows": 2,
+    "sourceSupportedCircularWindows": 1,
+    "optionalRectangularDoors": 13,
+    "optionalWindows": 0,
+    "sourceSupportedCrosses": 80,
+    "priorOnlyCrosses": 36,
+    "qualification": "Counts of authored proposals, not confirmed objects or accuracy estimates. Multiple crosses may occur in a drawing."
+  },
+  "separateNativeRestores": [
+    "6543331246997504",
+    "5265668733665280",
+    "5393550315356160",
+    "4744273331224576"
+  ],
+  "visualChecks": {
+    "reportedLargeRectangularDoorRetained": "6543331246997504",
+    "gappedRoundWindowRetained": "5265668733665280",
+    "priorOnlyCrossGrayAndDotted": "5995962289881088",
+    "releaseScreenshotFolder": "D:/_quickDraw/_work/qa/openings-2026-10-27/release-viewer",
+    "screenshotsInspected": true
+  },
+  "desktopChecks": {
+    "boundedWorkflowFolder": "D:/_quickDraw/_work/qa/openings-2026-10-27/studio-02",
+    "convertedTotalAcrossThreeCategories": 9,
+    "repeatReusedUnchangedArchives": 9,
+    "existingDrawingsCompleted": 2,
+    "drawingNavigationAcrossPageBoundaries": true,
+    "shiftPageNavigationWithShortFinalPage": true,
+    "upDownStageNavigation": true,
+    "stageRetainedWhileNavigating": true,
+    "openEnlargedDrawingUpdates": true,
+    "textFieldKeysPreserved": true,
+    "closedStageSelectorAllowsDrawingKeys": true,
+    "cancellationAndRestart": true,
+    "explicitHtmlExport": true,
+    "startupRecords": 100,
+    "startupPages": 9,
+    "lastPageRecords": 4,
+    "browsingWorksWithoutPythonOrGojo": true
+  },
+  "testsPassed": {"python":155,"desktop":28,"native":47,"linkedGojo":5407},
+  "releaseBuild": {"warnings":0,"errors":0},
+  "qualification": "Authored geometric and contextual proposals. No model was trained, and no stained-glass material recognition or semantic accuracy is asserted. Acquisition remains immutable; added geometry retains separate provenance."
+}

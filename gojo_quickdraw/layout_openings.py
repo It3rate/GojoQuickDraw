@@ -1,4 +1,4 @@
-"""Finite reads for optional opening outlines; no source points are changed."""
+"""Source-supported opening reads; costs are authored, not learned probabilities."""
 import math
 
 
@@ -15,35 +15,77 @@ def outline(bounds, arch_height=0):
                      round(t+arch_height-arch_height*math.sin(i*math.pi/24),3)] for i in range(25)]+[[r,b]]
 
 
+def ellipse(bounds):
+    l,t,r,b=bounds
+    return [[round((l+r)/2+(r-l)/2*math.cos(i*math.tau/32),3),
+             round((t+b)/2+(b-t)/2*math.sin(i*math.tau/32),3)] for i in range(32)]
+
+
+def source_paths(observed, ids):
+    """Read selected acquired intervals, never every point on a shared stroke."""
+    ids=set(ids); by_id={s['id']:s for s in observed['spans']}; paths=[]
+    for stroke in observed['strokes']:
+        selected=[by_id[i] for i in stroke.get('spans',[]) if i in ids and i in by_id]
+        if not selected:continue
+        if len(selected)==len(stroke.get('spans',[])):
+            paths.append(stroke['points']);continue
+        for span in selected:
+            if 'startIndex' in span and 'endIndex' in span:
+                paths.append(stroke['points'][span['startIndex']:span['endIndex']+1])
+            else:paths.append(span['controls'])
+    return paths
+
+
+def _sample(path, step):
+    result=[]
+    for a,b in zip(path,path[1:]):
+        count=max(1,math.ceil(math.dist(a,b)/step))
+        result.extend([[a[k]+(b[k]-a[k])*(i+.5)/count for k in (0,1)] for i in range(count)])
+    return result
+
+
 def classify(observed, region):
-    ids=set(region['spans']); l,t,r,b=region['bounds']; height=b-t
-    selected=[s for s in observed['strokes'] if ids & set(s.get('spans',[]))]
-    points=[p for s in selected for p in s['points']]
-    def cost(arch):
-        path=outline([l,t,r,b],arch)
-        return sum(min(distance(p,a,c) for a,c in zip(path,path[1:])) for p in points)/max(1,len(points))/max(1,r-l)
-    rect=cost(0); alternatives=[(cost(f*height),f) for f in (.25,.4,.55)]
-    curved,fraction=min(alternatives)
-    upper=[p[0] for p in points if p[1]<=t+.10*height]
-    crown=(sum(upper)/max(1,len(upper))-l)/max(1,r-l)
-    # Compare whole U outlines. A nearly flat/curved beam still reads rectangle.
-    arch=curved+.005<rect and curved<.95*rect and .2<crown<.8
-    closed=any(math.dist(s['points'][0],s['points'][-1])<.16*min(r-l,height) and
-               max(p[0] for p in s['points'])-min(p[0] for p in s['points'])>.7*(r-l) and
-               max(p[1] for p in s['points'])-min(p[1] for p in s['points'])>.7*height for s in selected)
-    return {'shape':'arch' if arch else 'rectangle','archFraction':fraction if arch else 0,
-            'shapeCosts':{'arch':curved,'rectangle':rect},'closedTrace':closed,
-            'shapeReads':{'upperCrownFraction':crown,'basis':'upper tenth of source opening extent'}}
+    l,t,r,b=region['bounds']; width,height=r-l,b-t; scale=max(1,min(width,height))
+    paths=source_paths(observed,region['spans'])
+    edges=[(a,c) for path in paths for a,c in zip(path,path[1:])]
+    points=[p for path in paths for p in _sample(path,max(1,scale/16))]
+    def read(path, closed=True):
+        trace=path+[path[0]] if closed else path
+        model=list(zip(trace,trace[1:]))
+        errors=sorted(min(distance(p,a,c) for a,c in model)/scale for p in points)
+        # Door dividers/handles and stained-glass spokes can be interior detail.
+        keep=max(1,math.ceil(len(errors)*.85))
+        cost=sum(errors[:keep])/keep if errors else 1
+        probes=_sample(trace,max(1,scale/12))
+        coverage=sum(min((distance(p,a,c) for a,c in edges),default=scale)<.12*scale for p in probes)/max(1,len(probes))
+        return cost,coverage
+    rect=outline(region['bounds']); rc,rv=read(rect)
+    arches=[(read(outline(region['bounds'],f*height)),f) for f in (.25,.4,.55)]
+    (ac,av),fraction=min(arches,key=lambda item:item[0][0])
+    ec,ev=read(ellipse(region['bounds']))
+    round_shape=ec+.012<min(rc,ac) and ec<.09 and ev>=.76
+    arch=ac+.004<rc and ac<.80*rc
+    shape=('circle' if .80<width/max(1,height)<1.25 else 'ellipse') if round_shape else 'arch' if arch else 'rectangle'
+    path=ellipse(region['bounds']) if round_shape else outline(region['bounds'],fraction*height if arch else 0)
+    cost,closed_coverage=read(path)
+    _,open_coverage=read(path,closed=False)
+    support=cost<.105 and (closed_coverage>=.76 if round_shape else open_coverage>=.65)
+    return {'shape':shape,'archFraction':fraction if shape=='arch' else 0,
+            'shapeCosts':{'arch':ac,'rectangle':rc,'ellipse':ec},
+            'closedTrace':closed_coverage>=.70,'openingSupport':support,
+            'shapeReads':{'boundaryCoverage':closed_coverage,'openHeadAndSidesCoverage':open_coverage,
+                          'boundaryCost':cost,'basis':'length-sampled selected source intervals; finite perimeter coverage'}}
 
 
 def geometry(bounds, shape, ground_site=None):
-    l,t,r,b=bounds
-    points=outline(bounds,shape['archFraction']*(b-t) if shape['shape']=='arch' else 0)
+    l,t,r,b=bounds; rounded=shape['shape'] in ('circle','ellipse')
+    points=ellipse(bounds) if rounded else outline(bounds,shape.get('archFraction',.35)*(b-t) if shape['shape']=='arch' else 0)
     refs=[None]*len(points)
-    if ground_site:refs[0],refs[-1]=ground_site(l),ground_site(r)
+    if ground_site and not rounded:refs[0],refs[-1]=ground_site(l),ground_site(r)
     result={'points':points,'segments':[[i,(i+1)%len(points)] for i in range(len(points))],
             'fillIndices':list(range(len(points))),'siteSources':refs}
-    if shape['shape']=='arch':
+    if rounded:result['boundaryGroups']=[{'name':'round perimeter','segments':list(range(len(points)))}]
+    elif shape['shape']=='arch':
         result['boundaryGroups']=[{'name':'left side','segments':[0]},
             {'name':'arched head','segments':list(range(1,25))},
             {'name':'right side','segments':[25]},{'name':'base','segments':[26]}]

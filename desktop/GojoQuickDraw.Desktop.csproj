@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="../gojo_quickdraw/categories.json" Link="categories.json" />
+    <InternalsVisibleTo Include="GojoQuickDraw.Desktop.Tests" />
   </ItemGroup>
 </Project>

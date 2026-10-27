@@ -113,10 +113,20 @@ def regions(observed, building, scene, excluded, maximum=6):
             peak=[(a['top'][0]+b['top'][0])/2,min(a['top'][1],b['top'][1])]
             base=(a['bottom'][1]+b['bottom'][1])/2; height=base-peak[1]
             gap=math.dist(a['top'],b['top'])
+            inferred_tip=False
+            if .10*sh<gap<.25*sh and gap<.26*width:
+                # Two long, inward slopes can leave a pen-up gap at the peak.
+                # Extrapolate a proposed junction; acquired endpoints stay apart.
+                slopes=[(arm['top'][1]-arm['bottom'][1])/(arm['top'][0]-arm['bottom'][0]) for arm in (a,b)]
+                if slopes[0]<0<slopes[1]:
+                    intercepts=[arm['bottom'][1]-m*arm['bottom'][0] for arm,m in zip((a,b),slopes)]
+                    px=(intercepts[1]-intercepts[0])/(slopes[0]-slopes[1]);py=slopes[0]*px+intercepts[0]
+                    if peak[1]-.16*sh<py<=peak[1] and a['top'][0]<=px<=b['top'][0]:
+                        peak=[px,py];height=base-py;inferred_tip=True
             if not left+.08*width<peak[0]<right-.08*width: continue
             if (peak[1]>t-.025*sh or peak[1]>scene[1]+.62*sh or base>t+.15*sh or
                 height<.065*sh or abs(a['bottom'][1]-b['bottom'][1])>.45*height+.035*sh or
-                gap>.10*sh or gap>.36*width): continue
+                (gap>.10*sh and not inferred_tip) or gap>.36*width): continue
             # A cap may overhang or be offset, but a wholly disconnected contour
             # has no support from this building proposal (often writing nearby).
             overlap=max(0,min(right,r)-max(left,l))
@@ -140,7 +150,8 @@ def regions(observed, building, scene, excluded, maximum=6):
                    'capProfile':model['dome' if dome else 'triangle']}
             candidates.append({'bounds':[left,peak[1],right,base],'apex':peak,
                                'shape':'dome' if dome else 'triangle','spans':sorted(set(a['spans']+b['spans'])),
-                               'costTerms':terms,'shapeCosts':model,'cost':sum(terms.values())})
+                               'costTerms':terms,'shapeCosts':model,'cost':sum(terms.values()),
+                               'tipCompletion':'inferred-slope-intersection' if inferred_tip else 'nearby-source-tips'})
     for c in candidates:
         a,peak,b,base=c['bounds']
         # Prefer explaining the upper contour to selecting an interior eave

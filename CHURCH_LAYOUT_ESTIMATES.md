@@ -5,7 +5,8 @@ the main building, roof and openings could be, rather than turning each acquired
 line into a straightened object boundary. It is an authored placement proposal,
 not a trained classifier or a calibrated posterior.
 
-Run **Full analysis → review** into a new derived collection. In the inspector,
+Run **Complete pipeline for existing drawings** into a new derived collection. In the desktop viewer,
+choose **9. Shape areas and attachments**. In a portable inspector,
 choose **Read → Area estimates over original**. In the comparison gallery,
 choose **Result → Area estimates over original**. Both views retain that choice
 through paging. An original is shown beside the overlay and again, as solid ink,
@@ -22,8 +23,8 @@ a region for its support, assumptions, placement costs and construction referenc
 | Triangular or domed roof | Paired local upper contours, excluding selected cross intervals | Base sites explicitly select the supporting tower or wall boundary where they meet |
 | Christian cross | Independent upper crossings or partial upright markers | Each uses its nearby cap, flat-topped tower or main building; multiple markers are allowed |
 | Cross level | The proposed cross's arm intersection | Horizontal reference through that actual proposed site |
-| Rectangular or arched doors | Small, substantially traced regions near ground; rectangular/curved-head comparison | Bottom sites share ground; ideal areas remain inside the building |
-| Window rectangles | Smaller traced regions above ground | Inside the building and smaller than doors |
+| Rectangular or arched doors | Substantially traced head and sides near ground; rectangular/curved-head comparison | Bottom sites share ground; preserve supported size and location within the building |
+| Rectangular, arched, circular or elliptical windows | Traced perimeter above ground, including gapped or multistroke outlines | Inside the building; a round window may be larger than a door |
 
 There is still one main building envelope, with up to six local roofs, six towers,
 six crosses, two doors and eight windows. These are search capacities, not expected
@@ -33,9 +34,8 @@ Crosses have a longer lower stem and a transverse arm at 32% of height.
 An upright above a cap can propose a **partial-marker-prior** cross, with its missing
 horizontal arm explicitly recorded. If no crossing or partial marker is found,
 there is one **prior-only** cross proposal, not one invented for every roof.
-Missing openings are left absent. If no door is
-proposed, window sizing uses an explicit latent door-size default; it does not
-create a visible door. Empty or essentially one-dimensional input leaves the
+Missing openings are left absent. Window size follows its own source extent;
+there is no latent door-size ceiling. Empty or essentially one-dimensional input leaves the
 layout open.
 
 ## Area search and weighting
@@ -46,6 +46,23 @@ Sample aggregation retains total arclength and records when resolution was reduc
 The raw acquisition remains complete. Optional opening groups combine small strokes
 with nearby endpoints and require enough travel to suggest an extended contour;
 an individual straight line does not create an opening.
+
+Policy v6 reads consecutive near-vertical intervals as a candidate wall extent,
+so an upper wall interval is not lost merely because only the lower one reaches
+ground. Horizontal support also accounts for width: a short door lintel should
+not displace a broadly supported wall top. Two inward roof slopes with a bounded
+gap can propose an extrapolated tip; the gap remains in the source and its
+completion is recorded as `inferred-slope-intersection`.
+
+Opening candidates retain selected acquired intervals, not every point from a
+stroke shared with a wall. Length-sampled source-to-outline costs and perimeter
+coverage compare a rectangle, arched head and ellipse. A nearly round ellipse
+can propose a circle with 32 connected boundary segments. Rectangle/arch doors
+can have open bases; multistroke and small-gap window boundaries are allowed.
+Interior handles, dividers and spokes can remain unmatched detail. The selected
+source spans, competing costs, coverage comparisons and unmapped intervals stay
+inspectable. This recognizes a possible round window, not stained glass as a
+material or decoration. These thresholds are authored, not calibrated confidence.
 
 The main rectangle is chosen from a finite set of regional widths and top levels.
 Its cost has separately recorded terms:

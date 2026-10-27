@@ -12,7 +12,7 @@ import math
 
 COLORS = {"ground": "#63735f", "building": "#277da8", "tower": "#56729a", "roof": "#bf712a",
           "cross": "#ae3f6d", "cross-level": "#ae3f6d", "door": "#23846c", "window": "#8c68aa"}
-POLICY = {"version": "church-area-layout.v5", "learned": False, "maximumSamples": 2048,
+POLICY = {"version": "church-area-layout.v6", "learned": False, "maximumSamples": 2048,
           "maximumUprights": 16, "maximumDoors": 2, "maximumWindows": 8,
           "maximumRoofs": 6, "maximumCrosses": 6, "domePartitions": 32,
           "basis": "normalized observer page; down is a chosen church-upright premise",
@@ -121,17 +121,29 @@ def _region_support(spans, bounds):
 
 def _opening_regions(observed, bounds, excluded):
     """Small source regions suggest optional openings without fitting a contour."""
-    from .layout_openings import distance
+    from .layout_openings import distance, source_paths
     l, t, r, g = bounds; w, h = r-l, g-t
     eligible = []
     by_id = {s["id"]: s for s in observed.get("spans", [])}
+    def fits(points):
+        if len(points)<2:return False
+        a,b,c,d=_box(points)
+        return c-a<=.80*w and d-b<=.92*h and a>=l-.04*w and c<=r+.04*w and b>=t+.035*h and d<=g+.12*h
     for stroke in observed.get("strokes", []):
-        if set(stroke.get("spans", [])) & excluded or len(stroke["points"]) < 2:
-            continue
-        box = _box(stroke["points"]); a, b, c, d = box
-        if (c-a > .56*w or d-b > .88*h or a < l-.04*w or c > r+.04*w or b < t+.04*h or d > g+.12*h):
-            continue
-        eligible.append((stroke, box))
+        ids=[sid for sid in stroke.get('spans',[]) if sid not in excluded]
+        if not ids:continue
+        box=_box(stroke['points']) if stroke['points'] else [l,t,r,g]
+        if len(ids)==len(stroke.get('spans',[])) and fits(stroke['points']) and box[0]>l+.02*w and box[2]<r-.02*w:
+            eligible.append((stroke,_box(stroke['points'])))
+        else:
+            # A pen stroke may traverse a wall and then an opening. Only the
+            # selected acquired intervals participate in the opening claim.
+            for sid in ids:
+                for points in source_paths(observed,[sid]):
+                    if fits(points):
+                        box=_box(points)
+                        if box[1]>g-.035*h and box[3]-box[1]<.02*h:continue
+                        eligible.append(({'points':points,'spans':[sid]},box))
     groups = [[i] for i in range(len(eligible))]
     remaining = set(range(len(eligible)))
     tolerance = .045*min(w, h)
@@ -157,12 +169,30 @@ def _opening_regions(observed, bounds, excluded):
         strokes = [eligible[i][0] for i in group]
         box = _box([p for s in strokes for p in s["points"]]); iw, ih = box[2]-box[0], box[3]-box[1]
         travel = sum(math.dist(a,b) for s in strokes for a,b in zip(s["points"], s["points"][1:]))
-        if min(iw, ih) < .035*min(w, h) or iw > .56*w or ih > .88*h or travel < 1.25*(iw+ih):
+        if min(iw, ih) < .045*min(w, h) or iw > .80*w or ih > .92*h or travel < iw+ih:
             continue
         support = sorted({sid for s in strokes for sid in s.get("spans", []) if sid in by_id})
         if support and not any(set(support) == set(p["spans"]) for p in result):
             result.append({"bounds": box, "spans": support, "travel": travel})
     return result
+
+
+def _upright_regions(spans, excluded, scene):
+    """Read consecutive near-vertical intervals as one candidate wall extent."""
+    sl,st,sr,sb=scene;sw,sh=sr-sl,sb-st;chains=[]
+    for s in spans:
+        a,b=s['controls'][0],s['controls'][-1];dx,dy=abs(b[0]-a[0]),abs(b[1]-a[1])
+        if s['id'] in excluded or dy<.02*sh or dx>=.5*dy:continue
+        chain=next((c for c in reversed(chains) if c['stroke']==s.get('strokeIndex') and
+                    math.dist(c['end'],a)<.025*min(sw,sh) and abs(c['x']-(a[0]+b[0])/2)<.07*sw),None)
+        if chain:
+            chain['top']=min(chain['top'],a[1],b[1]);chain['bottom']=max(chain['bottom'],a[1],b[1])
+            chain['x']=(chain['x']*chain['weight']+(a[0]+b[0])/2*dy)/(chain['weight']+dy)
+            chain['weight']+=dy;chain['end']=b;chain['spans'].append(s['id'])
+        else:chains.append({'spans':[s['id']],'stroke':s.get('strokeIndex'),'x':(a[0]+b[0])/2,
+                            'top':min(a[1],b[1]),'bottom':max(a[1],b[1]),'weight':dy,'end':b})
+    return sorted((c for c in chains if c['bottom']-c['top']>.17*sh and c['bottom']>st+.72*sh),
+                  key=lambda c:-c['weight'])[:POLICY['maximumUprights']]
 
 
 def estimate(observed):
@@ -181,13 +211,7 @@ def estimate(observed):
     outlines=outline_crosses(observed,scene)
     cross_hints = [c for c in observed.get("crosses", []) if c["point"][1] < st+.68*sh] + outlines
     cross_spans = {sid for c in cross_hints for sid in c["spans"]}
-    uprights = []
-    for s in spans:
-        a, b = s["controls"][0], s["controls"][-1]
-        dx, dy = abs(b[0]-a[0]), abs(b[1]-a[1])
-        if s["id"] not in cross_spans and dy > .17*sh and dx < .5*dy and max(a[1], b[1]) > st+.72*sh:
-            uprights.append({"span": s["id"], "x": (a[0]+b[0])/2, "top": min(a[1],b[1]), "bottom": max(a[1],b[1]), "weight": dy})
-    uprights.sort(key=lambda s: -s["weight"]); uprights = uprights[:POLICY["maximumUprights"]]
+    uprights = _upright_regions(spans,cross_spans,scene)
     lower = [p for p in samples if p[1] >= st+.60*sh] or samples
     ground_values = [(s["bottom"], s["weight"]) for s in uprights]
     # The ground is a level estimate, whether or not a baseline was drawn.
@@ -200,13 +224,13 @@ def estimate(observed):
     for s in spans:
         a,b = s["controls"][0],s["controls"][-1]
         if s['id'] not in cross_spans and abs(b[0]-a[0]) > .35*sw and abs(b[1]-a[1]) < .25*abs(b[0]-a[0]) and st <= (a[1]+b[1])/2 < ground-.18*sh:
-            horizontal.append((a[1]+b[1])/2)
+            horizontal.append(((a[1]+b[1])/2,min(a[0],b[0]),max(a[0],b[0])))
     widths = [(lx,rx), (lx-.03*sw,rx+.03*sw)]
     for a,b in itertools.combinations(uprights, 2):
         l,r = sorted((a["x"],b["x"]))
         if r-l > .32*sw:
             widths.append((l,r))
-    tops = [st+fraction*sh for fraction in (.35,.45,.55,.65)] + horizontal
+    tops = [st+fraction*sh for fraction in (.35,.45,.55,.65)] + [y for y,_,_ in horizontal]
     tops += [s["top"] for s in uprights if st <= s["top"] <= ground-.18*sh]
     alternatives = []
     for l,r in widths:
@@ -219,7 +243,9 @@ def estimate(observed):
                      "bodyHeightPrior": .3*abs(top-(ground-.48*sh))/(.30*sh)}
             for side, x in (("leftBoundaryRegion", l),("rightBoundaryRegion",r)):
                 terms[side] = min((min(4, abs(x-s["x"])/(.10*sw)+abs(top-s["top"])/(.30*sh)) for s in uprights), default=1)
-            terms["upperLevelEvidence"] = .55*min((abs(top-y)/(.15*sh) for y in horizontal), default=0)
+            # A narrow door lintel should not defeat a wider wall-top trace.
+            terms["upperLevelEvidence"] = .55*min((abs(top-y)/(.15*sh)+max(0,(r-l)-(b-a))/(r-l)
+                                                   for y,a,b in horizontal), default=0)
             alternatives.append({"bounds": [round(l,3),top,round(r,3),ground], "cost": sum(terms.values()), "costTerms": terms})
     alternatives.sort(key=lambda c: (c["cost"], c["bounds"]))
     distinct = []
@@ -244,20 +270,20 @@ def estimate(observed):
     opening_regions = _opening_regions(observed,[l,top,r,g],cross_spans)
     for region in opening_regions:region.update(opening_shape(observed,region))
     doors,windows=[],[]
-    for region in sorted(opening_regions, key=lambda q: -(q["bounds"][2]-q["bounds"][0])*(q["bounds"][3]-q["bounds"][1])):
-        a,b,c,d=region["bounds"]
-        if d > g-.18*bh and top+.18*bh < b < g-.10*bh and c-a < .5*bw:
-            if len(doors) < POLICY["maximumDoors"] and not any(set(region["spans"]) & set(o["spans"]) for o in doors):
-                width=_clamp(c-a,.08*bw,.4*bw); centre=_clamp((a+c)/2,l+.04*bw+width/2,r-.04*bw-width/2)
-                doors.append({**region,"placedBounds":[centre-width/2,_clamp(b,top+.22*bh,g-.15*bh),centre+width/2,g]})
-    dw=min((q["placedBounds"][2]-q["placedBounds"][0] for q in doors),default=.24*bw)
-    dh=min((g-q["placedBounds"][1] for q in doors),default=.40*bh)
+    opening_regions.sort(key=lambda q: -(q['bounds'][2]-q['bounds'][0])*(q['bounds'][3]-q['bounds'][1]))
     for region in opening_regions:
         a,b,c,d=region["bounds"]
-        if (not region['closedTrace'] or d >= g-.12*bh or b < top+.08*bh or len(windows) >= POLICY["maximumWindows"] or
+        if region['openingSupport'] and region['shape'] not in ('circle','ellipse') and d > g-.18*bh and top+.10*bh < b < g-.10*bh:
+            if len(doors) < POLICY["maximumDoors"] and not any(set(region["spans"]) & set(o["spans"]) for o in doors):
+                width=min(c-a,.90*bw); centre=_clamp((a+c)/2,l+.04*bw+width/2,r-.04*bw-width/2)
+                doors.append({**region,"placedBounds":[centre-width/2,b,centre+width/2,g]})
+    for region in opening_regions:
+        a,b,c,d=region["bounds"]
+        if (not region['openingSupport'] or not region['closedTrace'] or d >= g-.10*bh or b < top+.035*bh or len(windows) >= POLICY["maximumWindows"] or
             any(set(region["spans"]) & set(o["spans"]) for o in doors+windows)):
             continue
-        width=min(c-a,.85*dw); height=min(d-b,.75*dh)
+        width,height=c-a,d-b
+        if region['shape']=='circle':width=height=min((width+height)/2,.90*bw,.82*bh)
         x=_clamp((a+c)/2,l+.04*bw+width/2,r-.04*bw-width/2)
         y=_clamp((b+d)/2,top+.07*bh+height/2,g-.12*bh-height/2)
         windows.append({**region,"placedBounds":[x-width/2,y-height/2,x+width/2,y+height/2]})
@@ -309,6 +335,7 @@ def estimate(observed):
                    ['layout-ground' if bottom==g else building['id'],parent['id']],0)
         roof=add('roof',_cap_geometry(cap,parent['id'],sites),cap['bounds'],cap['spans'],[parent['id']],
             assumed=not cap['spans'],extra={'shape':cap['shape'],'apex':cap['apex'],'fallback':cap.get('fallback',False),
+                 'tipCompletion':cap.get('tipCompletion'),
                  'costTerms':cap['costTerms'],'shapeCosts':cap['shapeCosts'],'viewBasis':cap.get('viewBasis','front-cap'),
                  'construction':{'partitions':POLICY['domePartitions'] if cap['shape']=='dome' else 2,
                                  'basis':'Half ellipse or two slopes with an explicit closing base; finite proposed sites.'}})
@@ -342,15 +369,18 @@ def estimate(observed):
             a,b,c,d=[round(v,3) for v in region["placedBounds"]]
             item=add(role,opening_geometry([a,b,c,d],region,ground_site if role=='door' else None),[a,b,c,d],region['spans'],
                 ['layout-ground',building['id']] if role=='door' else [building['id']],
-                extra={'sourceRegion':region['bounds'],'shape':region['shape'],'shapeCosts':region['shapeCosts'],
+                extra={'sourceRegion':region['bounds'],'shape':region['shape'],'archFraction':region['archFraction'],'shapeCosts':region['shapeCosts'],
                        'shapeReads':region['shapeReads']})
+            item['comparisons']=[_comparison(region['shapeReads']['boundaryCost'],0,.105,'selected source to proposed opening perimeter'),
+                                 _comparison(region['shapeReads']['boundaryCoverage'],1,.30,'source coverage of finite proposed perimeter')]
             relate(item["id"]+"-inside-building",[building["id"],item["id"]],sum(max(0,v) for v in (l-a,top-b,c-r,d-g)))
             if role=="door":relate(item["id"]+"-on-ground",["layout-ground",item["id"]],d-g)
-            else:relate(item["id"]+"-smaller-than-door",[item["id"]]+[p["id"] for p in parts if p["role"]=="door"],(c-a)*(d-b),0,dw*dh*.75)
+            else:relate(item["id"]+"-above-ground",["layout-ground",item["id"]],max(0,d-g))
     return {"schema":"gojo.quickdraw-area-layout.v1","sourceId":observed.get("sourceId"),"status":"proposed",
         "parts":parts,"relations":relations,"alternatives":distinct,"policy":deepcopy(POLICY),"sampleReduction":reduced,
         "sequence":["ground level","building area","local cap and tower areas","independent upper markers","optional openings"],
         "roofReads":roof_reads,"towerReads":tower_reads,"markerReads":marker_reads,
+        "openingReads":opening_regions,"uprightReads":uprights,
         "qualification":POLICY["qualification"],"sourceUnchanged":True,
         "openQuestions":["One main building envelope remains; local towers and triangular or domed caps are provisional interpretations.",
                          "Missing cross uses an explicit prior-only placement. Missing openings are left open."]}

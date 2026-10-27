@@ -26,10 +26,22 @@ reads saved datasets directly, without Python or a generated HTML inspector.
    **◀ Stage / Stage ▶** moves through them. The choice survives page changes
    and reopening the app. The enlarged view also offers saved stage details.
 
+Keyboard shortcuts work in the gallery and enlarged view:
+
+- **Left / Right:** previous / next drawing, crossing page boundaries.
+- **Shift + Left / Right:** previous / next page, preserving the page position
+  when possible and keeping the selected stage.
+- **Up / Down:** previous / next stage.
+
+The enlarged view also has Previous / Next drawing buttons. Text and number
+fields, and open dropdowns, retain their normal editing keys.
+
 **Latest available stage** uses saved final shapes, then saved area estimates,
 then fitted lines. A specifically requested layer that is absent is labeled as
-missing. Faint ink remains the original. Optional added openings are gray and
-dotted; drawing-supported openings retain their role colors.
+missing. Faint ink remains the original. Optional added doors, windows and crosses
+are gray and dotted; drawing-supported parts retain their role colors. Drawn
+openings take precedence, including large circular windows. Missing windows are
+left absent; a suggested entrance is rectangular and needs strong facade support.
 
 Only the visible page's evidence files are loaded. A cached projection of the
 index provides page counts; there is no need to load all drawings or generate
@@ -141,7 +153,8 @@ dotnet run --project desktop -- --startup-smoke --dataset D:/_quickDraw/data/chu
 ```
 
 The bounded integration audit converts nine real drawings across angel, church
-and frog, analyzes two churches, checks native gallery rendering and enlargement,
+and frog, analyzes two churches, checks native gallery rendering, enlargement,
+keyboard drawing/page/stage navigation (including a short final page),
 stopping/restarting, unchanged source archives and explicit browser export:
 
 ```powershell

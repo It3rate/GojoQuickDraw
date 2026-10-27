@@ -6,11 +6,10 @@ has been trained, no AI service is called, and these are review proposals.
 
 ## Running it
 
-Choose a converted collection in QuickDraw Studio, keep **Analyze every drawing
-in the selected generated folder and subfolders** selected, choose a fresh
-analysis output, and run **Full analysis â†’ review**. Select **Church cleanup
-(final shape stage)** in either review. The gallery defaults to this stage when
-it is present. Page changes retain the selected stage.
+Choose a converted collection in QuickDraw Studio, set the maximum drawing count,
+choose a fresh output, and run **Complete pipeline for existing drawings**.
+Select **10. Refined church shapes**. The gallery defaults to the latest stage
+when available. Page changes retain the selected stage.
 
 An existing analysis needs a new output after this implementation update.
 **Refresh both reviews** rebuilds presentation from saved evidence; it does not
@@ -41,8 +40,9 @@ The earlier area estimate stays intact. A separate `cleanup` surface proposes:
 - visible wall rectangles partitioned around intruding towers, retaining the
   earlier complete bounds as a construction frame;
 - contained openings and ground-attached entrances;
-- at most one prior entrance when no entrance was detected, and a pair of prior
-  windows when none were detected and there is sufficient wall area.
+- at most one optional rectangular entrance when supported front-facing wall,
+  roof and cross evidence suggest its location, with no unresolved lower interior
+  ink to override; missing windows remain absent.
 
 Observed opening counts are retained. Optional additions use `prior-only` and
 have no direct source intervals. Refined shapes refer to their earlier area
@@ -50,9 +50,23 @@ estimates; those retain their source-to-boundary mappings. A cleaned boundary
 does not acquire ink simply because it resembles a nearby stroke.
 
 The viewer uses faint original strokes, solid refined boundaries, light gray
-dotted added doors/windows, and dashed other expectations/ground. Select a part
+dotted added doors/windows/crosses, and dashed other expectations/ground. Select a part
 for its changes, provenance, construction references and source stroke order. The original ink is never
 removed. Unresolved ink remains inspectable in the mapping view.
+
+Policy v4 preserves source-supported door/window dimensions, location and outline,
+subject to containment and clearance. Large circular windows are not shrunk to
+door dimensions. Arches require curved source support; optional additions use
+rectangles. Window counts come from evidence, up to the declared search capacity.
+Two windows are regularized as a pair only when their shapes, scales and heights
+are already similar. A round window and a small rectangular one stay distinct.
+No unconditional two-window fallback remains. The optional entrance has an
+explicit expectation relation to its supporting facade, roof and cross; it has
+no acquired door intervals. Unresolved lower ink suppresses that addition so a
+missed source door is not replaced by a confident-looking invented one.
+
+These are authored allowances rather than learned probabilities. The source
+remains visible, and unresolved or misclassified parts still need review.
 
 Cleanup policy v2 removes the narrow-tower and shallow-cap cross-size ceilings.
 Cross height stays unchanged up to 60% of the larger main-wall dimension; above
@@ -75,6 +89,12 @@ central tower. Neighboring boundaries
 share explicit sites. Openings select a visible enclosing section; optional
 windows are omitted on very narrow residual sections. This does not recover
 missing wings or guarantee that the earlier tower hypotheses were correct.
+
+Where a top wall strip and two side sections meet a tower, the proposed shared
+corner now retains any earlier frame/ground binding. The contact joins those
+selected sites before routing through the adjoining section; it does not simply
+overwrite a reference because coordinates happen to agree. Older attachment
+witnesses remain valid, and every alias still references an earlier part.
 
 Pen order and construction dependency order are distinct. The pass retains the
 selected source stroke indices, while its proposed hierarchy follows the

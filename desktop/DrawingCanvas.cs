@@ -61,7 +61,7 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
         Paths(profiles, fitted, SKColor.Parse(fitted ? "#247D72" : "#465852"));
         foreach (var part in parts)
         {
-            var prior = part.Status == "prior-only"; var added = prior && part.Role is "door" or "window";
+            var prior = part.Status == "prior-only"; var added = prior && part.Role is "door" or "window" or "cross";
             var color = SKColor.Parse(added ? "#9AA2A6" : part.Color);
             if (part.Fill.Length > 0)
             {

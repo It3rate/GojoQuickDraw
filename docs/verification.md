@@ -1,5 +1,40 @@
 # Verification checkpoints
 
+## Source-supported openings and viewer keys, 27 October 2026
+
+Layout v6 joins consecutive upright evidence when estimating the wall, compares
+rectangular, arched and round opening contours, and retains larger source-supported
+openings. Cleanup v4 removes the automatic two-window fallback and only suggests a
+rectangular entrance with supported front-facade context and no unresolved lower
+interior ink. Added crosses, doors and windows are gray and dotted. A shared-corner
+fix preserves existing frame/ground contacts through wall/tower partitions.
+
+The 100 existing records in `D:/_quickDraw/data/church3000` were processed into
+`D:/_quickDraw/data/church3000-openings`: 100 completed, zero errors, all ten stages
+per drawing. All original source JSON and observed evidence match their baselines.
+Native capture/restore and source partition checks pass for every result; four
+selected archives also pass separate restore commands, including the reported
+large door, a gapped circular window and the two shared-corner regression cases.
+Counts are 29 source-supported door proposals, 13 source-supported window proposals
+(one circular), 13 optional rectangular doors and no automatic window additions.
+These are development proposals, not labeled accuracy measurements.
+
+The desktop gallery and enlarged view accept Left/Right for drawings,
+Shift+Left/Right for pages and Up/Down for stages. Integration checks cross page
+boundaries, preserve the stage, clamp the short final page, update the open enlarged
+view, and preserve text editing. A Release startup audit opens all 100 saved records
+without Python/Gojo tools, checks nine pages and renders the three visual examples.
+Screenshots were inspected. The bounded nine-record conversion/resume and two-record
+analysis workflow also passes, including cancellation and optional HTML export.
+
+155 Python, 28 desktop, 47 native and 5,407 linked Gojo tests pass. The native round
+opening test removes labels and retains the closed perimeter, source selection,
+container reference and distinct identity of an unsupported alternative. Release
+builds have zero warnings/errors. QA files are grouped under
+`D:/_quickDraw/_work/qa/openings-2026-10-27`. See
+[the report](../reports/openings-2026-10-27.json). Difficult mixed strokes, text,
+incorrect wall estimates and ambiguous viewpoints remain recognition limitations.
+
 ## Full pipeline and retained stages, 26 October 2026
 
 The desktop's Convert action now runs the finite `process` workflow, retaining

@@ -40,6 +40,24 @@ internal sealed partial class MainWindow
             var inspector = Path.Combine(Workspace.InspectorFolder(_dataset.Text!), "evidence.html");
             if (File.Exists(inspector)) Require(_openResult.IsEnabled, "Existing inspector was not available on cold start.");
             await Capture(Path.Combine(output, "first-page.png"));
+            var keys = Program.Arguments.Select((value,i) => (value,i))
+                .Where(p => p.value == "--qa-key" && p.i + 1 < Program.Arguments.Length)
+                .Select(p => Program.Arguments[p.i + 1]).ToArray();
+            if (keys.Length > 0)
+            {
+                var catalog = _browser.Read(InspectionPath, _catalogTotal, 0, InspectionOrder, _inspectionSeed, CancellationToken.None);
+                for (var i = 0; i < keys.Length; i++)
+                {
+                    var position = catalog.Drawings.ToList().FindIndex(row => row.KeyId == keys[i]);
+                    Require(position >= 0, "Requested visual check drawing is missing: " + keys[i]);
+                    await ChangePage(position / size * size); _resultView.SelectedIndex = 10;
+                    var row = _drawings.Items.Cast<DrawingRow>().Single(row => row.KeyId == keys[i]);
+                    var enlarged = ShowDrawing(row); await Task.Delay(150); var detail = OwnedWindows.Single();
+                    await CaptureWindow(detail, Path.Combine(output,$"case-{i+1:00}.png"));
+                    detail.Close(); await enlarged;
+                }
+                _resultView.SelectedIndex = 1; await ChangePage(0);
+            }
             _tabs.SelectedIndex = 1; await Capture(Path.Combine(output, "convert.png")); _tabs.SelectedIndex = 0;
             Width = 920; Height = 760; await CheckBottomReachable(output);
         }
