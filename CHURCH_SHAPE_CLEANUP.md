@@ -192,6 +192,37 @@ does not certify church semantics or implement a general feedback solver.
 Rerunning the pass recomputes dependent placements. The stored result is a
 readable proposal snapshot, not an autonomous learned generative machine.
 
+## Local support and symmetry — policy v6
+
+An upper tower ending at the wall top now keeps its entire footprint inside
+the selected wall span. The cap follows that footprint, and attached symbols
+follow the cap. A tower with source-supported continuation to ground remains
+a separate placement and may stand beside the wall. This is an authored upright
+support premise, not a physical gravity simulation. A context relation connects
+the two parts and retains the footprint residual; the earlier estimate stays
+available through native before/after correspondence.
+
+Window pairing is local to an enclosing facade. Two supported windows on
+opposite sides of a door can share size, height and mirrored spacing even when
+the sketch has different widths or uncertain arched/rectangular heads. The
+door supplies the mirror axis in that case. Several pairs can coexist; no
+default count of two is introduced. Round versus angular families remain
+distinct. Windows retain an eight-percent horizontal margin from their wall.
+If translation alone cannot preserve a pair's clearance, the pair can shrink
+together by up to twenty percent before falling back to an unresolved check.
+
+Comparable paired caps can strengthen a front-like read despite one initially
+detected offset tower. A missing matching support stays an explicitly added
+part without claimed ink. An oblique roof continues to block that front-view
+assumption. A cross inside a tower uses the tower face rather than the wider
+building as its parent, and is centered in that local face.
+
+The seven reported cases are regenerated in
+`D:/_quickDraw/data/church-symmetry-review`. Both source windows are retained in
+examples 1–4 and 7; example 5 has paired caps/supports, and example 6 retains one
+cross instead of turning the short roof overrun into another symbol. The
+difficult seventh drawing still has an imperfect overall interpretation.
+
 ## Current limits
 
 View selection is a coarse front-like versus side/oblique hypothesis. It does

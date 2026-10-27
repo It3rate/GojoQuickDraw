@@ -45,8 +45,31 @@ def _sample(path, step):
 
 
 def classify(observed, region, *, rectangle_only=False):
-    l,t,r,b=region['bounds']; width,height=r-l,b-t; scale=max(1,min(width,height))
     paths=source_paths(observed,region['spans'])
+    result=_classify_paths(region['bounds'],paths,rectangle_only)
+    # A tilted hand-drawn frame can have very poor coverage of its axis-aligned
+    # bounding box. Observe a few local frames before rejecting its enclosure.
+    # This changes the read basis, never the acquired points or their order.
+    if paths and result['shapeReads']['boundaryCost']>.025:
+        def cost(read):
+            return read['shapeReads']['boundaryCost']+.08*(1-read['shapeReads']['boundaryCoverage'])
+        best=cost(result)
+        for degrees in (-30,-20,-10,10,20,30):
+            angle=math.radians(degrees);c,s=math.cos(angle),math.sin(angle)
+            rotated=[[[c*x-s*y,s*x+c*y] for x,y in path] for path in paths]
+            points=[p for path in rotated for p in path]
+            bounds=[min(p[0] for p in points),min(p[1] for p in points),max(p[0] for p in points),max(p[1] for p in points)]
+            candidate=_classify_paths(bounds,rotated,rectangle_only)
+            score=cost(candidate)+.008+abs(degrees)*.0001
+            if score<best and candidate['openingSupport']:
+                best=score;result=candidate
+                result['shapeReads'].update(localRotationDegrees=degrees,
+                    basis='length-sampled acquired intervals in a selected rotated frame; final area remains a separate proposal')
+    return result
+
+
+def _classify_paths(bounds, paths, rectangle_only):
+    l,t,r,b=bounds; width,height=r-l,b-t; scale=max(1,min(width,height))
     edges=[(a,c) for path in paths for a,c in zip(path,path[1:])]
     points=[p for path in paths for p in _sample(path,max(1,scale/16))]
     def read(path, closed=True):
@@ -59,14 +82,14 @@ def classify(observed, region, *, rectangle_only=False):
         probes=_sample(trace,max(1,scale/12))
         coverage=sum(min((distance(p,a,c) for a,c in edges),default=scale)<.12*scale for p in probes)/max(1,len(probes))
         return cost,coverage
-    rect=outline(region['bounds']); rc,rv=read(rect)
-    arches=[(read(outline(region['bounds'],f*height)),f) for f in (.25,.4,.55)]
+    rect=outline(bounds); rc,rv=read(rect)
+    arches=[(read(outline(bounds,f*height)),f) for f in (.25,.4,.55)]
     (ac,av),fraction=min(arches,key=lambda item:item[0][0])
-    ec,ev=read(ellipse(region['bounds']))
+    ec,ev=read(ellipse(bounds))
     round_shape=not rectangle_only and ec+.012<min(rc,ac) and ec<.09 and ev>=.76
     arch=not rectangle_only and ac+.004<rc and ac<.80*rc
     shape=('circle' if .80<width/max(1,height)<1.25 else 'ellipse') if round_shape else 'arch' if arch else 'rectangle'
-    path=ellipse(region['bounds']) if round_shape else outline(region['bounds'],fraction*height if arch else 0)
+    path=ellipse(bounds) if round_shape else outline(bounds,fraction*height if arch else 0)
     cost,closed_coverage=read(path)
     _,open_coverage=read(path,closed=False)
     support=cost<.105 and (closed_coverage>=.76 if round_shape else open_coverage>=.65)

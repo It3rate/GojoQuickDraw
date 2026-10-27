@@ -507,6 +507,44 @@ opened the user's existing 100-drawing folder and checked the updated controls.
 
 See [the recorded report](../reports/dataset-growth-2026-10-27.json).
 
+## Local facade symmetry and joint retrieval — 27 October 2026
+
+Layout v8 reads tilted frames in a bounded local basis and admits windows near
+an uncertain wall top. Cleanup v6 pairs locally supported openings, keeps
+upper-tower footprints inside their supports, and follows tower/roof parents
+when centering face symbols. A short roof-tip overrun sharing the stem of a
+stronger cross is withheld as a second symbol while its raw joint remains.
+
+All seven user examples were converted through the ten saved views and 49
+native construction rungs. Acquired source text and fitted observations stayed
+unchanged; all seven completed independent native restore and artifact hash
+checks. Both source windows are retained in examples 1–4 and 7. Example 5 has
+paired caps/supports, and example 6 has one cross. The enlarged drawing and
+joint-comparison views were opened and inspected for all seven. The final
+saved shape/joint caches equal those visually checked, including after the
+round-window margin regression fix.
+
+A read-only sweep over the 300 existing drawings found no invalid source
+mutation, forward part reference, attachment coordinate mismatch, unsupported
+upper-tower footprint, or missing horizontal window margin. It proposed 45
+windows versus 28 in the saved earlier outputs; these counts do not measure
+recognition accuracy. Three remaining clearance/mirror review warnings stay
+visible. Tests preserve round windows under margin reduction and retain
+genuinely different shape families and grounded side towers.
+
+Passed: 178 Python tests, 50 native tests and all 5,407 linked Gojo tests.
+See [the verification report](../reports/facade-symmetry-2026-10-27.json).
+
+A separate untrained retrieval read used 200 saved earlier joint comparisons;
+100 legacy records lacked that cache. Joint type, adjacency and relative order
+descriptors ranked the own final first in 1.0% of cases versus 0.5% chance;
+top-ten recall was 9.5% versus 5.0% chance. It used no point coordinates,
+source correspondence or cross-drawing identity features. This is not reliable
+matching, nor a trained-model or semantic-accuracy claim. The
+[pilot note](joint-training-pilot.md) gives the full limitations and a local
+correspondence-training proposal; [the retrieval report](../reports/joint-retrieval-2026-10-27.json)
+retains the cohort, scores and per-drawing rankings.
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

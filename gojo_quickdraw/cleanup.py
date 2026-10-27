@@ -14,8 +14,9 @@ from .cleanup_partitions import intersection, subtract
 from .cleanup_foreground import wall_in_front, ground_support
 from .cleanup_openings import separate as separate_openings
 from .cleanup_checks import mirrors as mirror_checks
+from .cleanup_symmetry import cap_pairs, support_towers, pair_windows
 
-POLICY = {'version':'church-shape-cleanup.v5','learned':False,
+POLICY = {'version':'church-shape-cleanup.v6','learned':False,
           'qualification':'Authored church expectations; not a learned likelihood or physical simulation.',
           'windowCountWhenAbsent':0,'sourceInkUnchanged':True,
           'openingAddition':'Rectangle entrance only with supported front facade, roof and cross, and an empty lower facade.'}
@@ -53,7 +54,8 @@ def build(observed, layout):
     building=spec('building',body['bounds'],body,ground['id'])
     towers=[p for p in original.values() if p['role']=='tower']
     side_roof=any(p.get('shape')=='parallelogram' for p in original.values())
-    offset_tower=len(towers)==1 and abs(_center(towers[0]['bounds'])-cx)>.26*w
+    cap_symmetry=cap_pairs(original.values(),body) if not side_roof else []
+    offset_tower=not cap_symmetry and len(towers)==1 and abs(_center(towers[0]['bounds'])-cx)>.26*w
     side=side_roof or offset_tower
     result['view']={'selected':'side-or-oblique' if side else 'front-like',
         'basis':'oblique roof band' if side_roof else 'one strongly offset tower' if offset_tower else 'front-like symmetry prior',
@@ -73,6 +75,19 @@ def build(observed, layout):
             result['relations'].append({'id':refined['id']+'-foreground','kind':'shape-refinement-foreground',
                 'participants':[building['id'],refined['id']], 'spans':foreground['spans'],
                 'status':'conditional-construction','residue':[foreground['basis'],'Foreground selection is an authored interpretation, not recovered physical depth.']})
+    # A paired cap can expose a missing lower tower role. Keep that added
+    # support distinct from the roof's actual source contour.
+    cap_parents={p['id']:next((by_source[i] for i in p['participants'] if i in by_source),building)
+                 for pair in cap_symmetry for p in pair}
+    for a,b in cap_symmetry:
+        pa,pb=cap_parents[a['id']],cap_parents[b['id']]
+        if (pa['role']=='tower')!=(pb['role']=='tower'):
+            tower,cap=(pa,b) if pa['role']=='tower' else (pb,a)
+            if _height(tower['bounds'])>.02*h:
+                x=_center(cap['bounds']);tw=_width(cap['bounds'])
+                extra=spec('tower',[x-tw/2,tower['bounds'][1],x+tw/2,tower['bounds'][3]],parent=tower['parent'],
+                    reason=['Paired drawn caps suggest a matching lower support; this tower is an explicit added expectation.'])
+                cap_parents[cap['id']]=extra
     grounded=[s for s in specs if s['role'] in ('building','tower') and s['bounds'][3]==g]
     ground['bounds']=[round(min(p['bounds'][0] for p in grounded)-.04*w,3),g,
                       round(max(p['bounds'][2] for p in grounded)+.04*w,3),g]
@@ -94,6 +109,7 @@ def build(observed, layout):
                 x=cx+sign*distance;p['bounds']=_round([x-tw/2,top,x+tw/2,bottom]);p['changes'].append('Paired towers use equal size and mirrored placement.')
                 paired.add(p['id'])
             result['symmetries'].append({'left':left['id'],'right':right['id'],'axisPart':building['id']})
+    support_towers(specs,building,ground,result)
     walls=[building]
     occupied=[s for s in specs if s['role']=='tower' and intersection(building['bounds'],s['bounds'])]
     if occupied:
@@ -118,7 +134,8 @@ def build(observed, layout):
             'participants':[building['id']]+[p['id'] for p in walls+occupied], 'spans':[],
             'status':'conditional-construction','residue':['Partition of a proposed frame, not independent acquired surfaces.']})
     for roof in [p for p in original.values() if p['role']=='roof']:
-        parent=next((by_source[i] for i in roof['participants'] if i in by_source),building)
+        parent=cap_parents.get(roof['id']) or next((by_source[i] for i in roof['participants'] if i in by_source),building)
+        if parent['id']=='cleanup-building' and building['shape']=='frame':parent=building
         a,peak,b,base=roof['bounds'];pa,pt,pb,pbase=parent['bounds'];shape=roof.get('shape','triangle')
         height=base-peak;reason=[]
         if shape=='parallelogram':
@@ -200,30 +217,14 @@ def build(observed, layout):
     windows=[p for p in original.values() if p['role']=='window']
     if windows:
         for window in windows:
-            owner=owner_for(window['bounds']);a,pt,b,base=owner['bounds'];ww=min(_width(window['bounds']),.90*(b-a));wh=min(_height(window['bounds']),.86*(base-pt))
+            owner=owner_for(window['bounds']);a,pt,b,base=owner['bounds'];ww=min(_width(window['bounds']),.84*(b-a));wh=min(_height(window['bounds']),.86*(base-pt))
             if window.get('shape')=='circle':ww=wh=min(ww,wh)
-            x=_clamp(_center(window['bounds']),a+.04*(b-a)+ww/2,b-.04*(b-a)-ww/2)
+            x=_clamp(_center(window['bounds']),a+.08*(b-a)+ww/2,b-.08*(b-a)-ww/2)
             y=_clamp((window['bounds'][1]+window['bounds'][3])/2,pt+.06*(base-pt)+wh/2,base-.06*(base-pt)-wh/2)
             spec('window',[x-ww/2,y-wh/2,x+ww/2,y+wh/2],window,owner['id'],shape=window.get('shape','rectangle'),
                  archFraction=window.get('archFraction',.35),reason=['Source-supported window retains its scale and outline within its enclosing wall.'],
                  **({'panePattern':{**deepcopy(window['panePattern']),'fractions':[.5,.5]}} if window.get('panePattern') else {}))
-    # Match a plausible pair inside the same wall; keep separate identities.
-    wins=[s for s in specs if s['role']=='window']
-    if (len(wins)==2 and wins[0]['parent']==wins[1]['parent'] and wins[0]['shape']==wins[1]['shape'] and
-        .75<_width(wins[0]['bounds'])/_width(wins[1]['bounds'])<1.33 and
-        .75<_height(wins[0]['bounds'])/_height(wins[1]['bounds'])<1.33 and
-        abs(wins[0]['bounds'][1]-wins[1]['bounds'][1])<.15*h):
-        left,right=sorted(wins,key=lambda p:_center(p['bounds']));owner=next(p for p in specs if p['id']==left['parent'])
-        average=(_center(left['bounds'])+_center(right['bounds']))/2;owner_axis=_center(owner['bounds'])
-        mirrored=not side and _center(left['bounds'])<owner_axis<_center(right['bounds']) and abs(average-owner_axis)<.20*_width(owner['bounds'])
-        axis=owner_axis if mirrored else average
-        ww=(_width(left['bounds'])+_width(right['bounds']))/2;wh=(_height(left['bounds'])+_height(right['bounds']))/2
-        y=sum(p['bounds'][1]+p['bounds'][3] for p in wins)/4;distance=(_center(right['bounds'])-_center(left['bounds']))/2
-        distance=min(distance,axis-owner['bounds'][0]-.04*_width(owner['bounds'])-ww/2,
-                     owner['bounds'][2]-axis-.04*_width(owner['bounds'])-ww/2)
-        for p,sign in ((left,-1),(right,1)):
-            x=axis+sign*distance;p['bounds']=_round([x-ww/2,y-wh/2,x+ww/2,y+wh/2]);p['changes'].append('Paired openings share size and height.')
-        if mirrored:result['symmetries'].append({'left':left['id'],'right':right['id'],'axisPart':owner['id']})
+    pair_windows(specs,original,result,side)
     result['checks']=separate_openings(specs,result)+mirror_checks(specs,result['symmetries'])
     by_id={s['id']:s for s in specs}
     # Build all geometry first, then split each support edge at requested

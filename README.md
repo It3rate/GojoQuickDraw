@@ -69,6 +69,11 @@ junctions and recalculated final junctions. Enlarge a drawing and choose **Compa
 joints** for correspondence, changed types, relative orders and a coordinate-free
 graph export. Older folders work without reconversion. See the [viewer guide](docs/desktop.md).
 
+A [joint-matching pilot](docs/joint-training-pilot.md) measures an untrained
+coordinate-free retrieval baseline and describes a small local correspondence
+model. Its scores compare authored interpretations; no learned model or
+recognition-accuracy claim is implied.
+
 The app is C# / Avalonia with Skia previews. Python orchestrates processing and
 the C# native Gojo bridge encodes and restores connected evidence. Optional HTML
 exports are separate from the desktop viewer.

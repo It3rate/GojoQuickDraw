@@ -1,0 +1,453 @@
+{
+  "date": "2026-10-27",
+  "scope": "Local window symmetry, upper tower support, local cross parenting and short-overrun discrimination",
+  "upstreamRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "layoutPolicy": "church-area-layout.v8",
+  "cleanupPolicy": "church-shape-cleanup.v6",
+  "checks": {
+    "pythonTests": 178,
+    "nativeTests": 50,
+    "gojoTests": 5407,
+    "readOnlyShapeAudit": {
+      "drawings": 300,
+      "windowsBefore": 28,
+      "windowsAfter": 45,
+      "reviewWarnings": 3,
+      "structuralFailures": 0
+    },
+    "nativePilot": {
+      "drawings": 7,
+      "savedStagesPerDrawing": 10,
+      "executedNativeRungs": 49,
+      "independentRestores": 7,
+      "sourceAndFittedObservationsUnchanged": true
+    },
+    "viewer": {
+      "nativeGalleryCards": 7,
+      "allSevenEnlargedViewsAndJointComparisonsOpened": true,
+      "savedViewsVisuallyChecked": true,
+      "withoutPythonOrGojoPaths": true
+    }
+  },
+  "drawings": [
+    {
+      "key": "5947757137231872",
+      "windows": 2,
+      "crosses": 1,
+      "symmetryPairs": 1,
+      "warnings": [
+        {
+          "actual": 25.744,
+          "id": "cleanup-door-1--cleanup-window-1-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 21.933,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-1-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-1"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 25.744,
+          "id": "cleanup-door-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 21.933,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 114.872,
+          "id": "cleanup-window-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 21.933,
+          "nativeRead": {
+            "id": "cleanup-window-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-window-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "allowance": 7.11,
+          "id": "cleanup-mirror-check-1",
+          "kind": "mirror-check",
+          "label": "Window pair symmetry",
+          "nativeRead": {
+            "index": 0,
+            "surface": "cleanup.symmetries"
+          },
+          "participants": [
+            "cleanup-window-1",
+            "cleanup-window-2",
+            "cleanup-door-1"
+          ],
+          "qualification": "Finite bound differences from the native mirror read; review allowance is authored, not learned.",
+          "signedResiduals": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "status": "within-allowance"
+        }
+      ],
+      "nativeRestore": true,
+      "savedStages": 10
+    },
+    {
+      "key": "5546802432442368",
+      "windows": 2,
+      "crosses": 2,
+      "symmetryPairs": 1,
+      "warnings": [
+        {
+          "actual": 35.981,
+          "id": "cleanup-door-1--cleanup-window-1-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 18.705,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-1-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-1"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 35.981,
+          "id": "cleanup-door-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 18.705,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 163.811,
+          "id": "cleanup-window-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 18.705,
+          "nativeRead": {
+            "id": "cleanup-window-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-window-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "allowance": 4.499,
+          "id": "cleanup-mirror-check-1",
+          "kind": "mirror-check",
+          "label": "Window pair symmetry",
+          "nativeRead": {
+            "index": 0,
+            "surface": "cleanup.symmetries"
+          },
+          "participants": [
+            "cleanup-window-1",
+            "cleanup-window-2",
+            "cleanup-door-1"
+          ],
+          "qualification": "Finite bound differences from the native mirror read; review allowance is authored, not learned.",
+          "signedResiduals": [
+            -0.0,
+            -0.0,
+            0.0,
+            0.0
+          ],
+          "status": "within-allowance"
+        }
+      ],
+      "nativeRestore": true,
+      "savedStages": 10
+    },
+    {
+      "key": "5737840459644928",
+      "windows": 0,
+      "crosses": 1,
+      "symmetryPairs": 2,
+      "warnings": [
+        {
+          "allowance": 17.419,
+          "id": "cleanup-mirror-check-1",
+          "kind": "mirror-check",
+          "label": "Tower pair symmetry",
+          "nativeRead": {
+            "index": 0,
+            "surface": "cleanup.symmetries"
+          },
+          "participants": [
+            "cleanup-tower-1",
+            "cleanup-tower-prior-4",
+            "cleanup-building"
+          ],
+          "qualification": "Finite bound differences from the native mirror read; review allowance is authored, not learned.",
+          "signedResiduals": [
+            0.0,
+            0.001,
+            0.0,
+            0.0
+          ],
+          "status": "within-allowance"
+        },
+        {
+          "allowance": 17.419,
+          "id": "cleanup-mirror-check-2",
+          "kind": "mirror-check",
+          "label": "Roof pair symmetry",
+          "nativeRead": {
+            "index": 1,
+            "surface": "cleanup.symmetries"
+          },
+          "participants": [
+            "cleanup-roof",
+            "cleanup-roof-2",
+            "cleanup-building"
+          ],
+          "qualification": "Finite bound differences from the native mirror read; review allowance is authored, not learned.",
+          "signedResiduals": [
+            0.0,
+            0.001,
+            0.0,
+            0.0
+          ],
+          "status": "within-allowance"
+        }
+      ],
+      "nativeRestore": true,
+      "savedStages": 10
+    },
+    {
+      "key": "4938741409906688",
+      "windows": 2,
+      "crosses": 1,
+      "symmetryPairs": 1,
+      "warnings": [
+        {
+          "actual": 24.539,
+          "id": "cleanup-door-1--cleanup-window-1-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 17.068,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-1-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-1"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 24.539,
+          "id": "cleanup-door-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Door / window clearance",
+          "minimum": 17.068,
+          "nativeRead": {
+            "id": "cleanup-door-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-door-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "actual": 113.577,
+          "id": "cleanup-window-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 17.068,
+          "nativeRead": {
+            "id": "cleanup-window-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-window-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "allowance": 3.239,
+          "id": "cleanup-mirror-check-1",
+          "kind": "mirror-check",
+          "label": "Window pair symmetry",
+          "nativeRead": {
+            "index": 0,
+            "surface": "cleanup.symmetries"
+          },
+          "participants": [
+            "cleanup-window-2",
+            "cleanup-window-1",
+            "cleanup-door-1"
+          ],
+          "qualification": "Finite bound differences from the native mirror read; review allowance is authored, not learned.",
+          "signedResiduals": [
+            -0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "status": "within-allowance"
+        }
+      ],
+      "nativeRestore": true,
+      "savedStages": 10
+    },
+    {
+      "key": "6141074688966656",
+      "windows": 0,
+      "crosses": 1,
+      "symmetryPairs": 0,
+      "warnings": [],
+      "nativeRestore": true,
+      "savedStages": 10
+    },
+    {
+      "key": "5100577711194112",
+      "windows": 2,
+      "crosses": 1,
+      "symmetryPairs": 0,
+      "warnings": [
+        {
+          "actual": 76.354,
+          "id": "cleanup-window-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 24.81,
+          "nativeRead": {
+            "id": "cleanup-window-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-building",
+            "cleanup-window-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        }
+      ],
+      "nativeRestore": true,
+      "savedStages": 10
+    },
+    {
+      "key": "6223831125458944",
+      "windows": 2,
+      "crosses": 1,
+      "symmetryPairs": 1,
+      "warnings": [
+        {
+          "actual": 46.936,
+          "id": "cleanup-window-1--cleanup-window-2-clearance-check",
+          "kind": "clearance-check",
+          "label": "Window / window clearance",
+          "minimum": 12.368,
+          "nativeRead": {
+            "id": "cleanup-window-1--cleanup-window-2-clearance",
+            "surface": "context.relations"
+          },
+          "participants": [
+            "cleanup-tower-1",
+            "cleanup-window-1",
+            "cleanup-window-2"
+          ],
+          "qualification": "Native participating bounds remain readable; gap threshold is authored adapter policy.",
+          "shortfall": 0,
+          "status": "within-allowance"
+        },
+        {
+          "allowance": 8.245,
+          "id": "cleanup-mirror-check-1",
+          "kind": "mirror-check",
+          "label": "Window pair symmetry",
+          "nativeRead": {
+            "index": 0,
+            "surface": "cleanup.symmetries"
+          },
+          "participants": [
+            "cleanup-window-1",
+            "cleanup-window-2",
+            "cleanup-tower-1"
+          ],
+          "qualification": "Finite bound differences from the native mirror read; review allowance is authored, not learned.",
+          "signedResiduals": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "status": "within-allowance"
+        }
+      ],
+      "nativeRestore": true,
+      "savedStages": 10
+    }
+  ],
+  "dataset": "D:/_quickDraw/data/church-symmetry-review",
+  "qaFolder": "D:\\_quickDraw\\_work\\qa\\symmetry-2026-10-27",
+  "qualification": "Authored proposals, not learned probabilities or physical simulation. 300-drawing checks validate support/margins/correspondence, not recognition accuracy. Three unresolved clearance/mirror warnings remain visible in the broader set. Original user dataset is unchanged. Added supports keep prior provenance. Joint retrieval uses 200 cached earlier finals and is reported separately."
+}

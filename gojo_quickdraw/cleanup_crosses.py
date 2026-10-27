@@ -25,6 +25,8 @@ def placement(cross, parent, earlier_parent, scale, observed=None):
     # Small offsets can become centered; strongly offset motifs retain most
     # of their displacement instead of being moved wholesale to the apex.
     x=cx if abs(x-cx)<=.20*(b-a) else x+.35*(cx-x)
+    if parent.get('role') in ('tower','roof') and cross.get('placement','').startswith('within'):
+        x=cx
     old_fraction=(old_bar-cross['bounds'][1])/max(.001,cross['bounds'][3]-cross['bounds'][1])
     fraction=_clamp(1-old_fraction if old_fraction>.5 else old_fraction,.24,.44)
     reason=['Cross keeps its relative prominence; only excess above the broad building scale is softened.']

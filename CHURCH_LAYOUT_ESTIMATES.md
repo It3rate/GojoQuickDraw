@@ -168,6 +168,22 @@ plausible, which markers or optional openings are missing or spurious, and which
 overlapping regions need a different construction. Learned weighting can later
 propose these same connected structures; no trained model is needed for this trial.
 
+## Tilted windows and local cross context — policy v8
+
+Opening reads try a bounded set of rotated source frames before rejecting a
+tilted enclosure. The chosen read basis and fit costs remain recorded; ideal
+area placement is still a separate authored proposal. Candidate windows may
+straddle the uncertain upper wall estimate by a small amount, allowing the
+later containment and symmetry pass to place them coherently. A frame with an
+interior plus remains one window with separately mapped divider intervals.
+
+Cross placement considers tower faces as well as caps. Long near-horizontal
+and near-vertical arms can supply an additional contextual crossing candidate
+when the tight acquisition detector missed it. A short endpoint overrun sharing
+an arm with a more complete crossing is withheld as a second church symbol.
+The raw joint stays in the measured evidence; the competing interpretations
+and selected spans remain visible in a contextual relation.
+
 ## Refresh and reproduce
 
 ```powershell

@@ -12,7 +12,7 @@ import math
 
 COLORS = {"ground": "#63735f", "building": "#277da8", "tower": "#56729a", "roof": "#bf712a",
           "cross": "#ae3f6d", "cross-level": "#ae3f6d", "door": "#23846c", "window": "#8c68aa"}
-POLICY = {"version": "church-area-layout.v7", "learned": False, "maximumSamples": 2048,
+POLICY = {"version": "church-area-layout.v8", "learned": False, "maximumSamples": 2048,
           "maximumUprights": 16, "maximumDoors": 2, "maximumWindows": 8,
           "maximumRoofs": 6, "maximumCrosses": 6, "domePartitions": 32,
           "basis": "normalized observer page; down is a chosen church-upright premise",
@@ -128,7 +128,7 @@ def _opening_regions(observed, bounds, excluded):
     def fits(points):
         if len(points)<2:return False
         a,b,c,d=_box(points)
-        return c-a<=.80*w and d-b<=.92*h and a>=l-.04*w and c<=r+.04*w and b>=t+.035*h and d<=g+.12*h
+        return c-a<=.80*w and d-b<=.92*h and a>=l-.04*w and c<=r+.04*w and b>=t-.10*h and d<=g+.12*h
     for stroke in observed.get("strokes", []):
         ids=[sid for sid in stroke.get('spans',[]) if sid not in excluded]
         if not ids:continue
@@ -220,7 +220,9 @@ def estimate(observed):
             if candidate.get('panePattern'):framed.append(candidate)
     divider_spans={sid for region in framed for field in ('verticalSpans','horizontalSpans') for sid in region['panePattern'][field]}
     outlines=outline_crosses(observed,scene)
-    cross_hints = [c for c in observed.get("crosses", []) if c["point"][1] < st+.68*sh and not set(c['spans'])<=divider_spans] + outlines
+    from .layout_markers import crossing_candidates
+    contextual_crossings,_=crossing_candidates(observed,scene)
+    cross_hints = [c for c in contextual_crossings if c["point"][1] < st+.68*sh and not set(c['spans'])<=divider_spans] + outlines
     cross_spans = {sid for c in cross_hints for sid in c["spans"]}
     uprights = _upright_regions(spans,cross_spans,scene)
     lower = [p for p in samples if p[1] >= st+.60*sh] or samples
@@ -291,7 +293,7 @@ def estimate(observed):
                 doors.append({**region,"placedBounds":[centre-width/2,b,centre+width/2,g]})
     for region in opening_regions:
         a,b,c,d=region["bounds"]
-        if (not region['openingSupport'] or not region['closedTrace'] or d >= g-.10*bh or b < top+.035*bh or len(windows) >= POLICY["maximumWindows"] or
+        if (not region['openingSupport'] or not region['closedTrace'] or d >= g-.10*bh or b < top-.10*bh or len(windows) >= POLICY["maximumWindows"] or
             any(set(region["spans"]) & set(o["spans"]) for o in doors+windows)):
             continue
         width,height=c-a,d-b
@@ -341,7 +343,9 @@ def estimate(observed):
             geo,tower_sites=_rectangle([a,base,b,bottom],anchors(cap),anchors(cap),
                                       bottom_source=ground_site if bottom==g else from_body)
             parent=add('tower',geo,[a,base,b,bottom],cap['towerSpans'],['layout-ground',building['id']],
-                extra={'lowerBoundary':'inferred-level','expected':{'meaning':'Upright support below a cap; no drawn separating line is required.'}})
+                extra={'lowerBoundary':'inferred-level','apex':[round((a+b)/2,3),base],
+                       'expected':{'meaning':'Upright support below a cap; no drawn separating line is required.'}})
+            marker_parents.append(parent)
             sites=tower_sites[0]
             relate(parent['id']+'-on-'+('ground' if bottom==g else 'building'),
                    ['layout-ground' if bottom==g else building['id'],parent['id']],0)
@@ -367,6 +371,11 @@ def estimate(observed):
                        for field in ('verticalSpans','horizontalSpans') for sid in region['panePattern'][field]}
     cross_markers,marker_reads=markers(observed,marker_parents,[l,top,r,g],scene,POLICY['maximumCrosses'],outlines=outlines,
                                       excluded_spans=accepted_dividers)
+    for i,read in enumerate(marker_reads['withheldOverruns']):
+        relations.append({'id':'layout-short-overrun-'+str(i+1),'kind':'short-overrun-competing-cross',
+            'participants':[],'spans':list(dict.fromkeys(read['spans']+read['otherSpans'])),
+            'status':'withheld-symbol','comparisons':[_comparison(read['shortReach'],.045*sh,0,'endpoint reach in the selected observer frame')],
+            'residue':[read['reason']]})
     # A possible frame outside the accepted opening area remains unresolved; it
     # cannot erase the competing cross interpretation without a placed window.
     marker_reads['enclosedDividerCandidates']=[{'bounds':c['bounds'],'spans':c['spans'],
