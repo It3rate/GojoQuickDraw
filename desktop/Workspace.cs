@@ -25,6 +25,7 @@ public sealed class WorkspaceSettings
     public string NeighborhoodModel { get; set; } = "";
     public bool EncodingNeighborhoods { get; set; } = true;
     public bool EncodingUseLine { get; set; } = true;
+    public int EncodingPasses { get; set; } = 4;
 
     public static string Repository()
     {

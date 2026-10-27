@@ -21,6 +21,8 @@ internal sealed class DrawingCanvas : Control
     public JointNode[] Joints { get; init; } = [];
     public bool ShowJointDirections { get; init; }
     public bool IncludeContinuations { get; init; }
+    public bool IncludeEndpoints { get; init; }
+    public NeighborhoodProjection[] Projections { get; init; } = [];
     public IReadOnlyDictionary<string,string> JointStatuses { get; init; } = new Dictionary<string,string>();
     public HashSet<string> Highlighted { get; set; } = [];
     public Action<JointNode?>? JointHovered { get; set; }
@@ -33,8 +35,17 @@ internal sealed class DrawingCanvas : Control
             var scale=Math.Max(.01,Math.Min((Bounds.Width-16)/(Frame[2]-Frame[0]),(Bounds.Height-16)/(Frame[3]-Frame[1])));
             var p=e.GetPosition(this);var x=(p.X-(Bounds.Width-(Frame[2]-Frame[0])*scale)/2)/scale+Frame[0];
             var y=(p.Y-(Bounds.Height-(Frame[3]-Frame[1])*scale)/2)/scale+Frame[1];
-            var found=Joints.Where(n=>JointGraphRead.Significant(n)||IncludeContinuations&&n.Kind=="I").OrderBy(n=>JointGraphRead.Distance(n.Point,[x,y])).FirstOrDefault();
+            var found=Joints.Where(n=>JointGraphRead.Significant(n)||IncludeContinuations&&n.Kind=="I"||IncludeEndpoints&&n.Kind=="endpoint").OrderBy(n=>JointGraphRead.Distance(n.Point,[x,y])).FirstOrDefault();
             if(found is not null && JointGraphRead.Distance(found.Point,[x,y])*scale>13)found=null;
+            if(found is null)
+            {
+                var projection=Projections.MinBy(p=>JointGraphRead.Distance(p.To,[x,y]));
+                if(projection is not null&&JointGraphRead.Distance(projection.To,[x,y])*scale<12)
+                {
+                    _hover=projection.Id;ToolTip.SetTip(this,$"Endpoint {projection.Endpoint} → other edge {projection.Edge}\nGap / local span: {projection.GapRatio:0.###}\nParameter: {projection.Parameter:0.###}\n{projection.Basis}");
+                    ToolTip.SetIsOpen(this,true);return;
+                }
+            }
             if(found?.Id==_hover)return;_hover=found?.Id;JointHovered?.Invoke(found);
             if(found is not null)
             {
@@ -48,12 +59,12 @@ internal sealed class DrawingCanvas : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue,Joints,JointStatuses,Highlighted,ShowJointDirections,IncludeContinuations,UnderlayAlpha));
+        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue,Joints,JointStatuses,Highlighted,ShowJointDirections,IncludeContinuations,UnderlayAlpha,IncludeEndpoints,Projections));
     }
 }
 
 internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool fitted, double[][][] underlay,
-    PreviewPart[] parts, double[] frame, double[][][] residue,JointNode[] joints,IReadOnlyDictionary<string,string> statuses,HashSet<string> highlighted,bool showDirections,bool includeContinuations,byte underlayAlpha) : ICustomDrawOperation
+    PreviewPart[] parts, double[] frame, double[][][] residue,JointNode[] joints,IReadOnlyDictionary<string,string> statuses,HashSet<string> highlighted,bool showDirections,bool includeContinuations,byte underlayAlpha,bool includeEndpoints,NeighborhoodProjection[] projections) : ICustomDrawOperation
 {
     public Rect Bounds { get; } = bounds;
     public void Dispose() { }
@@ -87,6 +98,15 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
         Paths(underlay, false, SKColor.Parse("#465852").WithAlpha(underlayAlpha));
         Paths(residue, true, SKColor.Parse("#647A79").WithAlpha(90));
         Paths(profiles, fitted, SKColor.Parse(fitted ? "#247D72" : "#465852"));
+        using(var dash=SKPathEffect.CreateDash([3/scale,4/scale],0))
+        {
+            foreach(var projection in projections.GroupBy(p=>p.Endpoint).Select(g=>g.First()))
+            {
+                paint.Style=SKPaintStyle.Stroke;paint.StrokeWidth=1/scale;paint.Color=SKColor.Parse(projection.WithinReach?"#BB8D49":"#9BA9AE").WithAlpha(125);paint.PathEffect=dash;
+                canvas.DrawLine((float)projection.From[0],(float)projection.From[1],(float)projection.To[0],(float)projection.To[1],paint);
+                paint.PathEffect=null;canvas.DrawCircle((float)projection.To[0],(float)projection.To[1],3/scale,paint);
+            }
+        }
         foreach (var part in parts)
         {
             var prior = part.Status == "prior-only"; var added = prior && part.Role is "door" or "window" or "cross";
@@ -108,9 +128,9 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
             paint.PathEffect = null;
         }
         using var font=new SKFont(SKTypeface.Default,10/scale);
-        foreach(var joint in joints.Where(n=>JointGraphRead.Significant(n)||includeContinuations&&n.Kind=="I"))
+        foreach(var joint in joints.Where(n=>JointGraphRead.Significant(n)||includeContinuations&&n.Kind=="I"||includeEndpoints&&n.Kind=="endpoint"))
         {
-            var color=SKColor.Parse(joint.Added ? "#899398" : statuses.GetValueOrDefault(joint.Id) switch
+            var color=SKColor.Parse(joint.Added||joint.Kind=="endpoint" ? "#899398" : statuses.GetValueOrDefault(joint.Id) switch
                 {"same type"=>"#247D72","changed type"=>"#B56C19","ambiguous"=>"#9B5A62","unresolved"=>"#899398",_=>"#7963A4"});
             var x=(float)joint.Point[0];var y=(float)joint.Point[1];
             if(showDirections)
@@ -125,7 +145,7 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
             paint.PathEffect=null;paint.Style=SKPaintStyle.Fill;paint.Color=SKColors.White.WithAlpha(225);
             canvas.DrawCircle(x,y,5/scale,paint);paint.Style=SKPaintStyle.Stroke;paint.Color=color;
             paint.StrokeWidth=(highlighted.Contains(joint.Id) ? 2.7f : 1.1f)/scale;canvas.DrawCircle(x,y,4/scale,paint);
-            var label=joint.Kind is "unresolved" or "coincident rays" ? "?" : joint.Kind=="separate" ? "none" : joint.Kind;
+            var label=joint.Kind is "unresolved" or "coincident rays" ? "?" : joint.Kind=="endpoint"?"E":joint.Kind=="separate" ? "none" : joint.Kind;
             paint.Style=SKPaintStyle.Stroke;paint.Color=SKColors.White;paint.StrokeWidth=3/scale;
             canvas.DrawText(label,x+6/scale,y-5/scale,font,paint);
             paint.Style=SKPaintStyle.Fill;paint.Color=color;canvas.DrawText(label,x+6/scale,y-5/scale,font,paint);

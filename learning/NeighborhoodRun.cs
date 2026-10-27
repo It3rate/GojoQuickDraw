@@ -12,12 +12,27 @@ public static class NeighborhoodRun
     public sealed record Opinion(Candidate Candidate,NeighborhoodFeatures.Cells Cells,Relation RepairScore,Relation LineScore,
         double RepairSupport,double LineSupport,double Utility,int Unseen,bool Enabled);
     public sealed record Result(Relation Surface,object Readback);
+    public static IElement[] RootFields(Relation root)
+    {
+        var f=Rows(root);if(f.Length is not (5 or 6))throw new InvalidDataException("Incomplete neighborhood run surface.");return f;
+    }
+    private static IElement[] RoundFields(IElement round)
+    {
+        var f=Rows(round);if(f.Length is not (4 or 5))throw new InvalidDataException("Incomplete neighborhood round surface.");return f;
+    }
+    private static NeighborhoodContacts.Contact[] Contacts(IElement[] fields,int index,Graph graph)
+        =>fields.Length>index?Rows(fields[index]).Select(r=>NeighborhoodContacts.Read((Relation)r,graph)).ToArray():[];
 
     public static object[] Stages(Relation root)
     {
-        var f=Fields(root,5);var initial=Read((Relation)f[1]);var sources=initial.Edges.Select(e=>e.Source).ToArray();
-        var ids=new Dictionary<IElement,string>(ReferenceEqualityComparer.Instance);var result=new List<object>{new{title="Source fitted graph",graph=Project(initial,sources,ids)}};
-        var i=0;foreach(var round in Rows(f[2]))result.Add(new{title=$"Neighborhood pass {++i}",graph=Project(Read((Relation)Fields(round,4)[2]),sources,ids)});
+        var f=RootFields(root);var initial=Read((Relation)f[1]);var sources=initial.Edges.Select(e=>e.Source).ToArray();var rounds=Rows(f[2]).Select(RoundFields).ToArray();
+        var ids=new Dictionary<IElement,string>(ReferenceEqualityComparer.Instance);var initialContacts=rounds.Length>0?Contacts(rounds[0],4,initial):[];
+        var result=new List<object>{new{title="Source fitted graph",graph=Project(initial,sources,ids,initialContacts)}};
+        for(var i=0;i<rounds.Length;i++)
+        {
+            var graph=Read((Relation)rounds[i][2]);var contacts=i+1<rounds.Length?Contacts(rounds[i+1],4,graph):f.Length==6?Contacts(Fields(f[5],4),3,graph):[];
+            result.Add(new{title=$"Neighborhood pass {i+1}",graph=Project(graph,sources,ids,contacts)});
+        }
         return result.ToArray();
     }
 
@@ -72,16 +87,17 @@ public static class NeighborhoodRun
             c.Admissible?c.After.Surface:new Placeholder(),G(c.Removed.Select(e=>(IElement)e.Witness).ToArray()),c.Before.Surface);
         return G(c.Surface,opinion.Cells.Surface,opinion.RepairScore,opinion.LineScore,admissibility);
     }
-    public static Result Execute(IElement observation,Graph initial,JsonElement bundle,string hash,bool joints,bool lines,int passes=2,int maximum=192)
+    public static Result Execute(IElement observation,Graph initial,JsonElement bundle,string hash,bool joints,bool lines,int passes=4,int maximum=192)
     {
-        if(passes is <1 or >4||maximum is <1 or >512)throw new InvalidDataException("Choose one to four bounded neighborhood passes and at most 512 candidates.");
+        if(passes is <1 or >8||maximum is <1 or >512)throw new InvalidDataException("Choose one to eight bounded neighborhood passes and at most 512 candidates.");
         var state=initial;var clock=new Carrier();var history=new List<Relation>();var rounds=new List<IElement>();
         var previewStages=new List<object>{new{title="Source fitted graph",graph=Project(initial,initial.Edges.Select(e=>e.Source).ToArray())}};
-        var decisions=new List<object>();var sourceOrder=initial.Edges.Select(e=>e.Source).ToArray();var step=0;var accepted=0;
+        var decisions=new List<object>();var sourceOrder=initial.Edges.Select(e=>e.Source).ToArray();var step=0;var accepted=0;var quiet=false;var passCounts=new List<int>();
         for(var pass=0;pass<passes;pass++)
         {
-            var beforePass=state;var candidates=Generate(state,maximum);var opinions=candidates.Select(c=>Evaluate(c,bundle,hash,joints,lines)).ToArray();
-            var localGroups=opinions.GroupBy(o=>string.Join(',',o.Candidate.Focus.Edges.Select(e=>Array.FindIndex(beforePass.Edges,p=>ReferenceEquals(p.Witness,e.Witness))).Order())+":"+(o.Candidate.Straightening?"line":"joint"));
+            var beforePass=state;var beforeAccepted=accepted;var contacts=NeighborhoodContacts.Discover(state);var candidates=Generate(state,maximum,contacts);var opinions=candidates.Select(c=>Evaluate(c,bundle,hash,joints,lines)).ToArray();
+            var localGroups=opinions.GroupBy(o=>string.Join(',',o.Candidate.Focus.Edges.Select(e=>Array.FindIndex(beforePass.Edges,p=>ReferenceEquals(p.Witness,e.Witness))).Order())+"/"+
+                string.Join(',',o.Candidate.Focus.Sites.Select(s=>Array.FindIndex(beforePass.Sites,p=>ReferenceEquals(p,s))).Order())+":"+(o.Candidate.Straightening?"line":"joint"));
             var witnesses=opinions.Select(OpinionSurface).ToArray();var decisionRows=new List<IElement>();
             foreach(var group in localGroups)
             {
@@ -97,7 +113,9 @@ public static class NeighborhoodRun
                     neighborhoodSites=c.Focus.Sites.Length,neighborhoodEdges=c.Focus.Edges.Length,
                     status=apply?"applied":!fresh?"stale; reevaluate next pass":!c.Admissible?"blocked":!selected.Enabled?"provider unselected":selected.Unseen>3?"unfamiliar feature cells; keep unresolved":"keep / unresolved",
                     repairSupport=selected.RepairSupport,lineSupport=selected.LineSupport,unseenFeatureCells=selected.Unseen,utility=double.IsFinite(selected.Utility)?selected.Utility:(double?)null,
-                    alternatives=ranked.Take(3).Select(o=>new{operation=o.Candidate.Description,repair=o.RepairSupport,line=o.LineSupport,unseenFeatureCells=o.Unseen,admissible=o.Candidate.Admissible,issues=o.Candidate.Issues}).ToArray(),
+                    endpointObservation=c.Observation is null?null:ProjectionHint(c.Observation,beforePass,sourceOrder),
+                    alternatives=ranked.Take(3).Select(o=>new{operation=o.Candidate.Description,repair=o.RepairSupport,line=o.LineSupport,unseenFeatureCells=o.Unseen,admissible=o.Candidate.Admissible,
+                        targetKinds=o.Candidate.After.Sites.Where(s=>PatchGeometry.Distance(XY(s),o.Candidate.Focus.Center)<=o.Candidate.Focus.Radius).Select(s=>Kind(o.Candidate.After,s)).Distinct().ToArray(),issues=o.Candidate.Issues}).ToArray(),
                     issues=c.Issues.Concat(selected.Unseen>3?new[]{"Input includes more unfamiliar feature cells than the provider coverage limit permits."}:Array.Empty<string>()).ToArray(),sources=c.Focus.Edges.Select(e=>"p"+Array.FindIndex(sourceOrder,s=>ReferenceEquals(s,e.Source))).Distinct().ToArray(),
                     removedIntervals=c.Removed.Select(e=>{e.Span.TryReadSegment(out _,out var a,out var b);return new{source="p"+Array.FindIndex(sourceOrder,s=>ReferenceEquals(s,e.Source)),from=a.Ticks/(double)Q,to=b.Ticks/(double)Q};}).ToArray()});
                 if(!apply)
@@ -116,25 +134,34 @@ public static class NeighborhoodRun
                 decisionRows.Add(ReadWitness.Create(new Carrier(),opinion,decisionBasis,application,stale,state.Surface));
                 history.Add(TimeStepSequence.Step(new Carrier(),clock,step,step+1,state.Surface,application,next.Surface,G()));step++;state=next;accepted++;
             }
-            rounds.Add(G(beforePass.Surface,G(witnesses),state.Surface,G(decisionRows.ToArray())));
+            rounds.Add(G(beforePass.Surface,G(witnesses),state.Surface,G(decisionRows.ToArray()),G(contacts.Select(c=>(IElement)c.Witness).ToArray())));
+            passCounts.Add(accepted-beforeAccepted);
             previewStages.Add(new{title=$"Neighborhood pass {pass+1}",graph=Project(state,sourceOrder)});
-            if(ReferenceEquals(beforePass.Surface,state.Surface))break;
+            if(ReferenceEquals(beforePass.Surface,state.Surface)){quiet=true;break;}
         }
         var timeline=TimeStepSequence.Create(new Carrier(),clock,initial.Surface,history.ToArray());
-        var root=G(observation,initial.Surface,G(rounds.ToArray()),state.Surface,timeline);
+        var passAxis=new Carrier();var lastRound=RoundFields(rounds[^1]);var finalContacts=NeighborhoodContacts.Discover(state);
+        var controller=G(Relation.Segment(passAxis,0,passes),new CarrierLocation(passAxis,rounds.Count),new Relation(lastRound[0],lastRound[2]),G(finalContacts.Select(c=>(IElement)c.Witness).ToArray()));
+        var root=G(observation,initial.Surface,G(rounds.ToArray()),state.Surface,timeline,controller);
         Validate(root);
         return new(root,new{initial=Project(initial,sourceOrder),final=Project(state,sourceOrder),stages=Stages(root),decisions,accepted,
-            passes=previewStages.Count-1,qualification="Two source-local learned opinions plus authored structural compatibility. Actual target sites and source spans change; source acquisition is unchanged. This is bounded local rewriting, not general kernel convergence or learned church priors."});
+            passes=previewStages.Count-1,passBudget=passes,appliedByPass=passCounts,stopReason=quiet?"no accepted local changes":"pass budget reached; unresolved work may remain",
+            qualification="The same two source-local providers reread each changed graph; repeated opinions are not independent evidence. Endpoint projections are observations until a selected application binds sites. This is bounded local rewriting, not Gojo tension flow or a whole-church model."});
+    }
+    private static object ProjectionHint(Relation observation,Graph graph,IElement[] sources)
+    {
+        var c=NeighborhoodContacts.Read(observation,graph);return new{from=XY(c.Endpoint),to=XY(c.Point),parameter=c.T,gapRatio=c.Gap/c.Reach,
+            targetSource="p"+Array.FindIndex(sources,s=>ReferenceEquals(s,c.Other.Source))};
     }
     public static void Validate(Relation root)
     {
-        var f=Fields(root,5);var initial=Read((Relation)f[1]);var final=Read((Relation)f[3]);
+        var f=RootFields(root);var initial=Read((Relation)f[1]);var final=Read((Relation)f[3]);
         var sources=initial.Edges.Select(e=>e.Source).ToHashSet<IElement>(ReferenceEqualityComparer.Instance);
         if(final.Edges.Any(e=>!sources.Contains(e.Source)))throw new InvalidDataException("Final graph introduced an unsupported source branch.");
         IElement previousRound=initial.Surface;
         foreach(var round in Rows(f[2]))
         {
-            var r=Fields(round,4);var before=Read((Relation)r[0]);_=Read((Relation)r[2]);
+            var r=RoundFields(round);var before=Read((Relation)r[0]);_=Read((Relation)r[2]);_=Contacts(r,4,before);
             if(!ReferenceEquals(previousRound,before.Surface))throw new InvalidDataException("A neighborhood pass is not based on the previous pass.");
             IElement roundState=before.Surface;
             foreach(var opinion in Rows(r[1]))
@@ -170,6 +197,15 @@ public static class NeighborhoodRun
             previousRound=roundState;
         }
         if(!ReferenceEquals(previousRound,final.Surface))throw new InvalidDataException("Final graph is not the last neighborhood pass.");
+        if(f.Length==6)
+        {
+            var c=Fields(f[5],4);var last=RoundFields(Rows(f[2])[^1]);
+            if(c[0] is not Relation budget||!budget.TryReadSegment(out var axis,out var zero,out var limit)||zero.Ticks!=0||limit.Ticks is <1 or >8||
+                c[1] is not CarrierLocation count||!ReferenceEquals(count.Carrier,axis)||count.Ticks!=Rows(f[2]).Length||count.Ticks>limit.Ticks||
+                c[2] is not Relation transition||!ReferenceEquals(transition.Left,last[0])||!ReferenceEquals(transition.Right,last[2])||
+                count.Ticks<limit.Ticks&&!ReferenceEquals(transition.Left,transition.Right))throw new InvalidDataException("Iteration controller lost its budget, completed steps or quiet transition.");
+            _=Contacts(c,3,final);
+        }
         if(!TimeStepSequence.TryRead((Relation)f[4],out _,out var first,out var steps)||!ReferenceEquals(first,initial.Surface))throw new InvalidDataException("Repair timeline lost its initial graph.");
         IElement state=initial.Surface;
         foreach(var step in steps)

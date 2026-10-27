@@ -6,8 +6,8 @@ import random
 def controls(count=1800, seed=43, batch_size=40):
     batch = []
     for index in range(count):
-        kind = index % 12
-        family = index // 48
+        kind = index % 18
+        family = index // 72
         base = random.Random(f'neighborhood:{seed}:{kind}:{family}')
         rng = random.Random(f'variation:{seed}:{index}')
         gap = rng.uniform(.008, .075)
@@ -36,7 +36,8 @@ def controls(count=1800, seed=43, batch_size=40):
                 line(graph, c, site(graph, point))
 
         names = ('corner-gap', 'tee-gap', 'tee-overrun', 'crossing', 'continuation-gap', 'separate-parallel',
-                 'smooth-arch', 'clean-corner', 'corner-double-overrun', 'fragmented-tee', 'jogged-tee', 'terminal-hook')
+                 'smooth-arch', 'clean-corner', 'corner-double-overrun', 'fragmented-tee', 'jogged-tee', 'terminal-hook',
+                 'corner-and-endpoint', 'endpoint-to-body', 'straighten-then-tee', 'trim-tee-to-corner', 'trim-cross-to-tee', 'keep-short-tee-stem')
         if kind in (0, 7):
             angle = base.uniform(.75, 2.25)
             p = (math.cos(angle), math.sin(angle))
@@ -78,11 +79,31 @@ def controls(count=1800, seed=43, batch_size=40):
             line(source, site(source, (-1, 0)), a); line(source, a, b)
             line(source, b, site(source, (1, 0))); line(source, b, site(source, (0, 1)))
             star(target, [(-1, 0), (1, 0), (0, 1)])
-        else:
+        elif kind == 11:
             c = site(source, (1, 0)); line(source, site(source, (-1, 0)), c)
             line(source, c, site(source, (1, tail)))
             line(target, site(target, (-1, 0)), site(target, (1, 0)))
+        elif kind == 12:
+            c=site(source,(0,0));line(source,site(source,(-1,0)),c);line(source,c,site(source,(0,1)))
+            line(source,site(source,(gap,0)),site(source,(1,0)));star(target,[(-1,0),(1,0),(0,1)])
+        elif kind == 13:
+            # A shared far end used to exclude this entire segment pair.
+            a=site(source,(-1,0));b=site(source,(1,0));e=site(source,(0,gap))
+            line(source,a,b);edge(source,b,e,[[1,1],[-1,1]])
+            a=site(target,(-1,0));b=site(target,(1,0));c=site(target,(0,0))
+            line(target,a,c);line(target,c,b);edge(target,b,c,[[1,1],[-1,1]])
+        elif kind == 14:
+            rise=base.uniform(.16,.22)
+            edge(source,site(source,(-1,0)),site(source,(1,0)),[[-1/3,rise],[1/3,rise]])
+            line(source,site(source,(0,-gap)),site(source,(0,-1)));star(target,[(-1,0),(1,0),(0,-1)])
+        else:
+            vectors=[(-1,0),(0,1)] if kind==15 else [(-1,0),(1,0),(0,1)]
+            if kind==17:
+                star(source,[(-1,0),(1,0),(0,tail)]);star(target,[(-1,0),(1,0),(0,tail)])
+            else:
+                star(source,vectors+([(tail,0)] if kind==15 else [(0,-tail)]));star(target,vectors)
         line_targets = [0 if kind == 6 else 1 for _ in source['edges']]
+        if kind==13:line_targets[1]=0
         angle, scale = rng.uniform(-math.pi, math.pi), rng.uniform(25, 180)
         offset = [rng.uniform(-120, 350), rng.uniform(-120, 350)]
         def transform(p):

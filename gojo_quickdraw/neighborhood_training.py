@@ -103,7 +103,7 @@ def run(source, output, gojo_root, *, limit=60, synthetic=1800, epochs=35, seed=
     evaluation_input=output/'evaluation-input.ndjson'
     with evaluation_input.open('w',encoding='utf-8') as stream:
         for case in selected:
-            stream.write(json.dumps({**case,'modelPath':str(output/'model.json'),'useRepair':True,'useLine':True,'passes':2,'maxCandidates':128},separators=(',',':'))+'\n')
+            stream.write(json.dumps({**case,'modelPath':str(output/'model.json'),'useRepair':True,'useLine':True,'passes':4,'maxCandidates':128},separators=(',',':'))+'\n')
     training.native(command,'neighborhood-run',evaluation_input,output/'evaluation-native',output/'evaluation.ndjson')
     outputs=[json.loads(line) for line in (output/'evaluation.ndjson').read_text(encoding='utf-8').splitlines()]
     evaluation=[{'kind':c['kind'],'group':c['group'],'source':c['source'],'target':c['target'],**r} for c,r in zip(selected,outputs)]

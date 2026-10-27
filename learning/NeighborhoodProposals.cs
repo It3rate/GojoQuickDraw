@@ -9,7 +9,7 @@ public static class NeighborhoodProposals
 {
     public sealed record Focus(Relation Surface,double[] Center,double Reach,double Radius,Relation[] Sites,Edge[] Edges);
     public sealed record Candidate(Relation Surface,Graph Before,Graph After,Focus Focus,Relation[] Bindings,Edge[] Removed,Edge[] Changed,
-        double Movement,bool Straightening,string Description,bool Admissible,string[] Issues,Relation? LineContext=null);
+        double Movement,bool Straightening,string Description,bool Admissible,string[] Issues,Relation? LineContext=null,Relation? Observation=null);
     public sealed record Encounter(double A,double B,double[] P,double[] Q,double Gap);
 
     public static Encounter Closest(Edge a,Edge b)
@@ -48,11 +48,12 @@ public static class NeighborhoodProposals
         return new(focus,center,reach,radius,sites,edges);
     }
     private static Candidate Make(Graph before,IEnumerable<Edge> output,Focus focus,IEnumerable<Relation> bindings,IEnumerable<Edge> removed,
-        IEnumerable<Edge> changed,double movement,bool straightening,string description,Relation? lineContext=null)
+        IEnumerable<Edge> changed,double movement,bool straightening,string description,Relation? lineContext=null,Relation? observation=null)
     {
         var after=Create(before.Frame,output);var map=bindings.ToArray();var residue=removed.ToArray();var edited=changed.DistinctBy(e=>e.Witness,ReferenceEqualityComparer.Instance).ToArray();
         var issues=new List<string>();
         if(after.Edges.Any(e=>Length(e.Points)<1e-7))issues.Add("would collapse a surviving interval to zero geometry");
+        if(after.Edges.Any(e=>{e.Span.TryReadSegment(out _,out var a,out var b);return a.Ticks==b.Ticks;}))issues.Add("would lose a source interval below the declared parameter resolution");
         if(movement>focus.Reach*.16)issues.Add("movement exceeds the declared local reach budget");
         if(Cycles(after)<Cycles(before))issues.Add("would destroy an existing enclosure");
         if(residue.Any(e=>Length(e.Points)>focus.Reach*.085))issues.Add("would remove a substantial source interval");
@@ -60,11 +61,11 @@ public static class NeighborhoodProposals
         if(after.Sites.Any(s=>!before.Sites.Any(p=>ReferenceEquals(p,s))&&Kind(after,s)=="coincident rays"))issues.Add("would collapse distinct, same-direction branches");
         // Every active ray comes from an actual surviving source interval.
         // A two-arm corner therefore cannot turn into a three-arm T by relabeling.
-        var instruction=G(focus.Surface,G(map),G(edited.Select(e=>(IElement)e.Witness).ToArray()),lineContext ?? (IElement)new Placeholder());
+        var instruction=G(focus.Surface,G(map),G(edited.Select(e=>(IElement)e.Witness).ToArray()),lineContext ?? (IElement)new Placeholder(),observation??(IElement)new Placeholder());
         var surface=ReadWitness.Create(new Carrier(),before.Surface,instruction,after.Surface,G(residue.Select(e=>(IElement)e.Witness).ToArray()),focus.Surface);
-        return new(surface,before,after,focus,map,residue,edited,movement,straightening,description,issues.Count==0,issues.ToArray(),lineContext);
+        return new(surface,before,after,focus,map,residue,edited,movement,straightening,description,issues.Count==0,issues.ToArray(),lineContext,observation);
     }
-    public static Candidate Merge(Graph graph,Relation[] sites,Focus focus)
+    public static Candidate Merge(Graph graph,Relation[] sites,Focus focus,Relation? observation=null)
     {
         var xy=new[]{sites.Average(s=>XY(s)[0]),sites.Average(s=>XY(s)[1])};var joined=Site(graph.Frame,xy,G(sites));
         var removed=new List<Edge>();var changed=new List<Edge>();var edges=new List<Edge>();
@@ -75,7 +76,20 @@ public static class NeighborhoodProposals
             if(!Has(e.A)&&!Has(e.B)){edges.Add(e);continue;}
             edges.Add(Move(graph,e,Has(e.A)?joined:e.A,Has(e.B)?joined:e.B));changed.Add(e);
         }
-        return Make(graph,edges,focus,sites.Select(s=>new Relation(s,joined)),removed,changed,sites.Max(s=>PatchGeometry.Distance(XY(s),xy)),false,"merge nearby sites");
+        return Make(graph,edges,focus,sites.Select(s=>new Relation(s,joined)),removed,changed,sites.Max(s=>PatchGeometry.Distance(XY(s),xy)),false,"merge nearby sites",observation:observation);
+    }
+    public static Candidate Attach(Graph graph,NeighborhoodContacts.Contact contact)
+    {
+        var c=NeighborhoodContacts.Read(contact.Witness,graph);var endpoint=c.Endpoint;var other=c.Other;
+        var incident=graph.Edges.Where(e=>ReferenceEquals(e.A,endpoint)||ReferenceEquals(e.B,endpoint)).ToArray();
+        var focus=Neighborhood(graph,XY(c.Point),incident.Append(other));
+        if(c.T<=.005||c.T>=.995)return Merge(graph,[endpoint,c.T<=.005?other.A:other.B],focus,c.Witness);
+        var pair=Cut(graph,other,c.T,c.Point,c.Parameter);
+        var changed=incident.Append(other).ToArray();
+        var edges=graph.Edges.Where(e=>!ReferenceEquals(e.Witness,other.Witness)).Select(e=>
+            ReferenceEquals(e.A,endpoint)||ReferenceEquals(e.B,endpoint)?Move(graph,e,ReferenceEquals(e.A,endpoint)?c.Point:e.A,ReferenceEquals(e.B,endpoint)?c.Point:e.B):e);
+        return Make(graph,edges.Concat(new[]{pair.Left,pair.Right}),focus,[new Relation(endpoint,c.Point),new Relation(other.Witness,G(pair.Left.Witness,pair.Right.Witness))],[],changed,c.Gap,false,
+            "attach endpoint to nearest other segment",observation:c.Witness);
     }
     public static Candidate Join(Graph graph,Edge a,Edge b,Encounter at,Focus focus,bool trim)
     {
@@ -131,7 +145,7 @@ public static class NeighborhoodProposals
         return Make(graph,edges,focus,[new Relation(site,center)],[],changed,movement,true,"align continuing spans",G(first.Witness,second.Witness,site));
     }
 
-    public static List<Candidate> Generate(Graph graph,int maximum=192)
+    public static List<Candidate> Generate(Graph graph,int maximum=192,NeighborhoodContacts.Contact[]? contacts=null)
     {
         var result=new List<Candidate>();
         void Add(Candidate c)
@@ -139,6 +153,8 @@ public static class NeighborhoodProposals
             // Similar coordinates do not identify candidates or their routes.
             result.Add(c);
         }
+        foreach(var contact in contacts??NeighborhoodContacts.Discover(graph))
+            if(contact.Gap<=contact.Limit)Add(Attach(graph,contact));
         foreach(var site in graph.Sites)
         {
             var incident=graph.Edges.Where(e=>ReferenceEquals(e.A,site)||ReferenceEquals(e.B,site)).ToArray();
@@ -176,6 +192,13 @@ public static class NeighborhoodProposals
             var midpoint=PatchGeometry.Bezier(edge.Points,.5);var focus=Neighborhood(graph,midpoint,[edge]);
             if(PatchGeometry.Distance(edge.Points[0],edge.Points[^1])>.35*Length(edge.Points))Add(Straighten(graph,edge,focus));
         }
-        return result.OrderBy(c=>c.Admissible?0:1).ThenBy(c=>c.Movement/Math.Max(.001,c.Focus.Reach)).Take(maximum).ToList();
+        var sorted=result.OrderBy(c=>c.Admissible?0:1).ThenBy(c=>c.Movement/Math.Max(.001,c.Focus.Reach)).ToArray();
+        var repair=sorted.Where(c=>!c.Straightening).ToArray();var lines=sorted.Where(c=>c.Straightening).ToArray();var bounded=new List<Candidate>();
+        for(var i=0;bounded.Count<maximum&&(i<repair.Length||i<lines.Length);i++)
+        {
+            if(i<repair.Length)bounded.Add(repair[i]);
+            if(bounded.Count<maximum&&i<lines.Length)bounded.Add(lines[i]);
+        }
+        return bounded;
     }
 }

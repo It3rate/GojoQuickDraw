@@ -28,10 +28,10 @@ def load_model(path):
     return bundle
 
 
-def run(source,output,gojo_root,*,model,limit=25,max_candidates=192,passes=2,seed=43,recognition='all',use_repair=True,use_line=True):
+def run(source,output,gojo_root,*,model,limit=25,max_candidates=192,passes=4,seed=43,recognition='all',use_repair=True,use_line=True):
     started=time.perf_counter();source,output=new_output(source,output)
     load_model(model)
-    if not 1<=passes<=4 or not 1<=max_candidates<=512:raise ValueError('Choose 1..4 passes and 1..512 candidates')
+    if not 1<=passes<=8 or not 1<=max_candidates<=512:raise ValueError('Choose 1..8 passes and 1..512 candidates')
     cohort,warnings=training_data.snapshot(source,limit,seed,recognition)
     if not cohort:raise ValueError('No completed drawings match this selection')
     output.mkdir(parents=True,exist_ok=True);(output/'models').mkdir();shutil.copyfile(model,output/'models/neighborhoods.json')

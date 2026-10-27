@@ -46,6 +46,13 @@ interpreted graph, without changing the source acquisition or existing church
 stages. Learned shape/category feedback, a learned integrator and general
 settlement remain **plan**. See [the extension and limits](docs/local-joint-model.md#neighborhood-repair-extension).
 
+Endpoint-to-other-interval projection observations, explicit source parameter
+cuts, visible endpoints, iteration controls and quiet/budget stop reads are
+also **in**. A shared far end no longer suppresses a possible endpoint-to-body
+attachment. The same two providers can participate in a straightening →
+attachment → alignment cascade. General live multi-maker tension flow remains
+**plan**; these saved local rewrites do not implement that law.
+
 ## 1. Acquisition and source
 
 | Evidence | Status | Scope |

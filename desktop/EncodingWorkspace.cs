@@ -5,9 +5,10 @@ namespace GojoQuickDraw.Desktop;
 
 public sealed record EncodingDrawing(string SourceKey,string Category,double[][][] Strokes,JointNode[] Baseline,JointNode[] Selected,
     EncodingPatch[] Patches,string[] Uncovered,string BaselineArchive,string SelectedArchive,bool PatchLimitReached,
-    NeighborhoodStage[]? Stages=null,JsonElement[]? Decisions=null,int Accepted=0);
+    NeighborhoodStage[]? Stages=null,JsonElement[]? Decisions=null,int Accepted=0,string? StopReason=null,int[]? AppliedByPass=null);
 public sealed record NeighborhoodStage(string Title,NeighborhoodGraphView Graph);
-public sealed record NeighborhoodGraphView(double[][][] Curves,JointNode[] Joints);
+public sealed record NeighborhoodGraphView(double[][][] Curves,JointNode[] Joints,NeighborhoodProjection[]? Projections=null);
+public sealed record NeighborhoodProjection(string Id,string Endpoint,string Edge,double[] From,double[] To,double Parameter,double GapRatio,bool WithinReach,string Basis);
 public sealed record EncodingPatch(string Id,string[] Profiles,string[] Baseline,string[] BaselineKinds,EncodingCandidate[] Candidates,
     int[] Ranking,int? Proposed,string Status,double[] Encounter,bool Changed,double[][][]? Runs=null);
 public sealed record EncodingCandidate(string Kind,double Score,double[][] Points,int[][] Segments,double[] Directions);
@@ -46,7 +47,9 @@ public static class EncodingWorkspace
             var archive=data.GetProperty("nativeArchive").GetString()!;_=Artifact(run.Folder,archive);
             return new(data.GetProperty("sourceKey").GetString()!,data.GetProperty("category").GetString()!,JsonSerializer.Deserialize<double[][][]>(data.GetProperty("strokes"),Json)!,
                 parsed[0].Graph.Joints,parsed[^1].Graph.Joints,[],[],archive,archive,false,parsed,
-                data.GetProperty("decisions").EnumerateArray().Select(e=>e.Clone()).ToArray(),data.GetProperty("accepted").GetInt32());
+                data.GetProperty("decisions").EnumerateArray().Select(e=>e.Clone()).ToArray(),data.GetProperty("accepted").GetInt32(),
+                data.TryGetProperty("stopReason",out var reason)?reason.GetString():null,
+                data.TryGetProperty("appliedByPass",out var counts)?counts.EnumerateArray().Select(v=>v.GetInt32()).ToArray():null);
         }
         var drawing=JsonSerializer.Deserialize<EncodingDrawing>(text,Json)
             ?? throw new InvalidDataException("Unreadable paired drawing projection.");

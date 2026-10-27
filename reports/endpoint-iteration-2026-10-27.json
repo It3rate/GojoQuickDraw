@@ -1,0 +1,177 @@
+{
+  "schema": "gojo.endpoint-iteration-checkpoint.v1",
+  "date": "2026-10-27",
+  "trainingRun": "D:\\_quickDraw\\data\\church3000-models\\endpoints-2026-10-27-v1",
+  "encodingRun": "D:\\_quickDraw\\data\\church3000-encodings\\endpoints-2026-10-27-v1",
+  "modelSha256": "f1c3de2d12521572be09b888889e391bb0ddc340dc4fe66957f034630631ad0c",
+  "adapter": {
+    "sha256": "24a4d8f1fb750fe38a154814c83125f63819ed3ccb362d5012c21ad1d1558044",
+    "files": 18,
+    "basis": "Exact adapter source bytes and ordered relative paths; build outputs excluded"
+  },
+  "upstream": {
+    "repository": "https://github.com/It3rate/Gojo.git",
+    "revision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+    "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "matchesPinnedRevision": false,
+    "sourceSha256": "2b279085e3767437f077ecf98625216703602027330f037cabf05eac2fd8741d",
+    "dirtyPaths": [],
+    "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+  },
+  "training": {
+    "sourceDrawings": 60,
+    "controlledNeighborhoods": 864,
+    "parameterCount": 157,
+    "lineTest": {
+      "examples": 416,
+      "agreement": 0.9543269230769231,
+      "crossEntropy": 0.06819467829330714,
+      "proposalCoverage": 0.7836538461538461,
+      "precisionWhenProposed": 0.9938650306748467
+    },
+    "repairTest": {
+      "examples": 420,
+      "agreement": 0.9119047619047619,
+      "crossEntropy": 0.13006046166967872,
+      "proposalCoverage": 0.5333333333333333,
+      "precisionWhenProposed": 0.9955357142857143
+    },
+    "realWeakTest": {
+      "examples": 4,
+      "agreement": 0.75,
+      "crossEntropy": 1.1332848651442589,
+      "proposalCoverage": 1.0,
+      "precisionWhenProposed": 0.75
+    },
+    "graphTest": {
+      "examples": 32,
+      "improved": 21,
+      "worsened": 0,
+      "unchanged": 11,
+      "independentTemplates": 32,
+      "neededRepair": 25,
+      "correctlyUnchanged": 7
+    },
+    "totalSeconds": 91.30814430001192
+  },
+  "sameExpandedControls": {
+    "old": {
+      "examples": 32,
+      "improved": 25,
+      "worsened": 2,
+      "unchanged": 5
+    },
+    "new": {
+      "examples": 32,
+      "improved": 21,
+      "worsened": 0,
+      "unchanged": 11
+    }
+  },
+  "fourPassReview": {
+    "sourceDrawings": 25,
+    "changedPatches": 275,
+    "localPatches": 773,
+    "totalSeconds": 65.00881590001518,
+    "stops": {
+      "pass budget reached; unresolved work may remain": 16,
+      "no accepted local changes": 9
+    }
+  },
+  "eightPassAudit": {
+    "drawings": 8,
+    "stops": {
+      "no accepted local changes": 7,
+      "pass budget reached; unresolved work may remain": 1
+    },
+    "appliedByPass": [
+      [
+        5,
+        3,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        6,
+        3,
+        4,
+        3,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        6,
+        3,
+        4,
+        0
+      ],
+      [
+        5,
+        3,
+        1,
+        1,
+        3,
+        2,
+        1,
+        1
+      ],
+      [
+        5,
+        4,
+        3,
+        2,
+        2,
+        1,
+        0
+      ],
+      [
+        5,
+        2,
+        2,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        4,
+        1,
+        0
+      ],
+      [
+        4,
+        1,
+        0
+      ]
+    ]
+  },
+  "unchangedControls": 2,
+  "checks": {
+    "python": 205,
+    "desktop": 38,
+    "native": 50,
+    "learning": 26,
+    "linkedGojo": 5407,
+    "adapter": 114,
+    "freshConversionAndRestore": {
+      "records": 2,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "browser": {
+      "total": 25,
+      "errors": [],
+      "requests": [],
+      "preservedStage": "4",
+      "actualGraphPaths": true,
+      "endpointCount": 318,
+      "nearestPointOverlay": true
+    },
+    "desktopColdStartWithoutTools": true
+  },
+  "qualification": "Bounded source-local rewriting, not native multi-maker tension settlement or a recurrent learned model. Static source acquisitions and ten church stages remain unchanged. Applications are not verified corrections; four weak held-out candidate rows from one acquisition are dependent authored references. Current descriptors reread interpreted geometry, without a separately learned fixed-source observation likelihood to resist cumulative drift."
+}

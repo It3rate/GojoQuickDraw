@@ -73,7 +73,7 @@ public static class Program
                     readback["initial"]=stages[0]!["graph"]!.DeepClone();readback["final"]=stages[^1]!["graph"]!.DeepClone();readback["stages"]=stages;
                     if(r.TryGetProperty("target",out var targetJson))
                     {
-                        var target=NeighborhoodGraph.FromJson(targetJson);var fields=NeighborhoodGraph.Fields(restored,5);
+                        var target=NeighborhoodGraph.FromJson(targetJson);var fields=NeighborhoodRun.RootFields(restored);
                         readback["evaluation"]=JsonSerializer.SerializeToNode(new{before=NeighborhoodLearning.TargetCost(NeighborhoodGraph.Read((Gojo.Core.Relation)fields[1]),target),
                             after=NeighborhoodLearning.TargetCost(NeighborhoodGraph.Read((Gojo.Core.Relation)fields[3]),target)},Json);
                     }

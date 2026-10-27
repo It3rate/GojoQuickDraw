@@ -76,11 +76,11 @@ public sealed class NeighborhoodTests
     {
         var g=GraphOf([[-100,0],[100,0],[0,4],[0,100]],[[0,1],[2,3]]);using var models=ConstantModels();
         var none=NeighborhoodRun.Execute(g.Surface,g,models.RootElement,"test",false,false);
-        Assert.Same(g.Surface,Fields(none.Surface,5)[3]);
+        Assert.Same(g.Surface,NeighborhoodRun.RootFields(none.Surface)[3]);
         var active=NeighborhoodRun.Execute(g.Surface,g,models.RootElement,"test",true,false);
         var doc=GojoStructureCompactJson.Deserialize(PatchEvidence.Capture("repair",active.Surface));
         Assert.True(GojoStructureCompactJson.TryToElement(doc,out var restored));var root=Assert.IsType<Relation>(restored.Root);NeighborhoodRun.Validate(root);
-        var f=Fields(root,5);var final=Read((Relation)f[3]);Assert.Single(final.Sites,s=>Kind(final,s)=="T");
+        var f=NeighborhoodRun.RootFields(root);var final=Read((Relation)f[3]);Assert.Single(final.Sites,s=>Kind(final,s)=="T");
         var wrong=PatchEvidence.G(f[0],f[1],f[2],f[1],f[4]);Assert.Throws<InvalidDataException>(()=>NeighborhoodRun.Validate(wrong));
     }
     [Fact]

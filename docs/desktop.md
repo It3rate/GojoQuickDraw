@@ -211,6 +211,19 @@ The portable review is an optional export of the same independently restored
 native graph readbacks. This experimental pass does not replace conversion's
 existing church stages or automatically learn church/category rules.
 
+Endpoint markers (**E**) are now visible in neighborhood mode. **Nearest points**
+shows dashed endpoint-to-other-interval observations with a hollow target marker;
+these do not add lines or establish a joint. Hover for the source endpoint,
+selected other interval, gap ratio and parameter. Observations are retained
+separately from accepted connections.
+
+**Encoding options → Maximum local passes** defaults to four, with a range of
+one to eight. The same models reread the changed graph after trimming,
+straightening and attachment. An enlarged view shows how many applications each
+pass made and whether the run stopped without an accepted edit or reached its
+budget. A quiet pass can still contain rejected or unresolved proposals. These
+passes are separate from the ten saved church reconstruction stages.
+
 The main workflows are View and Convert. Optional tools are grouped below them:
 
 - **Verify saved archives** checks hashes and independently restores native Gojo

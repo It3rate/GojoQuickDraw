@@ -104,6 +104,14 @@ The earlier pairwise joint-only mode remains available. The bundled neighborhood
 model is a small pilot, with authored compatibility gates and sparse weak church
 supervision; it does not yet learn whole church reconstruction.
 
+The endpoint update shows free ends as **E** and offers a **Nearest points**
+overlay. Dashed links are observations, not physical joins. They retain the
+selected other interval and source parameter, including cases where two
+segments already share a far end. Four local passes are the default; choose
+one to eight under Encoding options. The same two models reread the changed
+graph, and the viewer reports changes per pass and why iteration stopped.
+The updated bundled model is `models/neighborhood-endpoints-2026-10-27.json`.
+
 ```powershell
 python -m gojo_quickdraw train --dataset D:/_quickDraw/data/church3000 --limit 300 --synthetic 2500 --epochs 35 --output D:/_quickDraw/data/church3000-models/new-run
 ```

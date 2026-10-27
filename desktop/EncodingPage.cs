@@ -10,10 +10,11 @@ namespace GojoQuickDraw.Desktop;
 
 internal sealed partial class MainWindow
 {
-    private readonly NumericUpDown _encodingCount=Number(25,1,5000),_encodingPatches=Number(128,1,512);
+    private readonly NumericUpDown _encodingCount=Number(25,1,5000),_encodingPatches=Number(128,1,512),_encodingPasses=Number(4,1,8);
     private readonly CheckBox _encodingUseModel=new(){Content="Joint / repair provider",IsChecked=true},
         _encodingUseLine=new(){Content="Line / curve provider (neighborhood mode)",IsChecked=true},
-        _encodingWeak=new(){Content="Show unresolved model opinions",IsChecked=false};
+        _encodingWeak=new(){Content="Show unresolved model opinions",IsChecked=false},
+        _encodingEndpoints=new(){Content="Endpoints",IsChecked=true},_encodingProjections=new(){Content="Nearest points",IsChecked=false};
     private readonly TextBox _encodingModel=new(),_encodingOutput=new(){Watermark="Automatic: a new comparison beside the dataset"};
     private readonly TextBox _encodingNeighborhoodModel=new();
     private readonly ComboBox _encodingMode=new(){ItemsSource=new[]{"Neighborhood repair (changes the interpreted drawing)","Pairwise joint opinions (earlier experiment)"},SelectedIndex=0},
@@ -30,7 +31,8 @@ internal sealed partial class MainWindow
     {
         _encodingModel.Text=string.IsNullOrWhiteSpace(_settings.EncodingModel) ? Path.Combine(_repository,"models","joint-pilot-2026-10-27.json") : _settings.EncodingModel;
         _encodingUseModel.IsChecked=_settings.EncodingUseModel;
-        _encodingNeighborhoodModel.Text=string.IsNullOrWhiteSpace(_settings.NeighborhoodModel)?Path.Combine(_repository,"models","neighborhood-pilot-2026-10-27.json"):_settings.NeighborhoodModel;
+        _encodingNeighborhoodModel.Text=string.IsNullOrWhiteSpace(_settings.NeighborhoodModel)?Path.Combine(_repository,"models","neighborhood-endpoints-2026-10-27.json"):_settings.NeighborhoodModel;
+        _encodingPasses.Value=Math.Clamp(_settings.EncodingPasses,1,8);
         _encodingMode.SelectedIndex=_settings.EncodingNeighborhoods?0:1;_encodingUseLine.IsChecked=_settings.EncodingUseLine;
         var source=Text(_dataset.Text ?? "Choose a drawings folder",12);_dataset.TextChanged+=(_,_)=>source.Text=_dataset.Text;
         _encodingPrevious=SmallButton("← Page",async()=>await EncodingPageAt(_encodingOffset-12));
@@ -38,6 +40,8 @@ internal sealed partial class MainWindow
         _encodingPrevious.IsEnabled=_encodingNext.IsEnabled=false;
         _encodingReport=SmallButton("Open portable review",()=>Open(_encodingRun is null ? null : Path.Combine(_encodingRun.Folder,"report.html")));_encodingReport.IsEnabled=false;
         _encodingWeak.IsCheckedChanged+=async(_,_)=>await EncodingPageAt(_encodingOffset);
+        _encodingEndpoints.IsCheckedChanged+=async(_,_)=>await EncodingPageAt(_encodingOffset);
+        _encodingProjections.IsCheckedChanged+=async(_,_)=>await EncodingPageAt(_encodingOffset);
         _encodingStage.SelectionChanged+=async(_,_)=>await EncodingPageAt(_encodingOffset);
         return Stack(10,Text("Compare evidence providers",21,true),
             _encodingSettings=new Expander{Header="Encoding settings — models and drawings",IsExpanded=true,HorizontalContentAlignment=HorizontalAlignment.Stretch,
@@ -52,8 +56,9 @@ internal sealed partial class MainWindow
                     Buttons(Field("Maximum drawings",_encodingCount),JobButton("Create selected encodings",[PipelineAction.Encode],true)),
                     new Expander{Header="Encoding options",HorizontalContentAlignment=HorizontalAlignment.Stretch,Content=Stack(10,
                         Field("Maximum local patches per drawing",_encodingPatches,"Proposals come from source runs and gaps, without consulting final interpretations. Uncovered joints remain."),
+                        Field("Maximum local passes",_encodingPasses,"Each pass rereads the changed graph with the same providers; stop early when no change is accepted. This is separate from the ten church stages."),
                         Field("New encoding run folder (optional)",_encodingOutput))}))},
-            _encodingSummary,Buttons(_encodingPrevious,_encodingPageLabel,_encodingNext,_encodingStage,_encodingWeak,_encodingReport),_encodingGallery);
+            _encodingSummary,Buttons(_encodingPrevious,_encodingPageLabel,_encodingNext,_encodingStage,_encodingEndpoints,_encodingProjections,_encodingWeak,_encodingReport),_encodingGallery);
     }
     private async Task PickEncodingModel(bool neighborhood)
     {
@@ -76,13 +81,22 @@ internal sealed partial class MainWindow
         try
         {
             _encodingRun=await Task.Run(()=>EncodingWorkspace.Open(folder));_encodingOffset=0;
+            var first=_encodingRun.Drawings.Length>0?EncodingWorkspace.Drawing(_encodingRun,0):null;
+            if(first?.Stages is { } firstStages)
+            {
+                using var manifest=JsonDocument.Parse(File.ReadAllText(Path.Combine(folder,"encoding.json")));
+                var budget=manifest.RootElement.TryGetProperty("passes",out var saved)?saved.GetInt32():firstStages.Length-1;
+                _encodingStage.ItemsSource=Enumerable.Range(0,Math.Max(firstStages.Length,budget+1)).Select(i=>i==0?"Source fitted graph":$"Neighborhood pass {i}").ToArray();
+                _encodingStage.SelectedIndex=Math.Max(0,Math.Max(firstStages.Length,budget+1)-1);
+            }
             _encodingSummary.Text=$"{_encodingRun.SourceDrawings:N0} drawings · {_encodingRun.LocalPatches:N0} local opinions · {_encodingRun.ChangedPatches:N0} different / additional patch opinions · {_encodingRun.Unresolved:N0} unresolved\n"
                 +"Green agrees · amber differs / adds an opinion · gray is unresolved. Hover for alternatives. Directions are source-based hints; scores are relative support.";
             _encodingReport.IsEnabled=File.Exists(Path.Combine(folder,"report.html"));
             _encodingSettings.IsExpanded=false;
             _encodingStage.IsVisible=_encodingRun.Provider!="joint-model"&&_encodingRun.Provider!="default";
             _encodingWeak.IsVisible=!_encodingStage.IsVisible;
-            if(_encodingStage.IsVisible)_encodingSummary.Text=$"{_encodingRun.SourceDrawings:N0} drawings · {_encodingRun.ChangedPatches:N0} applied local changes. Select a pass or click a drawing. Hover joints for connected edges and far endpoints.";
+            _encodingEndpoints.IsVisible=_encodingProjections.IsVisible=_encodingStage.IsVisible;
+            if(_encodingStage.IsVisible)_encodingSummary.Text=$"{_encodingRun.SourceDrawings:N0} drawings · {_encodingRun.ChangedPatches:N0} applied local changes. E = endpoint; dashed nearest-point links are observations, not joins. Click a drawing to inspect feedback.";
             await EncodingPageAt(0);_tabs.SelectedIndex=3;
         }
         catch(Exception error){SetStatus("Encoding run could not be opened",error.Message,true);}
@@ -167,9 +181,11 @@ internal sealed partial class MainWindow
         var stages=drawing.Stages!;var selected=stages[Math.Clamp(stage,0,stages.Length-1)];
         var grid=new Grid{ColumnDefinitions=new("*,*"),ColumnSpacing=8};var frame=EncodingFrame(drawing);
         var left=new DrawingCanvas{Profiles=stages[0].Graph.Curves,Fitted=true,Underlay=drawing.Strokes,UnderlayAlpha=40,Frame=frame,Height=height,
-            Joints=stages[0].Graph.Joints,ShowJointDirections=true,IncludeContinuations=true};
+            Joints=stages[0].Graph.Joints,ShowJointDirections=true,IncludeContinuations=true,IncludeEndpoints=_encodingEndpoints.IsChecked==true,
+            Projections=_encodingProjections.IsChecked==true?stages[0].Graph.Projections??[]:[]};
         var right=new DrawingCanvas{Profiles=selected.Graph.Curves,Fitted=true,Underlay=drawing.Strokes,UnderlayAlpha=45,Frame=frame,Height=height,
-            Joints=selected.Graph.Joints,ShowJointDirections=true,IncludeContinuations=true};
+            Joints=selected.Graph.Joints,ShowJointDirections=true,IncludeContinuations=true,IncludeEndpoints=_encodingEndpoints.IsChecked==true,
+            Projections=_encodingProjections.IsChecked==true?selected.Graph.Projections??[]:[]};
         grid.Children.Add(Stack(3,Text("Source fitted graph",11),left));var panel=Stack(3,Text(selected.Title,11),right);Grid.SetColumn(panel,1);grid.Children.Add(panel);return grid;
     }
     private async Task ShowNeighborhoodDrawing(EncodingDrawing drawing)
@@ -182,7 +198,8 @@ internal sealed partial class MainWindow
         {
             if(selector.SelectedIndex<0)return;
             heading.Text=drawing.Category+" · "+drawing.SourceKey;window.Title="Neighborhood repair · "+drawing.SourceKey;
-            note.Text=$"{drawing.Accepted} applied local changes. Hover joints for connected edges and far endpoints. ← / → drawing · Shift + ← / → page · ↑ / ↓ pass";
+            note.Text=$"{drawing.Accepted} applied local changes. {drawing.StopReason}"+(drawing.AppliedByPass is null?"":" · changes by pass: "+string.Join(", ",drawing.AppliedByPass))+
+                "\nHover joints for connected edges and far endpoints. ← / → drawing · Shift + ← / → page · ↑ / ↓ pass";
             pair.Child=NeighborhoodPair(drawing,420,selector.SelectedIndex);decisions.Children.Clear();
             foreach(var decision in drawing.Decisions ?? [])
             {
@@ -207,13 +224,15 @@ internal sealed partial class MainWindow
             finally{moving=false;}
         }
         selector.SelectionChanged+=(_,_)=>Render();Render();
+        var ends=new CheckBox{Content="Endpoints",IsChecked=_encodingEndpoints.IsChecked};var near=new CheckBox{Content="Nearest points",IsChecked=_encodingProjections.IsChecked};
+        ends.IsCheckedChanged+=(_,_)=>{_encodingEndpoints.IsChecked=ends.IsChecked;Render();};near.IsCheckedChanged+=(_,_)=>{_encodingProjections.IsChecked=near.IsChecked;Render();};
         window.KeyDown+=async(_,e)=>
         {
             if(e.Source is TextBox)return;
             if(e.Key is Key.Up or Key.Down){selector.SelectedIndex=Math.Clamp(selector.SelectedIndex+(e.Key==Key.Down?1:-1),0,stages.Length-1);e.Handled=true;}
             else if(e.Key is Key.Left or Key.Right){e.Handled=true;await Navigate(e.Key==Key.Right?1:-1,e.KeyModifiers.HasFlag(KeyModifiers.Shift));}
         };
-        window.Content=Scroll(Stack(8,Buttons(heading,selector,SmallButton("Close",window.Close)),
+        window.Content=Scroll(Stack(8,Buttons(heading,selector,ends,near,SmallButton("Close",window.Close)),
             Buttons(SmallButton("← Drawing",async()=>await Navigate(-1)),SmallButton("Drawing →",async()=>await Navigate(1))),pair,note,
             new Expander{Header="Local decisions, alternatives and source intervals",Content=decisions},
             Text("The final graph uses source-local evidence. Added church parts and whole-drawing category feedback are not used in this experiment.",12)),new Thickness(16));

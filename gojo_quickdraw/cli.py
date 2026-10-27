@@ -129,7 +129,7 @@ def parser():
     consolidate.add_argument("--model",type=Path,required=True)
     consolidate.add_argument("--limit",type=int,default=25)
     consolidate.add_argument("--max-candidates",type=int,default=192)
-    consolidate.add_argument("--passes",type=int,default=2)
+    consolidate.add_argument("--passes",type=int,default=4)
     consolidate.add_argument("--seed",type=int,default=43)
     consolidate.add_argument("--recognition",choices=MODES,default="all")
     consolidate.add_argument("--no-repair",action="store_true")

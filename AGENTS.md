@@ -49,6 +49,10 @@ Both providers unchecked must preserve the original graph identity. Train only
 on grouped controls or complete source-supported weak targets; final church
 interpretations must never enter inference features or proposal selection.
 The integrator is authored bounded rewriting, not general tension settlement.
+Nearest-point witnesses observe distinct endpoint/interval participation; only
+an explicit selected application establishes contact. Iteration rereads changed
+structure and replaces current opinions, not the weight of the same acquisition.
+Keep the pass budget, quiet/budget stop read, observations and timeline inspectable.
 
 Work on `master` and push completed verified checkpoints to `It3rate/GojoQuickDraw`.
 Do not publish the website without the user's milestone authorization.

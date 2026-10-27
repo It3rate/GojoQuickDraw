@@ -335,8 +335,8 @@ removal. It ranks admissible proposals with explicit movement/removal costs,
 uses a support threshold of 0.68, and leaves unfamiliar cells unresolved.
 Joint and line scores are dependent opinions, not multiplied probabilities.
 Each selected local application carries unaffected edges by identity; a stale
-overlapping proposal waits for the next pass. Two passes are the default, up to
-four are supported. This is bounded rewriting with a retained timeline, not
+overlapping proposal waits for the next pass. Four passes are the default, up to
+eight are supported. This is bounded rewriting with a retained timeline, not
 native tension settlement or a convergence proof.
 
 All candidates and scores remain in the native archive. The portable and Studio
@@ -364,7 +364,7 @@ an alternative training trial. No inference request includes the final graph
 or its correspondences. These restrictions deliberately discard much of the
 available teacher signal rather than teach a two-branch patch an unsupported T.
 
-The first checkpoint uses 600 controlled neighborhoods and a read-only snapshot
+The first checkpoint used 600 controlled neighborhoods and a read-only snapshot
 of 60 church drawings, with 146 learned weights across both providers. It is a
 local mechanism pilot. It has no learned church part hierarchy, rectangle/roof
 feedback, global symmetry correction, learned object boundaries, or trained
@@ -389,6 +389,118 @@ and explicit non-matches. Then add rectangle/part candidates with their expected
 corner ports as another evidence provider. A learned third integrator should
 follow once candidate interactions and counterexamples can be tested; adding it
 now would mainly learn the current authored integrator's decisions.
+
+### Endpoints, nearest points and iteration
+
+Endpoints were already present in the working graph, but the original viewer
+hid them. Both viewers now show **E** and expose a separate nearest-point
+overlay. Its dashed connectors are observations, not contact or added strokes.
+
+Each free endpoint queries two nearest **other** intervals, excluding intervals
+already incident at that exact site. A bounded curve search retains the selected
+interval, source parameter point, separate projected site, calibrated gap and
+local reach in a native `ReadWitness`. Projection does not join the sites.
+An accepted attachment reuses that parameter as the shared cut, splits the
+target interval, and explicitly binds the incoming endpoint. A shared far end
+no longer excludes the whole segment pair from consideration. Equal coordinates
+and source identity remain distinct reads.
+
+The controls now also cover an existing corner plus a free endpoint, a free
+endpoint near a segment whose far end is already shared, straightening followed
+by attachment, T-to-L trimming, X-to-T trimming, and preserving a genuinely short
+T stem. Small does not by itself mean accidental. Missing candidate coverage,
+structural rejection and a low or unfamiliar model opinion are separate reasons
+for keeping a gap.
+
+Each pass evaluates the same two providers on the **current** interpreted graph.
+Local competition distinguishes selected site neighborhoods as well as incident
+edges, so unrelated corners on the same long strokes do not automatically share
+one decision. Line and repair providers receive bounded candidate opportunities.
+After an application, stale proposals wait for a fresh read in the next pass.
+The native repeat controller retains the requested pass span, actual completed
+count and last before/after transition. A run stops when no edit is accepted or
+the budget is exhausted. Neither state proves that the interpretation is correct
+or globally optimal. Repeating a read on unchanged input adds no support.
+
+This is useful iteration without a recurrent neural network: straightening a
+bar can expose an endpoint-to-bar attachment on a later pass. The same models
+then see genuinely different input. Each completed graph, projection observation,
+application and removed source interval remains independently inspectable.
+
+### Connection to the supplied multi-model discussion
+
+The user-supplied `scriptMultiModel.md` is a useful exploratory discussion, not
+an executable specification or evidence that its historical counts remain
+current. Its strongest proposals are reusable construction programs, separating
+observation error from intended construction, local compatibility, and learning
+from persistent unexplained structure. The following design direction remains
+**unimplemented** beyond the two-provider experiment:
+
+```text
+unchanged acquired evidence -> exposed observation ports
+small reader/model -> witnessed candidate maker and parameter hints
+maker -> actual points/segments/curve roles/open slots and exposed ports
+connected local relations -> expectation and mismatch reads
+explicit response route -> admitted signed change or structural retargeting
+affected local world -> settlement and new exposed reads
+changed reads -> re-evaluate affected candidates/providers
+timeline -> accepted changes, blocked response and remaining uncertainty
+```
+
+The model proposes an L/T/curve/rectangle **construction**, not merely a class
+word. Its geometric roles and open slots must be connected. Geometry can then
+settle through exposed relations while categorical alternatives remain available.
+Changing a hypothesis needs a witnessed application or withdrawal; it is not
+the same operation as adjusting a parameter. Current local rewrites retain their
+history but do not yet provide general reversible topology or live multi-maker
+settlement.
+
+The ten existing church stages are useful saved reads and teacher proposals.
+They do not imply ten different neural networks. Share readers for continuity,
+incidence, enclosure, rectangularity, containment and symmetry across parts;
+later add conditional view and category expectations. Those relations can
+revisit one another in both directions. The inspection stages would show slices
+of that process rather than dictate its one-way execution.
+
+Several cautions matter:
+
+- A statistical compatibility cost or prediction error is an observation. It
+  is not automatically Gojo tension or a conserved physical energy. Converting
+  it into change requires a visible receiver basis, response route, bounds,
+  accepted/blocked accounting and settlement. Observation fanout must not be
+  mistaken for draining material transfer.
+- Keep the originating acquisition and dependency route. A rectangle, its
+  corners and a symmetry reader can all depend on the same strokes. Returning
+  that evidence through several loops must not create independent observations
+  or steadily increasing confidence. Replace a current opinion when its input
+  changes; retain its earlier version as history.
+- Preserve fixed acquisition evidence separately from the current interpretation.
+  The present local descriptors reread interpreted geometry; they do not yet
+  include a separately learned fixed-source observation likelihood that resists
+  cumulative drift. A useful future loop needs both channels. Treating its own
+  cleaned output as fresh observed ink would reinforce its own mistakes even
+  without explicitly adding confidence scores.
+- Sum-product has exact tree guarantees; loopy propagation generally gives an
+  approximation. Excluding the immediate return message does not remove every
+  cyclic dependency. Oscillation can reflect update dynamics, model error or
+  competing interpretations; it does not alone prove genuine scene ambiguity.
+  See [the original factor-graph paper](https://www.isiweb.ee.ethz.ch/papers/arch/aloe-2001-1.pdf)
+  and [Ihler, Fisher and Willsky's convergence/error analysis](https://jmlr.org/papers/v6/ihler05a.html).
+- A learned expert should usually provide revisable support/opposition rather
+  than an absolute veto. High confidence alone does not create a shared site.
+  Hard rejection belongs to the declared structural contract; uncertain shape
+  and category priors remain inspectable opinions.
+- The discussion's handedness, gap, omission, style and drawing-order claims
+  are hypotheses to test. Optional acquired timestamps are not present in every
+  QuickDraw variant. Neither round dimensions nor a repeatedly convenient
+  interpretation establish a human intention by themselves.
+
+The next composition experiment should couple just a line/continuation maker,
+a joint maker and one enclosure/rectangle maker, with explicit upward and
+downward expectation ports. Test whether one maker's change produces an
+accountable response in the others, preserves alternative readings and stops
+without recycling support. That would be a useful small Gojo-flow experiment;
+wrapping the existing ten stages in a repeated loop would not establish it.
 
 ## Research reading
 

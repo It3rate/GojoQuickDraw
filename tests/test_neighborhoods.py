@@ -10,12 +10,12 @@ from gojo_quickdraw.neighborhood_training import source_packet
 
 class NeighborhoodTests(unittest.TestCase):
     def test_templates_split_before_their_four_distortions(self):
-        cases=[c for batch in neighborhood_data.controls(192) for c in batch['cases']]
+        cases=[c for batch in neighborhood_data.controls(288) for c in batch['cases']]
         groups={c['group'] for c in cases}
-        self.assertEqual(48,len(groups))
+        self.assertEqual(72,len(groups))
         self.assertTrue(all(sum(c['group']==g for c in cases)==4 for g in groups))
         self.assertTrue(all(len(c['lineTargets'])==len(c['source']['edges']) for c in cases))
-        self.assertEqual(12,len({c['kind'] for c in cases}))
+        self.assertEqual(18,len({c['kind'] for c in cases}))
 
     def test_test_labels_cannot_select_weights(self):
         rows=[]
@@ -76,7 +76,7 @@ class NeighborhoodTests(unittest.TestCase):
         from gojo_quickdraw.cli import parser
         args=parser().parse_args(['consolidate','--dataset','saved','--output','run','--model','m.json','--no-repair'])
         self.assertEqual(25,args.limit);self.assertTrue(args.no_repair);self.assertFalse(args.no_line)
-        self.assertEqual(2,args.passes);self.assertEqual(192,args.max_candidates)
+        self.assertEqual(4,args.passes);self.assertEqual(192,args.max_candidates)
         args=parser().parse_args(['train-neighborhoods','--dataset','saved','--output','run'])
         self.assertEqual(60,args.limit);self.assertEqual(1800,args.synthetic)
 

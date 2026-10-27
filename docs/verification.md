@@ -668,6 +668,46 @@ preserved passes, finite SVG geometry and zero JavaScript errors/network request
 Desktop and browser screenshots were visually inspected. See the
 [checkpoint data and limitations](../reports/neighborhood-model-2026-10-27.json).
 
+## Endpoint observations and iterative rereads — 27 October 2026
+
+Endpoint-to-endpoint, corner-plus-endpoint and endpoint-to-other-interval
+proposals now retain an explicit nearest-point observation. A shared far end
+does not exclude the whole pair. The projected site remains separate until a
+selected application creates shared participation. Its parameter point is reused
+as the actual cut, and stale or mismatched projection reads are rejected.
+
+Passed: 205 Python tests, 38 desktop tests, 50 native tests, 26 learning tests
+and all 5,407 linked Gojo tests. New structural tests exercise both endpoint
+cases, the shared-far-end case, parameter tampering, unchanged-input stopping,
+and a straightening-then-attachment cascade using the same fixed providers.
+Two fresh real drawings ran through conversion and independent restore/hash
+verification. Saved results opened without Python or Gojo configured.
+
+The updated two-provider model has 157 weights, trained on 864 controlled
+neighborhoods and 60 read-only church snapshots. On 32 independent held-out
+complete templates, 21 improved, seven clean controls stayed unchanged and four
+repairs remained unresolved; none worsened. On the same expanded controls, the
+earlier weights improved 25 but worsened two, showing a conservatism tradeoff.
+The cases and labels differ from the earlier 21-template benchmark; their
+agreement percentages are not directly comparable. Four held-out weak church
+candidate rows from one acquisition had 75% reference agreement, too little
+dependent authored evidence for a real-accuracy claim.
+
+The 25-church, four-pass review made 275 applications across 773 decision scopes
+in 65.0 seconds on this machine. Nine stopped without another accepted edit;
+16 reached the budget. In a separate eight-pass check of the first eight,
+seven stopped without another edit and one reached the budget. These are edit
+and termination counts, not counts of verified corrections or proof of
+equilibrium. Two unchecked controls retained identical graphs and stopped after
+one pass. The source dataset and ten church stages remain unchanged.
+
+The native and browser viewers show endpoints, optional dashed projections,
+all saved passes, per-pass applications and stop reasons. Browser checks cover
+endpoint toggles, nearest-point overlays, four-pass navigation, preserved stage,
+12/12/1 paging and no script errors/network requests. Screenshots were inspected.
+The [checkpoint report](../reports/endpoint-iteration-2026-10-27.json) retains
+the model, dependency and adapter fingerprints and these qualifications.
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The
