@@ -395,7 +395,50 @@ placement to regularized panes. Native capture/restore retains shared contacts,
 selected sources and container participation even without adapter labels. A second
 window with equal coordinates remains a distinct construction.
 
-### Review pages
+### Source and final joint comparison
+
+New evidence packets retain a `jointComparison` read from the independently
+restored native archive. `inspect --input ARCHIVE --joints` recalculates it.
+`shared/JointGraph.cs` is compiled into both the native reader and the desktop;
+its source participates in the pipeline implementation fingerprint. No new
+semantic field is added to the native archive: annotation witnesses, final site
+identities, ordered edges and existing boundary/refinement correspondences are
+the source of this read. The geometry-only read also survives label removal;
+the optional adapter `displaySegments` narrows the visible scope for crosses.
+
+Source nodes retain ray directions, profile incidence and parameter order,
+actual shared-site reads, gap and candidate kind. Final nodes calculate
+L/I/T/Y/X/K from displayed edges with a 14-degree opposition allowance. Equal
+coordinates within 0.01 page units produce geometric encounters, not shared
+identity; the separate `shared` read requires actual selected site identities.
+Coincident rays retain every participating edge while the visible direction is
+counted once. Closed walks O use a per-part fundamental cycle basis, not filled
+faces or pane counts. Curves currently use the saved final polygonal scaffold;
+this is not a new continuous-curve intersection solver.
+
+Each final edge follows explicit refinement site pairs back to selected area
+boundaries and their source profiles. Missing edges and partial line mappings
+remain unresolved; no nearest-position match is invented. A part with no direct
+source profiles or boundary ink remains added even when it refines an earlier
+inferred area. Selecting a supporting wall does not make its child observed ink.
+
+Candidate joint correspondence uses source-profile set overlap (minimum 0.25;
+ties within 0.10 retained, at most eight). Neither absolute position nor the
+desired label chooses a match. Reuse of one source joint by several targets
+stays ambiguous. `supportOverlap` is not a learned probability. Relative-order
+checks apply only to unique matches. Coarse alignment uses four percent of
+each graph's extent; pairwise orders are limited to the first 64 significant
+nodes and expose `orderLimitReached` rather than implying full coverage.
+
+The desktop can project older saved annotation/geometry caches through the
+same observer without rewriting them. Its `basis` distinguishes this fallback
+from native readback. A separate `joint-graph-read.v1` training export drops XY
+and gap magnitudes, retaining eight named ray directions, edge connectivity and
+order, above/below/left/right relations, mappings and uncertainty. This compact
+projection is not a replacement archive. All stages of one acquisition share
+one training cause; generated final shapes are reviewed weak targets.
+
+### Review page navigation
 
 `catalog --offset N --limit K` selects a lightweight page; actual latest journal
 states determine totals, not a stale manifest's last-run count. Stable category,

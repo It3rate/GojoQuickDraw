@@ -73,7 +73,7 @@ public sealed record PreviewPart(string Role, string Shape, string Status, strin
 public sealed record PreviewStage(string Id, string Title, double[][][] Profiles, PreviewPart[] Parts, bool Curves = true,
     double[][][]? Residue = null, string Note = "", string[]? Dependencies = null);
 public sealed record Preview(double[][][] Strokes, double[][][] Profiles, PreviewPart[] Areas, PreviewPart[] Cleanup, string[] Warnings,
-    IReadOnlyList<PreviewStage>? Stages = null);
+    IReadOnlyList<PreviewStage>? Stages = null, GojoQuickDraw.Reads.JointComparison? Joints = null);
 
 public static class Workspace
 {
@@ -189,7 +189,7 @@ public static class Workspace
             if (areas.Length > 0) stages.Add(new("areas", "Shape areas and attachments", [], areas));
             if (final.Length > 0) stages.Add(new("cleanup", "Refined church shapes", [], final));
         }
-        return new(strokes, profiles, areas, final, warnings, stages);
+        return new(strokes, profiles, areas, final, warnings, stages, JointPreview.Read(packet));
     }
 
     public static string RunFolder(string dataset)

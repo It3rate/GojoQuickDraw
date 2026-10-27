@@ -76,18 +76,18 @@ internal sealed partial class MainWindow
             await LoadCatalog(refreshFolders: false);
         });
         shuffle.VerticalAlignment = VerticalAlignment.Bottom; Grid.SetColumn(shuffle, 2); grid.Children.Add(shuffle);
-        _firstPage = Button("First", async () => await ChangePage(0));
-        _previousPage = Button("Previous", async () => await ChangePage(Math.Max(0, _catalogOffset - (int)_reviewLimit.Value!)));
-        _nextPage = Button("Next", async () => await ChangePage(_catalogOffset + (int)_reviewLimit.Value!));
-        _lastPage = Button("Last", async () => await ChangePage(Math.Max(0, (_catalogTotal - 1) / (int)_reviewLimit.Value! * (int)_reviewLimit.Value!)));
+        _firstPage = SmallButton("First", async () => await ChangePage(0));
+        _previousPage = SmallButton("← Page", async () => await ChangePage(Math.Max(0, _catalogOffset - (int)_reviewLimit.Value!)));
+        _nextPage = SmallButton("Page →", async () => await ChangePage(_catalogOffset + (int)_reviewLimit.Value!));
+        _lastPage = SmallButton("Last", async () => await ChangePage(Math.Max(0, (_catalogTotal - 1) / (int)_reviewLimit.Value! * (int)_reviewLimit.Value!)));
         _pageJump.Width = 150;
         var paging = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        foreach (var control in new Control[] { _firstPage, _previousPage, _nextPage, _lastPage, Text("Page"), _pageJump,
+        foreach (var control in new Control[] { _firstPage, _lastPage, Text("Page"), _pageJump,
                      Button("Go", async () => await ChangePage(((int)_pageJump.Value! - 1) * (int)_reviewLimit.Value!)) })
         { control.VerticalAlignment = VerticalAlignment.Center; paging.Children.Add(control); }
         _reviewLimit.Width = 125;
         paging.Children.Add(Text("Per page")); paging.Children.Add(_reviewLimit);
-        return Stack(8, grid, paging, _pageLabel);
+        return Card(Stack(8, grid, paging), 10);
     }
 
     private async Task ChangePage(int offset)

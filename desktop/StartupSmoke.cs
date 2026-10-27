@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Avalonia;
 
 namespace GojoQuickDraw.Desktop;
 
@@ -26,6 +27,13 @@ internal sealed partial class MainWindow
             _tabs.SelectedIndex = 0; await LoadPreview();
             Require(_tabs.Items.Count == 2, "The main workflows should be View and Convert.");
             Require(_galleryCards.Count == _drawings.Items.Count, "Native comparison cards are missing.");
+            await Task.Delay(100);
+            Require(!_datasetDrawer.IsVisible && !_inspectionDrawer.IsVisible,"Browsing drawers should start collapsed.");
+            var galleryTop=_gallery.TranslatePoint(new Avalonia.Point(0,0),this);
+            Require(galleryTop is { } top && top.Y<250,"Controls still push the gallery too far down.");
+            _datasetToggle.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+            Require(_datasetDrawer.IsVisible,"Dataset controls cannot be expanded.");
+            _datasetToggle.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
             total = _catalogTotal; first = _drawings.Items.Count;
             _resultView.SelectedIndex = 1;
             var size = (int)_reviewLimit.Value!;
@@ -54,6 +62,16 @@ internal sealed partial class MainWindow
                     var row = _drawings.Items.Cast<DrawingRow>().Single(row => row.KeyId == keys[i]);
                     var enlarged = ShowDrawing(row); await Task.Delay(150); var detail = OwnedWindows.Single();
                     await CaptureWindow(detail, Path.Combine(output,$"case-{i+1:00}.png"));
+                    var preview=_pagePreviews[row.QualifiedId];
+                    if(preview.Joints is { } joints)
+                    {
+                        File.WriteAllText(Path.Combine(output,$"case-{i+1:00}-relative-graph.json"),
+                            JsonSerializer.Serialize(GojoQuickDraw.Reads.JointGraphRead.TrainingView(joints),JointPreview.Options));
+                        var comparison=ShowJointComparison(row,preview);await Task.Delay(100);
+                        var comparisonWindow=detail.OwnedWindows.Single();
+                        await CaptureWindow(comparisonWindow,Path.Combine(output,$"case-{i+1:00}-comparison.png"));
+                        comparisonWindow.Close();await comparison;
+                    }
                     detail.Close(); await enlarged;
                 }
                 _resultView.SelectedIndex = 1; await ChangePage(0);

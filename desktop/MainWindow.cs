@@ -38,6 +38,8 @@ internal sealed partial class MainWindow : Window
     private readonly TabControl _tabs = new();
     private readonly StackPanel _probeRows = new() { Spacing = 10 };
     private Control _configuration = null!;
+    private Border _datasetDrawer = null!, _runDrawer = null!;
+    private Button _datasetToggle = null!;
     private CancellationTokenSource? _cancellation;
     private Task _activeWork = Task.CompletedTask;
     private bool _allowClose, _smoke, _startupSmoke;
@@ -76,6 +78,7 @@ internal sealed partial class MainWindow : Window
             var current = _dataset.Text?.Trim();
             if (current == _observedDatasetPath) return;
             _observedDatasetPath = current;
+            UpdateDatasetCaption();
             ++_catalogRevision; ++_previewRevision;
             _catalogCancellation?.Cancel();
             _updatingFolders = true; _folderScope.ItemsSource = Array.Empty<FolderOption>(); _updatingFolders = false;
@@ -85,36 +88,40 @@ internal sealed partial class MainWindow : Window
             _lastArtifact = null; _openResult.IsEnabled = false;
             _datasetSummary.Text = "Load this dataset to see its drawings and recorded settings.";
         };
-        var header = Stack(4, Text("QuickDraw Studio", 27, true), Text("Open a dataset to view drawings, or create a dataset from QuickDraw source files.", 14));
-        header.Margin = new Thickness(26, 16, 26, 12);
         var datasetRow = Row(_dataset, Button("Open folder…", async () => await PickDataset()),
             Button("Load", async () => { _tabs.SelectedIndex = 0; await LoadCatalog(); }), Button("New dataset…", async () => await NewDataset()));
         _dataset.KeyDown += async (_, e) => { if (e.Key == Avalonia.Input.Key.Enter) { _tabs.SelectedIndex = 0; await LoadCatalog(); } };
-        var workspace = Card(Stack(7, Text("Dataset folder — shared by the viewer and converter", 13, true), datasetRow, _datasetSummary), 14);
-        workspace.Margin = new Thickness(26, 0, 26, 14);
+        _datasetDrawer = Card(Stack(7, Text("Dataset folder — viewer and converter", 13, true), datasetRow, _datasetSummary,
+            Buttons(_openFolder, SmallButton("Hide", () => _datasetDrawer.IsVisible = false))), 12);
+        _datasetDrawer.IsVisible = false;
+        _datasetDrawer.Margin = new Thickness(16, 0, 16, 8);
         _tabs.ItemsSource = new[]
         {
             new TabItem { Header = Text("View drawings", 15, true), Content = Scroll(EvidencePage()) },
             new TabItem { Header = Text("Convert drawings", 15, true), Content = Scroll(ConvertPage()) }
         };
-        _tabs.Margin = new Thickness(26, 0, 26, 12);
+        _tabs.Margin = new Thickness(16, 0, 16, 6);
         _tabs.VerticalContentAlignment = VerticalAlignment.Stretch;
         _tabs.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-        var jobButtons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
-        jobButtons.Children.Add(_openFolder); jobButtons.Children.Add(_stop);
-        _log.IsVisible = false;
-        jobButtons.Children.Add(Button("Run details", () => _log.IsVisible = !_log.IsVisible));
-        var jobRow = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 14 };
-        jobRow.Children.Add(Stack(4, _status, _statusDetail)); Grid.SetColumn(jobButtons, 1); jobRow.Children.Add(jobButtons);
-        var job = Card(Stack(5, jobRow, _progress, _log), 10);
-        job.Margin = new Thickness(26, 0, 26, 10);
-        // Give the tab's scroll viewport a finite star-sized row. Status is
-        // above it, never an overlay/footer covering the last controls.
-        var main = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,*") };
-        main.Children.Add(header); Grid.SetRow(job, 1); main.Children.Add(job);
+        _log.IsVisible = true;
+        _runDrawer = Card(Stack(5, _statusDetail, _log), 10);
+        _runDrawer.IsVisible = false; _runDrawer.Margin = new Thickness(16, 0, 16, 6);
+        _datasetToggle = SmallButton("Dataset…", () => _datasetDrawer.IsVisible = !_datasetDrawer.IsVisible);
+        _datasetToggle.MaxWidth = 290; UpdateDatasetCaption();
+        _status.FontSize = 12; _status.MaxWidth = 170; _status.MaxLines = 1;
+        _stop.Padding = new Thickness(9, 5);
+        var commands = Buttons(_datasetToggle, _status, _stop, SmallButton("Run details", () => _runDrawer.IsVisible = !_runDrawer.IsVisible));
+        foreach (var child in commands.Children) child.VerticalAlignment = VerticalAlignment.Center;
+        var header = Row(Text("QuickDraw Studio", 20, true), commands);
+        header.Margin = new Thickness(16, 9, 16, 7);
+        // Drawers take space only while open. The viewport owns the remaining
+        // height; no fixed footer can cover drawings or controls.
+        var main = new Grid { RowDefinitions = new RowDefinitions("Auto,Auto,Auto,*") };
+        main.Children.Add(header); Grid.SetRow(_runDrawer, 1); main.Children.Add(_runDrawer);
+        Grid.SetRow(_progress, 2); main.Children.Add(_progress);
         var body = new Grid { RowDefinitions = new RowDefinitions("Auto,*") };
-        body.Children.Add(workspace); Grid.SetRow(_tabs, 1); body.Children.Add(_tabs);
-        _configuration = body; Grid.SetRow(body, 2); main.Children.Add(body); Content = main;
+        body.Children.Add(_datasetDrawer); Grid.SetRow(_tabs, 1); body.Children.Add(_tabs);
+        _configuration = body; Grid.SetRow(body, 3); main.Children.Add(body); Content = main;
         InitializeSelectionControls();
         AttachViewerKeys(this);
         Closing += async (_, args) =>
@@ -408,6 +415,15 @@ internal sealed partial class MainWindow : Window
     {
         _status.Text = title; _status.Foreground = error ? Brush.Parse("#A14C30") : Ink;
         _statusDetail.Text = detail;
+        ToolTip.SetTip(_status, detail);
+        if (error && _runDrawer is not null) _runDrawer.IsVisible = true;
+    }
+    private void UpdateDatasetCaption()
+    {
+        if (_datasetToggle is null) return;
+        var name = Path.GetFileName((_dataset.Text ?? "").TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        _datasetToggle.Content = "Dataset: " + (string.IsNullOrEmpty(name) ? "choose…" : name) + " ▾";
+        ToolTip.SetTip(_datasetToggle, _dataset.Text);
     }
     private void AppendLog(string line) => Dispatcher.UIThread.Post(() =>
     {
@@ -433,6 +449,10 @@ internal sealed partial class MainWindow : Window
         var button = new Button { Content = label, Padding = new Thickness(15, 9), CornerRadius = new CornerRadius(6) };
         if (primary) { button.Background = Teal; button.Foreground = Brushes.White; }
         button.Click += (_, _) => action(); return button;
+    }
+    private static Button SmallButton(string label, Action action)
+    {
+        var button = Button(label, action); button.Padding = new Thickness(9, 5); button.FontSize = 13; return button;
     }
     private static NumericUpDown Number(decimal value, decimal minimum, decimal maximum) => new()
     { Value = value, Minimum = minimum, Maximum = maximum, Increment = minimum < 1 ? .5m : 1, FormatString = minimum < 1 ? "0.0" : "0", HorizontalAlignment = HorizontalAlignment.Stretch };
@@ -461,7 +481,7 @@ internal sealed partial class MainWindow : Window
         // Padding on the viewer itself is not included in its content extent.
         // Keep it inside the measured content so the final control can scroll
         // fully into view, including its bottom margin.
-        Content = new Border { Padding = new Thickness(0, 15, 8, 24), Child = content },
+        Content = new Border { Padding = new Thickness(0, 6, 6, 20), Child = content },
         HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled
     };
 }

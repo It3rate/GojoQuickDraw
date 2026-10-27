@@ -24,11 +24,12 @@ namespace GojoQuickDraw.Native
                 {
                     var read = NativeRecord.Restore(ReadCompressed(args[2]));
                     output.WriteLine(JsonSerializer.Serialize(new { ok = true, summary = NativeRecord.Summarize(read),
+                        jointComparison = args.Contains("--joints") ? JointReadback.Json(read) : (JsonElement?)null,
                         sourceOriginalJson = args.Contains("--source") ? read.SourceOriginalJson : null }));
                     return 0;
                 }
                 if (args.Length != 3 || args[0] != "encode" || args[1] != "--output")
-                { error.WriteLine("Usage: encode --output DIR (NDJSON stdin); inspect --input ARCHIVE [--source]; construct|gestalt-evidence --input FILE --output DIR"); return 2; }
+                { error.WriteLine("Usage: encode --output DIR (NDJSON stdin); inspect --input ARCHIVE [--source] [--joints]; construct|gestalt-evidence --input FILE --output DIR"); return 2; }
                 var destination = Path.GetFullPath(args[2]); Directory.CreateDirectory(destination);
                 string? line;
                 while ((line = input.ReadLine()) is not null)
@@ -63,7 +64,7 @@ namespace GojoQuickDraw.Native
                             residue = restored.DrawingSteps.Passes[i].Residue.Select(edge => edge.Controls.Select(site => new[] { site.Position.X, site.Position.Y }).ToArray()).ToArray()
                         }).ToArray();
                         output.WriteLine(JsonSerializer.Serialize(new { ok = true, itemKey = key, archive = filename,
-                            summary = NativeRecord.Summarize(restored), stageViews }));
+                            summary = NativeRecord.Summarize(restored), stageViews, jointComparison = JointReadback.Json(restored) }));
                     }
                     catch (Exception exception) when (exception is not OutOfMemoryException and not StackOverflowException)
                     { output.WriteLine(JsonSerializer.Serialize(new { ok = false, itemKey = key, error = exception.Message, errorType = exception.GetType().Name })); }

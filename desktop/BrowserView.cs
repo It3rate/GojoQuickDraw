@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using GojoQuickDraw.Reads;
 
 namespace GojoQuickDraw.Desktop;
 
@@ -23,10 +24,13 @@ internal sealed partial class MainWindow
     private readonly Dictionary<string, string> _previewErrors = [];
     private readonly List<Control> _galleryCards = [];
     private Expander _analysisOptions = null!;
+    private Control _inspectionDrawer = null!;
+    private readonly CheckBox _showJoints = new() { Content = "Joints", IsChecked = true, VerticalAlignment = VerticalAlignment.Center };
 
     private Control BrowserPage()
     {
         _resultView.SelectionChanged += (_, _) => RenderGallery();
+        _showJoints.IsCheckedChanged += (_,_) => { RenderGallery();_updateDrawing?.Invoke(); };
         _gallery.SizeChanged += (_, _) => ArrangeGallery();
         var analyze = JobButton("Complete pipeline", [PipelineAction.Analyze], true);
         _analysisCount.ValueChanged += (_, _) => analyze.Content = $"Complete up to {_analysisCount.Value:N0} drawings";
@@ -55,12 +59,17 @@ internal sealed partial class MainWindow
                 new Expander { Header = "Machine probes — test placement and containment assumptions", HorizontalContentAlignment = HorizontalAlignment.Stretch, Content = ProbesPage() },
                 new Expander { Header = "Selected drawing for advanced tools", HorizontalContentAlignment = HorizontalAlignment.Stretch, Content = Stack(8, _selection, _drawings) })
         };
-        return Stack(12, InspectionControls(),
-            Buttons(Field("Drawing stage", _resultView), Button("◀ Stage", () => MoveStage(_resultView, -1)),
-                Button("Stage ▶", () => MoveStage(_resultView, 1)), Button("Refresh folder", async () => await LoadCatalog())),
-            _layerSummary, _analysisOptions, _gallery,
+        _inspectionDrawer = InspectionControls(); _inspectionDrawer.IsVisible = false;
+        var paging = Buttons(_previousPage, _pageLabel, _nextPage,
+            SmallButton("Filters & pages ▾", () => _inspectionDrawer.IsVisible = !_inspectionDrawer.IsVisible),
+            SmallButton("Refresh", async () => await LoadCatalog()));
+        foreach (var child in paging.Children) child.VerticalAlignment = VerticalAlignment.Center;
+        _resultView.FontSize = 13;
+        return Stack(8, Buttons(_resultView, SmallButton("◀", () => MoveStage(_resultView, -1)),
+                SmallButton("▶", () => MoveStage(_resultView, 1)),_showJoints),
+            paging, _inspectionDrawer, _gallery,
             Text("Click a pair to enlarge it. ← / → drawing · Shift + ← / → page · ↑ / ↓ stage. Gray dotted doors, windows and crosses are added expectations. Paging keeps the stage.", 12),
-            expert);
+            _layerSummary, _analysisOptions, expert);
     }
 
     private async Task LoadGallery(IReadOnlyList<DrawingRow> rows, long revision, CancellationToken cancellation)
@@ -106,8 +115,15 @@ internal sealed partial class MainWindow
     private Control Comparison(Preview preview, int mode, double height = 175)
     {
         var result = Result(preview, mode); var frame = DisplayFrame(preview, result);
-        var original = new DrawingCanvas { Profiles = preview.Strokes, Frame = frame, Height = height };
-        var output = new DrawingCanvas { Fitted = result.Curves, Underlay = preview.Strokes, Residue = result.Residue ?? [], Parts = result.Parts, Frame = frame, Profiles = result.Profiles, Height = height };
+        var read=preview.Joints;var show=_showJoints.IsChecked==true;
+        var sourceJoints=show ? read?.Source.Nodes ?? [] : [];
+        var resultJoints=!show ? [] : result.Id=="cleanup" ? read?.Final.Nodes ?? [] : result.Id is "fitted" or "original" ? sourceJoints : [];
+        var original = new DrawingCanvas { Profiles = preview.Strokes, Frame = frame, Height = height,Joints=sourceJoints };
+        var output = new DrawingCanvas { Fitted = result.Curves, Underlay = preview.Strokes, Residue = result.Residue ?? [], Parts = result.Parts, Frame = frame, Profiles = result.Profiles, Height = height,
+            Joints=resultJoints,JointStatuses=result.Id=="cleanup" ? (read?.Matches ?? []).ToDictionary(m=>m.Target,m=>m.Status) : new Dictionary<string,string>() };
+        void Highlight(DrawingCanvas canvas,IEnumerable<string> ids){canvas.Highlighted=ids.ToHashSet();canvas.InvalidateVisual();}
+        original.JointHovered=node=>Highlight(output,(read?.Matches ?? []).Where(m=>node is not null && m.Candidates.Contains(node.Id)).Select(m=>m.Target));
+        output.JointHovered=node=>Highlight(original,(read?.Matches ?? []).Where(m=>m.Target==node?.Id).SelectMany(m=>m.Candidates));
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*"), ColumnSpacing = 10 };
         grid.Children.Add(Stack(4, Text("Original", 12, true), original));
         var right = Stack(4, Text(result.Title, 12, true), output); Grid.SetColumn(right, 1); grid.Children.Add(right);
@@ -161,6 +177,8 @@ internal sealed partial class MainWindow
         var window = new Window { Title = row.Category + " · " + row.KeyId, Width = 1080, Height = 780, MinWidth = 760, MinHeight = 580, Background = Avalonia.Media.Brush.Parse("#F1F5F0") };
         var view = new ComboBox { ItemsSource = _resultView.ItemsSource, SelectedIndex = _resultView.SelectedIndex, MinWidth = 235 };
         var picture = new ContentControl(); var stageNote = Text("");
+        var joints=new CheckBox {Content="Joints",IsChecked=_showJoints.IsChecked,VerticalAlignment=VerticalAlignment.Center};
+        joints.IsCheckedChanged+=(_,_)=>_showJoints.IsChecked=joints.IsChecked;
         var heading = Text("", 23, true); var counts = Text(""); var note = Text(""); var warnings = Text(""); var position = Text("");
         void Update()
         {
@@ -179,7 +197,8 @@ internal sealed partial class MainWindow
         view.SelectionChanged += (_, _) => { _resultView.SelectedIndex = view.SelectedIndex; Update(); };
         Update();
         window.Content = Scroll(Stack(12, heading,
-            Buttons(view, Button("◀ Stage", () => MoveStage(view, -1)), Button("Stage ▶", () => MoveStage(view, 1)), Button("Close", window.Close)),
+            Buttons(view, SmallButton("◀ Stage", () => MoveStage(view, -1)), SmallButton("Stage ▶", () => MoveStage(view, 1)),joints,
+                SmallButton("Compare joints", async () => await ShowJointComparison(row,preview)), SmallButton("Close", window.Close)),
             Buttons(Button("← Previous drawing", async () => await NavigateDrawing(-1)), Button("Next drawing →", async () => await NavigateDrawing(1)), position),
             Text("← / → drawing · Shift + ← / → page · ↑ / ↓ stage", 12), picture,
             counts, stageNote, note,

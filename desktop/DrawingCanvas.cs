@@ -4,6 +4,7 @@ using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using SkiaSharp;
+using GojoQuickDraw.Reads;
 
 namespace GojoQuickDraw.Desktop;
 
@@ -16,16 +17,40 @@ internal sealed class DrawingCanvas : Control
     public double[][][] Residue { get; set; } = [];
     public PreviewPart[] Parts { get; set; } = [];
     public double[] Frame { get; set; } = [0, 0, 512, 512];
-    public DrawingCanvas() { MinHeight = 160; ClipToBounds = true; }
+    public JointNode[] Joints { get; init; } = [];
+    public IReadOnlyDictionary<string,string> JointStatuses { get; init; } = new Dictionary<string,string>();
+    public HashSet<string> Highlighted { get; set; } = [];
+    public Action<JointNode?>? JointHovered { get; set; }
+    private string? _hover;
+    public DrawingCanvas()
+    {
+        MinHeight = 160; ClipToBounds = true;
+        PointerMoved += (_,e) =>
+        {
+            var scale=Math.Max(.01,Math.Min((Bounds.Width-16)/(Frame[2]-Frame[0]),(Bounds.Height-16)/(Frame[3]-Frame[1])));
+            var p=e.GetPosition(this);var x=(p.X-(Bounds.Width-(Frame[2]-Frame[0])*scale)/2)/scale+Frame[0];
+            var y=(p.Y-(Bounds.Height-(Frame[3]-Frame[1])*scale)/2)/scale+Frame[1];
+            var found=Joints.Where(JointGraphRead.Significant).OrderBy(n=>JointGraphRead.Distance(n.Point,[x,y])).FirstOrDefault();
+            if(found is not null && JointGraphRead.Distance(found.Point,[x,y])*scale>13)found=null;
+            if(found?.Id==_hover)return;_hover=found?.Id;JointHovered?.Invoke(found);
+            if(found is not null)
+            {
+                ToolTip.SetTip(this,$"{found.Kind} · {found.Id}\n{found.Basis}\n{JointStatuses.GetValueOrDefault(found.Id, "source evidence")}\n{found.Sources.Length} source intervals · gap {found.Gap:0.##}\n"+
+                    (found.Shared ? "Explicit shared site / closed construction" : "Separate sites; geometric read only"));
+            }
+            ToolTip.SetIsOpen(this,found is not null);
+        };
+        PointerExited += (_,_)=>{_hover=null;ToolTip.SetIsOpen(this,false);JointHovered?.Invoke(null);};
+    }
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue));
+        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue,Joints,JointStatuses,Highlighted));
     }
 }
 
 internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool fitted, double[][][] underlay,
-    PreviewPart[] parts, double[] frame, double[][][] residue) : ICustomDrawOperation
+    PreviewPart[] parts, double[] frame, double[][][] residue,JointNode[] joints,IReadOnlyDictionary<string,string> statuses,HashSet<string> highlighted) : ICustomDrawOperation
 {
     public Rect Bounds { get; } = bounds;
     public void Dispose() { }
@@ -78,6 +103,20 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
                 canvas.DrawLine((float)a[0], (float)a[1], (float)b[0], (float)b[1], paint);
             }
             paint.PathEffect = null;
+        }
+        using var font=new SKFont(SKTypeface.Default,10/scale);
+        foreach(var joint in joints.Where(JointGraphRead.Significant))
+        {
+            var color=SKColor.Parse(joint.Added ? "#899398" : statuses.GetValueOrDefault(joint.Id) switch
+                {"same type"=>"#247D72","changed type"=>"#B56C19","ambiguous"=>"#9B5A62",_=>"#7963A4"});
+            var x=(float)joint.Point[0];var y=(float)joint.Point[1];
+            paint.PathEffect=null;paint.Style=SKPaintStyle.Fill;paint.Color=SKColors.White.WithAlpha(225);
+            canvas.DrawCircle(x,y,5/scale,paint);paint.Style=SKPaintStyle.Stroke;paint.Color=color;
+            paint.StrokeWidth=(highlighted.Contains(joint.Id) ? 2.7f : 1.1f)/scale;canvas.DrawCircle(x,y,4/scale,paint);
+            var label=joint.Kind is "unresolved" or "coincident rays" ? "?" : joint.Kind;
+            paint.Style=SKPaintStyle.Stroke;paint.Color=SKColors.White;paint.StrokeWidth=3/scale;
+            canvas.DrawText(label,x+6/scale,y-5/scale,font,paint);
+            paint.Style=SKPaintStyle.Fill;paint.Color=color;canvas.DrawText(label,x+6/scale,y-5/scale,font,paint);
         }
         canvas.Restore();
     }

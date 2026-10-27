@@ -156,3 +156,45 @@ to the selected root. General cycle diagnosis remains incomplete. Fitting the
 container boundary to an explicitly anchored child is a different, qualified
 response route. None of these provisional responses establishes universal physical
 transport, object ownership, or a unique human construction process.
+
+## First local training experiment (proposal, not implemented)
+
+Start with a local decision: should the selected source participants meet, remain
+separate, or remain uncertain, and which junction topology would that imply?
+Train an opinion provider; do not let its output directly weld acquired sites.
+An accepted interpretation can construct new sites with explicit correspondence.
+
+Use one- or two-hop source-joint patches: ray-direction bins, ordered incident
+edges, neighboring joint types, closed-walk membership and coarse relative order.
+The coordinate-free export now makes these available. Avoid final-side features
+as inputs to a source-side prediction. Also omit global category/key identifiers
+from features; IDs only join records. Retain uncertain source reads rather than
+labeling every unmapped node a negative. Closure is separate from containment;
+this first joint graph does not supply a physical inside/outside law.
+
+Compare a rule-only baseline, a small logistic model, and a two-layer MLP over
+a bounded local neighborhood. The MLP is a modest CPU experiment with simple
+inputs; it needs a stable neighborhood ordering and can miss variable graph
+structure. If neighboring evidence clearly helps, a small message-passing graph
+model is a later comparison: it handles variable neighborhoods but costs more
+implementation and makes contribution auditing harder. Keep each provider's
+input participants, alternatives and support/opposition inspectable.
+
+As an initial budget estimate, review 200–500 local patches from 50–100 distinct
+drawings, including gaps, T/X ambiguity, independent crossings, open frames and
+paned windows. These counts are a starting experiment, not an empirical promise
+of sufficient data. Training on fixed features should be seconds to minutes on
+a normal CPU; label review is likely to dominate. Expand to 1,000–5,000 patches
+if held-out performance is unstable. Split by original drawing before making
+patches or variations; all its stages stay in the same split. Keep a separate
+reviewed test set, and measure abstention, false joins, false separations and
+calibration, rather than agreement with the synthesizer alone.
+
+The current comparisons provide candidate correspondence and disagreements for
+review. Synthesized finals are weak teacher proposals, not human intention or
+independent ground truth. A later object-level experiment could distinguish a
+framed crossing (window candidate) from a bare cross using the same graph, then
+feed that opinion back alongside existing part hypotheses.
+
+Method references: [scikit-learn MLP documentation](https://scikit-learn.org/stable/modules/neural_networks_supervised.html)
+and [Gilmer et al., message passing neural networks](https://proceedings.mlr.press/v70/gilmer17a.html).

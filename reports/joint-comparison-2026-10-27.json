@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-27",
+  "scope": "Source and refined-shape joint graphs, relative comparison, compact desktop controls",
+  "upstreamRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "readVersion": "joint-graph-read.v1",
+  "checks": {
+    "pythonTests": 161,
+    "nativeTests": 50,
+    "desktopTests": 32,
+    "gojoTests": 5407,
+    "releaseBuildWarnings": 0,
+    "mixedCategoryWorkflow": {
+      "converted": 9,
+      "categories": ["angel", "church", "frog"],
+      "analyzed": 2,
+      "resumedUnchanged": true,
+      "keyboardDrawingPageStageNavigation": true,
+      "stopRecovery": true,
+      "optionalHtmlExport": true
+    },
+    "nativeReadback": {
+      "drawings": 3,
+      "executedNativeRungs": 21,
+      "errors": 0,
+      "sourceAndFittedObservationsUnchanged": true,
+      "independentRestoreEqualsSavedComparison": true,
+      "siteIdentitySurvivesLabelRemoval": true,
+      "inferredAreaCorrespondenceDoesNotBecomeObservedInk": true
+    },
+    "desktopStartup": {
+      "newDatasetRecords": 3,
+      "olderDatasetRecords": 100,
+      "olderFirstPage": 12,
+      "olderLastPage": 4,
+      "worksWithoutPythonOrGojoPaths": true,
+      "datasetAndFiltersStartCollapsed": true,
+      "galleryBeginsAbove250Pixels": true,
+      "bottomControlsReachableAt920By760": true,
+      "relativeExportHasNoPointCoordinates": true
+    }
+  },
+  "example": {
+    "drawing": "5619141325094912",
+    "panedWindows": 2,
+    "sharedTContactsPerWindow": 4,
+    "sourceJointCounts": {"endpoint": 26, "L": 10, "T": 8, "X": 6},
+    "finalJointCounts": {"endpoint": 5, "L": 10, "T": 12, "Y": 3, "X": 3, "O": 11},
+    "sameTypeMatches": 13,
+    "changedTypeMatches": 4,
+    "ambiguousMatches": 10,
+    "unmappedFinalReads": 12,
+    "mappedFinalEdges": 34,
+    "totalFinalEdges": 42,
+    "relativeOrdersAgree": 103,
+    "relativeOrdersChecked": 136
+  },
+  "sampleDataset": "D:/_quickDraw/data/church-joint-review",
+  "qaFolder": "D:/_quickDraw/_work/qa/joints-2026-10-27",
+  "qualification": "Bounded development checks, not recognition accuracy. Native connected evidence remains authoritative; old dataset fallback is a qualified projection. Matching uses shared source-profile support, not absolute position or desired class. O is a closed-walk basis, not a point junction or pane count. Authored finals are weak training targets. No model trained."
+}

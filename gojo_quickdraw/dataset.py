@@ -89,7 +89,7 @@ def parse_source(original, max_points=20000):
 
 def _pipeline_fingerprint():
     digest = hashlib.sha256()
-    for directory in (ROOT / "gojo_quickdraw", ROOT / "native"):
+    for directory in (ROOT / "gojo_quickdraw", ROOT / "native", ROOT / "shared"):
         for file in sorted(directory.rglob("*")):
             if file.suffix in (".py", ".cs", ".csproj") and not {"bin", "obj", "__pycache__"}.intersection(file.parts):
                 digest.update(file.relative_to(ROOT).as_posix().encode())
@@ -356,6 +356,7 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
                 packet["provenance"] = {"datasetFingerprint": signature, "sourceSha256": raw_hash,
                                         "upstreamRevision": upstream["revision"], "sourceFile": str(file), "sourceLine": line_number}
                 native = encoder.encode(packet)
+                if native.get('jointComparison') is not None: packet['jointComparison'] = native['jointComparison']
                 summary = native.get("summary", {})
                 if summary.get("sourceId") != source["key_id"] or summary.get("sourceSha256") != raw_hash:
                     raise ValueError("Native record identity or exact source digest differs from the submitted acquisition")

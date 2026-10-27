@@ -101,6 +101,7 @@ def _one(task):
         if _encoder is None or getattr(_encoder, "analysis_folder", None) != folder or _encoder.process.poll() is not None:
             _close(); _encoder = bridge.Encoder(_gojo, folder / "native"); _encoder.analysis_folder = folder
         native = _encoder.encode(result)
+        if native.get('jointComparison') is not None: result['jointComparison'] = native['jointComparison']
         if native["summary"]["sourceSha256"] != row["sourceSha256"] or native["summary"]["sourceId"] != row["keyId"]:
             raise ValueError("Analysis native archive changed acquisition identity")
         evidence_path = folder / "records" / (row["itemId"] + ".evidence.json.gz")

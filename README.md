@@ -57,6 +57,12 @@ In both desktop gallery and enlarged view: **Left/Right** selects a drawing,
 **Shift+Left/Right** changes page, and **Up/Down** changes stage. Drawing navigation
 crosses page boundaries without resetting the stage. Text fields keep their normal keys.
 
+Dataset controls now open from the compact **Dataset** button; category, ordering
+and page-jump controls are under **Filters & pages**. **Joints** overlays source
+junctions and recalculated final junctions. Enlarge a drawing and choose **Compare
+joints** for correspondence, changed types, relative orders and a coordinate-free
+graph export. Older folders work without reconversion. See the [viewer guide](docs/desktop.md).
+
 The app is C# / Avalonia with Skia previews. Python orchestrates processing and
 the C# native Gojo bridge encodes and restores connected evidence. Optional HTML
 exports are separate from the desktop viewer.

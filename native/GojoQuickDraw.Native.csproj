@@ -8,5 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="$(GojoRoot)/experiments/quickDraw/QuickDraw.csproj" />
+    <Compile Include="../shared/JointGraph.cs" Link="Reads/JointGraph.cs" />
   </ItemGroup>
 </Project>

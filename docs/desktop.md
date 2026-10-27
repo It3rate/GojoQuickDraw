@@ -15,11 +15,13 @@ reads saved datasets directly, without Python or a generated HTML inspector.
 
 ## View an existing dataset
 
-1. Click **Open folder**, or paste a path into **Dataset folder** and click **Load**.
+1. Expand the **Dataset** button in the top bar. Click **Open folder**, or paste
+   a path into **Dataset folder** and click **Load**. Hide the panel when finished.
    Choose a collection root, a category folder, or an older single dataset.
 2. **View drawings** shows original/result pairs, 12 per page by default. Choose
    a generated category or all categories; subfolders are discovered automatically.
-3. Use First, Previous, Next, Last or the page number to reach every drawing.
+3. Previous and Next stay beside the page count. **Filters & pages** expands
+   category, order, page size, page jump and First/Last controls.
    Choose recorded order, most recent or a stable random order. **New random
    sample** changes the browsing order without converting anything.
 4. Click a pair to enlarge it. **Drawing stage** selects any saved stage;
@@ -45,6 +47,29 @@ left absent; a suggested entrance is rectangular and needs strong facade support
 Box-shaped windows with crossing interior bars retain those bars as part of each
 window. Several windows may be recognized independently; the refined view centers
 their dividers while the area view keeps their approximate source placement.
+
+### Joint overlay and comparison
+
+**Joints** shows recorded source L, T, Y, X, K and closed-walk O candidates;
+unresolved reads appear as `?`. Endpoints and straight-through I reads are retained
+but omitted from the overlay to reduce clutter. O describes a closed walk, not
+a point junction. Source labels come from fitted evidence. Final labels are
+recalculated over the displayed final edges; intermediate church stages do not
+borrow final labels. Hover a marker for its evidence and possible counterpart.
+
+Enlarge a drawing and click **Compare joints** beside the stage controls. The
+comparison lists same/changed types, ambiguous matches, unmapped source/final
+reads, added construction and boundary-to-source line mappings. Relative-order
+checks compare above/below, left/right and approximate alignment for unique
+matches. Green means the same type, ochre changed, rose ambiguous, purple unmapped
+or source evidence, and gray added construction. These are not accuracy scores.
+
+**Export relative graph** saves junction types, coarse ray directions, ordered
+edge incidence, relative orders and candidate correspondences without point
+coordinates. It is an experimental training read, not a complete native archive.
+Authored final shapes are weak targets that need review. Older datasets derive
+the comparison read-only from their saved geometry; new conversions also retain
+an independently restored native comparison cache. No HTML export is required.
 
 Only the visible page's evidence files are loaded. A cached projection of the
 index provides page counts; there is no need to load all drawings or generate
@@ -137,8 +162,9 @@ The main workflows are View and Convert. Optional tools are grouped below them:
 Run details contains worker output. Stop terminates the worker and its children.
 Completed records remain available. Settings are saved under
 `%LOCALAPPDATA%/GojoQuickDraw/desktop-settings.json`.
-Status and Stop are above the workspace; the tabs scroll within the remaining
-window height, with no bottom status overlay. Temporary tool runs and exported
+Status and Stop are in a compact top bar. Dataset and run details are collapsible;
+only stage, joints and ordinary paging remain above the pictures. The tabs scroll
+within the remaining height, with no bottom status overlay. Temporary runs and exported
 reviews are grouped under `D:/_quickDraw/_work`, not loose at the data-drive root.
 
 ## Developer verification

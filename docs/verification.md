@@ -457,7 +457,34 @@ views' opening styles, check listings, pagination and mapping inspection.
 
 See [the recorded report](../reports/cleanup-details-2026-10-26.json).
 
-## Reproduce
+## Joint comparison and compact desktop — 27 October 2026
+
+Source joint evidence remains intact. The new final observer reads displayed
+native edges, shared sites and existing correspondences; a label-removal test
+retains source mappings and native shared junctions. Negative controls keep
+independent crossing sites distinct and an earlier inferred area inferred after
+refinement. Direction tests cover L/I/T/Y/X/K. A constructed paned frame retains
+four T contacts and its X center, with closed walks recorded separately.
+
+Three real churches completed all seven native rungs and independent restore,
+with unchanged acquired source and fitted observations. Recalculated comparison
+reads exactly equal the saved cache. The two-window example retains both windows
+and all eight native T contacts. Its 13 same-type and four changed-type matches
+are comparisons of authored reads, not accuracy claims; ten ambiguous and twelve
+unmapped final reads remain visible.
+
+Passed: 161 Python, 50 native, 32 desktop and 5,407 linked Gojo tests. The bounded
+desktop workflow converted nine real drawings across three categories, resumed
+without changing archives, analyzed two churches, exercised keyboard navigation,
+Stop/recovery and optional HTML export. Release startup audits opened the new
+three-drawing set and an older 100-drawing folder without working Python/Gojo
+paths, preserving paging and stage selection. Dataset/filter drawers start
+collapsed, the gallery starts within 250 pixels of the top, and bottom controls
+remain reachable at 920×760. Screenshots of both joint views were inspected.
+
+See [the recorded report](../reports/joint-comparison-2026-10-27.json).
+
+## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The
 selection report makes this pilot identifiable; use your own QuickDraw files or the
