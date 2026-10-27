@@ -9,6 +9,8 @@ from collections import Counter
 from datetime import datetime, timezone
 import gzip
 import hashlib
+import heapq
+import itertools
 import json
 import os
 from pathlib import Path
@@ -163,9 +165,85 @@ def read_group(group):
             yield path, selected["line"], original, group["category"]
 
 
+def make_growth_plan(files, count, seed, saved, cache=None):
+    """Reach a total across selected categories, excluding retained identities.
+
+    A bounded random permutation supplies candidates. Reading sorted chunks
+    avoids one full decompression per random seek for compressed category files.
+    The complete selection is saved before any conversion starts.
+    """
+    from .growth import identity
+    known = set(saved)
+    known_hashes = {(row['category'].casefold(), row['sourceSha256']) for row in saved.values()}
+    counts = Counter(key[0] for key in known)
+    retained = sum(counts[name.casefold()] for name in files)
+    needed = max(0, count - retained)
+    groups = {}
+
+    def candidates(name):
+        info = index_source(files[name], cache)
+        local = random.Random(hashlib.sha256(f"{seed}:{name}".encode()).digest())
+        def positions():
+            remaining, swaps = info['count'], {}
+            while remaining:
+                index = local.randrange(remaining)
+                value = swaps.get(index, index)
+                remaining -= 1
+                swaps[index] = swaps.get(remaining, remaining)
+                swaps.pop(remaining, None)
+                yield value
+        iterator = positions()
+        with Path(info['locations']).open('rb') as offsets:
+            while chunk := list(itertools.islice(iterator, min(256, max(1, needed)))):
+                entries = []
+                for rank, index in enumerate(chunk):
+                    offsets.seek(index * 16)
+                    offset, line = struct.unpack('<QQ', offsets.read(16))
+                    entries.append({'offset': offset, 'line': line, 'rank': rank})
+                entries.sort(key=lambda item: item['offset'])
+                group = {'category': name, 'sourceFile': str(files[name]), 'sourceStamp': info['sourceStamp'], 'selected': entries}
+                loaded = []
+                for entry, (_, _, original, _) in zip(entries, read_group(group)):
+                    digest = hashlib.sha256(original.encode()).hexdigest()
+                    try:
+                        key = json.loads(original).get('key_id')
+                    except (ValueError, AttributeError):
+                        key = None
+                    source_id = identity({'category': name, 'keyId': key, 'sourceSha256': digest})
+                    loaded.append((entry['rank'], source_id, {'offset': entry['offset'], 'line': entry['line'], 'sourceSha256': digest}))
+                for _, source_id, entry in sorted(loaded):
+                    if source_id in known or (name.casefold(), entry['sourceSha256']) in known_hashes:
+                        continue
+                    yield source_id, entry, info['sourceStamp']
+
+    rng = random.Random(seed)
+    queue = [(counts[name.casefold()], rng.random(), name, candidates(name)) for name in files] if needed else []
+    heapq.heapify(queue)
+    selected = 0
+    try:
+        while queue and selected < needed:
+            size, _, name, iterator = heapq.heappop(queue)
+            try:
+                key, entry, stamp = next(iterator)
+            except StopIteration:
+                continue
+            known.add(key)
+            groups.setdefault(name, {'category': name, 'sourceFile': str(files[name]), 'sourceStamp': stamp, 'selected': []})['selected'].append(entry)
+            selected += 1
+            heapq.heappush(queue, (size + 1, rng.random(), name, iterator))
+    finally:
+        for _, _, _, iterator in queue:
+            iterator.close()
+    for group in groups.values():
+        group['selected'].sort(key=lambda entry: entry['offset'])
+    return {'seed': seed, 'requested': count, 'targetTotal': count, 'retained': retained, 'selected': selected,
+            'shortfall': max(0, needed - selected), 'groups': [groups[name] for name in sorted(groups)],
+            'basis': 'Grow selected categories to the requested total; retain existing source identities; balance new additions without replacement.'}
+
+
 def convert_collection(input_path, output, gojo_root, *, categories=None, count=25, seed=None, recursive=False,
                        all_records=False, cache=None, fit_config=None, max_points=20000, max_spans=256,
-                       retry_errors=False, encoder_factory=None):
+                       retry_errors=False, encoder_factory=None, target_total=False, append=False):
     root, source = Path(output).resolve(), Path(input_path).resolve()
     library = source.parent if source.is_file() else source
     if root.is_relative_to(library):
@@ -173,6 +251,10 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
     files = source_files(source, categories, recursive)
     request = {"input": str(library), "categories": list(files), "count": None if all_records else count,
                "files": {name: {"path": str(file), **_stamp(file)} for name, file in files.items()}}
+    if target_total:
+        if all_records:
+            raise ValueError('A target total cannot process all records')
+        request['targetTotal'] = True
     with dataset._writer_lock(root):
         manifest_path = root / "collection.json"
         if (root / "manifest.json").exists():
@@ -187,12 +269,35 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
             manifest = {"schema": SCHEMA, "createdUtc": datetime.now(timezone.utc).isoformat(), "layout": "one native evidence dataset per category folder"}
         active = root / "_sampling" / "active.json"
         active.parent.mkdir(exist_ok=True)
+        retry_totals = Counter(converted=0, resumed=0, errors=0)
+        retried_hashes = set()
+        if target_total and append and retry_errors:
+            from .growth import existing
+            failures = [row for row in existing(root).values() if row['status'] == 'error']
+            for name, file in files.items():
+                retry_records = []
+                for row in failures:
+                    if row['category'].casefold() != name.casefold():
+                        continue
+                    with gzip.open(dataset._safe_path(root / name, row['retainedSource']), 'rt', encoding='utf-8') as retained:
+                        original = json.load(retained)['sourceOriginalJson']
+                    if hashlib.sha256(original.encode()).hexdigest() != row['sourceSha256']:
+                        raise ValueError('Retained failed source changed; cannot retry it')
+                    retry_records.append((Path(row['sourceFile']), row['sourceLine'], original, name))
+                    retried_hashes.add((name.casefold(), row['sourceSha256']))
+                if retry_records:
+                    retried = dataset.convert(file, root / name, gojo_root, records=retry_records, fit_config=fit_config,
+                        max_points=max_points, max_spans=max_spans, retry_errors=True, encoder_factory=encoder_factory, append=True)
+                    retry_totals.update({key: retried[key] for key in ('converted', 'resumed', 'errors')})
         previous = json.loads(active.read_text(encoding="utf-8")) if active.exists() else None
         reuse = previous and previous["request"] == request and (seed == previous["plan"]["seed"] if seed is not None else
             previous["status"] == "running" or retry_errors and previous["status"] == "retained-errors")
         if reuse:
             plan = previous["plan"]
             print(f"Resuming saved random selection (seed {plan['seed']})", file=sys.stderr, flush=True)
+        elif target_total:
+            from .growth import existing
+            plan = make_growth_plan(files, count, seed if seed is not None else secrets.randbits(63), existing(root), cache)
         elif all_records:
             plan = {"seed": seed if seed is not None else secrets.randbits(63), "requested": None, "selected": None,
                     "basis": "All records in selected category files", "groups": [
@@ -200,25 +305,36 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
         else:
             plan = make_plan(files, count, seed if seed is not None else secrets.randbits(63), cache)
         state = {"request": request, "plan": plan, "status": "running"}
+        if target_total:
+            print(f"Target {count}: retain {plan.get('retained', 0)} selected drawings; {plan['selected']} new selections in this batch", file=sys.stderr, flush=True)
         dataset._atomic_json(active, state)
         archive_plan = active.parent / f"sample-{datetime.now(timezone.utc):%Y%m%dT%H%M%S}-{uuid.uuid4().hex[:8]}.json"
         dataset._atomic_json(archive_plan, state)
         manifest["activeSample"] = str(active.relative_to(root))
         dataset._atomic_json(manifest_path, manifest)
-        totals = Counter(converted=0, resumed=0, errors=0)
+        totals = retry_totals
         for group in plan["groups"]:
             name, file = group["category"], Path(group["sourceFile"])
             print(f"Category {name}: " + ("all records" if all_records else f"{len(group['selected'])} randomly selected drawings"), file=sys.stderr, flush=True)
             records = ((f, line, original, name) for f, line, original, _ in dataset.source_records([file])) if all_records else read_group(group)
+            if retried_hashes:
+                records = (record for record in records if (record[3].casefold(), hashlib.sha256(record[2].encode()).hexdigest()) not in retried_hashes)
             result = dataset.convert(file, root / name, gojo_root, records=records, fit_config=fit_config,
-                                     max_points=max_points, max_spans=max_spans, retry_errors=retry_errors, encoder_factory=encoder_factory)
+                                     max_points=max_points, max_spans=max_spans, retry_errors=retry_errors, encoder_factory=encoder_factory, append=append)
             totals.update({key: result[key] for key in ("converted", "resumed", "errors")})
         from .selection import datasets
-        folders = datasets(root) if plan["groups"] else []
+        try:
+            folders = datasets(root)
+        except ValueError as error:
+            if not str(error).startswith('No generated datasets'):
+                raise
+            folders = []
         result = {"output": str(root), **totals, "storedRecords": sum(data.get("lastRun", {}).get("storedRecords", 0) for _, data in folders),
                   "storedErrors": sum(data.get("lastRun", {}).get("storedErrors", 0) for _, data in folders), "seed": plan["seed"],
-                  "selected": plan["selected"], "categories": [group["category"] for group in plan["groups"]],
+                  "selected": plan["selected"], "categories": [group["category"] for group in plan["groups"]], "sourceCategories": list(files),
                   "samplingBasis": plan["basis"], "selectionPlan": str(archive_plan), "synthesisGenerated": False}
+        if target_total:
+            result.update(targetTotal=count, selectionShortfall=plan.get('shortfall', 0))
         state["status"] = "retained-errors" if result["errors"] else "completed"
         dataset._atomic_json(active, state); dataset._atomic_json(archive_plan, state)
         manifest["lastRun"] = result | {"finishedUtc": datetime.now(timezone.utc).isoformat()}

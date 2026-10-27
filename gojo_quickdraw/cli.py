@@ -18,7 +18,7 @@ def parser():
     origin.add_argument("--input", type=Path)
     origin.add_argument("--dataset", type=Path)
     process.add_argument("--output", type=Path, required=True)
-    process.add_argument("--limit", type=int, required=True)
+    process.add_argument("--limit", type=int, required=True, help="Target total across selected categories; saved drawings count toward it")
     process.add_argument("--category", action="append")
     process.add_argument("--seed", type=int)
     process.add_argument("--workers", type=int, default=4)

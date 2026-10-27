@@ -80,14 +80,27 @@ committed entry remains an explicit read error.
 
 ## Convert drawings
 
-1. Use **New dataset** to choose a parent folder for a fresh destination, or edit
-   the shared Dataset folder path. A pipeline folder retains one random selection.
-   Repeating its request resumes/reuses it; use New dataset to change the source,
-   categories, count or seed.
+1. Open an existing pipeline dataset to add drawings, or use **New dataset**
+   for a separate collection. Existing converted drawings are preserved.
 2. In **Convert drawings**, choose the QuickDraw source folder or category file.
 3. Choose categories from the toggle-button dialog. Search, Select all and Clear
    all operate on the static 345-category catalog.
-4. Set **Total drawing count** and click **Convert up to N drawings**.
+4. Set **Target drawing total** and click **Create / extend to N drawings**.
+
+The target includes existing drawings in the selected categories. For example,
+100 saved churches and a target of 300 adds up to 200 new churches. Repeating
+300 resumes unfinished work or reuses completed records. A lower target removes
+nothing. If only angel is selected, a target of 300 applies to angels; saved
+churches remain in the folder. New additions favor the least represented selected
+categories. Duplicate source identities are skipped, and source exhaustion can
+leave the collection below its target. Retained failed selections occupy their
+slots; **Retry retained errors** retries their saved source without adding copies.
+
+New source files, categories, seeds and processing versions can supply additions
+to the same pipeline workspace. Existing evidence, stages and native archives
+are not rewritten; each processing version remains recorded. A new seed changes
+future additions, not already selected drawings. To reinterpret the same drawings
+with changed algorithms, use a separate completed dataset.
 
 The count always limits the selected records across all chosen categories; it is
 not a count per category. The old “Process every matching drawing” control has
@@ -142,8 +155,9 @@ in its original folder. These are authored proposals, not learned labels.
 Analysis options expose workers, retry and output location. The default output
 is beside the source dataset, with `-processed` appended. Opening an interrupted
 pipeline workspace restores its requested count; Complete pipeline follows its
-original source and selection. Use a fresh output path after changing analysis
-code; interrupted compatible analyses can resume their saved output.
+original source and current target. Growing a workspace keeps existing results
+across code changes; a fresh output path is still needed to reinterpret those
+same drawings with the new algorithms.
 
 ## Advanced tools and settings
 

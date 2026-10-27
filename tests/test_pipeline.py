@@ -41,8 +41,15 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(3, result["acquisition"]["resumed"])
             self.assertEqual(keys, analyze.call_args.kwargs["key_ids"])
             self.assertTrue(all(path.read_bytes() == value for path, value in before.items()))
-            with self.assertRaisesRegex(ValueError, "different selection"):
-                pipeline.run(self.output, GOJO, input_path=self.source, count=4, categories=["church"])
+            result = pipeline.run(self.output, GOJO, input_path=self.source, count=4, categories=["church"])
+            self.assertEqual(1, result['acquisition']['converted'])
+            self.assertEqual(4, len(analyze.call_args.kwargs['key_ids']))
+            self.assertTrue(set(keys).issubset(analyze.call_args.kwargs['key_ids']))
+            self.assertTrue(all(path.read_bytes() == value for path, value in before.items()))
+            self.assertTrue(analyze.call_args.kwargs['append'])
+            self.assertEqual(['church'], analyze.call_args.kwargs['categories'])
+            pipeline.run(self.output, GOJO, input_path=self.source, count=2, categories=['church'])
+            self.assertEqual(4, len(list(selection.selected_rows(self.output / 'acquired'))))
 
     def test_invalid_counts_and_source_overlap_fail_before_creating_workspace(self):
         for count in (None, 0, -1, True, 1.5):

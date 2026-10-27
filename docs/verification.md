@@ -484,10 +484,35 @@ remain reachable at 920×760. Screenshots of both joint views were inspected.
 
 See [the recorded report](../reports/joint-comparison-2026-10-27.json).
 
+## Extend an existing dataset — 27 October 2026
+
+Pipeline counts now describe a target across selected categories. Increasing
+the count adds missing source identities, repeating it resumes saved work, and
+lowering it leaves every existing drawing intact. Earlier processing versions
+remain recorded; additions do not overwrite completed evidence or native stages.
+
+A copy of an older nine-drawing dataset grew to twelve by adding exactly three.
+Repeating twelve added nothing; lowering the target deleted nothing. A later
+angel-only target added two more drawings without changing other categories.
+All 45 original compressed artifacts remained byte-identical, and all fourteen
+resulting native records passed independent restore and artifact-hash checks.
+
+Passed: 167 Python, 50 native, 32 desktop and 5,407 linked Gojo tests. Controls
+cover duplicate sources, exhaustion, category changes, interrupted additions,
+changed processing versions and retrying retained failures after growth. The
+desktop workflow also increased its count from nine to twelve through the
+conversion button, added three, verified unchanged original archives, and
+confirmed that a lower target preserves all twelve. A read-only startup audit
+opened the user's existing 100-drawing folder and checked the updated controls.
+
+See [the recorded report](../reports/dataset-growth-2026-10-27.json).
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The
 selection report makes this pilot identifiable; use your own QuickDraw files or the
 bundled synthetic controls as input. Keep generated datasets outside the checkout.
-After code or dependency changes, use a new dataset destination and compare through
-source correspondence instead of overwriting an earlier interpretation.
+To reinterpret existing drawings after code or dependency changes, use a new
+dataset destination and compare through source correspondence instead of
+overwriting an earlier interpretation. A pipeline dataset can still accept new
+drawings while preserving earlier artifacts and their processing versions.

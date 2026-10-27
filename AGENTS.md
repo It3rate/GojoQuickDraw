@@ -15,6 +15,9 @@ Desktop conversion runs the bounded `process` pipeline, retaining acquisition,
 fitted evidence, native construction rungs, area proposals and refinement.
 The CLI `sample`/`convert` commands still create baseline evidence; `analyze`
 and `stages` remain available independently. Perturbation probes are optional.
+Pipeline datasets can grow: the count is a target across selected categories,
+existing records count toward it, and lowering it never deletes data. Preserve
+completed artifacts across additions and keep each processing version inspectable.
 Never silently process the full QuickDraw corpus during development. Keep raw
 data and generated datasets outside this repository. Put temporary runs, QA
 folders, screenshots and logs under `D:/_quickDraw/_work`, never loose in

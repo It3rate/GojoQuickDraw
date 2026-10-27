@@ -80,6 +80,19 @@ internal sealed partial class MainWindow
             await Execute(PipelineAction.Setup); Require(Results[^1].Successful, "Tools did not recover after Stop.");
             await Execute(PipelineAction.Refresh);
             Require(Results[^1].Successful && File.Exists(Path.Combine(Workspace.InspectorFolder(_dataset.Text!), "comparison.html")), "Explicit optional browser export failed.");
+            var analyzed = _dataset.Text!;
+            var savedFiles = Directory.EnumerateFiles(baseline, "*.gz", SearchOption.AllDirectories)
+                .ToDictionary(path => path, path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
+            _dataset.Text = baseline; _limit.Value = 12;
+            await Execute(PipelineAction.Convert);
+            Require(Results[^1].Successful && _catalogTotal == 12 && Results[^1].Data!.Value.GetProperty("converted").GetInt32() == 3,
+                "Increasing the target did not add exactly three drawings.");
+            Require(savedFiles.All(file => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file.Key))) == file.Value),
+                "Growing the dataset rewrote an existing artifact.");
+            await Capture(Path.Combine(output, "extended-dataset.png"));
+            _limit.Value = 9; await Execute(PipelineAction.Convert);
+            Require(Results[^1].Successful && _catalogTotal == 12, "Lowering the target removed drawings.");
+            _dataset.Text = analyzed; await LoadCatalog();
             Width = 920; Height = 760; await Capture(Path.Combine(output, "compact.png"));
             await CheckBottomReachable(output);
         }
@@ -92,7 +105,8 @@ internal sealed partial class MainWindow
                 success = errors.Count == 0, errors, dataset = _dataset.Text,
                 jobs = Results.Select(result => new { result.ExitCode, result.Cancelled, result.Successful }),
                 nativeGalleryCards = _galleryCards.Count, finalShapePreviews = _pagePreviews.Values.Count(p => p.Cleanup.Length > 0),
-                conversionCount = 9, analysisCount = 2, status = _status.Text
+                conversionCount = 9, growthTarget = 12, growthAdded = 3, lowerTargetPreservesDrawings = errors.Count == 0,
+                analysisCount = 2, status = _status.Text
             }, new JsonSerializerOptions { WriteIndented = true }));
             _allowClose = true; Close();
         }

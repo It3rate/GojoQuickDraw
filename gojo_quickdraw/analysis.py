@@ -126,9 +126,11 @@ def _one(task):
         return {**row, "status": "error", "error": str(problem), "retainedSource": path.relative_to(folder).as_posix()}
 
 
-def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False, key_ids=None, execute_stages=False):
+def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False, key_ids=None, execute_stages=False,
+        append=False, categories=None):
     from .selection import datasets, selected_rows
     source, output, gojo_root = (Path(p).resolve() for p in (source, output, gojo_root))
+    wanted = {name.casefold() for name in categories} if categories is not None else None
     if source == output or source in output.parents or output in source.parents:
         raise ValueError("Analysis output must be separate from the baseline collection")
     if isinstance(workers, bool) or not isinstance(workers, int) or not 1 <= workers <= 8:
@@ -139,7 +141,8 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
         if isinstance(key_ids, (str, bytes)) or not key_ids or any(not isinstance(key, str) or not key for key in key_ids):
             raise ValueError("Key selection must contain nonempty source key strings")
         selected_keys = set(key_ids)
-        available = {row["keyId"] for _, row in selected_rows(source) if row["keyId"] in selected_keys}
+        available = {row["keyId"] for _, row in selected_rows(source) if row["keyId"] in selected_keys
+                     and (wanted is None or row.get('category', '').casefold() in wanted)}
         if available != selected_keys:
             raise ValueError("Selected source keys are absent: " + ", ".join(sorted(selected_keys - available)))
     else:
@@ -152,19 +155,25 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
     output.mkdir(parents=True, exist_ok=True)
     counters = Counter()
     with dataset._writer_lock(output), ExitStack() as stack:
+        from .growth import by_source, identity as source_identity, remember_revision
         collection_path = output / "collection.json"
+        existing = None
         if collection_path.exists():
             existing = json.loads(collection_path.read_text(encoding="utf-8"))
-            if existing.get("analysisFingerprint") != signature or existing.get("baseline") != str(source):
+            if existing.get('schema') != 'gojo.quickdraw-collection.v1' or (not append and
+                    (existing.get("analysisFingerprint") != signature or existing.get("baseline") != str(source))):
                 raise ValueError("Analysis implementation or baseline changed; choose a new output folder")
         elif any(output.iterdir()):
             # The writer lock itself is the only expected entry in a new folder.
             if any(p.name != ".convert.lock" for p in output.iterdir()):
                 raise ValueError("Choose an empty analysis output or resume an analysis collection")
-        collection = {"schema": "gojo.quickdraw-collection.v1", "kind": "derived-analysis", "baseline": str(source),
+        collection = existing if append and existing else {"schema": "gojo.quickdraw-collection.v1", "kind": "derived-analysis", "baseline": str(source),
                       "analysisFingerprint": signature, "implementation": implementation}
+        if append:
+            remember_revision(collection, signature, {'implementation': implementation, 'baseline': str(source)}, 'analysisFingerprint')
+            collection['baselineSources'] = sorted(set(collection.get('baselineSources', [collection['baseline']])) | {str(source)})
         dataset._atomic_json(collection_path, collection)
-        indexes, journals, manifests = {}, {}, {}
+        indexes, journals, manifests, retained = {}, {}, {}, {}
 
         def prepare(category, baseline_folder):
             if not category or category in (".", "..") or category[-1:] in (".", " ") or any(c in category for c in '\\/:*?"<>|') or any(ord(c) < 32 for c in category):
@@ -180,18 +189,30 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
                         "config": config, "analysisFingerprint": signature, "baseline": str(source), "category": category}
             if (folder / "manifest.json").exists():
                 prior = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
-                if prior.get("fingerprint") != signature or prior.get("category") != category:
+                if prior.get('schema') != dataset.SCHEMA or prior.get("category") != category or not append and prior.get("fingerprint") != signature:
                     raise ValueError("Analysis category folder has incompatible provenance")
+                if append:
+                    manifest = prior
+            if append:
+                remember_revision(manifest, signature, {'implementation': implementation, 'baseline': str(source), 'config': config})
             indexes[folder] = stack.enter_context(dataset._index(folder, repair_tail=True))
+            retained[folder] = by_source(indexes[folder].values()) if append else {}
             journals[folder] = stack.enter_context((folder / "index.ndjson").open("a", encoding="utf-8", newline="\n"))
             manifests[folder] = manifest
             dataset._atomic_json(folder / "manifest.json", manifest)
             return folder
 
         def tasks():
-            for baseline_folder, stored in selected_rows(source, limit=limit if selected_keys is None else None):
+            seen = set()
+            for baseline_folder, stored in selected_rows(source):
+                if wanted is not None and stored.get('category', '').casefold() not in wanted:
+                    continue
                 if selected_keys is not None and stored["keyId"] not in selected_keys:
                     continue
+                selected_identity = source_identity(stored)
+                if append and selected_identity in seen:
+                    continue
+                seen.add(selected_identity)
                 if limit is not None and counters["matched"] >= limit:
                     break
                 counters["matched"] += 1
@@ -201,13 +222,15 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
                             "evidenceSha256": stored["evidenceSha256"], "nativeSha256": stored["nativeSha256"]}
                 identity = hashlib.sha256(dataset._canonical([baseline, signature, category]).encode()).hexdigest()[:40]
                 dataset.verify_row(baseline_folder, stored)
-                prior = indexes[folder].get(identity)
+                prior = retained[folder].get(source_identity(stored)) if append else indexes[folder].get(identity)
                 if prior and prior["status"] == "ok":
                     dataset.verify_row(folder, prior); counters["resumed"] += 1
                     continue
                 if prior and prior["status"] == "error" and not retry_errors:
                     counters["errors"] += 1
                     continue
+                if prior:
+                    identity = prior['itemId']
                 import gzip
                 with gzip.open(dataset._safe_path(baseline_folder, stored["evidencePath"]), "rt", encoding="utf-8") as stream:
                     packet = json.load(stream)
@@ -221,6 +244,7 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
             folder = Path(folder)
             journals[folder].write(dataset._canonical(row) + "\n"); journals[folder].flush()
             indexes[folder][row["itemId"]] = row
+            retained[folder][source_identity(row)] = row
             counters["converted" if row["status"] == "ok" else "errors"] += 1
             if row["status"] == "ok":
                 counters["passes"] += row["analysisPasses"]
@@ -243,6 +267,16 @@ def run(source, output, gojo_root, *, limit=None, workers=4, retry_errors=False,
             manifests[folder]["lastRun"] = {"storedRecords": counts["ok"], "storedErrors": counts["error"],
                                            "finishedUtc": datetime.now(timezone.utc).isoformat()}
             dataset._atomic_json(folder / "manifest.json", manifests[folder])
+        try:
+            all_folders = datasets(output)
+        except ValueError as error:
+            if not str(error).startswith('No generated datasets'):
+                raise
+            all_folders = []
+        for folder, _ in all_folders:
+            if folder not in indexes:
+                with dataset._index(folder) as saved:
+                    total.update(Counter(row['status'] for row in saved.values()))
         result = {"output": str(output), **dict(counters), "storedRecords": total["ok"], "storedErrors": total["error"],
                   "drawings": total["ok"], "workers": workers, "sourceUnchanged": True,
                   "executedStages": execute_stages,

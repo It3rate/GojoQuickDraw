@@ -145,7 +145,7 @@ internal sealed partial class MainWindow : Window
         var source = Row(_input, Button("File…", async () => await PickInput(false)), Button("Folder…", async () => await PickInput(true)));
         var options = new Grid { ColumnDefinitions = new ColumnDefinitions("*,180"), ColumnSpacing = 18 };
         options.Children.Add(Field("Source categories", _category, "Choose categories with toggle buttons, Select all, and Clear all."));
-        var count = Field("Total drawing count", _limit, "Total across all selected categories."); Grid.SetColumn(count, 1); options.Children.Add(count);
+        var count = Field("Target drawing total", _limit, "Across selected categories. Existing drawings count toward this total."); Grid.SetColumn(count, 1); options.Children.Add(count);
         var advanced = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*,*"), ColumnSpacing = 14 };
         advanced.Children.Add(Field("Fitting tolerance", _fit));
         var points = Field("Maximum points", _maxPoints); Grid.SetColumn(points, 1); advanced.Children.Add(points);
@@ -154,17 +154,17 @@ internal sealed partial class MainWindow : Window
         var summary = Text("", 14, true);
         void UpdateRequest()
         {
-            convert.Content = $"Convert up to {_limit.Value:N0} drawings";
+            convert.Content = $"Create / extend to {_limit.Value:N0} drawings";
             var categories = _sourceCategories.Count == 1 ? "1 category" : $"{_sourceCategories.Count:N0} categories";
-            summary.Text = $"Up to {_limit.Value:N0} drawings total from {categories} · run every available stage · open results in the viewer.";
+            summary.Text = $"Target: {_limit.Value:N0} drawings across {categories}. Keep saved drawings; run new ones through every available stage.";
         }
         _limit.ValueChanged += (_, _) => UpdateRequest(); _category.PropertyChanged += (_, e) => { if (e.Property == ContentControl.ContentProperty) UpdateRequest(); };
         UpdateRequest();
-        return Stack(14, Text("Create a dataset", 21, true),
-            Text("Choose the source files, categories and count. Drawings are sampled across those categories and saved into the dataset folder shown above."),
+        return Stack(14, Text("Create or extend a dataset", 21, true),
+            Text("Choose source files, categories and a target total. Raise the total to add drawings to the current dataset. Existing drawings are kept."),
             Card(Stack(12, Field("QuickDraw source folder or file", source, "Use the folder containing the category NDJSON / JSONL files, including gzip files."),
                 options, summary, convert,
-                Text("The count is always enforced. This folder retains one selection; choose New dataset to change the selection. Interrupted runs resume.", 12),
+                Text("For example: 100 saved + a target of 300 adds up to 200 new drawings. A lower target deletes nothing. Use New dataset for a separate collection; interrupted runs resume.", 12),
                 new Expander { Header = "Advanced conversion options", Content = Stack(12, _recursive, advanced,
                     Field("Sampling seed (optional)", _samplingSeed, "Leave blank for a new random selection; interrupted selections resume with the same settings."), _retry), HorizontalContentAlignment = HorizontalAlignment.Stretch })),
             Text("Every stage is saved: original → fitted outlines → long strokes → primitive shapes → joint and shape adjustments → reconstructed shapes. Full shape interpretation currently applies to churches; other categories retain their original and fitted evidence.", 13),

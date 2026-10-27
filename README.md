@@ -37,7 +37,7 @@ checkout at the commit in the lock.
 
 On Windows, double-click **`OpenQuickDraw.cmd`**. It builds and opens QuickDraw
 Studio. Choose a source file or folder, choose categories from the toggle-button
-dialog and set the total drawing count, then **Convert drawings**. The app opens
+dialog and set **Target drawing total**, then **Create / extend to N drawings**. The app opens
 the completed results in its built-in **View drawings** tab. The count always
 limits conversion; whole-corpus conversion is an explicit command-line option.
 
@@ -52,6 +52,12 @@ native construction and final church refinement. **Drawing stage** and the stage
 arrows show all ten church views, retaining the choice across pages. For an older
 converted folder, **Complete pipeline for existing drawings** adds the stages to
 a separate dataset with its own hard drawing count. See the [desktop guide](docs/desktop.md).
+
+Raise the target to grow an existing pipeline dataset: 100 saved churches with a
+target of 300 adds up to 200 new churches. Repeating the target resumes/reuses work;
+lowering it removes nothing. Selected categories share the target, while other
+categories stay untouched. Existing artifacts retain their processing version;
+new drawings use the current pipeline. Use **New dataset** for a separate collection.
 
 In both desktop gallery and enlarged view: **Left/Right** selects a drawing,
 **Shift+Left/Right** changes page, and **Up/Down** changes stage. Drawing navigation
@@ -126,7 +132,9 @@ python -m gojo_quickdraw process --input D:/_quickDraw/quickdraw --category chur
 python -m gojo_quickdraw process --dataset D:/_quickDraw/data/church3000 --limit 100 --output D:/_quickDraw/data/church100-completed
 ```
 
-A `process` dataset keeps one saved selection; repeat the same request to resume.
+A `process` dataset retains its selected drawings and can grow to a larger target.
+Repeat the same request to resume. Changed source/category/seed choices affect only
+new additions; use a fresh dataset to draw an independent sample.
 It retains `acquired` baseline data (for raw input), `results` with native evidence
 and per-drawing stage bundles, and `pipeline.json` with selection/progress. The
 viewer chooses the result branch without counting the baseline twice. All stages
@@ -175,7 +183,7 @@ python -m gojo_quickdraw review --dataset D:/_quickDraw/church-evidence-v1 --out
 - Invalid records are retained under `errors/`; subsequent records continue. The
   command exits with status 1 when selected errors remain. Use `--retry-errors` to
   retry them. Command/configuration failures return status 2.
-- Successful records are reused only after artifact hashes pass. The same output
+- For the standalone baseline `convert` command, successful records are reused only after artifact hashes pass. The same output
   accepts only the same converter content, linked Gojo source, and configuration.
   Use a new output after changes. A writer lock prevents simultaneous converters
   from writing the same dataset.

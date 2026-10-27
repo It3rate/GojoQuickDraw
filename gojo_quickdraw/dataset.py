@@ -275,7 +275,7 @@ def convert(input_path, output, gojo_root, **kwargs):
 
 
 def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recursive=False,
-            fit_config=None, max_points=20000, max_spans=256, retry_errors=False, encoder_factory=None, records=None):
+            fit_config=None, max_points=20000, max_spans=256, retry_errors=False, encoder_factory=None, records=None, append=False):
     """Append one verified source evidence record at a time. Resume by content."""
     gojo_root = activate(gojo_root)
     root = Path(output).resolve()
@@ -299,7 +299,7 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
         raise ValueError("A nonempty output without a dataset manifest is not a converter destination")
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if manifest.get("schema") != SCHEMA or manifest.get("fingerprint") != signature:
+        if manifest.get("schema") != SCHEMA or not append and manifest.get("fingerprint") != signature:
             raise ValueError("Dataset extraction version/configuration changed; choose a new output to retain the old interpretation")
     else:
         root.mkdir(parents=True, exist_ok=True)
@@ -316,7 +316,13 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
     counters = Counter(scanned=0, matched=0, converted=0, resumed=0, errors=0)
     wanted = {name.casefold() for name in (categories or [])}
     factory = encoder_factory or bridge.Encoder
+    from .growth import by_source, identity, remember_revision
+    if append:
+        remember_revision(manifest, signature, {"config": config, "upstream": upstream, "pipelineSourceSha256": implementation})
+        _atomic_json(manifest_path, manifest)
     with _index(root, repair_tail=True) as rows, factory(gojo_root, root / "native") as encoder, (root / "index.ndjson").open("a", encoding="utf-8", newline="\n") as index:
+        existing = by_source(rows.values()) if append else {}
+        failed_hashes = {(row['category'].casefold(), row['sourceSha256']): row for row in existing.values() if row['status'] == 'error'}
         for file, line_number, original, file_category in (records if records is not None else source_records(files)):
             if not original.strip():
                 continue
@@ -335,7 +341,10 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
             if limit is not None and counters["matched"] > limit:
                 counters["matched"] -= 1
                 break
-            prior = rows.get(item_id)
+            source_identity = identity({"category": category, "keyId": source.get("key_id"), "sourceSha256": raw_hash})
+            prior = existing.get(source_identity) if append else rows.get(item_id)
+            if append and prior is None:
+                prior = failed_hashes.get((category.casefold(), raw_hash))
             if prior and prior["status"] == "ok":
                 verify_row(root, prior)
                 counters["resumed"] += 1
@@ -343,8 +352,10 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
             if prior and prior["status"] == "error" and not retry_errors:
                 counters["errors"] += 1
                 continue
+            if prior:
+                item_id = prior["itemId"]  # Retry a retained failure, never duplicate its journal identity.
             row = {"itemId": item_id, "keyId": source.get("key_id"), "category": category,
-                   "sourceFile": str(file), "sourceLine": line_number, "sourceSha256": raw_hash}
+                   "sourceFile": str(file), "sourceLine": line_number, "sourceSha256": raw_hash, "extractionFingerprint": signature}
             try:
                 if error:
                     raise error
@@ -379,6 +390,8 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
             index.write(_canonical(row) + "\n")
             index.flush()
             rows[item_id] = row
+            existing[source_identity] = row
+            failed_hashes.pop((category.casefold(), raw_hash), None)
             if (counters["converted"] + counters["errors"]) % 10 == 0:
                 print(f"{counters['matched']} selected: {counters['converted']} converted, {counters['resumed']} reused, {counters['errors']} retained errors", file=sys.stderr)
         totals = Counter(row["status"] for row in rows.values())

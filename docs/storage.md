@@ -6,7 +6,7 @@ The desktop uses `process`, which requires a positive `--limit` and has no
 all-records override. It creates a `gojo.quickdraw-pipeline.v1` workspace:
 
 ```text
-pipeline.json                       fixed selection, seed, progress, last result
+pipeline.json                       current target, request history, seed, progress
 acquired/<category>/...              immutable fitted baseline from raw input
 results/collection.json              derived analysis provenance
 results/<category>/records/...       complete evidence packet and view caches
@@ -21,10 +21,30 @@ uses only `results` once it has a collection manifest, or `acquired` while initi
 conversion is pending. Opening the baseline explicitly remains possible. This
 prevents counting two representations of the same drawing as separate samples.
 
-The cohort and seed survive interruption, including a stop between acquisition
-and analysis. The exact selected successful source keys reach analysis; errors
-retain their raw source. A changed count/source/category/seed requires a new
-workspace. Native and evidence implementation fingerprints govern stage reuse.
+Each selected batch and seed survive interruption, including a stop between
+acquisition and analysis. Increasing the target retains the earlier acquisitions
+and selects only enough additional source identities to reach the total across
+the chosen categories. Other categories remain available. Repeating the target
+reuses work; lowering it never deletes records. Changed requests are retained in
+`requestHistory`; changed source/category/seed choices govern new additions.
+The raw and existing-dataset input modes stay separate.
+
+Sampling excludes retained category/key identities and exact source hashes,
+including failures. It uses bounded chunks of a random permutation, balancing
+additions toward the least represented selected categories. The saved batch is
+fixed before conversion begins. Exhaustion reports `selectionShortfall`; it does
+not silently exceed the target or repeat records. Failures keep their original
+source, occupy selection slots, and can be retried after later growth.
+
+Pipeline growth opts into append behavior at the acquisition and analysis
+boundaries. Completed archives are hash-verified and reused by acquisition
+membership even across code/configuration changes. This does not equate archive
+identities or replace their interpretations. New rows retain `extractionFingerprint`
+or `analysisFingerprint`; manifests retain the first version and a
+`processingVersions` registry of later versions. Failed records can recover under
+their existing journal identity. An analysis collection also retains its baseline
+sources. Standalone `convert`/`analyze` keep their stricter compatible-output
+contracts. Reinterpreting completed drawings still requires a separate output.
 
 Each `stages` bundle includes original/fitted views, seven executed construction
 rungs (the first is the fitted view), area proposals and final cleanup. Church

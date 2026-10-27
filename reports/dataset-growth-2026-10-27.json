@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-27",
+  "scope": "Extend existing pipeline datasets to a target total without replacing completed drawings",
+  "upstreamRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "checks": {
+    "pythonTests": 167,
+    "nativeTests": 50,
+    "desktopTests": 32,
+    "gojoTests": 5407,
+    "releaseBuildWarnings": 0,
+    "growthControls": [
+      "Exclude retained category/key identities and source hashes",
+      "Balance additions across selected categories",
+      "Retain unselected categories",
+      "Resume an interrupted saved selection",
+      "Keep completed artifacts across processing revisions",
+      "Record each processing revision without relabeling older records",
+      "Retain failures as selected slots and retry without duplicate identities",
+      "Report exhaustion without duplicating sources",
+      "Never delete records when lowering the target"
+    ],
+    "olderRealDataset": {
+      "originalDrawings": 9,
+      "target": 12,
+      "added": 3,
+      "resumed": 9,
+      "repeatedTargetAddsNothing": true,
+      "lowerTargetDeletesNothing": true,
+      "laterAngelTarget": 6,
+      "finalDrawings": 14,
+      "originalArtifactsUnchanged": 45,
+      "independentNativeRestores": 14,
+      "artifactHashesVerified": true
+    },
+    "desktopWorkflow": {
+      "initialDrawings": 9,
+      "growthTarget": 12,
+      "growthAdded": 3,
+      "originalArchivesUnchanged": true,
+      "lowerTargetPreservesDrawings": true,
+      "keyboardNavigation": true,
+      "stopRecovery": true,
+      "optionalHtmlExport": true
+    },
+    "userFolderReadOnlyAudit": {
+      "folder": "D:/_quickDraw/data/church3000",
+      "drawings": 100,
+      "firstPageRecords": 12,
+      "lastPageRecords": 4,
+      "viewerWorksWithoutPythonOrGojoPaths": true,
+      "conversionControlsVisuallyChecked": true
+    }
+  },
+  "qaFolder": "D:/_quickDraw/_work/qa/dataset-growth-2026-10-27",
+  "qualification": "Growth is enabled for pipeline workspaces. Standalone baseline convert/sample retain their existing behavior. Existing completed drawings are preserved rather than reinterpreted; use a separate output to compare processing changes. Raw-input and derived-copy workspace modes remain distinct. User drawings were inspected but not extended during verification."
+}
