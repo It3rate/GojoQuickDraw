@@ -267,6 +267,129 @@ Keep local geometric support and category-conditioned expectations separately
 inspectable when combining them. Automatic shape feedback and guaranteed
 convergence are not implemented by this first ranker.
 
+## Neighborhood repair extension
+
+This extension constructs and ranks local graph changes rather than relabelling
+independent line pairs. Its connected Gojo shape is:
+
+```text
+actual source profile / acquired endpoint references
+  -> working graph(frame, shared sites, ordered curve edges)
+  -> local focus(sites, incident edges, nearby joint/encounter reads, scale)
+  -> candidate(before graph, replacement bindings, target graph, trimmed spans)
+  -> native coarse feature reads -> external repair / line-shape opinions
+  -> structural admissibility + selected local application
+  -> after graph + source-interval correspondence + timeline + remainder
+```
+
+Shared target site identity establishes a connection. Coordinate equality alone
+does not. Splitting a bar preserves ordered source parameter spans with a shared
+cut; joining a stem exposes three edge endpoints and their far sites. Removed
+overshoot spans remain in the application residue. Model scores observe rather
+than mutate; applying a selected interpretation is a separate structural act.
+Existing source acquisition and step-10 interpretations remain unchanged.
+
+Neighborhood scale uses local incident reach, bounded nearest participants and
+an explicit ratio. It is not the longest line on the whole page. Line-shape
+and local-repair providers remain separate; the first integrator uses authored
+compatibility and movement limits, not a trained third network or a general
+convergence claim. Final-rendering targets are weak guidance only when all
+required rays have mapped source support within the selected neighborhood.
+
+This is now a separate opt-in `consolidate` pass, available in Studio's
+**Encoding → Neighborhood repair** mode. It never replaces the source dataset
+or the existing ten-stage church reconstruction. Both provider switches off
+preserves the exact initial graph identity. The earlier pairwise experiment is
+still selectable for comparison.
+
+### Scope and local response
+
+Each proposal starts with actual acquired endpoints/fitted curve profiles.
+Endpoints share a source site only when they reference the same acquired sample;
+equal coordinates alone remain separate. A local focus includes at most six
+nearest sites inside 10% of the longest selected incident span. Independent
+curve encounters also require their gap to fit 10% of the shorter participating
+span, limiting the reach of a long building edge into a small window.
+
+Candidates merge nearby sites, close endpoint/interior gaps, split crossing bars,
+trim short terminal overshoots, straighten a curve, or align almost continuing
+connected spans. Their output is a new graph of actual shared sites, ordered
+edges and retained source parameter intervals. Every T exposes three outgoing
+edges and their far endpoints. Active intervals cannot overlap on the same
+source/basis. A corner cannot acquire an unsupported arm by selecting a label.
+
+Two CPU categorical logistic providers inspect coarse native reads: 24 cells
+for a proposed repair and eight for line/curve interpretation. Their inputs
+include neighborhood endpoint/corner/T/X counts, branch degree, relative tail
+and gap reach, turn concentration, chord deviation and local source support.
+Coordinates, category names and final-rendering labels are not inference
+features. Fine coordinates still place the proposal, and numeric thresholds
+still define the coarse cells; this is **not yet a fully pre-numeric encoding**.
+Each cell retains its measured read, five actual partition cut locations, the
+coarse basis and finer remainder in native structure. Restore checks reject a
+grade that does not follow those cuts, even when it uses the correct axis.
+
+The authored integrator rejects unsupported branches, enclosure destruction,
+coincident same-direction branch collapse, excessive movement and substantial
+removal. It ranks admissible proposals with explicit movement/removal costs,
+uses a support threshold of 0.68, and leaves unfamiliar cells unresolved.
+Joint and line scores are dependent opinions, not multiplied probabilities.
+Each selected local application carries unaffected edges by identity; a stale
+overlapping proposal waits for the next pass. Two passes are the default, up to
+four are supported. This is bounded rewriting with a retained timeline, not
+native tension settlement or a convergence proof.
+
+All candidates and scores remain in the native archive. The portable and Studio
+viewers show the source fit and every completed pass, leading alternatives,
+blocked/stale/kept decisions, source profile references, removed intervals and
+far endpoint references. Geometry previews are projected from an independently
+restored native result. Native shared-site identity is stable across passes;
+new interpreted sites receive new identities and retain their source bindings.
+
+### Training and limits
+
+Known controls include gapped corners, T gaps and overruns, crossing lines,
+continuations, separate parallel strokes, smooth arches, clean corners, double
+overruns, fragmented and jogged Ts, and tiny terminal hooks. Four distortions
+share a template group; groups are split before training/validation/test.
+Model and epoch selection use validation only. Whole graph evaluation uses one
+case per held-out template, with targets consulted only after inference.
+
+Final church graphs provide *weak* targets only where every required ray has
+mapped source support in the neighborhood and an admissible candidate can
+actually realize that incidence. Added parts, missing rays, incompatible
+correspondences and ambiguous neighborhoods are skipped. Their accepted labels
+have weight 0.15; a validation-selected controlled-only baseline is retained as
+an alternative training trial. No inference request includes the final graph
+or its correspondences. These restrictions deliberately discard much of the
+available teacher signal rather than teach a two-branch patch an unsupported T.
+
+The first checkpoint uses 600 controlled neighborhoods and a read-only snapshot
+of 60 church drawings, with 146 learned weights across both providers. It is a
+local mechanism pilot. It has no learned church part hierarchy, rectangle/roof
+feedback, global symmetry correction, learned object boundaries, or trained
+third integrator. Curves can be preserved or straightened; the existing fitter
+supplies initial segmentation, and this pass does not yet learn arbitrary new
+bends or arcs. Radius choices, candidate families and compatibility limits remain
+authored. Synthetic agreement must not be read as human recognition accuracy.
+
+```powershell
+python -m gojo_quickdraw train-neighborhoods --dataset D:/_quickDraw/data/church3000 --output D:/_quickDraw/data/new-neighborhood-model --limit 60 --synthetic 600 --epochs 35 --seed 43
+python -m gojo_quickdraw consolidate --dataset D:/_quickDraw/data/church3000 --output D:/_quickDraw/data/new-neighborhood-encoding --model models/neighborhood-pilot-2026-10-27.json --limit 25 --seed 31
+```
+
+Use `--no-repair` or `--no-line` for ablations, or both for the unchanged control.
+Training and application require a new output folder. Saved reviews can be
+opened without Python or a Gojo checkout. Raw data and generated native archives
+remain outside Git; the small model and verification summary are versioned.
+
+The next useful supervision is a small reviewed set of real local **edits**:
+the intended branch bindings, tails to retain/remove, straight/curve decisions,
+and explicit non-matches. Then add rectangle/part candidates with their expected
+corner ports as another evidence provider. A learned third integrator should
+follow once candidate interactions and counterexamples can be tested; adding it
+now would mainly learn the current authored integrator's decisions.
+
 ## Research reading
 
 These are relevant precedents, not claims that Gojo implements their inference

@@ -94,6 +94,16 @@ reads, connected candidate constructions, learned opinions and a patch review.
 It does not rerun conversion or automatically alter church shapes. Saved model
 runs reopen from the same tab. See [the first model and results](docs/local-joint-model.md).
 
+**Neighborhood repair** is the newer default training/encoding experiment. Two
+small providers score actual local connection/trim changes and line/curve
+interpretation. In **Encoding**, choose the neighborhood model bundle and check
+either provider; uncheck both for an unchanged control. The comparison shows the
+source fit and each completed repair pass. Hover joints for real edge and far
+endpoint references; expand decisions for alternatives and removed intervals.
+The earlier pairwise joint-only mode remains available. The bundled neighborhood
+model is a small pilot, with authored compatibility gates and sparse weak church
+supervision; it does not yet learn whole church reconstruction.
+
 ```powershell
 python -m gojo_quickdraw train --dataset D:/_quickDraw/data/church3000 --limit 300 --synthetic 2500 --epochs 35 --output D:/_quickDraw/data/church3000-models/new-run
 ```

@@ -4,7 +4,10 @@ using GojoQuickDraw.Reads;
 namespace GojoQuickDraw.Desktop;
 
 public sealed record EncodingDrawing(string SourceKey,string Category,double[][][] Strokes,JointNode[] Baseline,JointNode[] Selected,
-    EncodingPatch[] Patches,string[] Uncovered,string BaselineArchive,string SelectedArchive,bool PatchLimitReached);
+    EncodingPatch[] Patches,string[] Uncovered,string BaselineArchive,string SelectedArchive,bool PatchLimitReached,
+    NeighborhoodStage[]? Stages=null,JsonElement[]? Decisions=null,int Accepted=0);
+public sealed record NeighborhoodStage(string Title,NeighborhoodGraphView Graph);
+public sealed record NeighborhoodGraphView(double[][][] Curves,JointNode[] Joints);
 public sealed record EncodingPatch(string Id,string[] Profiles,string[] Baseline,string[] BaselineKinds,EncodingCandidate[] Candidates,
     int[] Ranking,int? Proposed,string Status,double[] Encounter,bool Changed,double[][][]? Runs=null);
 public sealed record EncodingCandidate(string Kind,double Score,double[][] Points,int[][] Segments,double[] Directions);
@@ -25,7 +28,7 @@ public static class EncodingWorkspace
     public static EncodingRun Open(string folder)
     {
         using var document=JsonDocument.Parse(File.ReadAllText(Path.Combine(folder,"encoding.json")));var data=document.RootElement;
-        if(data.GetProperty("schema").GetString()!="gojo.paired-joint-encoding.v1" || data.GetProperty("status").GetString()!="completed")
+        if(data.GetProperty("schema").GetString() is not ("gojo.paired-joint-encoding.v1" or "gojo.neighborhood-consolidation.v1") || data.GetProperty("status").GetString()!="completed")
             throw new InvalidDataException("Choose a completed paired encoding run.");
         var items=JsonSerializer.Deserialize<EncodingItem[]>(data.GetProperty("drawings"),Json) ?? [];
         foreach(var item in items)_=Artifact(folder,item.Path);
@@ -35,7 +38,17 @@ public static class EncodingWorkspace
     }
     public static EncodingDrawing Drawing(EncodingRun run,int index)
     {
-        var drawing=JsonSerializer.Deserialize<EncodingDrawing>(File.ReadAllText(Artifact(run.Folder,run.Drawings[index].Path)),Json)
+        var text=File.ReadAllText(Artifact(run.Folder,run.Drawings[index].Path));
+        using var document=JsonDocument.Parse(text);var data=document.RootElement;
+        if(data.TryGetProperty("stages",out var stages))
+        {
+            var parsed=JsonSerializer.Deserialize<NeighborhoodStage[]>(stages,Json)!;
+            var archive=data.GetProperty("nativeArchive").GetString()!;_=Artifact(run.Folder,archive);
+            return new(data.GetProperty("sourceKey").GetString()!,data.GetProperty("category").GetString()!,JsonSerializer.Deserialize<double[][][]>(data.GetProperty("strokes"),Json)!,
+                parsed[0].Graph.Joints,parsed[^1].Graph.Joints,[],[],archive,archive,false,parsed,
+                data.GetProperty("decisions").EnumerateArray().Select(e=>e.Clone()).ToArray(),data.GetProperty("accepted").GetInt32());
+        }
+        var drawing=JsonSerializer.Deserialize<EncodingDrawing>(text,Json)
             ?? throw new InvalidDataException("Unreadable paired drawing projection.");
         _=Artifact(run.Folder,drawing.BaselineArchive);_=Artifact(run.Folder,drawing.SelectedArchive);
         return drawing;

@@ -193,6 +193,24 @@ same drawings with the new algorithms.
 
 ## Advanced tools and settings
 
+**Train model** defaults to neighborhood repair plus line/curve models, with a
+bounded read-only source snapshot and grouped controlled examples. The earlier
+pairwise ranker remains an option. **Encoding → Neighborhood repair** uses the
+saved two-provider bundle. Independent switches enable repair and line
+interpretation; both unchecked retain the source graph unchanged.
+
+The Encoding gallery shows 12 source/result pairs per page. Select a pass above
+the gallery or enlarge a drawing. Its pass selector and Up/Down keys show the
+actual saved intermediate graphs. Left/Right moves between drawings;
+Shift+Left/Right moves by a page while retaining the pass. Hover a joint for
+its connected edges and far endpoints. Local decisions expose leading
+alternatives, blocked/stale proposals, source intervals and trimmed residue.
+Settings collapse after results load. A saved neighborhood run can also be
+opened directly with the dataset folder picker, without Python or Gojo installed.
+The portable review is an optional export of the same independently restored
+native graph readbacks. This experimental pass does not replace conversion's
+existing church stages or automatically learn church/category rules.
+
 The main workflows are View and Convert. Optional tools are grouped below them:
 
 - **Verify saved archives** checks hashes and independently restores native Gojo

@@ -12,7 +12,8 @@ public sealed record PipelineOptions(string Repository, string Python, string Go
     string InspectionOrder = "category", long InspectionSeed = 0, long? SamplingSeed = null,
     int Offset = 0, int Workers = 4, string? AnalysisOutput = null, string Recognition = "all",
     int TrainingSynthetic = 2500, int TrainingEpochs = 35, long TrainingSeed = 31, string? TrainingOutput = null,
-    IReadOnlyList<string>? EncodingModels = null, string? EncodingOutput = null, int EncodingPatches = 128);
+    IReadOnlyList<string>? EncodingModels = null, string? EncodingOutput = null, int EncodingPatches = 128,
+    bool TrainingNeighborhoods = false, bool EncodingNeighborhoods = false, bool EncodingRepair = true, bool EncodingLine = true);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -41,15 +42,21 @@ public static class Pipeline
         switch (action)
         {
             case PipelineAction.Encode:
-                arguments.Add("encode"); Dataset();
+                arguments.Add(options.EncodingNeighborhoods?"consolidate":"encode"); Dataset();
                 var encodingOutput=string.IsNullOrWhiteSpace(options.EncodingOutput) ? Workspace.EncodingFolder(options.Dataset) : Path.GetFullPath(options.EncodingOutput);
-                arguments.AddRange(["--output",encodingOutput,"--limit",options.Limit.ToString(),"--max-patches",options.EncodingPatches.ToString(),
+                arguments.AddRange(["--output",encodingOutput,"--limit",options.Limit.ToString(),options.EncodingNeighborhoods?"--max-candidates":"--max-patches",options.EncodingPatches.ToString(),
                     "--seed",options.TrainingSeed.ToString(CultureInfo.InvariantCulture),"--recognition",options.Recognition]);
                 foreach(var model in options.EncodingModels ?? [])arguments.AddRange(["--model",Path.GetFullPath(model)]);
+                if(options.EncodingNeighborhoods)
+                {
+                    if(options.EncodingModels?.Count!=1)throw new ArgumentException("Choose the neighborhood repair / line model bundle.");
+                    if(!options.EncodingRepair)arguments.Add("--no-repair");
+                    if(!options.EncodingLine)arguments.Add("--no-line");
+                }
                 artifact=Path.Combine(encodingOutput,"report.html");
                 break;
             case PipelineAction.Train:
-                arguments.Add("train"); Dataset();
+                arguments.Add(options.TrainingNeighborhoods?"train-neighborhoods":"train"); Dataset();
                 var modelOutput=string.IsNullOrWhiteSpace(options.TrainingOutput) ? Workspace.ModelFolder(options.Dataset) : Path.GetFullPath(options.TrainingOutput);
                 arguments.AddRange(["--output",modelOutput,"--limit",options.Limit.ToString(),"--synthetic",options.TrainingSynthetic.ToString(),
                     "--epochs",options.TrainingEpochs.ToString(),"--seed",options.TrainingSeed.ToString(CultureInfo.InvariantCulture),"--recognition",options.Recognition]);

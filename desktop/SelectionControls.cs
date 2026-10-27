@@ -110,7 +110,7 @@ internal sealed partial class MainWindow
             try
             {
                 using var saved=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(root,"encoding.json")));
-                if(saved.RootElement.GetProperty("schema").GetString()=="gojo.paired-joint-encoding.v1")
+                if(saved.RootElement.GetProperty("schema").GetString() is "gojo.paired-joint-encoding.v1" or "gojo.neighborhood-consolidation.v1")
                 {
                     var source=saved.RootElement.GetProperty("source").GetString()!;
                     if(Path.GetFullPath(source).Equals(Path.GetFullPath(root),StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("An encoding run cannot be its own source drawings folder.");

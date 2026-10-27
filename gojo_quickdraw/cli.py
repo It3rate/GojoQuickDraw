@@ -115,6 +115,25 @@ def parser():
     encoding.add_argument("--max-patches", type=int, default=128)
     encoding.add_argument("--seed", type=int, default=31)
     encoding.add_argument("--recognition", choices=MODES, default="all")
+    neighborhood = commands.add_parser("train-neighborhoods", help="Train local graph-repair and line/curve providers")
+    neighborhood.add_argument("--dataset",type=Path,required=True)
+    neighborhood.add_argument("--output",type=Path,required=True)
+    neighborhood.add_argument("--limit",type=int,default=60)
+    neighborhood.add_argument("--synthetic",type=int,default=1800)
+    neighborhood.add_argument("--epochs",type=int,default=35)
+    neighborhood.add_argument("--seed",type=int,default=43)
+    neighborhood.add_argument("--recognition",choices=MODES,default="all")
+    consolidate=commands.add_parser("consolidate",help="Apply source-local neighborhood repairs and preserve changed graphs")
+    consolidate.add_argument("--dataset",type=Path,required=True)
+    consolidate.add_argument("--output",type=Path,required=True)
+    consolidate.add_argument("--model",type=Path,required=True)
+    consolidate.add_argument("--limit",type=int,default=25)
+    consolidate.add_argument("--max-candidates",type=int,default=192)
+    consolidate.add_argument("--passes",type=int,default=2)
+    consolidate.add_argument("--seed",type=int,default=43)
+    consolidate.add_argument("--recognition",choices=MODES,default="all")
+    consolidate.add_argument("--no-repair",action="store_true")
+    consolidate.add_argument("--no-line",action="store_true")
     commands.add_parser("doctor", help="Check linked revision and build the native bridge")
     return p
 
@@ -183,6 +202,13 @@ def main(argv=None):
                 raise ValueError("Choose a new probe output to retain earlier results")
             args.output.parent.mkdir(parents=True, exist_ok=True)
             dataset._atomic_json(args.output, result)
+        elif args.command == "train-neighborhoods":
+            from .neighborhood_training import run
+            result=run(args.dataset,args.output,root,limit=args.limit,synthetic=args.synthetic,epochs=args.epochs,seed=args.seed,recognition=args.recognition)
+        elif args.command == "consolidate":
+            from .consolidation import run
+            result=run(args.dataset,args.output,root,model=args.model,limit=args.limit,max_candidates=args.max_candidates,passes=args.passes,
+                       seed=args.seed,recognition=args.recognition,use_repair=not args.no_repair,use_line=not args.no_line)
         elif args.command == "encode":
             from .encoding import run
             result = run(args.dataset, args.output, root, models=args.model, limit=args.limit,

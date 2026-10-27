@@ -208,6 +208,18 @@ public sealed class PipelineTests : IDisposable
     }
 
     [Fact]
+    public void NeighborhoodProvidersUseBoundedGraphCommandsAndIndependentSwitches()
+    {
+        var model=Path.Combine(_root,"model.json");
+        var options=Options with {EncodingNeighborhoods=true,EncodingModels=new[]{model},EncodingRepair=false,EncodingLine=true};
+        var args=Pipeline.Plan(PipelineAction.Encode,options).Arguments.ToList();
+        Assert.Contains("consolidate",args);Assert.Contains("--no-repair",args);Assert.DoesNotContain("--no-line",args);
+        Assert.Contains("--max-candidates",args);Assert.DoesNotContain("--max-patches",args);
+        Assert.Throws<ArgumentException>(()=>Pipeline.Plan(PipelineAction.Encode,options with {EncodingModels=[]}));
+        Assert.Contains("train-neighborhoods",Pipeline.Plan(PipelineAction.Train,Options with {TrainingNeighborhoods=true}).Arguments);
+    }
+
+    [Fact]
     public async Task StoppingWorkerTerminatesItsChildAndAllowsNextRun()
     {
         var script = Path.Combine(_root, "parent.py");

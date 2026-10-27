@@ -1,0 +1,103 @@
+{
+  "schema": "gojo.neighborhood-checkpoint.v1",
+  "date": "2026-10-27",
+  "training": {
+    "sourceDrawings": 60,
+    "controlledNeighborhoods": 600,
+    "lineExamples": 1600,
+    "repairExamples": 1672,
+    "weakRepairExamples": 34,
+    "weakGoals": 133,
+    "unmappedOrIncompleteFinalJointsSkipped": 482,
+    "unsupportedWeakCandidatesSkipped": 0,
+    "ambiguousWeakCandidatesSkipped": 0,
+    "lineTest": {
+      "examples": 146,
+      "agreement": 1.0,
+      "crossEntropy": 0.0018213071440365586,
+      "proposalCoverage": 0.8493150684931506,
+      "precisionWhenProposed": 1.0
+    },
+    "repairTest": {
+      "examples": 209,
+      "agreement": 0.9808612440191388,
+      "crossEntropy": 0.05569670321425586,
+      "proposalCoverage": 0.5167464114832536,
+      "precisionWhenProposed": 1.0
+    },
+    "realWeakTest": {
+      "examples": 3,
+      "agreement": 0.0,
+      "crossEntropy": 2.080062756938602,
+      "proposalCoverage": 0.0,
+      "precisionWhenProposed": null
+    },
+    "graphTest": {
+      "examples": 21,
+      "improved": 14,
+      "worsened": 0,
+      "unchanged": 7,
+      "independentTemplates": 21,
+      "neededRepair": 14,
+      "correctlyUnchanged": 7
+    },
+    "parameterCount": 146,
+    "modelSha256": "e70e385e51ba10f6de48ea690bd533a4c9e3af7458ffe87e8fc454ee02ffbede",
+    "totalSeconds": 41.59326009999495,
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+      "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+      "matchesPinnedRevision": false,
+      "sourceSha256": "2b279085e3767437f077ecf98625216703602027330f037cabf05eac2fd8741d",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    },
+    "adapter": {
+      "sha256": "fb352a2818c30d8fc5d73b594b912bf74ec07d77cdc141673f318ff7582a90db",
+      "files": 17,
+      "basis": "Exact adapter source bytes and ordered relative paths; build outputs excluded"
+    }
+  },
+  "trainingRun": "D:\\_quickDraw\\data\\church3000-models\\neighborhoods-2026-10-27-v7",
+  "encodingRun": "D:\\_quickDraw\\data\\church3000-encodings\\neighborhoods-2026-10-27-v5",
+  "encoding": {
+    "sourceDrawings": 25,
+    "changedPatches": 199,
+    "localPatches": 504,
+    "unresolved": 305,
+    "totalSeconds": 35.6681152000092,
+    "sourceOutcomesUsedAtInference": false,
+    "nativeRestoresVerified": true
+  },
+  "checks": {
+    "python": 205,
+    "desktop": 38,
+    "native": 50,
+    "learning": 21,
+    "linkedGojo": 5407,
+    "freshRealDrawingsConvertedAndIndependentlyRestored": 2,
+    "unchangedControlDrawings": 4,
+    "unchangedControlReadbacksIdentical": true,
+    "repairOnlyAppliedChangesOnFourDrawings": 16,
+    "lineOnlyAppliedChangesOnFourDrawings": 23,
+    "providerWeightsEqualToAblationWeights": true,
+    "nativePartitionCutsAndFalseGradeRejection": true,
+    "adapterFingerprintMatchesCurrentSource": true,
+    "modelFileHashMatches": true,
+    "desktopColdStartWithoutPythonOrGojo": true,
+    "portableReview": {
+      "total": 25,
+      "errors": [],
+      "requests": [],
+      "preservedStage": "2",
+      "actualGraphPaths": true
+    }
+  },
+  "earlierRoofCornerCase": {
+    "sourceKey": "4866133544927232",
+    "twoRoofCornersRemain": "L",
+    "appliedLocalChanges": 8
+  },
+  "qualification": "Controlled local mechanism pilot, not human accuracy or learned whole-church reconstruction. Three weak held-out candidate labels from one acquisition were all missed and stayed below proposal threshold. 199 applied real local edits are not 199 verified corrections. Source acquisitions and the existing ten church stages remain unchanged. Fine placement and authored partition cuts remain numeric; native structure preserves fine and coarse reads, source spans, bindings, alternatives and the local timeline."
+}

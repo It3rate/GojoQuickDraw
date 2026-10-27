@@ -40,6 +40,16 @@ Unchecked providers must retain an identical baseline. Do not count provider
 outputs or repeated routes from one acquisition as independent observations.
 The church shape stages and source dataset are unchanged by this experiment.
 
+`train-neighborhoods` and `consolidate` extend this with separate repair/line
+providers and actual source-local graph replacements. Preserve shared target
+site identity, non-overlapping source intervals, removed participation and the
+application timeline. Use explicit reference identity when selecting participants;
+structural equality is a different read and can recursively traverse history.
+Both providers unchecked must preserve the original graph identity. Train only
+on grouped controls or complete source-supported weak targets; final church
+interpretations must never enter inference features or proposal selection.
+The integrator is authored bounded rewriting, not general tension settlement.
+
 Work on `master` and push completed verified checkpoints to `It3rate/GojoQuickDraw`.
 Do not publish the website without the user's milestone authorization.
 

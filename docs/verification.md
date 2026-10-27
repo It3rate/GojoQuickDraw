@@ -628,6 +628,46 @@ the first page, one on the last page, patch selection, three alternatives,
 drawing navigation and zero JavaScript errors. Native and browser screenshots
 were visually inspected. Original drawing datasets were read-only throughout.
 
+## Neighborhood repair — 27 October 2026
+
+The new experiment changes a separate source-linked graph through bounded
+local merges, connections, splits, trims and line interpretation. Two small
+providers read native coarse cells; an authored integrator preserves source
+support, enclosures, local bounds and the application timeline. Actual partition
+cuts and finer remainders are stored, and inconsistent grades are rejected.
+
+Passed: 205 Python tests, 38 desktop tests, 50 native tests, 21 learning tests,
+and all 5,407 linked Gojo tests. Two fresh real churches ran through the full
+pipeline and independent hash/native-restore verification. Native checks include
+three real far endpoints for a T, shared split cuts, retained trim intervals,
+same-coordinate distinct identities, disjoint active source intervals, blocked
+parallel collapse and zero-geometry proposals, unchanged-provider aliasing,
+timeline/source continuity and false coarse-grade rejection.
+
+Training used 600 controlled neighborhoods and 60 read-only church snapshots,
+producing 146 weights in 41.6 seconds on this machine. Held-out candidate
+agreement was 98.1% over 209 controlled candidate rows. Across 21 independent
+held-out complete templates, all 14 needing repair improved and seven clean
+controls stayed unchanged. These are known synthetic controls, not real-drawing
+recognition accuracy. Only 34 weak candidate labels survived from the church
+finals; all three held-out labels, from one acquisition, were missed and stayed
+below proposal threshold. Real transfer remains unproven.
+
+The 25-church comparison applied 199 local changes from 504 decision scopes in
+35.7 seconds. Those are applications, not confirmed corrections. Both roof
+corners in source `4866133544927232` remain L. Four unchecked controls retained
+identical source/result readbacks and zero changes. Separate four-drawing
+repair-only and line-only trials produced 16 and 23 applications. All result
+archives independently restored; their geometry previews came from the restored
+native graphs. Source records and the existing church stages were unchanged.
+
+Cold-start Studio viewing worked without Python or a Gojo path, with collapsed
+settings, saved model results, pass selection and paging. The portable review
+audit checked 12/12/1 drawings, the modal pass selector, drawing navigation,
+preserved passes, finite SVG geometry and zero JavaScript errors/network requests.
+Desktop and browser screenshots were visually inspected. See the
+[checkpoint data and limitations](../reports/neighborhood-model-2026-10-27.json).
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

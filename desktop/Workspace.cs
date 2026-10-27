@@ -22,6 +22,9 @@ public sealed class WorkspaceSettings
     public string ResultStage { get; set; } = "";
     public string EncodingModel { get; set; } = "";
     public bool EncodingUseModel { get; set; } = true;
+    public string NeighborhoodModel { get; set; } = "";
+    public bool EncodingNeighborhoods { get; set; } = true;
+    public bool EncodingUseLine { get; set; } = true;
 
     public static string Repository()
     {

@@ -222,8 +222,9 @@ internal sealed partial class MainWindow : Window
             action is PipelineAction.Analyze or PipelineAction.Catalog or PipelineAction.Train or PipelineAction.Encode ? InspectionRecognition : Recognition.Modes[Math.Max(0, _recognition.SelectedIndex)],
             (int)_trainingSynthetic.Value!, (int)_trainingEpochs.Value!, (long)_trainingSeed.Value!,
             string.IsNullOrWhiteSpace(_trainingOutput.Text) ? Workspace.ModelFolder(_dataset.Text ?? "") : _trainingOutput.Text.Trim(),
-            _encodingUseModel.IsChecked==true ? [_encodingModel.Text?.Trim() ?? ""] : [],
-            string.IsNullOrWhiteSpace(_encodingOutput.Text) ? null : _encodingOutput.Text.Trim(), (int)_encodingPatches.Value!);
+            _encodingMode.SelectedIndex==0 ? [_encodingNeighborhoodModel.Text?.Trim() ?? ""] : _encodingUseModel.IsChecked==true ? [_encodingModel.Text?.Trim() ?? ""] : [],
+            string.IsNullOrWhiteSpace(_encodingOutput.Text) ? null : _encodingOutput.Text.Trim(), (int)_encodingPatches.Value!,
+            _trainingMode.SelectedIndex==0,_encodingMode.SelectedIndex==0,_encodingUseModel.IsChecked==true,_encodingUseLine.IsChecked==true);
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
@@ -298,8 +299,8 @@ internal sealed partial class MainWindow : Window
         PipelineAction.Gallery => "Building input / final comparisons…",
         PipelineAction.Refresh => "Refreshing the inspector and comparison gallery…",
         PipelineAction.Analyze => "Completing the drawing pipeline…",
-        PipelineAction.Train => "Training the local joint model…",
-        PipelineAction.Encode => "Comparing default and selected joint encodings…",
+        PipelineAction.Train => "Training the selected local models…",
+        PipelineAction.Encode => "Applying selected evidence providers…",
         PipelineAction.Setup => "Checking local tools…", _ => "Comparing machine responses…"
     };
 
@@ -309,7 +310,7 @@ internal sealed partial class MainWindow : Window
         int Count(string field) => data.TryGetProperty(field, out var value) ? value.GetInt32() : 0;
         return action switch
         {
-            PipelineAction.Train => $"Trained {Count("parameterCount")} weights from {Count("controlledPatches")} controls and {Count("sourceDrawings")} source drawings. Open the model review for held-out results.",
+            PipelineAction.Train => $"Trained {Count("parameterCount")} weights from {Count("sourceDrawings")} source drawings and controlled constructions. Open the model review for held-out results.",
             PipelineAction.Encode => $"{Count("sourceDrawings")} paired drawings · {Count("localPatches")} local opinions · {Count("changedPatches")} different / additional patch opinions. Inspect alternatives in Encoding.",
             PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings"
                 + (data.TryGetProperty("recognition", out var filter) && filter.GetString() != "all" ? $" · {Count("matchingAcquisitions")} match the recognition filter" : "")
@@ -425,6 +426,7 @@ internal sealed partial class MainWindow : Window
         _settings.ResultView = _resultView.SelectedIndex;
         _settings.ResultStage = ( _resultView.SelectedItem as StageOption)?.Id ?? "best";
         _settings.EncodingModel = _encodingModel.Text ?? ""; _settings.EncodingUseModel = _encodingUseModel.IsChecked==true;
+        _settings.NeighborhoodModel=_encodingNeighborhoodModel.Text ?? "";_settings.EncodingNeighborhoods=_encodingMode.SelectedIndex==0;_settings.EncodingUseLine=_encodingUseLine.IsChecked==true;
         try { _settings.Save(); } catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppendLog("Workspace settings could not be saved: " + error.Message); }
     }
     private void Open(string? path)

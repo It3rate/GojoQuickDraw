@@ -35,6 +35,17 @@ roles. These are learned opinions over source-linked reads; they do not replace
 the original joint annotations or automatically refine the drawing. Larger
 shape feedback and learned object/door-detail recognition remain **plan**.
 
+The newer opt-in **neighborhood repair** extension is **in** as a bounded local
+graph experiment: scale-aware site neighborhoods, joint/endpoint merge and
+endpoint/interior bindings, ordered source splits, short-tail residue,
+straight/curve opinions, continuing-span alignment, competing candidates and
+application timelines. Repaired Ts have three actual edges with far endpoints;
+source coordinate equality still does not establish identity. Two tiny learned
+providers work with authored compatibility gates. This can change a separate
+interpreted graph, without changing the source acquisition or existing church
+stages. Learned shape/category feedback, a learned integrator and general
+settlement remain **plan**. See [the extension and limits](docs/local-joint-model.md#neighborhood-repair-extension).
+
 ## 1. Acquisition and source
 
 | Evidence | Status | Scope |
