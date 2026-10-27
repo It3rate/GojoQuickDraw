@@ -12,7 +12,7 @@ import math
 
 COLORS = {"ground": "#63735f", "building": "#277da8", "tower": "#56729a", "roof": "#bf712a",
           "cross": "#ae3f6d", "cross-level": "#ae3f6d", "door": "#23846c", "window": "#8c68aa"}
-POLICY = {"version": "church-area-layout.v6", "learned": False, "maximumSamples": 2048,
+POLICY = {"version": "church-area-layout.v7", "learned": False, "maximumSamples": 2048,
           "maximumUprights": 16, "maximumDoors": 2, "maximumWindows": 8,
           "maximumRoofs": 6, "maximumCrosses": 6, "domePartitions": 32,
           "basis": "normalized observer page; down is a chosen church-upright premise",
@@ -208,8 +208,19 @@ def estimate(observed):
         return {"schema": "gojo.quickdraw-area-layout.v1", "sourceId": observed.get("sourceId"),
                 "parts": [], "relations": [], "alternatives": [], "status": "open-insufficient-area", "policy": deepcopy(POLICY)}
     from .layout_outlines import crosses as outline_crosses
+    from .layout_panes import enrich as pane_evidence
+    # Context for upper crossings must be available before treating all plus
+    # marks as church symbols. A bounded frame/divider proposal is independent
+    # of the later wall estimate; acquisition and raw crossing reads stay intact.
+    framed=[]
+    for region in _opening_regions(observed,scene,set()):
+        a,b,c,d=region['bounds']
+        if c-a<.60*sw and d-b<.50*sh:
+            candidate=pane_evidence(observed,region)
+            if candidate.get('panePattern'):framed.append(candidate)
+    divider_spans={sid for region in framed for field in ('verticalSpans','horizontalSpans') for sid in region['panePattern'][field]}
     outlines=outline_crosses(observed,scene)
-    cross_hints = [c for c in observed.get("crosses", []) if c["point"][1] < st+.68*sh] + outlines
+    cross_hints = [c for c in observed.get("crosses", []) if c["point"][1] < st+.68*sh and not set(c['spans'])<=divider_spans] + outlines
     cross_spans = {sid for c in cross_hints for sid in c["spans"]}
     uprights = _upright_regions(spans,cross_spans,scene)
     lower = [p for p in samples if p[1] >= st+.60*sh] or samples
@@ -269,6 +280,7 @@ def estimate(observed):
         if cap['shape']=='dome':cap['apex']=[round((cap['bounds'][0]+cap['bounds'][2])/2,3),cap['bounds'][1]]
     opening_regions = _opening_regions(observed,[l,top,r,g],cross_spans)
     for region in opening_regions:region.update(opening_shape(observed,region))
+    opening_regions=[pane_evidence(observed,region) for region in opening_regions]
     doors,windows=[],[]
     opening_regions.sort(key=lambda q: -(q['bounds'][2]-q['bounds'][0])*(q['bounds'][3]-q['bounds'][1]))
     for region in opening_regions:
@@ -351,7 +363,14 @@ def estimate(observed):
         part=add('tower',geo,tower['bounds'],tower['spans'],['layout-ground',building['id']],
                  extra={'lowerBoundary':'inferred-level','roofOptional':True,'apex':[round((a+c)/2,3),b]})
         marker_parents.append(part)
-    cross_markers,marker_reads=markers(observed,marker_parents,[l,top,r,g],scene,POLICY['maximumCrosses'],outlines=outlines)
+    accepted_dividers={sid for region in windows if region.get('panePattern')
+                       for field in ('verticalSpans','horizontalSpans') for sid in region['panePattern'][field]}
+    cross_markers,marker_reads=markers(observed,marker_parents,[l,top,r,g],scene,POLICY['maximumCrosses'],outlines=outlines,
+                                      excluded_spans=accepted_dividers)
+    # A possible frame outside the accepted opening area remains unresolved; it
+    # cannot erase the competing cross interpretation without a placed window.
+    marker_reads['enclosedDividerCandidates']=[{'bounds':c['bounds'],'spans':c['spans'],
+        'acceptedAsWindow':set(c['panePattern']['verticalSpans']+c['panePattern']['horizontalSpans'])<=accepted_dividers} for c in framed]
     for hint in cross_markers:
         parent=marker_parents[hint['roofIndex']] if hint['roofIndex'] is not None else building
         geo,bounds,placement=marker_geometry(observed,hint,parent,scene)
@@ -370,9 +389,11 @@ def estimate(observed):
             item=add(role,opening_geometry([a,b,c,d],region,ground_site if role=='door' else None),[a,b,c,d],region['spans'],
                 ['layout-ground',building['id']] if role=='door' else [building['id']],
                 extra={'sourceRegion':region['bounds'],'shape':region['shape'],'archFraction':region['archFraction'],'shapeCosts':region['shapeCosts'],
-                       'shapeReads':region['shapeReads']})
+                       'shapeReads':region['shapeReads'],**({'panePattern':region['panePattern']} if region.get('panePattern') else {})})
             item['comparisons']=[_comparison(region['shapeReads']['boundaryCost'],0,.105,'selected source to proposed opening perimeter'),
                                  _comparison(region['shapeReads']['boundaryCoverage'],1,.30,'source coverage of finite proposed perimeter')]
+            if region.get('panePattern'):
+                item['comparisons'].append(_comparison(region['panePattern']['orthogonalityResidual'],0,.5,'selected interior divider directions'))
             relate(item["id"]+"-inside-building",[building["id"],item["id"]],sum(max(0,v) for v in (l-a,top-b,c-r,d-g)))
             if role=="door":relate(item["id"]+"-on-ground",["layout-ground",item["id"]],d-g)
             else:relate(item["id"]+"-above-ground",["layout-ground",item["id"]],max(0,d-g))

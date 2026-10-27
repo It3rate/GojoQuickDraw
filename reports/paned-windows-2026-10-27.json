@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-27",
+  "scope": "Source-supported framed windows with crossing interior bars",
+  "projectBaseRevision": "afab56432b34cf55a83fe3af0f53b7eb46240abd",
+  "linkedGojoRevision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+  "layoutPolicy": "church-area-layout.v7",
+  "cleanupPolicy": "church-shape-cleanup.v5",
+  "dataset": {
+    "output": "D:/_quickDraw/data/church-paned-windows",
+    "analysisFingerprint": "8cdce5239404e5d32b440e8cc2ff86b5401294e9f709b970e9cf790ccbf29249",
+    "converterSourceFingerprint": "75ab0a165937636c3d8453e64577413483e6b69ba5208e7a590f49e986c12835",
+    "drawings": 3,
+    "errors": 0,
+    "nativeConstructionRungs": 21,
+    "inspectableStagesPerDrawing": 10,
+    "sourceJsonAndObservationUnchanged": true,
+    "sourceEvidenceHashesVerified": true,
+    "allNativeRestoresVerified": true,
+    "allBoundaryCoverageVerified": true,
+    "independentNativeRestoreKeys": ["5619141325094912", "6301423736193024", "4691249745362944"]
+  },
+  "reportedExample": {
+    "key": "5619141325094912",
+    "sourceSupportedPaneWindows": 2,
+    "separateChurchCrosses": 1,
+    "pointsPerWindow": 9,
+    "segmentsPerWindow": 12
+  },
+  "earlierCollectionReadOnlyComparison": {
+    "drawings": 100,
+    "roleShapeStatusCountsPreserved": true,
+    "additionalPaneGeometryKey": "6533177067700224",
+    "ambiguousUpperFrameKeepsCrossKey": "5479317200961536",
+    "qualification": "Authored proposals, not labeled object counts or accuracy measurements. Existing archives were not rewritten."
+  },
+  "tests": {
+    "pythonPassed": 161,
+    "nativePassed": 48,
+    "linkedGojoPassed": 5407,
+    "linkedGojoAssemblies": 12
+  },
+  "viewer": {
+    "savedFolderOpenedWithoutPythonOrGojo": true,
+    "drawings": 3,
+    "enlargedScreenshotInspected": true,
+    "qaFolder": "D:/_quickDraw/_work/qa/paned-windows-2026-10-27/release-viewer-final"
+  },
+  "limitations": [
+    "Authored geometric allowances rather than calibrated learned likelihoods.",
+    "Each divider currently needs a coherent fitted interval; fragmented or unusual patterns may be missed.",
+    "Upper frames outside the accepted facade can remain unresolved instead of becoming windows."
+  ],
+  "qaRoot": "D:/_quickDraw/_work/qa/paned-windows-2026-10-27"
+}

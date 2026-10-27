@@ -3,13 +3,15 @@ from __future__ import annotations
 import math
 
 
-def markers(observed, roofs, building, scene, maximum=6, outlines=None):
+def markers(observed, roofs, building, scene, maximum=6, outlines=None, excluded_spans=()):
     sh=scene[3]-scene[1]; sw=scene[2]-scene[0]
     if outlines is None:
         from .layout_outlines import crosses
         outlines=crosses(observed,scene)
-    hints=list(outlines)
+    excluded_spans=set(excluded_spans)
+    hints=[hint for hint in outlines if not set(hint['spans'])<=excluded_spans]
     for hint in observed.get('crosses',[]):
+        if set(hint['spans'])<=excluded_spans:continue
         if hint['point'][1]>scene[1]+.68*sh: continue
         if any(set(hint['spans']) & set(h['spans']) for h in outlines):continue
         if any(math.dist(hint['point'],h['point'])<.055*min(sw,sh) or set(hint['spans'])==set(h['spans']) for h in hints): continue
@@ -18,7 +20,7 @@ def markers(observed, roofs, building, scene, maximum=6, outlines=None):
     # A lone upright above a cap can support a partial cross hypothesis. Its
     # missing arm remains assumed; a diagonal roof tip is not this evidence.
     for span in observed['spans']:
-        if span['id'] in selected: continue
+        if span['id'] in selected or span['id'] in excluded_spans: continue
         a,b=span['controls'][0],span['controls'][-1]; top,bottom=sorted((a[1],b[1]))
         height=bottom-top; x=(a[0]+b[0])/2
         if not .065*sh<height<.4*sh or abs(a[0]-b[0])>.2*height: continue

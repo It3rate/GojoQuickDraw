@@ -368,6 +368,33 @@ The optional sixth native field retains actual selected part/site identities and
 signed displacement/mirror arithmetic. Three-, four- and five-field records
 remain readable. See [the native refinement contract](../CHURCH_SHAPE_CLEANUP.md).
 
+### Framed windows and interior dividers
+
+Layout v7 considers a rectangular frame plus two approximately crossing interior
+runs as one window candidate. This can support a partly open frame; stronger
+circular/arched perimeter evidence and bare crosses do not establish that pattern.
+These are authored geometric allowances, not learned or calibrated likelihoods.
+Multiple windows retain separate identities and their own source selections.
+An upper frame that cannot be placed as a window stays in the marker candidate
+reads with `acceptedAsWindow: false`; its competing drawn cross is not suppressed.
+Current divider detection needs one coherent fitted interval per direction.
+
+The proposed frame has four corners, four bar/frame contacts and one shared center.
+Twelve ordered segments join those nine native sites: eight perimeter segments and
+four bar segments. Each proposed T contact and the central crossing therefore have
+structural participation, not just coincident coordinates or a window label. This
+does not weld acquired samples; original strokes, gaps and crossing reads remain.
+The candidate references the wall and its selected source profiles. Frame and two
+divider boundary groups select their respective source intervals independently;
+missing target coverage remains implied. The `panePattern` adapter read explains
+the proposal's selection and measured offsets.
+
+Cleanup v5 centers the bars in the retained window bounds. Its correspondence links
+all nine sites to the earlier candidate, preserving the change from source-relative
+placement to regularized panes. Native capture/restore retains shared contacts,
+selected sources and container participation even without adapter labels. A second
+window with equal coordinates remains a distinct construction.
+
 ### Review pages
 
 `catalog --offset N --limit K` selects a lightweight page; actual latest journal

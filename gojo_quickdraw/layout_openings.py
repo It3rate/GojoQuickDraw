@@ -44,7 +44,7 @@ def _sample(path, step):
     return result
 
 
-def classify(observed, region):
+def classify(observed, region, *, rectangle_only=False):
     l,t,r,b=region['bounds']; width,height=r-l,b-t; scale=max(1,min(width,height))
     paths=source_paths(observed,region['spans'])
     edges=[(a,c) for path in paths for a,c in zip(path,path[1:])]
@@ -63,8 +63,8 @@ def classify(observed, region):
     arches=[(read(outline(region['bounds'],f*height)),f) for f in (.25,.4,.55)]
     (ac,av),fraction=min(arches,key=lambda item:item[0][0])
     ec,ev=read(ellipse(region['bounds']))
-    round_shape=ec+.012<min(rc,ac) and ec<.09 and ev>=.76
-    arch=ac+.004<rc and ac<.80*rc
+    round_shape=not rectangle_only and ec+.012<min(rc,ac) and ec<.09 and ev>=.76
+    arch=not rectangle_only and ac+.004<rc and ac<.80*rc
     shape=('circle' if .80<width/max(1,height)<1.25 else 'ellipse') if round_shape else 'arch' if arch else 'rectangle'
     path=ellipse(region['bounds']) if round_shape else outline(region['bounds'],fraction*height if arch else 0)
     cost,closed_coverage=read(path)
@@ -89,4 +89,17 @@ def geometry(bounds, shape, ground_site=None):
         result['boundaryGroups']=[{'name':'left side','segments':[0]},
             {'name':'arched head','segments':list(range(1,25))},
             {'name':'right side','segments':[25]},{'name':'base','segments':[26]}]
+    if shape['shape']=='rectangle' and shape.get('panePattern'):
+        pane=shape['panePattern'];fx,fy=pane['fractions'];x=l+(r-l)*fx;y=t+(b-t)*fy
+        # Four frame contacts and one shared center. The bars are divided at
+        # that same site, so they move with this window's construction frame.
+        points.extend([[l,y],[x,t],[r,y],[x,b],[x,y]])
+        result['siteSources'].extend([None]*5)
+        result['segments']=[[0,4],[4,1],[1,5],[5,2],[2,6],[6,3],[3,7],[7,0],[5,8],[8,7],[4,8],[8,6]]
+        result['boundaryGroups']=[
+            {'name':name,'segments':[2*i,2*i+1],'sourceSpans':pane['frameSpans']}
+            for i,name in enumerate(('left boundary','top boundary','right boundary','base boundary'))]
+        result['boundaryGroups'] += [
+            {'name':'vertical window divider','segments':[8,9],'sourceSpans':pane['verticalSpans']},
+            {'name':'horizontal window divider','segments':[10,11],'sourceSpans':pane['horizontalSpans']}]
     return result

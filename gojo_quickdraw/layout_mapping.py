@@ -77,6 +77,7 @@ def build(observed, layout):
         seed_orders=[by_span[s]['strokeIndex'] for s in seed if s in by_span]
         l,t,r,b=part['bounds']; allowance=max(5,.025*scale+.08*min(r-l,max(1,b-t)))
         for ordinal,group in enumerate(groups(part)):
+            group_seed=set(group.get('sourceSpans',seed))
             edges=[(geo['points'][geo['segments'][i][0]],geo['points'][geo['segments'][i][1]]) for i in group['segments']]
             lengths=[math.dist(a,b) for a,b in edges]; total=max(.001,sum(lengths)); offsets=[]; offset=0
             for length in lengths:offsets.append(offset);offset+=length
@@ -91,7 +92,7 @@ def build(observed, layout):
                     'reason':'Expected construction; no drawn interval is claimed.' if prior else 'Local boundary correspondence proposal.'}
             if not prior:
                 for span in spans:
-                    if role in ('cross','door','window') and span['id'] not in seed:continue
+                    if role in ('cross','door','window') and span['id'] not in group_seed:continue
                     pts=samples[span['id']]; hits=[]
                     order_gap=min((abs(span['strokeIndex']-i) for i in seed_orders),default=0)
                     for k,(p,q) in enumerate(zip(pts,pts[1:])):

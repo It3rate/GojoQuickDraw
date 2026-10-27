@@ -42,6 +42,9 @@ missing. Faint ink remains the original. Optional added doors, windows and cross
 are gray and dotted; drawing-supported parts retain their role colors. Drawn
 openings take precedence, including large circular windows. Missing windows are
 left absent; a suggested entrance is rectangular and needs strong facade support.
+Box-shaped windows with crossing interior bars retain those bars as part of each
+window. Several windows may be recognized independently; the refined view centers
+their dividers while the area view keeps their approximate source placement.
 
 Only the visible page's evidence files are loaded. A cached projection of the
 index provides page counts; there is no need to load all drawings or generate

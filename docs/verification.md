@@ -1,5 +1,34 @@
 # Verification checkpoints
 
+## Framed windows with crossing bars, 27 October 2026
+
+Layout v7 proposes a window from a rectangular frame plus crossing interior runs,
+including partly open or uneven frames. Frame and divider source intervals remain
+separate. Accepted pane bars no longer compete as church-cross markers. Unplaced
+upper frame candidates retain the competing cross and an explicit unresolved read.
+Cleanup v5 retains each window and centers its bars. Nine shared sites and twelve
+segments encode each window's perimeter, four T contacts and central crossing.
+
+The reported drawing `5619141325094912` now has two source-supported paned windows
+and its separate roof cross. Three real drawings were processed into
+`D:/_quickDraw/data/church-paned-windows`, with zero errors, 21 native construction
+rungs and all ten inspectable stages per drawing. Independent native restore and
+boundary coverage checks pass; original source JSON, observation and baseline file
+hashes are unchanged. The Release viewer opens the saved folder without Python or
+Gojo tools, and its enlarged result was visually inspected.
+
+161 Python, 48 native and 5,407 linked Gojo tests pass. Cases cover one through four windows, an
+uneven gapped frame, bare crosses, a circular frame, external crossing strokes,
+ambiguous upper frames, and divider-specific source mappings. The native test
+removes adapter labels and still reads shared center/frame sites, source profiles,
+container participation and separate instance identity. A read-only comparison on
+the earlier 100 drawings preserves role/shape/status counts and adds divider
+geometry to one previously supported window. These are proposal checks, not a
+labeled accuracy evaluation. Fragmented divider runs and windows outside the
+accepted facade can remain unresolved. QA is under
+`D:/_quickDraw/_work/qa/paned-windows-2026-10-27`; see
+[the checkpoint report](../reports/paned-windows-2026-10-27.json).
+
 ## Source-supported openings and viewer keys, 27 October 2026
 
 Layout v6 joins consecutive upright evidence when estimating the wall, compares

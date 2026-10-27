@@ -15,7 +15,7 @@ from .cleanup_foreground import wall_in_front, ground_support
 from .cleanup_openings import separate as separate_openings
 from .cleanup_checks import mirrors as mirror_checks
 
-POLICY = {'version':'church-shape-cleanup.v4','learned':False,
+POLICY = {'version':'church-shape-cleanup.v5','learned':False,
           'qualification':'Authored church expectations; not a learned likelihood or physical simulation.',
           'windowCountWhenAbsent':0,'sourceInkUnchanged':True,
           'openingAddition':'Rectangle entrance only with supported front facade, roof and cross, and an empty lower facade.'}
@@ -205,7 +205,8 @@ def build(observed, layout):
             x=_clamp(_center(window['bounds']),a+.04*(b-a)+ww/2,b-.04*(b-a)-ww/2)
             y=_clamp((window['bounds'][1]+window['bounds'][3])/2,pt+.06*(base-pt)+wh/2,base-.06*(base-pt)-wh/2)
             spec('window',[x-ww/2,y-wh/2,x+ww/2,y+wh/2],window,owner['id'],shape=window.get('shape','rectangle'),
-                 archFraction=window.get('archFraction',.35),reason=['Source-supported window retains its scale and outline within its enclosing wall.'])
+                 archFraction=window.get('archFraction',.35),reason=['Source-supported window retains its scale and outline within its enclosing wall.'],
+                 **({'panePattern':{**deepcopy(window['panePattern']),'fractions':[.5,.5]}} if window.get('panePattern') else {}))
     # Match a plausible pair inside the same wall; keep separate identities.
     wins=[s for s in specs if s['role']=='window']
     if (len(wins)==2 and wins[0]['parent']==wins[1]['parent'] and wins[0]['shape']==wins[1]['shape'] and
@@ -232,7 +233,7 @@ def build(observed, layout):
         a,pt,b,base=p['bounds'];shape=p['shape']
         if shape=='frame':geo={'points':[[a,pt],[b,pt],[b,base],[a,base]],'segments':[]}
         elif shape=='level':geo={'points':[[a,pt],[b,base]],'segments':[[0,1]]}
-        elif shape=='rectangle':geo=_ring([[a,pt],[b,pt],[b,base],[a,base]])
+        elif shape=='rectangle':geo=opening_geometry(p['bounds'],p) if p.get('panePattern') else _ring([[a,pt],[b,pt],[b,base],[a,base]])
         elif shape=='triangle':geo=_ring([[a,base],[(a+b)/2,pt],[b,base]])
         elif shape=='dome':geo=_ring([[round((a+b)/2-(b-a)/2*math.cos(i*math.pi/32),3),round(base-(base-pt)*math.sin(i*math.pi/32),3)] for i in range(33)])
         elif shape=='parallelogram':geo=_ring([[a,base],[a+p['shear'],pt],[b+p['shear'],pt],[b,base]])

@@ -92,6 +92,10 @@ reads. Crosses attached to peaks follow their revised peaks; the crossbar stays
 above halfway. Continuous foreground walls can remain whole below an upper tower.
 Drawn doors and windows keep their supported shape and scale; large round windows
 need not be smaller than doors. Missing windows are not filled with a default pair.
+Rectangular frames with an interior plus support individual paned-window proposals,
+including partly open frames. Their bars retain separate source interval mappings,
+join the proposed frame at shared sites, and survive final refinement. Dividers of
+accepted windows are excluded from church-cross proposals; raw crossing reads remain.
 Only a strongly supported empty front facade can receive an optional rectangular
 entrance. Doors and windows have a local clearance check; optional additions,
 including prior-only crosses, are light gray and dotted, while drawing-supported
