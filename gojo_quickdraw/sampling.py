@@ -71,6 +71,14 @@ def _stamp(path):
 
 
 def _cache_root():
+    configured = os.environ.get("GOJO_QUICKDRAW_CACHE")
+    if configured:
+        return Path(configured) / "source-index"
+    # Keep generated caches in this workspace's declared work area. In this
+    # Windows profile the redirected AppData path can reject atomic renames.
+    workspace = Path("D:/_quickDraw/_work")
+    if os.name == "nt" and workspace.is_dir():
+        return workspace / "cache" / "source-index"
     return Path(os.environ.get("LOCALAPPDATA", Path.home() / ".cache")) / "GojoQuickDraw" / "source-index"
 
 
@@ -277,9 +285,14 @@ def convert_collection(input_path, output, gojo_root, *, categories=None, count=
             if manifest.get("schema") != SCHEMA:
                 raise ValueError("Unsupported collection format")
         else:
-            if any(path.name != ".convert.lock" for path in root.iterdir()):
+            def empty_setup(path):
+                return path.name == "_sampling" and path.is_dir() and not path.is_symlink() and not any(path.iterdir())
+            if any(path.name != ".convert.lock" and not empty_setup(path) for path in root.iterdir()):
                 raise ValueError("Choose a new collection folder, or an existing QuickDraw collection")
             manifest = {"schema": SCHEMA, "createdUtc": datetime.now(timezone.utc).isoformat(), "layout": "one native evidence dataset per category folder"}
+            # Establish ownership before long indexing, so interruption can
+            # resume an empty collection without treating its setup as foreign.
+            dataset._atomic_json(manifest_path, manifest)
         active = root / "_sampling" / "active.json"
         active.parent.mkdir(exist_ok=True)
         retry_totals = Counter(converted=0, resumed=0, errors=0)

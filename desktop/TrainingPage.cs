@@ -69,7 +69,8 @@ internal sealed partial class MainWindow
         {
             _trainingSummary.Text=$"{data.GetProperty("sourceDrawings").GetInt32():N0} source drawings · {data.GetProperty("controlledNeighborhoods").GetInt32():N0} controlled neighborhoods · {data.GetProperty("parameterCount").GetInt32():N0} weights\n"
                 +$"Held-out candidate agreement: {Percent(data.GetProperty("repairTest"),"agreement")}. Line / curve agreement: {Percent(data.GetProperty("lineTest"),"agreement")}.\n"
-                +"These are two local providers plus authored compatibility gates. Open the review for actual held-out graph changes and weak-reference limits.";
+                +(data.TryGetProperty("closureTest",out var closure)?$"Closure control agreement: {Percent(closure,"agreement")}. ":"")
+                +"Local providers use authored compatibility gates. Open the review for actual graph changes and the limits of these controlled targets.";
             _trainingRun=path;_trainingReview.IsEnabled=File.Exists(Path.Combine(path,"report.html"));_trainingFolder.IsEnabled=Directory.Exists(path);
             if(File.Exists(Path.Combine(path,"model.json")))_encodingNeighborhoodModel.Text=Path.Combine(path,"model.json");
             return;

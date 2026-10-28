@@ -13,6 +13,7 @@ internal sealed partial class MainWindow
     private readonly NumericUpDown _encodingCount=Number(25,1,5000),_encodingPatches=Number(128,1,512),_encodingPasses=Number(4,1,8);
     private readonly CheckBox _encodingUseModel=new(){Content="Joint / repair provider",IsChecked=true},
         _encodingUseLine=new(){Content="Line / curve provider (neighborhood mode)",IsChecked=true},
+        _encodingUseClosure=new(){Content="Closure provider (new model bundles)",IsChecked=true},
         _encodingWeak=new(){Content="Show unresolved model opinions",IsChecked=false},
         _encodingEndpoints=new(){Content="Endpoints",IsChecked=true},_encodingProjections=new(){Content="Nearest points",IsChecked=false};
     private readonly TextBox _encodingModel=new(),_encodingOutput=new(){Watermark="Automatic: a new comparison beside the dataset"};
@@ -31,9 +32,10 @@ internal sealed partial class MainWindow
     {
         _encodingModel.Text=string.IsNullOrWhiteSpace(_settings.EncodingModel) ? Path.Combine(_repository,"models","joint-pilot-2026-10-27.json") : _settings.EncodingModel;
         _encodingUseModel.IsChecked=_settings.EncodingUseModel;
-        _encodingNeighborhoodModel.Text=string.IsNullOrWhiteSpace(_settings.NeighborhoodModel)?Path.Combine(_repository,"models","neighborhood-endpoints-2026-10-27.json"):_settings.NeighborhoodModel;
+        _encodingNeighborhoodModel.Text=string.IsNullOrWhiteSpace(_settings.NeighborhoodModel)?Path.Combine(_repository,"models","neighborhood-closure-2026-10-28.json"):_settings.NeighborhoodModel;
         _encodingPasses.Value=Math.Clamp(_settings.EncodingPasses,1,8);
         _encodingMode.SelectedIndex=_settings.EncodingNeighborhoods?0:1;_encodingUseLine.IsChecked=_settings.EncodingUseLine;
+        _encodingUseClosure.IsChecked=_settings.EncodingUseClosure;
         var source=Text(_dataset.Text ?? "Choose a drawings folder",12);_dataset.TextChanged+=(_,_)=>source.Text=_dataset.Text;
         _encodingPrevious=SmallButton("← Page",async()=>await EncodingPageAt(_encodingOffset-12));
         _encodingNext=SmallButton("Page →",async()=>await EncodingPageAt(_encodingOffset+12));
@@ -49,10 +51,10 @@ internal sealed partial class MainWindow
                     Text("Repair neighborhoods using actual source edges and sites, or review the earlier joint-only opinions. Source drawings and church stages stay available in View drawings.",13),_encodingMode,
                     Buttons(Button("Choose drawings folder…",async()=>{await PickDataset();_tabs.SelectedIndex=3;}),
                         Button("Open saved encoding run…",async()=>await PickEncodingRun())),
-                    _encodingUseModel,_encodingUseLine,
+                    _encodingUseModel,_encodingUseLine,_encodingUseClosure,
                     Field("Neighborhood model bundle",Row(_encodingNeighborhoodModel,Button("Choose…",async()=>await PickEncodingModel(true)))),
                     new Expander{Header="Earlier pairwise model",Content=Row(_encodingModel,Button("Choose…",async()=>await PickEncodingModel(false)))},
-                    Text("Uncheck both neighborhood providers for an unchanged control. Joint repair changes connections; line interpretation can straighten spans. Alternatives and trimmed source intervals are retained.",12),
+                    Text("Uncheck all three providers for an unchanged control. Closure adds gray dashed hypotheses; straight-through I sites become gray continuation memory. The game-recognition filter in View drawings applies here too.",12),
                     Buttons(Field("Maximum drawings",_encodingCount),JobButton("Create selected encodings",[PipelineAction.Encode],true)),
                     new Expander{Header="Encoding options",HorizontalContentAlignment=HorizontalAlignment.Stretch,Content=Stack(10,
                         Field("Maximum local patches per drawing",_encodingPatches,"Proposals come from source runs and gaps, without consulting final interpretations. Uncovered joints remain."),
@@ -96,7 +98,7 @@ internal sealed partial class MainWindow
             _encodingStage.IsVisible=_encodingRun.Provider!="joint-model"&&_encodingRun.Provider!="default";
             _encodingWeak.IsVisible=!_encodingStage.IsVisible;
             _encodingEndpoints.IsVisible=_encodingProjections.IsVisible=_encodingStage.IsVisible;
-            if(_encodingStage.IsVisible)_encodingSummary.Text=$"{_encodingRun.SourceDrawings:N0} drawings · {_encodingRun.ChangedPatches:N0} applied local changes. E = endpoint; dashed nearest-point links are observations, not joins. Click a drawing to inspect feedback.";
+            if(_encodingStage.IsVisible)_encodingSummary.Text=$"{_encodingRun.SourceDrawings:N0} drawings · recognition: {_encodingRun.Recognition} · {_encodingRun.ChangedPatches:N0} applied changes. Gray I = continuation memory; gray dashed ink = inferred closure. Click a drawing to inspect passes.";
             await EncodingPageAt(0);_tabs.SelectedIndex=3;
         }
         catch(Exception error){SetStatus("Encoding run could not be opened",error.Message,true);}
@@ -182,9 +184,11 @@ internal sealed partial class MainWindow
         var grid=new Grid{ColumnDefinitions=new("*,*"),ColumnSpacing=8};var frame=EncodingFrame(drawing);
         var left=new DrawingCanvas{Profiles=stages[0].Graph.Curves,Fitted=true,Underlay=drawing.Strokes,UnderlayAlpha=40,Frame=frame,Height=height,
             Joints=stages[0].Graph.Joints,ShowJointDirections=true,IncludeContinuations=true,IncludeEndpoints=_encodingEndpoints.IsChecked==true,
+            Inferred=stages[0].Graph.InferredCurves??[],DormantJoints=(stages[0].Graph.Continuations??[]).Select(c=>c.Site).ToHashSet(),
             Projections=_encodingProjections.IsChecked==true?stages[0].Graph.Projections??[]:[]};
         var right=new DrawingCanvas{Profiles=selected.Graph.Curves,Fitted=true,Underlay=drawing.Strokes,UnderlayAlpha=45,Frame=frame,Height=height,
             Joints=selected.Graph.Joints,ShowJointDirections=true,IncludeContinuations=true,IncludeEndpoints=_encodingEndpoints.IsChecked==true,
+            Inferred=selected.Graph.InferredCurves??[],DormantJoints=(selected.Graph.Continuations??[]).Select(c=>c.Site).ToHashSet(),
             Projections=_encodingProjections.IsChecked==true?selected.Graph.Projections??[]:[]};
         grid.Children.Add(Stack(3,Text("Source fitted graph",11),left));var panel=Stack(3,Text(selected.Title,11),right);Grid.SetColumn(panel,1);grid.Children.Add(panel);return grid;
     }

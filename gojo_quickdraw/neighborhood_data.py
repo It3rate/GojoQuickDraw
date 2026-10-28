@@ -146,3 +146,54 @@ def weak_goals(packet):
         else:
             result.append({'sourceJoints': [int(key.removeprefix('source-j')) for key in candidates], 'rays': rays})
     return result, skipped
+
+
+def closure_controls(count=1200, seed=43, batch_size=40):
+    """Known missing links and open-route counterexamples; labels are authored.
+
+    Four distortions share a template group before train/validation/test split.
+    These controls do not establish that a near-loop in real ink was intended
+    to be closed. Acquired timing remains absent rather than manufactured.
+    """
+    names=('rectangle-corner-gap','rectangle-edge-gap','triangle-gap','circular-gap',
+           'open-hairpin','wide-open-box','branched-route','open-shallow-return')
+    batch=[]
+    for index in range(count):
+        kind=index%len(names);family=index//(4*len(names))
+        base=random.Random(f'closure-template:{seed}:{kind}:{family}')
+        rng=random.Random(f'closure-variation:{seed}:{index}')
+        width=base.uniform(.65,1.8);gap=rng.uniform(.008,.10)
+        graph={'sites':[],'edges':[]}
+        def path(points, handles=None):
+            graph['sites']=[list(p) for p in points]
+            graph['edges']=[{'a':i,'b':i+1,'handles':(handles or {}).get(i,[])} for i in range(len(points)-1)]
+        if kind==0:path([(0,gap),(0,1),(width,1),(width,0),(gap,0)])
+        elif kind==1:path([(width/2+gap/2,0),(width,0),(width,1),(0,1),(0,0),(width/2-gap/2,0)])
+        elif kind==2:path([(-1+gap,0),(0,base.uniform(.7,1.4)),(1,0),(-1,0)])
+        elif kind==3:
+            missing=rng.uniform(.008,.12);start=missing/2;step=(2*math.pi-missing)/8
+            angles=[start+i*step for i in range(9)];points=[(math.cos(a),math.sin(a)) for a in angles];handles={}
+            k=4/3*math.tan(step/4)
+            for i,(a,b) in enumerate(zip(angles,angles[1:])):
+                handles[i]=[[math.cos(a)-k*math.sin(a),math.sin(a)+k*math.cos(a)],
+                            [math.cos(b)+k*math.sin(b),math.sin(b)-k*math.cos(b)]]
+            path(points,handles)
+        elif kind==4:path([(0,0),(gap,0)],{0:[[0,1],[gap,1]]})
+        elif kind==5:
+            gap=rng.uniform(.16,.24)
+            path([(width/2+gap/2,0),(width,0),(width,1),(0,1),(0,0),(width/2-gap/2,0)])
+        elif kind==6:
+            path([(0,gap),(0,1),(width,1),(width,0),(gap,0)])
+            graph['sites'].append([width+1,1]);graph['edges'].append({'a':2,'b':5,'handles':[]})
+        else:path([(0,0),(1,.10),(gap,0)])
+        ends=[0,len(graph['sites'])-1 if kind!=6 else 4]
+        angle=rng.uniform(-math.pi,math.pi);scale=rng.uniform(30,180);offset=[rng.uniform(-80,300),rng.uniform(-80,300)]
+        def transform(p):
+            c,s=math.cos(angle),math.sin(angle)
+            return [offset[0]+scale*(c*p[0]-s*p[1]),offset[1]+scale*(s*p[0]+c*p[1])]
+        graph['sites']=[transform(p) for p in graph['sites']]
+        for edge in graph['edges']:edge['handles']=[transform(p) for p in edge['handles']]
+        batch.append({'source':graph,'ends':ends,'label':int(kind<4),'kind':names[kind],
+                      'group':f'closure:{seed}:{kind}:{family}'})
+        if len(batch)>=batch_size:yield {'closureCases':batch};batch=[]
+    if batch:yield {'closureCases':batch}

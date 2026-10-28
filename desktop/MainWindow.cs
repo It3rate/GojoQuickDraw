@@ -224,7 +224,7 @@ internal sealed partial class MainWindow : Window
             string.IsNullOrWhiteSpace(_trainingOutput.Text) ? Workspace.ModelFolder(_dataset.Text ?? "") : _trainingOutput.Text.Trim(),
             _encodingMode.SelectedIndex==0 ? [_encodingNeighborhoodModel.Text?.Trim() ?? ""] : _encodingUseModel.IsChecked==true ? [_encodingModel.Text?.Trim() ?? ""] : [],
             string.IsNullOrWhiteSpace(_encodingOutput.Text) ? null : _encodingOutput.Text.Trim(), (int)_encodingPatches.Value!,
-            _trainingMode.SelectedIndex==0,_encodingMode.SelectedIndex==0,_encodingUseModel.IsChecked==true,_encodingUseLine.IsChecked==true,(int)_encodingPasses.Value!);
+            _trainingMode.SelectedIndex==0,_encodingMode.SelectedIndex==0,_encodingUseModel.IsChecked==true,_encodingUseLine.IsChecked==true,(int)_encodingPasses.Value!,_encodingUseClosure.IsChecked==true);
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
@@ -428,6 +428,7 @@ internal sealed partial class MainWindow : Window
         _settings.EncodingModel = _encodingModel.Text ?? ""; _settings.EncodingUseModel = _encodingUseModel.IsChecked==true;
         _settings.NeighborhoodModel=_encodingNeighborhoodModel.Text ?? "";_settings.EncodingNeighborhoods=_encodingMode.SelectedIndex==0;_settings.EncodingUseLine=_encodingUseLine.IsChecked==true;
         _settings.EncodingPasses=(int)_encodingPasses.Value!;
+        _settings.EncodingUseClosure=_encodingUseClosure.IsChecked==true;
         try { _settings.Save(); } catch (Exception error) when (error is IOException or UnauthorizedAccessException) { AppendLog("Workspace settings could not be saved: " + error.Message); }
     }
     private void Open(string? path)

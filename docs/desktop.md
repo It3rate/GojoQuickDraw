@@ -112,6 +112,10 @@ means the eligible source pool ran out. All remains the default; unknown flags
 are not silently treated as unrecognized. Completing an interrupted raw pipeline
 uses its saved recognition selection, just as it uses the saved source and seed.
 
+New selections default to **Recognized by game**, including training and Encoding
+through the viewer's recognition filter. The earlier all-outcome setting migrates
+once; you can still explicitly choose any outcome. Existing data is retained.
+
 1. Open an existing pipeline dataset to add drawings, or use **New dataset**
    for a separate collection. Existing converted drawings are preserved.
 2. In **Convert drawings**, choose the QuickDraw source folder or category file.
@@ -243,8 +247,23 @@ Status and Stop are in a compact top bar. Dataset and run details are collapsibl
 only stage, joints and ordinary paging remain above the pictures. The tabs scroll
 within the remaining height, with no bottom status overlay. Temporary runs and exported
 reviews are grouped under `D:/_quickDraw/_work`, not loose at the data-drive root.
+Source selection caches also use `_work/cache` when that workspace exists on
+Windows. `GOJO_QUICKDRAW_CACHE` can select another cache parent; other machines
+retain their normal application cache. Existing cache folders are not moved.
 
 ## Developer verification
+
+The current neighborhood bundle adds a separately selectable **Closure provider**.
+Gray dashed connectors are inferred missing passages; original edges remain
+visible and keep their source references. Gray **I** sites retain an internal
+continuation split and expose the route's two outer endpoints. A later branch
+can reactivate the joint. **Nearest points** observes other segments from any
+joint as well as free endpoints. Old saved runs/bundles remain readable.
+
+Closure scores currently learn geometric controlled examples. Actual acquired
+stroke order and available timestamps are retained as context; the present
+training does not establish their predictive weights. Closure alone is not an
+object boundary, enclosure fill or containment assertion.
 
 ```powershell
 dotnet test GojoQuickDraw.slnx

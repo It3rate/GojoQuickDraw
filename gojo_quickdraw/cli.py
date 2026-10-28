@@ -87,8 +87,8 @@ def parser():
     analysis.add_argument("--retry-errors", action="store_true")
     from .recognition import MODES
     for command in (process, convert, sample, catalog, analysis):
-        command.add_argument("--recognition", choices=MODES, default="all",
-                             help="Game AI outcome, not human review; filter before sampling or paging (default all)")
+        command.add_argument("--recognition", choices=MODES, default="all" if command is catalog else "recognized",
+                             help="Game AI outcome, not human review; new processing defaults to recognized drawings")
     for command in (convert, sample, analysis):
         command.add_argument("--refresh", action="store_true", help="Refresh the inspector and gallery after processing or reusing records")
     for command in (check, review, gallery, refresh, stages, catalog):
@@ -106,7 +106,7 @@ def parser():
     training.add_argument("--synthetic", type=int, default=2500)
     training.add_argument("--epochs", type=int, default=35)
     training.add_argument("--seed", type=int, default=31)
-    training.add_argument("--recognition", choices=MODES, default="all")
+    training.add_argument("--recognition", choices=MODES, default="recognized")
     encoding = commands.add_parser("encode", help="Compare default joint evidence with selected learned providers")
     encoding.add_argument("--dataset", type=Path, required=True)
     encoding.add_argument("--output", type=Path, required=True)
@@ -114,7 +114,7 @@ def parser():
     encoding.add_argument("--limit", type=int, default=25)
     encoding.add_argument("--max-patches", type=int, default=128)
     encoding.add_argument("--seed", type=int, default=31)
-    encoding.add_argument("--recognition", choices=MODES, default="all")
+    encoding.add_argument("--recognition", choices=MODES, default="recognized")
     neighborhood = commands.add_parser("train-neighborhoods", help="Train local graph-repair and line/curve providers")
     neighborhood.add_argument("--dataset",type=Path,required=True)
     neighborhood.add_argument("--output",type=Path,required=True)
@@ -122,7 +122,7 @@ def parser():
     neighborhood.add_argument("--synthetic",type=int,default=1800)
     neighborhood.add_argument("--epochs",type=int,default=35)
     neighborhood.add_argument("--seed",type=int,default=43)
-    neighborhood.add_argument("--recognition",choices=MODES,default="all")
+    neighborhood.add_argument("--recognition",choices=MODES,default="recognized")
     consolidate=commands.add_parser("consolidate",help="Apply source-local neighborhood repairs and preserve changed graphs")
     consolidate.add_argument("--dataset",type=Path,required=True)
     consolidate.add_argument("--output",type=Path,required=True)
@@ -131,9 +131,10 @@ def parser():
     consolidate.add_argument("--max-candidates",type=int,default=192)
     consolidate.add_argument("--passes",type=int,default=4)
     consolidate.add_argument("--seed",type=int,default=43)
-    consolidate.add_argument("--recognition",choices=MODES,default="all")
+    consolidate.add_argument("--recognition",choices=MODES,default="recognized")
     consolidate.add_argument("--no-repair",action="store_true")
     consolidate.add_argument("--no-line",action="store_true")
+    consolidate.add_argument("--no-closure",action="store_true")
     commands.add_parser("doctor", help="Check linked revision and build the native bridge")
     return p
 
@@ -208,7 +209,7 @@ def main(argv=None):
         elif args.command == "consolidate":
             from .consolidation import run
             result=run(args.dataset,args.output,root,model=args.model,limit=args.limit,max_candidates=args.max_candidates,passes=args.passes,
-                       seed=args.seed,recognition=args.recognition,use_repair=not args.no_repair,use_line=not args.no_line)
+                       seed=args.seed,recognition=args.recognition,use_repair=not args.no_repair,use_line=not args.no_line,use_closure=not args.no_closure)
         elif args.command == "encode":
             from .encoding import run
             result = run(args.dataset, args.output, root, models=args.model, limit=args.limit,

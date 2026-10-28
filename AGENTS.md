@@ -45,7 +45,7 @@ providers and actual source-local graph replacements. Preserve shared target
 site identity, non-overlapping source intervals, removed participation and the
 application timeline. Use explicit reference identity when selecting participants;
 structural equality is a different read and can recursively traverse history.
-Both providers unchecked must preserve the original graph identity. Train only
+All selected providers unchecked must preserve the original graph identity. Train only
 on grouped controls or complete source-supported weak targets; final church
 interpretations must never enter inference features or proposal selection.
 The integrator is authored bounded rewriting, not general tension settlement.
@@ -53,6 +53,13 @@ Nearest-point witnesses observe distinct endpoint/interval participation; only
 an explicit selected application establishes contact. Iteration rereads changed
 structure and replaces current opinions, not the weight of the same acquisition.
 Keep the pass budget, quiet/budget stop read, observations and timeline inspectable.
+I continuation reads retain the actual inner site, ordered source intervals,
+outer ports and deviation. They withdraw joint focus rather than erase source.
+Closure passages are explicitly unobserved hypotheses grounded in an actual
+ordered route; never give them acquired-profile provenance. New incidences
+invalidate proposals even when their old edges have not moved. Closure is not
+object membership, fill or containment. New experiment selections default to
+game-recognized sources; keep unavailable outcomes distinct from false.
 
 Work on `master` and push completed verified checkpoints to `It3rate/GojoQuickDraw`.
 Do not publish the website without the user's milestone authorization.

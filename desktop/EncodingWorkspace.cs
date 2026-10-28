@@ -7,14 +7,16 @@ public sealed record EncodingDrawing(string SourceKey,string Category,double[][]
     EncodingPatch[] Patches,string[] Uncovered,string BaselineArchive,string SelectedArchive,bool PatchLimitReached,
     NeighborhoodStage[]? Stages=null,JsonElement[]? Decisions=null,int Accepted=0,string? StopReason=null,int[]? AppliedByPass=null);
 public sealed record NeighborhoodStage(string Title,NeighborhoodGraphView Graph);
-public sealed record NeighborhoodGraphView(double[][][] Curves,JointNode[] Joints,NeighborhoodProjection[]? Projections=null);
+public sealed record NeighborhoodGraphView(double[][][] Curves,JointNode[] Joints,NeighborhoodProjection[]? Projections=null,
+    double[][][]? InferredCurves=null,NeighborhoodContinuation[]? Continuations=null);
+public sealed record NeighborhoodContinuation(string Site,string[] OuterEndpoints,string[] Edges,double Deviation,string Status);
 public sealed record NeighborhoodProjection(string Id,string Endpoint,string Edge,double[] From,double[] To,double Parameter,double GapRatio,bool WithinReach,string Basis);
 public sealed record EncodingPatch(string Id,string[] Profiles,string[] Baseline,string[] BaselineKinds,EncodingCandidate[] Candidates,
     int[] Ranking,int? Proposed,string Status,double[] Encounter,bool Changed,double[][][]? Runs=null);
 public sealed record EncodingCandidate(string Kind,double Score,double[][] Points,int[][] Segments,double[] Directions);
 public sealed record EncodingItem(string Path,string SourceKey,string Category,int Patches);
 public sealed record EncodingRun(string Folder,string Provider,int SourceDrawings,int LocalPatches,int ChangedPatches,int Proposed,int Unresolved,
-    EncodingItem[] Drawings);
+    EncodingItem[] Drawings,string Recognition="all");
 
 public static class EncodingWorkspace
 {
@@ -35,7 +37,7 @@ public static class EncodingWorkspace
         foreach(var item in items)_=Artifact(folder,item.Path);
         return new(Path.GetFullPath(folder),data.GetProperty("provider").GetString()!,data.GetProperty("sourceDrawings").GetInt32(),
             data.GetProperty("localPatches").GetInt32(),data.GetProperty("changedPatches").GetInt32(),data.GetProperty("proposed").GetInt32(),
-            data.GetProperty("unresolved").GetInt32(),items);
+            data.GetProperty("unresolved").GetInt32(),items,data.TryGetProperty("recognition",out var recognition)?recognition.GetString()??"all":"all");
     }
     public static EncodingDrawing Drawing(EncodingRun run,int index)
     {

@@ -1,4 +1,4 @@
-"""Two small candidate/line providers over finite native neighborhood reads."""
+"""Small repair, line and closure providers over finite native reads."""
 import copy
 import math
 import random

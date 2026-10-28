@@ -16,7 +16,8 @@ def load_model(path):
     bundle=json.loads(Path(path).read_text(encoding='utf-8-sig'))
     if bundle.get('schema')!='gojo.neighborhood-models.v1':
         raise ValueError('Choose a neighborhood repair/line model bundle')
-    for name,count in (('line',8),('repair',24)):
+    for name,count in (('line',8),('repair',24),('closure',10)):
+        if name=='closure' and name not in bundle:continue
         m=bundle.get(name,{})
         columns,weights=m.get('columns',[]),m.get('weights',[])
         if m.get('schema')!='gojo.neighborhood-provider.v1' or m.get('featureCount')!=count or len(m.get('featureNames',[]))!=count:
@@ -28,28 +29,30 @@ def load_model(path):
     return bundle
 
 
-def run(source,output,gojo_root,*,model,limit=25,max_candidates=192,passes=4,seed=43,recognition='all',use_repair=True,use_line=True):
+def run(source,output,gojo_root,*,model,limit=25,max_candidates=192,passes=4,seed=43,recognition='recognized',use_repair=True,use_line=True,use_closure=True):
     started=time.perf_counter();source,output=new_output(source,output)
-    load_model(model)
+    bundle=load_model(model)
+    active=[name for name,on in (('joint repair',use_repair),('line',use_line),('closure',use_closure and 'closure' in bundle)) if on]
     if not 1<=passes<=8 or not 1<=max_candidates<=512:raise ValueError('Choose 1..8 passes and 1..512 candidates')
     cohort,warnings=training_data.snapshot(source,limit,seed,recognition)
     if not cohort:raise ValueError('No completed drawings match this selection')
     output.mkdir(parents=True,exist_ok=True);(output/'models').mkdir();shutil.copyfile(model,output/'models/neighborhoods.json')
     state={'schema':SCHEMA,'status':'preparing','source':str(source),'limit':limit,'seed':seed,'recognition':recognition,
-           'createdUtc':datetime.now(timezone.utc).isoformat(),'provider':'neighborhood repair + line' if use_repair and use_line else 'repair only' if use_repair else 'line only' if use_line else 'unchanged control',
-           'modelSha256':dataset.sha256(output/'models/neighborhoods.json'),'useRepair':use_repair,'useLine':use_line,'passes':passes,
-           'maxCandidates':max_candidates,'upstream':upstream.fingerprint(gojo_root)}
+           'createdUtc':datetime.now(timezone.utc).isoformat(),'provider':' + '.join(active) if active else 'unchanged control',
+           'modelSha256':dataset.sha256(output/'models/neighborhoods.json'),'useRepair':use_repair,'useLine':use_line,'useClosure':use_closure,'passes':passes,
+           'maxCandidates':max_candidates,'upstream':upstream.fingerprint(gojo_root),'closureModelAvailable':'closure' in bundle}
+    if use_closure and 'closure' not in bundle:warnings.append('This older bundle has no closure provider; closure proposals were not applied.')
     dataset._atomic_json(output/'encoding.json',state)
     contexts=[];snapshots=[];requests=output/'inputs.ndjson'
     with requests.open('w',encoding='utf-8') as stream:
         for folder,row in cohort:
             packet=training_data.load_packet(folder,row)
             # Intentionally omit final shape graphs, correspondences, and weak labels.
-            request={'packet':source_packet(packet),'modelPath':str(output/'models/neighborhoods.json'),'useRepair':use_repair,'useLine':use_line,'passes':passes,'maxCandidates':max_candidates}
+            request={'packet':source_packet(packet),'modelPath':str(output/'models/neighborhoods.json'),'useRepair':use_repair,'useLine':use_line,'useClosure':use_closure,'passes':passes,'maxCandidates':max_candidates}
             stream.write(json.dumps(request,separators=(',',':'),allow_nan=False)+'\n')
             contexts.append({'sourceKey':packet['source']['key_id'],'category':row.get('category',packet['source'].get('word','drawing')),
                              'strokes':[s['points'] for s in packet['observation']['strokes']]})
-            snapshots.append({'key':row['keyId'],'sourceSha256':row['sourceSha256'],'evidenceSha256':row['evidenceSha256']})
+            snapshots.append({'key':row['keyId'],'sourceSha256':row['sourceSha256'],'evidenceSha256':row['evidenceSha256'],'recognized':packet['source'].get('recognized')})
     training.log(f'Consolidating {len(cohort)} source drawings; {passes} bounded local passes; {state["provider"]}')
     command=training.executable(gojo_root)
     try:

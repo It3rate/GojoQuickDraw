@@ -708,6 +708,59 @@ endpoint toggles, nearest-point overlays, four-pass navigation, preserved stage,
 The [checkpoint report](../reports/endpoint-iteration-2026-10-27.json) retains
 the model, dependency and adapter fingerprints and these qualifications.
 
+## Continuation memory and learned closure — 28 October 2026
+
+Passed: 210 Python tests, 38 desktop tests, 50 native tests, 35 learning tests,
+and all 5,407 linked Gojo tests. The learning tests now cover a reversible
+continuation perspective with retained deviation/outer ports, I-to-T reactivation,
+nearest-point queries from corners, unobserved closure provenance, later joint
+rereads, independent restore, false gap reads, actual acquired chronology and
+incomparable clocks, stale incidence after adding a connector, and stronger
+overlapping neighborhoods being scheduled first.
+
+The three-provider model has 204 weights. Training used 864 joint/line controls,
+864 attempted closure controls and 60 read-only **game-recognized** church
+snapshots, in 77.8 seconds. Complete closure evaluation used 31 independent
+held-out templates: 15 intended closures connected, three remained unresolved,
+and all 13 open controls stayed open. Candidate agreement on 124 held-out closure
+rows was 94.4%; the four variations of a template are dependent. These controlled
+geometric targets do not establish human intent or real accuracy. Acquired
+chronology is retained, but its predictive weighting is not learned from these
+geometry-only controls.
+
+On the earlier 32-template repair benchmark, 22 improved, seven clean examples
+stayed unchanged and three repairs stayed unresolved; none worsened. An
+intermediate run exposed weaker pair proposals acting before stronger merged
+neighborhoods. An authored priority scheduling fix was tested separately; all
+three learned heads have identical weights before/after that fix. Intermediate
+run artifacts are retained, rather than reported as the final checkpoint.
+
+The four-pass review uses 25 recognized drawings, with 240 local applications,
+four closure applications, three closure edges still present and 27 dormant
+continuation reads. A closure can later be absorbed into an explicit endpoint
+merge; its application and removed interval remain in native history. A paired
+run with closure disabled uses the same source hashes and has 234 applications.
+These are edit counts, not verified improvements. Six four-pass drawings stopped
+without another edit and 19 reached the budget. Of the first eight given eight
+passes, five stopped and three reached the budget. Quiet does not prove correct
+interpretation or equilibrium. Two all-unchecked controls retained identical
+graphs and stopped after one pass.
+
+The browser and native desktop audits passed, including gray inferred passages,
+gray continuation memory, joint-to-segment overlays, paging, stage preservation,
+offline viewing and no browser script errors/network requests. Screenshots were
+visually inspected. Two fresh recognized raw drawings completed all ten saved
+stages and independent native/hash verification. That check exposed a Windows
+profile-cache rename failure and interruption before collection initialization;
+workspace-local caching and early collection ownership now permit retry, with
+focused interrupted-index tests. Raw source files were not modified.
+
+See the [checkpoint data and limits](../reports/closure-continuation-2026-10-28.json).
+The [updated review](D:/_quickDraw/data/church3000-encodings/closure-2026-10-28-v1/report.html)
+and saved model run are separate from the source dataset. General bidirectional
+Gojo tension settlement, object segmentation and equivalent rectangle maker
+selection remain unimplemented.
+
 ## Reproduce the checks
 
 Run the commands in the README using the linked revision in `gojo.lock.json`. The

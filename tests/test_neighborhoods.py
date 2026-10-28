@@ -77,8 +77,31 @@ class NeighborhoodTests(unittest.TestCase):
         args=parser().parse_args(['consolidate','--dataset','saved','--output','run','--model','m.json','--no-repair'])
         self.assertEqual(25,args.limit);self.assertTrue(args.no_repair);self.assertFalse(args.no_line)
         self.assertEqual(4,args.passes);self.assertEqual(192,args.max_candidates)
+        self.assertFalse(args.no_closure);self.assertEqual('recognized',args.recognition)
         args=parser().parse_args(['train-neighborhoods','--dataset','saved','--output','run'])
         self.assertEqual(60,args.limit);self.assertEqual(1800,args.synthetic)
+        self.assertEqual('recognized',args.recognition)
+
+    def test_closure_controls_keep_template_groups_and_counterexamples(self):
+        cases=[c for b in neighborhood_data.closure_controls(128) for c in b['closureCases']]
+        self.assertEqual(8,len({c['kind'] for c in cases}))
+        self.assertEqual({0,1},{c['label'] for c in cases})
+        self.assertTrue(all(sum(c['group']==g for c in cases)==4 for g in {c['group'] for c in cases}))
+        self.assertTrue(all('acquisition' not in c for c in cases))
+
+    def test_processing_cli_defaults_to_game_recognition_but_catalog_can_show_all(self):
+        from gojo_quickdraw.cli import parser
+        args=parser().parse_args(['process','--input','raw','--output','data','--limit','3'])
+        self.assertEqual('recognized',args.recognition)
+        args=parser().parse_args(['catalog','--dataset','data'])
+        self.assertEqual('all',args.recognition)
+
+    def test_index_cache_can_be_kept_in_a_declared_work_area(self):
+        import os
+        from unittest.mock import patch
+        from gojo_quickdraw import sampling
+        with tempfile.TemporaryDirectory() as temp, patch.dict(os.environ,{'GOJO_QUICKDRAW_CACHE':temp}):
+            self.assertEqual(Path(temp)/'source-index',sampling._cache_root())
 
 
 if __name__=='__main__':unittest.main()

@@ -13,9 +13,10 @@ public static class NeighborhoodGraph
 {
     public sealed record Edge(Relation Witness,IElement Source,Relation Span,Relation A,Relation B,Relation[] Handles,double[][] Points);
     public sealed record Graph(Relation Surface,Relation Frame,Relation[] Sites,Edge[] Edges);
-    public sealed record SiteView(string Id,double[] Point,int Degree,string Kind,string[] Edges,string[] FarEndpoints);
-    public sealed record EdgeView(string Id,string Start,string End,double[][] Controls,string Source,double[] Interval);
-    public sealed record View(double[][][] Curves,JointNode[] Joints,SiteView[] Sites,EdgeView[] Edges,NeighborhoodContacts.View[] Projections);
+    public sealed record SiteView(string Id,double[] Point,int Degree,string Kind,string[] Edges,string[] FarEndpoints,bool Dormant=false);
+    public sealed record EdgeView(string Id,string Start,string End,double[][] Controls,string Source,double[] Interval,bool Inferred=false);
+    public sealed record View(double[][][] Curves,JointNode[] Joints,SiteView[] Sites,EdgeView[] Edges,NeighborhoodContacts.View[] Projections,
+        double[][][] InferredCurves,NeighborhoodContinuations.View[] Continuations);
 
     public static IElement[] Rows(IElement value)
     {
@@ -171,25 +172,31 @@ public static class NeighborhoodGraph
         return count;
     }
     public static int Cycles(Graph graph)=>graph.Edges.Length-graph.Sites.Length+Components(graph);
-    public static View Project(Graph graph,IElement[] sources,Dictionary<IElement,string>? identities=null,IEnumerable<NeighborhoodContacts.Contact>? contacts=null)
+    public static View Project(Graph graph,IElement[] sources,Dictionary<IElement,string>? identities=null,IEnumerable<NeighborhoodContacts.Contact>? contacts=null,
+        NeighborhoodContinuations.Read[]? continuations=null)
     {
         identities??=new(ReferenceEqualityComparer.Instance);
         string Id(IElement element,string prefix){if(!identities.TryGetValue(element,out var id))identities[element]=id=prefix+identities.Count;return id;}
         string SiteId(Relation s)=>Id(s,"v");
-        string SourceId(IElement source)=>"p"+Array.FindIndex(sources,p=>ReferenceEquals(p,source));
+        string SourceId(IElement source)=>NeighborhoodClosure.IsInferred(source)?"inferred:"+Id(source,"h"):"p"+Array.FindIndex(sources,p=>ReferenceEquals(p,source));
         var sites=graph.Sites.Select(s=>
         {
             var incident=graph.Edges.Select((e,i)=>(e,i)).Where(p=>ReferenceEquals(p.e.A,s)||ReferenceEquals(p.e.B,s)).ToArray();
             return new SiteView(SiteId(s),XY(s),Degree(graph,s),Kind(graph,s),incident.Select(p=>Id(p.e.Witness,"e")).ToArray(),
-                incident.Select(p=>SiteId(ReferenceEquals(p.e.A,s)?p.e.B:p.e.A)).ToArray());
+                incident.Select(p=>SiteId(ReferenceEquals(p.e.A,s)?p.e.B:p.e.A)).ToArray(),(continuations??[]).Any(c=>ReferenceEquals(c.Inner,s)));
         }).ToArray();
-        var edges=graph.Edges.Select((e,i)=>{e.Span.TryReadSegment(out _,out var a,out var b);return new EdgeView(Id(e.Witness,"e"),SiteId(e.A),SiteId(e.B),e.Points,SourceId(e.Source),[a.Ticks/(double)Q,b.Ticks/(double)Q]);}).ToArray();
+        var edges=graph.Edges.Select((e,i)=>{e.Span.TryReadSegment(out _,out var a,out var b);return new EdgeView(Id(e.Witness,"e"),SiteId(e.A),SiteId(e.B),e.Points,SourceId(e.Source),[a.Ticks/(double)Q,b.Ticks/(double)Q],NeighborhoodClosure.IsInferred(e.Source));}).ToArray();
         var joints=sites.Select((s,i)=>new JointNode(s.Id,s.Kind,s.Point,Directions(graph,graph.Sites[i]),
             edges.Where(e=>e.Start==s.Id||e.End==s.Id).Select(e=>new JointAt(e.Id,e.Start==s.Id?0:1)).ToArray(),
             edges.Where(e=>e.Start==s.Id||e.End==s.Id).Select(e=>e.Source).Distinct().ToArray(),s.Degree>1,0,
-            $"Native site {s.Id}; degree {s.Degree}. Edges: {string.Join(", ",s.Edges)}. Far endpoints: {string.Join(", ",s.FarEndpoints)}.")).ToArray();
+            $"Native site {s.Id}; degree {s.Degree}. Edges: {string.Join(", ",s.Edges)}. Far endpoints: {string.Join(", ",s.FarEndpoints)}."+
+            (s.Dormant?" Withdrawn from active joint focus as a continuation; source split and deviation retained.":"")+
+            (edges.Any(e=>e.Inferred&&(e.Start==s.Id||e.End==s.Id))?" Includes an inferred, unobserved closure passage.":""))).ToArray();
         var projections=(contacts??[]).Select(c=>new NeighborhoodContacts.View("near-"+SiteId(c.Endpoint)+"-"+Id(c.Other.Witness,"e"),SiteId(c.Endpoint),Id(c.Other.Witness,"e"),XY(c.Endpoint),XY(c.Point),c.T,c.Gap/c.Reach,c.Gap<=c.Limit,
             "Finite nearest-point observation; separate sites until an explicit application binds them. Source parameter and interval are retained.")).ToArray();
-        return new(graph.Edges.Select(e=>e.Points).ToArray(),joints,sites,edges,projections);
+        var coarse=(continuations??[]).Select(c=>new NeighborhoodContinuations.View(SiteId(c.Inner),[SiteId(c.First),SiteId(c.Last)],
+            c.Edges.Select(e=>Id(e.Witness,"e")).ToArray(),c.Deviation,"dormant internal joint; source route remains available")).ToArray();
+        return new(graph.Edges.Where(e=>!NeighborhoodClosure.IsInferred(e.Source)).Select(e=>e.Points).ToArray(),joints,sites,edges,projections,
+            graph.Edges.Where(e=>NeighborhoodClosure.IsInferred(e.Source)).Select(e=>e.Points).ToArray(),coarse);
     }
 }

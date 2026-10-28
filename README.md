@@ -94,10 +94,10 @@ reads, connected candidate constructions, learned opinions and a patch review.
 It does not rerun conversion or automatically alter church shapes. Saved model
 runs reopen from the same tab. See [the first model and results](docs/local-joint-model.md).
 
-**Neighborhood repair** is the newer default training/encoding experiment. Two
-small providers score actual local connection/trim changes and line/curve
+**Neighborhood repair** is the newer default training/encoding experiment. Three
+small providers score actual local connection/trim changes, closure, and line/curve
 interpretation. In **Encoding**, choose the neighborhood model bundle and check
-either provider; uncheck both for an unchanged control. The comparison shows the
+the providers to use; uncheck all three for an unchanged control. The comparison shows the
 source fit and each completed repair pass. Hover joints for real edge and far
 endpoint references; expand decisions for alternatives and removed intervals.
 The earlier pairwise joint-only mode remains available. The bundled neighborhood
@@ -108,9 +108,16 @@ The endpoint update shows free ends as **E** and offers a **Nearest points**
 overlay. Dashed links are observations, not physical joins. They retain the
 selected other interval and source parameter, including cases where two
 segments already share a far end. Four local passes are the default; choose
-one to eight under Encoding options. The same two models reread the changed
+one to eight under Encoding options. The same selected models reread the changed
 graph, and the viewer reports changes per pass and why iteration stopped.
-The updated bundled model is `models/neighborhood-endpoints-2026-10-27.json`.
+The updated bundled model is `models/neighborhood-closure-2026-10-28.json`.
+Gray **I** sites are dormant continuation memory, exposing two outer endpoints
+while retaining their source split and deviation. **Nearest points** also works
+from corners and other joints. Gray dashed closure passages are inferred, with
+no acquired line reference; subsequent passes reanalyze their joints. Closure
+does not establish object membership or fill. New processing/training/encoding
+selections default to game-recognized drawings, with other outcomes still
+available explicitly. Existing datasets remain intact.
 
 ```powershell
 python -m gojo_quickdraw train --dataset D:/_quickDraw/data/church3000 --limit 300 --synthetic 2500 --epochs 35 --output D:/_quickDraw/data/church3000-models/new-run

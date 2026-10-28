@@ -66,6 +66,18 @@ class CollectionTests(unittest.TestCase):
     def convert(self, **kwargs):
         return sampling.convert_collection(self.input, self.output, GOJO, cache=self.cache, encoder_factory=FakeEncoder, **kwargs)
 
+    def test_interrupting_initial_indexing_leaves_a_resumable_empty_collection(self):
+        with patch.object(sampling,'make_plan',side_effect=RuntimeError('index interrupted')):
+            with self.assertRaisesRegex(RuntimeError,'index interrupted'):
+                self.convert(categories=['church'],count=2,seed=8)
+        self.assertTrue((self.output/'collection.json').is_file())
+        result=self.convert(categories=['church'],count=2,seed=8)
+        self.assertEqual(2,result['converted'])
+
+    def test_empty_setup_from_an_earlier_interruption_can_resume(self):
+        (self.output/'_sampling').mkdir(parents=True)
+        self.assertEqual(2,self.convert(categories=['church'],count=2,seed=8)['converted'])
+
     def test_static_catalog_is_unique_and_does_not_include_alternate_raw_copies(self):
         names = sampling.category_names()
         self.assertEqual(345, len(names))

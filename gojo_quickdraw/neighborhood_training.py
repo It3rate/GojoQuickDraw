@@ -41,7 +41,7 @@ def adapter_fingerprint():
     return {'sha256':digest.hexdigest(),'files':len(paths),'basis':'Exact adapter source bytes and ordered relative paths; build outputs excluded'}
 
 
-def run(source, output, gojo_root, *, limit=60, synthetic=1800, epochs=35, seed=43, recognition='all'):
+def run(source, output, gojo_root, *, limit=60, synthetic=1800, epochs=35, seed=43, recognition='recognized'):
     started = time.perf_counter()
     source, output = new_output(source, output)
     if not 100 <= synthetic <= 20000 or not 1 <= epochs <= 200:
@@ -56,14 +56,17 @@ def run(source, output, gojo_root, *, limit=60, synthetic=1800, epochs=35, seed=
     dataset._atomic_json(output/'training.json',state)
     requests=output/'inputs.ndjson'; snapshots=[]; skipped=0
     controls=list(neighborhood_data.controls(synthetic,seed))
+    closure_controls=list(neighborhood_data.closure_controls(synthetic,seed))
     with requests.open('w',encoding='utf-8') as stream:
         for request in controls:
+            stream.write(json.dumps(request,separators=(',',':'))+'\n')
+        for request in closure_controls:
             stream.write(json.dumps(request,separators=(',',':'))+'\n')
         for folder,row in cohort:
             packet=training_data.load_packet(folder,row);goals,rejected=neighborhood_data.weak_goals(packet);skipped+=rejected
             stream.write(json.dumps({'packet':source_packet(packet),'sourceHash':row['sourceSha256'],
                 'evidenceSha256':row['evidenceSha256'],'goals':goals},separators=(',',':'),allow_nan=False)+'\n')
-            snapshots.append({'key':row['keyId'],'sourceSha256':row['sourceSha256'],'evidenceSha256':row['evidenceSha256']})
+            snapshots.append({'key':row['keyId'],'sourceSha256':row['sourceSha256'],'evidenceSha256':row['evidenceSha256'],'recognized':packet['source'].get('recognized')})
     command=training.executable(gojo_root)
     training.log(f'Neighborhood training: {synthetic} controlled cases; {len(cohort)} read-only church snapshots')
     state['status']='native-neighborhood-reads';dataset._atomic_json(output/'training.json',state)
@@ -71,8 +74,10 @@ def run(source, output, gojo_root, *, limit=60, synthetic=1800, epochs=35, seed=
     batches=[json.loads(line) for line in (output/'features.ndjson').read_text(encoding='utf-8').splitlines()]
     lines=[dict(row,archive=b['archive']) for b in batches for row in b['lines']]
     repairs=[dict(row,archive=b['archive']) for b in batches for row in b['repairs']]
+    closure_rows=[dict(row,archive=b['archive']) for b in batches for row in b.get('closures',[])]
     state['status']='training';dataset._atomic_json(output/'training.json',state)
     line_model=neighborhood_models.fit(lines,batches[0]['lineNames'],epochs=epochs,seed=seed)
+    closure_model=neighborhood_models.fit(closure_rows,batches[0]['closureNames'],epochs=epochs,seed=seed)
     # Select the controlled-only or weak-assisted trial using validation only.
     controlled=[r for r in repairs if not r['basis'].startswith('weak')]
     repair_model=neighborhood_models.fit(controlled,batches[0]['repairNames'],epochs=epochs,seed=seed)
@@ -87,7 +92,7 @@ def run(source, output, gojo_root, *, limit=60, synthetic=1800, epochs=35, seed=
         selected_weak=criterion(trial)<criterion(repair_model)
         if selected_weak:repair_model=trial
         dataset._atomic_json(output/'weak-trial.json',trial)
-    bundle={'schema':'gojo.neighborhood-models.v1','line':line_model,'repair':repair_model,'seed':seed,
+    bundle={'schema':'gojo.neighborhood-models.v1','line':line_model,'repair':repair_model,'closure':closure_model,'seed':seed,
             'sourceSnapshot':snapshots,'upstream':state['upstream'],'adapter':state['adapter'],'weakTrialSelected':selected_weak,
             'qualification':'Relative support over source-local candidates; authored compatibility gates apply. No category or whole-church model.'}
     dataset._atomic_json(output/'model.json',bundle)
@@ -115,21 +120,44 @@ def run(source, output, gojo_root, *, limit=60, synthetic=1800, epochs=35, seed=
                    'independentTemplates':len(selected_groups),
                    'neededRepair':sum(r['evaluation']['before']>1e-5 for r in outputs),
                    'correctlyUnchanged':sum(r['evaluation']['before']<=1e-5 and r['evaluation']['after']<=1e-5 for r in outputs)}
+    closure_selected=[];closure_groups=set()
+    for request in closure_controls:
+        for case in request['closureCases']:
+            if training_data.split(case['group'],seed)=='test' and case['group'] not in closure_groups and len(closure_selected)<60:
+                closure_selected.append(case);closure_groups.add(case['group'])
+    closure_input=output/'closure-evaluation-input.ndjson'
+    with closure_input.open('w',encoding='utf-8') as stream:
+        for case in closure_selected:
+            stream.write(json.dumps({'source':case['source'],'modelPath':str(output/'model.json'),'useRepair':False,'useLine':False,
+                'useClosure':True,'passes':4,'maxCandidates':128},separators=(',',':'))+'\n')
+    training.native(command,'neighborhood-run',closure_input,output/'closure-evaluation-native',output/'closure-evaluation.ndjson')
+    closure_outputs=[json.loads(line) for line in (output/'closure-evaluation.ndjson').read_text(encoding='utf-8').splitlines()]
+    if len(closure_outputs)!=len(closure_selected):raise ValueError('Closure evaluation lost a held-out construction')
+    closure_evaluation=[{'kind':c['kind'],'group':c['group'],'expectedClosed':bool(c['label']),**r} for c,r in zip(closure_selected,closure_outputs)]
+    dataset._atomic_json(output/'closure-graph-evaluation.json',closure_evaluation)
+    closure_metrics={'independentTemplates':len(closure_evaluation),
+        'trueClosures':sum(r['expectedClosed'] and bool(r['final']['inferredCurves']) for r in closure_evaluation),
+        'missedClosures':sum(r['expectedClosed'] and not r['final']['inferredCurves'] for r in closure_evaluation),
+        'openControlsKept':sum(not r['expectedClosed'] and not r['final']['inferredCurves'] for r in closure_evaluation),
+        'falseClosures':sum(not r['expectedClosed'] and bool(r['final']['inferredCurves']) for r in closure_evaluation)}
     report={**state,'status':'completed','trained':True,'controlledNeighborhoods':synthetic,'lineExamples':len(lines),'repairExamples':len(repairs),
             'weakRepairExamples':len(weak),'weakGoals':sum(b['goals'] for b in batches),
             'unmappedOrIncompleteFinalJointsSkipped':skipped,'unsupportedWeakCandidatesSkipped':sum(b['unsupported'] for b in batches),
             'ambiguousWeakCandidatesSkipped':sum(b['ambiguous'] for b in batches),
             'lineTest':neighborhood_models.metrics(line_model,held(lines)),
             'repairTest':neighborhood_models.metrics(repair_model,held(controlled)),
+            'closureTest':neighborhood_models.metrics(closure_model,held(closure_rows)),
+            'closureExamples':len(closure_rows),'closureControlsRequested':synthetic,
+            'closureGraphTest':closure_metrics,
             'realWeakTest':neighborhood_models.metrics(repair_model,held(weak)),
-            'graphTest':graph_metrics,'parameterCount':len(line_model['weights'])+len(repair_model['weights']),
+            'graphTest':graph_metrics,'parameterCount':sum(len(m['weights']) for m in (line_model,repair_model,closure_model)),
             'weakTrialSelected':selected_weak,'modelSha256':model_hash,'sourceSnapshot':snapshots,'warnings':warnings,
-            'splitGroups':{s:sorted({r['group'] for r in lines+repairs if training_data.split(r['group'],seed)==s}) for s in ('train','validation','test')},
+            'splitGroups':{s:sorted({r['group'] for r in lines+repairs+closure_rows if training_data.split(r['group'],seed)==s}) for s in ('train','validation','test')},
             'nativeRestoresVerified':True,'sourceOutcomesUsedAsFeatures':False,'totalSeconds':time.perf_counter()-started,
             'qualification':'Synthetic local constructions supply known targets. Church finals supply weak targets only where required rays have mapped source support. Tests do not establish human correctness or whole-church reconstruction.'}
     dataset._atomic_json(output/'report.json',report)
     from .neighborhood_report import training_report
-    training_report(output,report,evaluation)
-    compact([requests,output/'features.ndjson',evaluation_input,output/'evaluation.ndjson'])
+    training_report(output,report,evaluation+closure_evaluation)
+    compact([requests,output/'features.ndjson',evaluation_input,output/'evaluation.ndjson',closure_input,output/'closure-evaluation.ndjson'])
     state.update(status='completed',modelSha256=model_hash,report='report.html');dataset._atomic_json(output/'training.json',state)
     return {**report,'output':str(output),'report':str(output/'report.html'),'model':str(output/'model.json')}

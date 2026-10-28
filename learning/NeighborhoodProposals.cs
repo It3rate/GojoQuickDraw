@@ -9,7 +9,7 @@ public static class NeighborhoodProposals
 {
     public sealed record Focus(Relation Surface,double[] Center,double Reach,double Radius,Relation[] Sites,Edge[] Edges);
     public sealed record Candidate(Relation Surface,Graph Before,Graph After,Focus Focus,Relation[] Bindings,Edge[] Removed,Edge[] Changed,
-        double Movement,bool Straightening,string Description,bool Admissible,string[] Issues,Relation? LineContext=null,Relation? Observation=null);
+        double Movement,bool Straightening,string Description,bool Admissible,string[] Issues,Relation? LineContext=null,Relation? Observation=null,Relation? Completion=null);
     public sealed record Encounter(double A,double B,double[] P,double[] Q,double Gap);
 
     public static Encounter Closest(Edge a,Edge b)
@@ -47,8 +47,8 @@ public static class NeighborhoodProposals
             Site(graph.Frame,center,G(selected.Select(e=>(IElement)e.Witness).ToArray())));
         return new(focus,center,reach,radius,sites,edges);
     }
-    private static Candidate Make(Graph before,IEnumerable<Edge> output,Focus focus,IEnumerable<Relation> bindings,IEnumerable<Edge> removed,
-        IEnumerable<Edge> changed,double movement,bool straightening,string description,Relation? lineContext=null,Relation? observation=null)
+    internal static Candidate Make(Graph before,IEnumerable<Edge> output,Focus focus,IEnumerable<Relation> bindings,IEnumerable<Edge> removed,
+        IEnumerable<Edge> changed,double movement,bool straightening,string description,Relation? lineContext=null,Relation? observation=null,Relation? completion=null)
     {
         var after=Create(before.Frame,output);var map=bindings.ToArray();var residue=removed.ToArray();var edited=changed.DistinctBy(e=>e.Witness,ReferenceEqualityComparer.Instance).ToArray();
         var issues=new List<string>();
@@ -57,13 +57,14 @@ public static class NeighborhoodProposals
         if(movement>focus.Reach*.16)issues.Add("movement exceeds the declared local reach budget");
         if(Cycles(after)<Cycles(before))issues.Add("would destroy an existing enclosure");
         if(residue.Any(e=>Length(e.Points)>focus.Reach*.085))issues.Add("would remove a substantial source interval");
-        if(after.Edges.Any(e=>!before.Edges.Any(p=>ReferenceEquals(p.Source,e.Source))))issues.Add("would invent an unsupported source branch");
+        if(after.Edges.Any(e=>!before.Edges.Any(p=>ReferenceEquals(p.Source,e.Source))&&
+            (completion is null||!ReferenceEquals(e.Source,completion)||!ReferenceEquals(NeighborhoodClosure.Read(completion).Before.Surface,before.Surface))))issues.Add("would invent an unsupported source branch");
         if(after.Sites.Any(s=>!before.Sites.Any(p=>ReferenceEquals(p,s))&&Kind(after,s)=="coincident rays"))issues.Add("would collapse distinct, same-direction branches");
         // Every active ray comes from an actual surviving source interval.
         // A two-arm corner therefore cannot turn into a three-arm T by relabeling.
-        var instruction=G(focus.Surface,G(map),G(edited.Select(e=>(IElement)e.Witness).ToArray()),lineContext ?? (IElement)new Placeholder(),observation??(IElement)new Placeholder());
+        var instruction=G(focus.Surface,G(map),G(edited.Select(e=>(IElement)e.Witness).ToArray()),lineContext ?? (IElement)new Placeholder(),observation??(IElement)new Placeholder(),completion??(IElement)new Placeholder());
         var surface=ReadWitness.Create(new Carrier(),before.Surface,instruction,after.Surface,G(residue.Select(e=>(IElement)e.Witness).ToArray()),focus.Surface);
-        return new(surface,before,after,focus,map,residue,edited,movement,straightening,description,issues.Count==0,issues.ToArray(),lineContext,observation);
+        return new(surface,before,after,focus,map,residue,edited,movement,straightening,description,issues.Count==0,issues.ToArray(),lineContext,observation,completion);
     }
     public static Candidate Merge(Graph graph,Relation[] sites,Focus focus,Relation? observation=null)
     {
@@ -89,7 +90,7 @@ public static class NeighborhoodProposals
         var edges=graph.Edges.Where(e=>!ReferenceEquals(e.Witness,other.Witness)).Select(e=>
             ReferenceEquals(e.A,endpoint)||ReferenceEquals(e.B,endpoint)?Move(graph,e,ReferenceEquals(e.A,endpoint)?c.Point:e.A,ReferenceEquals(e.B,endpoint)?c.Point:e.B):e);
         return Make(graph,edges.Concat(new[]{pair.Left,pair.Right}),focus,[new Relation(endpoint,c.Point),new Relation(other.Witness,G(pair.Left.Witness,pair.Right.Witness))],[],changed,c.Gap,false,
-            "attach endpoint to nearest other segment",observation:c.Witness);
+            "attach site to nearest other segment",observation:c.Witness);
     }
     public static Candidate Join(Graph graph,Edge a,Edge b,Encounter at,Focus focus,bool trim)
     {

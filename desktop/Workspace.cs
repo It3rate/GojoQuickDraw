@@ -16,8 +16,9 @@ public sealed class WorkspaceSettings
     public string InspectionOrder { get; set; } = "category";
     public long InspectionSeed { get; set; }
     public string SamplingSeed { get; set; } = "";
-    public string Recognition { get; set; } = "all";
-    public string InspectionRecognition { get; set; } = "all";
+    public string Recognition { get; set; } = "recognized";
+    public string InspectionRecognition { get; set; } = "recognized";
+    public int RecognitionPolicyVersion { get; set; }
     public int ResultView { get; set; }
     public string ResultStage { get; set; } = "";
     public string EncodingModel { get; set; } = "";
@@ -25,6 +26,7 @@ public sealed class WorkspaceSettings
     public string NeighborhoodModel { get; set; } = "";
     public bool EncodingNeighborhoods { get; set; } = true;
     public bool EncodingUseLine { get; set; } = true;
+    public bool EncodingUseClosure { get; set; } = true;
     public int EncodingPasses { get; set; } = 4;
 
     public static string Repository()
@@ -46,6 +48,11 @@ public sealed class WorkspaceSettings
         try { if (File.Exists(SettingsFile)) settings = JsonSerializer.Deserialize<WorkspaceSettings>(File.ReadAllText(SettingsFile)); }
         catch (Exception error) when (error is IOException or JsonException or UnauthorizedAccessException) { }
         settings ??= new();
+        if(settings.RecognitionPolicyVersion<1)
+        {
+            settings.Recognition=settings.InspectionRecognition="recognized";
+            settings.RecognitionPolicyVersion=1;
+        }
         if (string.IsNullOrWhiteSpace(settings.Gojo)) settings.Gojo = Path.GetFullPath(Path.Combine(repository, "..", "Gojo"));
         if (string.IsNullOrWhiteSpace(settings.Input)) settings.Input = File.Exists("D:/_quickDraw/quickdraw/church.ndjson")
             ? "D:/_quickDraw/quickdraw/church.ndjson" : Path.Combine(repository, "examples", "church.ndjson");

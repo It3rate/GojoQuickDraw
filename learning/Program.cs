@@ -20,7 +20,14 @@ public static class Program
                 foreach(var line in File.ReadLines(args[1],Encoding.UTF8))
                 {
                     using var request=JsonDocument.Parse(line);Gojo.Core.Relation root;object result;
-                    if(request.RootElement.TryGetProperty("packet",out _))
+                    var closureBatch=request.RootElement.TryGetProperty("closureCases",out var closureCases);
+                    if(closureBatch)
+                    {
+                        var batch=NeighborhoodClosure.Training(closureCases);root=batch.Surface;
+                        result=new{archive=$"batch-{count:D5}.gojo.json.gz",lines=Array.Empty<NeighborhoodLearning.Example>(),repairs=Array.Empty<NeighborhoodLearning.Example>(),
+                            closures=batch.Examples,goals=0,unsupported=0,ambiguous=0};
+                    }
+                    else if(request.RootElement.TryGetProperty("packet",out _))
                     {
                         var batch=NeighborhoodWeak.Build(request.RootElement);root=batch.Surface;
                         result=new{archive=$"batch-{count:D5}.gojo.json.gz",lines=Array.Empty<NeighborhoodLearning.Example>(),repairs=batch.Repairs,goals=batch.Goals,unsupported=batch.Unsupported,ambiguous=batch.Ambiguous};
@@ -35,10 +42,11 @@ public static class Program
                     using var stored=new StreamReader(new GZipStream(File.OpenRead(path),CompressionMode.Decompress));
                     var doc=Gojo.Encoding.Structures.GojoStructureCompactJson.Deserialize(stored.ReadToEnd());
                     if(!Gojo.Encoding.Structures.GojoStructureCompactJson.TryToElement(doc,out var graph)||graph.Root is not Gojo.Core.Relation restored)throw new InvalidDataException("Neighborhood examples did not restore.");
-                    NeighborhoodLearning.Validate(restored);
+                    if(closureBatch)NeighborhoodClosure.ValidateTraining(restored);else NeighborhoodLearning.Validate(restored);
                     var published=JsonSerializer.SerializeToNode(result,Json)!;
                     published["lineNames"]=JsonSerializer.SerializeToNode(NeighborhoodFeatures.LineNames);
                     published["repairNames"]=JsonSerializer.SerializeToNode(NeighborhoodFeatures.RepairNames);
+                    published["closureNames"]=JsonSerializer.SerializeToNode(NeighborhoodClosure.Names);
                     Console.WriteLine(published.ToJsonString());
                     count++;if(count<3||count%10==0)Console.Error.WriteLine($"Neighborhood examples: {count} batches independently restored");
                 }
@@ -61,7 +69,7 @@ public static class Program
                     }
                     else {initial=NeighborhoodGraph.FromJson(r.GetProperty("source"));observation=initial.Surface;}
                     var result=NeighborhoodRun.Execute(observation,initial,model.RootElement,hash,r.GetProperty("useRepair").GetBoolean(),r.GetProperty("useLine").GetBoolean(),
-                        r.GetProperty("passes").GetInt32(),r.GetProperty("maxCandidates").GetInt32());
+                        r.GetProperty("passes").GetInt32(),r.GetProperty("maxCandidates").GetInt32(),!r.TryGetProperty("useClosure",out var useClosure)||useClosure.GetBoolean());
                     var path=Path.Combine(args[2],$"drawing-{count:D5}.gojo.json.gz");
                     using(var output=new GZipStream(File.Create(path),CompressionLevel.Fastest))output.Write(Encoding.UTF8.GetBytes(PatchEvidence.Capture("neighborhood-result-"+count,result.Surface)));
                     using var stored=new StreamReader(new GZipStream(File.OpenRead(path),CompressionMode.Decompress));

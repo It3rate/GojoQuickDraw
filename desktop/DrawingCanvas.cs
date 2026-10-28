@@ -23,6 +23,8 @@ internal sealed class DrawingCanvas : Control
     public bool IncludeContinuations { get; init; }
     public bool IncludeEndpoints { get; init; }
     public NeighborhoodProjection[] Projections { get; init; } = [];
+    public double[][][] Inferred { get; init; } = [];
+    public HashSet<string> DormantJoints { get; init; } = [];
     public IReadOnlyDictionary<string,string> JointStatuses { get; init; } = new Dictionary<string,string>();
     public HashSet<string> Highlighted { get; set; } = [];
     public Action<JointNode?>? JointHovered { get; set; }
@@ -42,7 +44,7 @@ internal sealed class DrawingCanvas : Control
                 var projection=Projections.MinBy(p=>JointGraphRead.Distance(p.To,[x,y]));
                 if(projection is not null&&JointGraphRead.Distance(projection.To,[x,y])*scale<12)
                 {
-                    _hover=projection.Id;ToolTip.SetTip(this,$"Endpoint {projection.Endpoint} → other edge {projection.Edge}\nGap / local span: {projection.GapRatio:0.###}\nParameter: {projection.Parameter:0.###}\n{projection.Basis}");
+                    _hover=projection.Id;ToolTip.SetTip(this,$"Site {projection.Endpoint} → other edge {projection.Edge}\nGap / local span: {projection.GapRatio:0.###}\nParameter: {projection.Parameter:0.###}\n{projection.Basis}");
                     ToolTip.SetIsOpen(this,true);return;
                 }
             }
@@ -59,12 +61,12 @@ internal sealed class DrawingCanvas : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue,Joints,JointStatuses,Highlighted,ShowJointDirections,IncludeContinuations,UnderlayAlpha,IncludeEndpoints,Projections));
+        context.Custom(new DrawingOperation(new Rect(Bounds.Size), _profiles, Fitted, Underlay, Parts, Frame, Residue,Joints,JointStatuses,Highlighted,ShowJointDirections,IncludeContinuations,UnderlayAlpha,IncludeEndpoints,Projections,Inferred,DormantJoints));
     }
 }
 
 internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool fitted, double[][][] underlay,
-    PreviewPart[] parts, double[] frame, double[][][] residue,JointNode[] joints,IReadOnlyDictionary<string,string> statuses,HashSet<string> highlighted,bool showDirections,bool includeContinuations,byte underlayAlpha,bool includeEndpoints,NeighborhoodProjection[] projections) : ICustomDrawOperation
+    PreviewPart[] parts, double[] frame, double[][][] residue,JointNode[] joints,IReadOnlyDictionary<string,string> statuses,HashSet<string> highlighted,bool showDirections,bool includeContinuations,byte underlayAlpha,bool includeEndpoints,NeighborhoodProjection[] projections,double[][][] inferred,HashSet<string> dormant) : ICustomDrawOperation
 {
     public Rect Bounds { get; } = bounds;
     public void Dispose() { }
@@ -98,6 +100,10 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
         Paths(underlay, false, SKColor.Parse("#465852").WithAlpha(underlayAlpha));
         Paths(residue, true, SKColor.Parse("#647A79").WithAlpha(90));
         Paths(profiles, fitted, SKColor.Parse(fitted ? "#247D72" : "#465852"));
+        using(var inferredDash=SKPathEffect.CreateDash([4/scale,3/scale],0))
+        {
+            paint.PathEffect=inferredDash;Paths(inferred,true,SKColor.Parse("#919A9F"));paint.PathEffect=null;
+        }
         using(var dash=SKPathEffect.CreateDash([3/scale,4/scale],0))
         {
             foreach(var projection in projections.GroupBy(p=>p.Endpoint).Select(g=>g.First()))
@@ -130,10 +136,11 @@ internal sealed class DrawingOperation(Rect bounds, double[][][] profiles, bool 
         using var font=new SKFont(SKTypeface.Default,10/scale);
         foreach(var joint in joints.Where(n=>JointGraphRead.Significant(n)||includeContinuations&&n.Kind=="I"||includeEndpoints&&n.Kind=="endpoint"))
         {
-            var color=SKColor.Parse(joint.Added||joint.Kind=="endpoint" ? "#899398" : statuses.GetValueOrDefault(joint.Id) switch
+            var remembered=dormant.Contains(joint.Id);
+            var color=SKColor.Parse(remembered||joint.Added||joint.Kind=="endpoint" ? "#899398" : statuses.GetValueOrDefault(joint.Id) switch
                 {"same type"=>"#247D72","changed type"=>"#B56C19","ambiguous"=>"#9B5A62","unresolved"=>"#899398",_=>"#7963A4"});
             var x=(float)joint.Point[0];var y=(float)joint.Point[1];
-            if(showDirections)
+            if(showDirections&&!remembered)
             {
                 paint.Style=SKPaintStyle.Stroke;paint.Color=color;paint.StrokeWidth=1.3f/scale;
                 foreach(var angle in joint.Directions)

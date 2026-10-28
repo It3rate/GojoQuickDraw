@@ -216,6 +216,8 @@ public sealed class PipelineTests : IDisposable
         Assert.Contains("consolidate",args);Assert.Contains("--no-repair",args);Assert.DoesNotContain("--no-line",args);
         Assert.Contains("--max-candidates",args);Assert.DoesNotContain("--max-patches",args);
         Assert.Equal("4",args[args.IndexOf("--passes")+1]);
+        Assert.DoesNotContain("--no-closure",args);
+        Assert.Contains("--no-closure",Pipeline.Plan(PipelineAction.Encode,options with {EncodingClosure=false}).Arguments);
         Assert.Throws<ArgumentException>(()=>Pipeline.Plan(PipelineAction.Encode,options with {EncodingModels=[]}));
         Assert.Contains("train-neighborhoods",Pipeline.Plan(PipelineAction.Train,Options with {TrainingNeighborhoods=true}).Arguments);
     }

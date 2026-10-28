@@ -16,7 +16,7 @@ public static class NeighborhoodFeatures
         "nearby-endpoints","nearby-continuations","nearby-corners","nearby-tees","nearby-crossings","nearby-forks"];
     private static readonly double[] RatioCuts=[.004,.02,.06,.15,.35];
     private static readonly double[] CountCuts=[.5,1.5,2.5,3.5,4.5];
-    private static Cells Publish(IElement selected,IElement definition,double[] values,double[][] cuts)
+    internal static Cells Publish(IElement selected,IElement definition,double[] values,double[][] cuts)
     {
         var metrics=new Carrier();var grade=new Carrier();var rows=new List<IElement>();var bands=new int[values.Length];
         for(var i=0;i<values.Length;i++)
@@ -128,8 +128,9 @@ public static class NeighborhoodFeatures
     public static void ValidateBundle(JsonElement bundle)
     {
         if(bundle.GetProperty("schema").GetString()!="gojo.neighborhood-models.v1")throw new InvalidDataException("Expected a neighborhood provider bundle.");
-        foreach(var (name,names) in new[]{("line",LineNames),("repair",RepairNames)})
+        foreach(var (name,names) in new[]{("line",LineNames),("repair",RepairNames),("closure",NeighborhoodClosure.Names)})
         {
+            if(name=="closure"&&!bundle.TryGetProperty(name,out _))continue;
             var model=bundle.GetProperty(name);
             if(model.GetProperty("schema").GetString()!="gojo.neighborhood-provider.v1"||model.GetProperty("featureCount").GetInt32()!=names.Length||
                 !model.GetProperty("featureNames").EnumerateArray().Select(e=>e.GetString()).SequenceEqual(names))throw new InvalidDataException("The saved provider has a different native feature interface.");

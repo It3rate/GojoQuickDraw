@@ -13,7 +13,7 @@ public sealed record PipelineOptions(string Repository, string Python, string Go
     int Offset = 0, int Workers = 4, string? AnalysisOutput = null, string Recognition = "all",
     int TrainingSynthetic = 2500, int TrainingEpochs = 35, long TrainingSeed = 31, string? TrainingOutput = null,
     IReadOnlyList<string>? EncodingModels = null, string? EncodingOutput = null, int EncodingPatches = 128,
-    bool TrainingNeighborhoods = false, bool EncodingNeighborhoods = false, bool EncodingRepair = true, bool EncodingLine = true,int EncodingPasses=4);
+    bool TrainingNeighborhoods = false, bool EncodingNeighborhoods = false, bool EncodingRepair = true, bool EncodingLine = true,int EncodingPasses=4,bool EncodingClosure=true);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -54,6 +54,7 @@ public static class Pipeline
                     arguments.AddRange(["--passes",options.EncodingPasses.ToString(CultureInfo.InvariantCulture)]);
                     if(!options.EncodingRepair)arguments.Add("--no-repair");
                     if(!options.EncodingLine)arguments.Add("--no-line");
+                    if(!options.EncodingClosure)arguments.Add("--no-closure");
                 }
                 artifact=Path.Combine(encodingOutput,"report.html");
                 break;

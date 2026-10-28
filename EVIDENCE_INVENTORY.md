@@ -53,6 +53,15 @@ attachment. The same two providers can participate in a straightening →
 attachment → alignment cascade. General live multi-maker tension flow remains
 **plan**; these saved local rewrites do not implement that law.
 
+As of 28 October, nearest-point observations from **all joints**, reversible
+gray I-continuation reads with outer ports, and a separately selectable trained
+closure provider are also **in**. Closure adds an explicitly unobserved gray
+passage to an existing ordered route and reanalyzes the resulting incidences.
+It does not establish object membership, fill or containment. Chronology is
+retained in those reads; learned timing influence remains **plan**, since the
+current controlled supervision is geometric. Equivalent rectangle context
+selection and live bidirectional maker settlement remain **plan**.
+
 ## 1. Acquisition and source
 
 | Evidence | Status | Scope |
@@ -127,6 +136,7 @@ closure read, not a degree-two joint. K is this experiment's display convention.
 | Coincident/co-directed rays | in | Ambiguous; do not manufacture another arm. |
 | Unresolved/degenerate joint | in | Insufficient directional support. |
 | Smooth continuation | in | Opposed endpoint tangents within allowance. |
+| Dormant I joint / coarse continuation ports | in | Internal site, two outer endpoints, actual route and deviation retained; a new branch reactivates the joint read. |
 | O / closed cycle | in | Closure candidate, with observed gap retained. |
 | Cusp | plan | Reversal at a joined path. |
 | Convex corner | plan | Requires interior context. |
@@ -227,6 +237,7 @@ approximate/exact under an explicit premise.
 | Connected components | plan | Beyond individual pen strokes. |
 | Open boundary | in | Not automatically closed. |
 | Near-closure and gap | in | Separate from completed interpretation. |
+| Learned local closure passage | in | Tiny geometric-control provider; actual route and endpoints, gray inferred connector, timing context and later joint rereads retained. |
 | Explicit closed boundary walk | in | Controls and construction. |
 | Closure assembled across strokes | plan | General discovery incomplete. |
 | Elementary versus subdivided enclosure | plan | Earlier interior mechanisms not generally integrated. |

@@ -1,0 +1,191 @@
+{
+  "schema": "gojo.closure-continuation-checkpoint.v1",
+  "date": "2026-10-28",
+  "modelRun": "D:\\_quickDraw\\data\\church3000-models\\closure-2026-10-28-v3",
+  "encodingRun": "D:\\_quickDraw\\data\\church3000-encodings\\closure-2026-10-28-v1",
+  "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+  "adapter": {
+    "sha256": "2e74709ca4d1fbd109545eb09dd3221036692938d91ec903931e52d1e8685ce6",
+    "files": 20,
+    "basis": "Exact adapter source bytes and ordered relative paths; build outputs excluded"
+  },
+  "upstream": {
+    "repository": "https://github.com/It3rate/Gojo.git",
+    "revision": "4c3bc19a25b3ef08ffeebfbb1d2ac42f4f7acd51",
+    "pinnedRevision": "050ea3fe03cd0b150b0e6b499c7a5da5b8089914",
+    "matchesPinnedRevision": false,
+    "sourceSha256": "2b279085e3767437f077ecf98625216703602027330f037cabf05eac2fd8741d",
+    "dirtyPaths": [],
+    "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+  },
+  "training": {
+    "sourceDrawings": 60,
+    "recognition": "recognized",
+    "controlledNeighborhoods": 864,
+    "closureControlsRequested": 864,
+    "closureExamples": 795,
+    "parameterCount": 204,
+    "lineTest": {
+      "examples": 416,
+      "agreement": 0.9543269230769231,
+      "crossEntropy": 0.06819467829330714,
+      "proposalCoverage": 0.7836538461538461,
+      "precisionWhenProposed": 0.9938650306748467
+    },
+    "repairTest": {
+      "examples": 432,
+      "agreement": 0.9143518518518519,
+      "crossEntropy": 0.13295715746309045,
+      "proposalCoverage": 0.6296296296296297,
+      "precisionWhenProposed": 0.9375
+    },
+    "closureTest": {
+      "examples": 124,
+      "agreement": 0.9435483870967742,
+      "crossEntropy": 0.12826886920985517,
+      "proposalCoverage": 0.5241935483870968,
+      "precisionWhenProposed": 1.0
+    },
+    "closureGraphTest": {
+      "independentTemplates": 31,
+      "trueClosures": 15,
+      "missedClosures": 3,
+      "openControlsKept": 13,
+      "falseClosures": 0
+    },
+    "graphTest": {
+      "examples": 32,
+      "improved": 22,
+      "worsened": 0,
+      "unchanged": 10,
+      "independentTemplates": 32,
+      "neededRepair": 25,
+      "correctlyUnchanged": 7
+    },
+    "totalSeconds": 77.80019199999515
+  },
+  "uniqueAcquisitionsInSourceSnapshot": 299,
+  "recognitionOutcomesInUniqueAcquisitions": {
+    "recognized": 253,
+    "unrecognized": 46,
+    "unknown": 0
+  },
+  "recognizedOnlyTrainingAndReview": true,
+  "sameWeightsBeforeAfterSchedulingFix": true,
+  "fourPassReview": {
+    "drawings": 25,
+    "applications": 240,
+    "withoutClosureApplications": 234,
+    "sameSourceSnapshot": true,
+    "seconds": 51.593874100013636,
+    "closureApplications": 4,
+    "retainedClosureEdges": 3,
+    "dormantContinuations": 27,
+    "stops": {
+      "pass budget reached; unresolved work may remain": 19,
+      "no accepted local changes": 6
+    }
+  },
+  "eightPassAudit": {
+    "drawings": 8,
+    "stops": {
+      "no accepted local changes": 5,
+      "pass budget reached; unresolved work may remain": 3
+    },
+    "appliedByPass": [
+      [
+        4,
+        2,
+        3,
+        1,
+        1,
+        0
+      ],
+      [
+        3,
+        5,
+        2,
+        3,
+        1,
+        2,
+        1,
+        1
+      ],
+      [
+        4,
+        3,
+        2,
+        2,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        5,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      [
+        4,
+        2,
+        2,
+        3,
+        2,
+        2,
+        2,
+        1
+      ],
+      [
+        5,
+        2,
+        2,
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        5,
+        2,
+        0
+      ],
+      [
+        3,
+        1,
+        1,
+        0
+      ]
+    ]
+  },
+  "uncheckedControls": 2,
+  "checks": {
+    "python": 210,
+    "adapter": 123,
+    "linkedGojo": 5407,
+    "browser": {
+      "total": 25,
+      "errors": [],
+      "requests": [],
+      "preservedStage": "4",
+      "actualGraphPaths": true,
+      "endpointCount": 321,
+      "nearestPointOverlay": true,
+      "inferred": 3,
+      "dormant": 27,
+      "jointProjection": true
+    },
+    "desktopColdStartWithoutTools": true,
+    "freshConversion": {
+      "records": 2,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    }
+  },
+  "qualification": "Bounded source-local rewriting with native continuation perspectives and explicitly unobserved closure passages. Synthetic closure targets do not establish human intent, object membership, fill or containment. Source chronology is retained, but synthetic supervision does not establish its learned influence. No generic multi-maker Gojo tension settlement or equivalent rectangle-context selection is claimed. Applications and quiet stops are not verified corrections or convergence."
+}

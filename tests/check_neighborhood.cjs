@@ -26,6 +26,12 @@ const {chromium}=require(process.env.GOJO_PLAYWRIGHT_MODULE||'playwright');
   await page.locator('#forward').blur();await page.keyboard.press('ArrowDown');
   assert.equal(await page.locator('#detailStage').inputValue(),String(Math.min(2,Number(initial))));
   await page.locator('#detailStage').selectOption(initial);
+  const extra=await page.evaluate(()=>{
+   const inferred=data.reduce((n,d)=>n+(d.stages.at(-1).graph.inferredCurves||[]).length,0);
+   const dormant=data.reduce((n,d)=>n+(d.stages.at(-1).graph.continuations||[]).length,0);
+   const jointProjection=data.some(d=>d.stages.some(s=>(s.graph.projections||[]).some(p=>s.graph.sites.find(v=>v.id===p.endpoint)?.degree>1)));
+   return {inferred,dormant,jointProjection};
+  });
   await page.screenshot({path:path.join(output,'detail.png')});
   await page.locator('#close').click();await page.locator('#next').click();
   assert.equal(await page.locator('#stage').inputValue(),initial);
@@ -35,6 +41,9 @@ const {chromium}=require(process.env.GOJO_PLAYWRIGHT_MODULE||'playwright');
   await page.screenshot({path:path.join(output,'gallery.png'),fullPage:true});
   const malformed=await page.locator('svg path').evaluateAll(nodes=>nodes.some(n=>/NaN|Infinity/.test(n.getAttribute('d'))));
   assert(!malformed);assert.equal(errors.length,0);assert.equal(requests.length,0);
-  fs.writeFileSync(path.join(output,'summary.json'),JSON.stringify({total,errors,requests,preservedStage:initial,actualGraphPaths:true,endpointCount,nearestPointOverlay:hasProjections},null,2));
+  if(extra.inferred){const i=await page.evaluate(()=>data.findIndex(d=>(d.stages.at(-1).graph.inferredCurves||[]).length));await page.evaluate(i=>{stage=maxStage;open(i)},i);assert(await page.locator('#large [data-inferred="closure"]').count()>0);await page.screenshot({path:path.join(output,'inferred-closure.png')})}
+  if(extra.dormant){const i=await page.evaluate(()=>data.findIndex(d=>(d.stages.at(-1).graph.continuations||[]).length));await page.evaluate(i=>{stage=maxStage;open(i)},i);assert(await page.locator('#large [data-dormant="true"]').count()>0)}
+  assert.equal(errors.length,0);assert.equal(requests.length,0);
+  fs.writeFileSync(path.join(output,'summary.json'),JSON.stringify({total,errors,requests,preservedStage:initial,actualGraphPaths:true,endpointCount,nearestPointOverlay:hasProjections,...extra},null,2));
  }finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});

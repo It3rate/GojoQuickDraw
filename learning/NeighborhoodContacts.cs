@@ -5,7 +5,7 @@ using static GojoQuickDraw.Learning.PatchEvidence;
 
 namespace GojoQuickDraw.Learning;
 
-// A nearest-point observation is not contact. Its endpoint, selected other
+// A nearest-point observation is not contact. Its site, selected other
 // interval, parameter, separate projected site and finite gap stay connected.
 public static class NeighborhoodContacts
 {
@@ -36,10 +36,10 @@ public static class NeighborhoodContacts
     public static Contact[] Discover(Graph graph,int neighbors=2)
     {
         var result=new List<Contact>();
-        foreach(var endpoint in graph.Sites.Where(s=>Degree(graph,s)==1))
+        foreach(var endpoint in graph.Sites.Where(s=>Degree(graph,s)>0))
         {
-            var incident=graph.Edges.Single(e=>ReferenceEquals(e.A,endpoint)||ReferenceEquals(e.B,endpoint));
-            var reach=Length(incident.Points);
+            var incident=graph.Edges.Where(e=>ReferenceEquals(e.A,endpoint)||ReferenceEquals(e.B,endpoint)).ToArray();
+            var reach=incident.Select(e=>Length(e.Points)).Max();
             var other=graph.Edges.Where(e=>!ReferenceEquals(e.A,endpoint)&&!ReferenceEquals(e.B,endpoint))
                 .Select(e=>{var n=Nearest(XY(endpoint),e);return (Edge:e,Near:n,Gap:PatchGeometry.Distance(XY(endpoint),n.Point));})
                 .OrderBy(v=>v.Gap).Take(neighbors);
@@ -63,8 +63,8 @@ public static class NeighborhoodContacts
     public static Contact Read(Relation witness,Graph graph)
     {
         if(!ReadWitness.TryRead(witness,out var selected,out var basis,out var result,out _,out var source)||!ReferenceEquals(source,graph.Surface)||
-            selected is not Relation{Left:Relation endpoint,Right:Relation target}||!graph.Sites.Any(s=>ReferenceEquals(s,endpoint))||Degree(graph,endpoint)!=1)
-            throw new InvalidDataException("Nearest-point read lost its actual endpoint/source graph.");
+            selected is not Relation{Left:Relation endpoint,Right:Relation target}||!graph.Sites.Any(s=>ReferenceEquals(s,endpoint))||Degree(graph,endpoint)<1)
+            throw new InvalidDataException("Nearest-point read lost its actual site/source graph.");
         var edge=graph.Edges.SingleOrDefault(e=>ReferenceEquals(e.Witness,target))??throw new InvalidDataException("Nearest-point read lost its other segment.");
         if(ReferenceEquals(edge.A,endpoint)||ReferenceEquals(edge.B,endpoint))throw new InvalidDataException("An endpoint cannot use its incident segment as other support.");
         var b=Fields(basis,4);var r=Fields(result,4);
@@ -82,6 +82,9 @@ public static class NeighborhoodContacts
             throw new InvalidDataException("Projected point belongs to another frame.");
         if(PatchGeometry.Distance(XY(point),PatchGeometry.Bezier(edge.Points,t))>2e-6||Math.Abs(gap.Ticks/(double)Q-PatchGeometry.Distance(XY(endpoint),XY(point)))>2e-6)
             throw new InvalidDataException("Nearest-point result does not lie on its selected source interval.");
+        var actualReach=Math.Max(.001,Math.Min(graph.Edges.Where(e=>ReferenceEquals(e.A,endpoint)||ReferenceEquals(e.B,endpoint)).Max(e=>Length(e.Points)),Length(edge.Points)));
+        if(Math.Abs(end.Ticks/(double)Q-actualReach)>2e-6||Math.Abs(hi.Ticks/(double)Q-.1*actualReach)>2e-6)
+            throw new InvalidDataException("Nearest-point reach is not calibrated to its actual incident intervals.");
         return new(witness,endpoint,edge,parameter,point,t,gap.Ticks/(double)Q,end.Ticks/(double)Q,hi.Ticks/(double)Q);
     }
 }

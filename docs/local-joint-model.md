@@ -1,5 +1,9 @@
 # First local joint construction model
 
+The opening sections describe the original pairwise pilot. The current
+neighborhood mode also edits interpreted graphs, retains continuation memory,
+and has a separately trained closure provider; see the extensions below.
+
 This is an implemented, trained pilot. It proposes five connected local
 constructions: separate runs, continuation, corner, end-to-span T, and four-arm
 crossing. The opt-in Encoding comparison replaces covered local joint opinions
@@ -501,6 +505,127 @@ downward expectation ports. Test whether one maker's change produces an
 accountable response in the others, preserves alternative readings and stops
 without recycling support. That would be a useful small Gojo-flow experiment;
 wrapping the existing ten stages in a repeated loop would not establish it.
+
+## Continuation memory and pre-shape closure — 28 October 2026
+
+**Implemented** in neighborhood mode; source acquisitions and the ten church
+stages remain read-only. Three independently selectable providers now read the
+same interpreted graph: joint repair, line/curve interpretation, and closure.
+Old two-provider bundles remain readable and do not acquire a fabricated closure
+model. Uncheck all three providers for an unchanged graph/control.
+
+An I is no longer presented as an equally prominent active joint after a pass.
+It has a native continuation read:
+
+```text
+selected = G(actual inner site, G(actual edge A, actual edge B))
+basis = G(actual graph frame, finite deviation basis)
+result = G(outer endpoint A -> outer endpoint B, actual ordered source route)
+residue = measured route-to-chord deviation
+provenance = actual interpreted graph
+```
+
+The gray internal site remains part of the source route. The two outer ports
+offer a coarser continuation perspective without moving its geometry, erasing a
+source interval or declaring that a curved route is exactly straight. Its bend
+is retained. If another branch binds there, the next read sees a T/X/etc. and
+the point becomes active again; the earlier continuation is still in history.
+This is withdrawal from **joint focus**, not deletion of an acquisition event
+or physical withdrawal of a kernel carrier attachment. The existing line reader
+can still inspect the original split. The model does not yet select among
+arbitrary context encodings.
+
+Nearest-point observations now start at **any incident site**, including corners,
+tees and crossings, and exclude all segments incident at that exact site. Two
+nearest other intervals are retained, with their actual parameter points, local
+reach and gaps. Candidate attachment is bounded to one tenth of the shorter of
+the longest incident span and target span; farther reads remain observations.
+An attachment moves every edge sharing the selected site together. It cannot
+invent a third ray by changing an L label to T. Duplicate same-direction rays,
+zero geometry and existing-enclosure destruction remain structural rejections.
+
+Closure is distinct from object segmentation. It asks whether a missing passage
+would close an already connected ordered route, without choosing rectangle,
+circle, window, roof, wall or fill membership. Its native structure is:
+
+```text
+selected = G(actual endpoint A, actual endpoint B,
+             G(actual from-site -> actual edge witness ...))
+basis = G(actual frame, gap span, terminal reach, route length,
+          actual stroke/sample/time evidence or open timing)
+result = endpoint A -> endpoint B
+unobserved participation = open placeholder
+provenance = graph in which this opportunity was read
+
+selected closure -> new inferred edge source
+new edge = ordered endpoints + its own parameter span + closure provenance
+```
+
+Source edges keep their identities and positions. The new edge is gray/dashed,
+references an **inferred** source rather than a physical profile, and adds an
+actual interpreted incidence at each endpoint. Later passes therefore read
+new joints. A connector changes incidence even when old edge witnesses are
+unchanged: competing proposals that read the old endpoint degree become stale
+and must wait for another pass. Accepted local replacements, closure grounds,
+continuation perspectives and their correspondence survive independent restore.
+Current local opportunities are scheduled in descending support/compatibility
+utility, so a weaker overlapping fragment does not win merely by enumeration
+order. This is an authored bounded scheduling policy, not global optimization or
+a learned integrator. Applied candidates still invalidate overlapping old reads.
+
+The closure provider is another tiny logistic model, not a global detector. Ten
+coarse cells describe gap/terminal reach, gap/route length, accumulated turn,
+terminal direction change, route-edge count, interior branching, shared acquired
+stroke, stroke-order span, timestamp availability and endpoint-time span relative
+to the route's time span. Missing time stays open. Stroke identity and clock-axis
+identity matter; equal ordinal numbers or timestamps from separate acquisitions
+do not establish a common stroke or comparable clock. Fitted interior parameters
+do not receive fabricated sample times.
+
+Current synthetic supervision teaches geometric near-closure versus supplied
+open-route counterexamples. These controls have no acquired chronology, so the
+current learned weights do **not** establish how stroke order or timing should
+influence closure. Those real observations are exposed and retained for later
+annotated training. Similar near-loops can also be intentionally open. Current
+scores are revisable support, not probabilities of human intention.
+
+Search is bounded to routes of at most 24 source intervals, gaps below 0.35 of
+terminal reach and 0.12 of route length, and a capped set of proposals. These
+are authored opportunity limits. A path is not required to have exclusive object
+ownership: the same source segment may support several future enclosure or part
+claims. This pass does not infer ground, fill, containment or object boundaries
+from closure alone. It does not yet complete entirely missing long sides.
+
+New CLI processing/training/encoding selections default to **recognized by the
+QuickDraw game**; catalog browsing can still show all. Studio's earlier all-outcome
+preference is migrated once to recognized, after which explicit changes persist.
+Existing records are kept. False and missing outcomes are excluded from recognized
+selection; neither is silently upgraded. This is the game's AI result, not human
+review or a quality guarantee. New run manifests/snapshots retain that selection.
+
+### Next composition experiment
+
+**Documented direction / unimplemented:** connect line, joint and enclosure makers
+through explicit expectation and response ports, with alternatives such as an
+ordered four-turn contour and two opposed pairs of parallel spans referring to
+the same rectangle corners. A contextual switch should preserve exposed sites,
+source correspondence and visible output within its declared resolution; compare
+its attachment opportunities and residuals, not just pixel agreement.
+
+The continuation read above is a small executable example of exposing a different
+perspective while retaining the original route. It does not yet implement the
+equivalent rectangle makers or general Gojo tension settlement. A possible future
+door-to-ground port can refer directly to the exposed base line without requiring
+every message to pass through a wall classifier. Overlapping/nested constructions
+need not become an exclusive segmentation tree.
+
+The earlier `experiments/UtilityEcology` work in the linked Gojo checkout supplies
+relevant precedents for retained inactive services, explicit ports, consequence
+receipts and bounded attention. Its supplied currency and utility laws are
+experimental, not a visual-fit objective or a license to turn statistical error
+into physical tension. Context breeding would need witnessed structural edits,
+accounted local work and stable exposed correspondence. It is not implemented
+by repeatedly running the present classifier.
 
 ## Research reading
 
