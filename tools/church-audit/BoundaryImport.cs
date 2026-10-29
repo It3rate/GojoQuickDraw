@@ -52,7 +52,7 @@ public static class BoundaryImport
 
     public static void Seal(string folder,int maximum=10000,int workers=4)
     {
-        if(maximum is <1 or >10000||workers is <1 or >4)throw new ArgumentOutOfRangeException(nameof(maximum));
+        if(maximum is <1 or >10000||workers is <1 or >8)throw new ArgumentOutOfRangeException(nameof(maximum));
         var started=System.Diagnostics.Stopwatch.StartNew();
         var directory=Path.GetFullPath(folder);var receipts=new System.Collections.Concurrent.ConcurrentBag<object>();var completed=0;
         var files=Directory.EnumerateFiles(Path.Combine(directory,"drawings"),"view.json",SearchOption.AllDirectories).Order().Take(maximum).ToArray();
@@ -69,42 +69,16 @@ public static class BoundaryImport
                 var arm=run.GetProperty("arm").GetString()!;var path=Path.Combine(Path.GetDirectoryName(file)!,arm+".gojo.bin.gz");
                 if(!ChurchExperiment.Arms.Contains(arm))throw new InvalidDataException("An archive path must belong to a declared experiment version.");
                 var bytes=File.ReadAllBytes(path);var beforeHash=Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
-                Relation root;
+                GojoEncodedSnapshot snapshot;
                 using(var gzip=new GZipStream(new MemoryStream(bytes),CompressionMode.Decompress))
-                {using var plain=new MemoryStream();gzip.CopyTo(plain);root=(Relation)GojoNumericFormat.Decode(plain.ToArray())[0];}
-                var bare=Unwrap(root,out var already);
-                if(already is not null){receipts.Add(new{identity,arm,retained=true,sha256=beforeHash});continue;}
-                ChurchExperiment.Validate(bare);var original=bare;
-                var preview=run.GetProperty("stages").EnumerateArray().ToArray();var additions=new List<IElement>();var edgeCount=0;
-                foreach(var (pass,index) in F(F(original)[2]).Select((s,i)=>(s,i+1)))
-                {
-                    var fields=F(pass);if(fields.Length!=5)continue;
-                    var parts=F(F(fields[1])[3]);var expected=preview[index].GetProperty("parts").EnumerateArray().ToArray();
-                    if(parts.Length!=expected.Length)throw new InvalidDataException("Review and native scaffold counts differ.");
-                    var imported=new List<IElement>();
-                    foreach(var (part,i) in parts.Select((p,i)=>(F(p),i)))
-                    {
-                        var producer=(Relation)part[1];var outputSurface=(Relation)F(producer)[2];var roles=F(outputSurface);
-                        var seed=declared[expected[i].GetProperty("id").GetString()!];var topology=seed.GetProperty("geometry").GetProperty("segments").Deserialize<int[][]>()!;
-                        if(seed.GetProperty("geometry").GetProperty("points").GetArrayLength()!=roles.Length||
-                            topology.Any(e=>e.Length!=2||e.Any(v=>v<0||v>=roles.Length)))throw new InvalidDataException("Declared scaffold ports do not match their producer.");
-                        var cached=expected[i].GetProperty("segments").Deserialize<int[][]>()!;
-                        if(!topology.SelectMany(e=>e).SequenceEqual(cached.SelectMany(e=>e))||topology.Length!=cached.Length)
-                            throw new InvalidDataException("Review topology differs from its declared source scaffold.");
-                        var edges=topology.Select(e=>(IElement)new Relation(roles[e[0]],roles[e[1]])).ToArray();edgeCount+=edges.Length;
-                        var provenance=EncodedTextSurface.Create(new Carrier(),"Authored source-scaffold boundary import; not acquired ink. Input SHA256 "+
-                            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(seed.GetRawText()))).ToLowerInvariant());
-                        imported.Add(ReadWitness.Create(new Carrier(),producer,outputSurface,G(edges),G(),provenance));
-                    }
-                    additions.Add(new Relation(pass,G(imported.ToArray())));
-                }
-                var sourceReceipt=EncodedTextSurface.Create(new Carrier(),"Lossless structural import. Original compressed native SHA256 "+beforeHash);
-                var witness=ReadWitness.Create(new Carrier(),original,G(),G(additions.ToArray()),G(),sourceReceipt);
-                root=G(original,witness);Validate(root,validateWorld:false);
+                {using var plain=new MemoryStream();gzip.CopyTo(plain);snapshot=GojoNumericFormat.ReadSnapshot(plain.ToArray());}
+                if(PackedBoundaryImport.IsSealed(snapshot))
+                {PackedBoundaryImport.Validate(snapshot);receipts.Add(new{identity,arm,retained=true,sha256=beforeHash});continue;}
+                var (extended,edgeCount)=PackedBoundaryImport.Create(snapshot,run,declared,beforeHash);
                 var temporary=path+".structure.tmp";
-                using(var gzip=new GZipStream(File.Create(temporary),CompressionLevel.Fastest))gzip.Write(GojoNumericFormat.Encode(root));
+                using(var gzip=new GZipStream(File.Create(temporary),CompressionLevel.Fastest))gzip.Write(GojoNumericFormat.Encode(extended));
                 using(var gzip=new GZipStream(File.OpenRead(temporary),CompressionMode.Decompress))
-                {using var plain=new MemoryStream();gzip.CopyTo(plain);Validate((Relation)GojoNumericFormat.Decode(plain.ToArray())[0],validateWorld:false);}
+                {using var plain=new MemoryStream();gzip.CopyTo(plain);PackedBoundaryImport.Validate(GojoNumericFormat.ReadSnapshot(plain.ToArray()));}
                 File.Move(temporary,path,true);
                 receipts.Add(new{identity,arm,retained=false,beforeSha256=beforeHash,sha256=Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant(),boundaryEdges=edgeCount});
             }

@@ -121,4 +121,21 @@ public class ChurchStudyTests
         var original=BoundaryImport.Unwrap(restored,out var receipt);Assert.Same(F(restored)[0],original);Assert.NotNull(receipt);
         Assert.Equal(F(run.Surface).Length,F(original).Length);
     }
+
+    [Fact] public void PackedImportPreservesEveryOriginalRowAndRestoresTheSameRoleGraph()
+    {
+        var ink=Ink();var bundle=Json(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"providers.json")));
+        var run=ChurchExperiment.Run(ink.Surface,ink,Layout(),Json("""{"targets":[]}"""),Profiles(ink),bundle,"fixture-model","shapes-only",2,1,8);
+        var preview=Json(JsonSerializer.Serialize(run.View,GojoQuickDraw.ChurchStudy.Program.Json));
+        var original=GojoEncodedSnapshot.CaptureGraph(run.Surface);
+        var declared=Layout().GetProperty("parts").EnumerateArray().ToDictionary(p=>p.GetProperty("id").GetString()!,p=>p.Clone());
+        var (packed,edges)=PackedBoundaryImport.Create(original,preview,declared,"fixture-source-hash");
+        Assert.Equal(8,edges);Assert.True(PackedBoundaryImport.IsSealed(packed));
+        Assert.Equal(original.Relations,packed.Relations.Take(original.Relations.Length));
+        Assert.Equal(original.Carriers,packed.Carriers.Take(original.Carriers.Length));
+        Assert.Equal(original.TickRefs,packed.TickRefs.Take(original.TickRefs.Length));
+        var restored=(Relation)GojoNumericFormat.Decode(GojoNumericFormat.Encode(packed))[0];BoundaryImport.Validate(restored);
+        var raw=BoundaryImport.Unwrap(restored,out _);ChurchExperiment.Validate(raw);
+        Assert.Equal(F(run.Surface).Length,F(raw).Length);
+    }
 }

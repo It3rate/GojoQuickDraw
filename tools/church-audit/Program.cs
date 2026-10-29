@@ -11,7 +11,7 @@ using GojoQuickDraw.Learning;
 using static Gojo.Experiments.ConstructionMachines.MachineExpressions;
 using static GojoQuickDraw.Learning.NeighborhoodGraph;
 
-if(args.Length is 2 or 3&&args[0]=="seal") {BoundaryImport.Seal(args[1],args.Length==3?int.Parse(args[2]):10000);return;}
+if(args.Length is 2 or 3 or 4&&args[0]=="seal") {BoundaryImport.Seal(args[1],args.Length>=3?int.Parse(args[2]):10000,args.Length==4?int.Parse(args[3]):4);return;}
 if(args.Length!=3)throw new ArgumentException("Usage: STUDY_FOLDER MAX_DRAWINGS OUTPUT.json | seal STUDY_FOLDER [MAX_DRAWINGS]");
 var limit=int.Parse(args[1]);if(limit is <1 or >1024)throw new ArgumentOutOfRangeException(nameof(limit));
 var options=GojoQuickDraw.ChurchStudy.Program.Json;

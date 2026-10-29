@@ -18,6 +18,11 @@ and the final native boundary import. `--limit` bounds the numerical sample; the
 sealer operates only on completed drawings. Sealing is resumable and never reruns
 or moves a numerical world.
 
+For an idle machine, the sealer's optional final arguments select its drawing
+bound and concurrency, for example `seal <folder> 10000 8`. Its default is four
+workers. Run the heavy numerical and final encoding phases sequentially to keep
+memory available for their native witness graphs.
+
 Open the output's `review.html`. It has twelve input/result pairs per page and a
 four-version detail view. Page changes preserve the selected comparison and pass.
 Arrow keys navigate drawings; Shift with left/right navigates pages; up/down changes
@@ -151,6 +156,14 @@ previous compressed archive hash and validates every source/output binding.
 It does not retroactively influence settlement or change any numerical result.
 This separates an explicit structural import from a claim that the numerical
 study was already negotiating every aspect of shape topology.
+
+The importer compiles a small native overlay and binds its temporary references
+to the existing transport references. Every original carrier, tick, location,
+relation, unit and placeholder row must remain an unchanged prefix. The temporary
+proxy slots are removed; decoded output contains the actual shared producer roles.
+This avoids rebuilding all numerical proof objects just to add boundary edges.
+The independent auditor still restores complete sample archives and checks their
+geometry, error reads and exact signed receiver accounting.
 
 Binary graphs use the linked kernel's `GojoNumericFormat`, preserving identity,
 aliases, carriers, definitions, ports, native error witnesses, source intervals,

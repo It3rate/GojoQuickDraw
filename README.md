@@ -422,6 +422,8 @@ python -m gojo_quickdraw.church_study run --input D:/_quickDraw/quickdraw/church
 
 Open the output's `review.html` for the paged comparison. Shape expectations remain
 authored; this is a structural baseline for future learning, not an accuracy claim.
+Use `tools/RunChurchStudy.ps1 -Output <new-folder>` to run computation and the final
+native boundary import together.
 
 ## Verify changes
 
