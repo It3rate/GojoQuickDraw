@@ -18,7 +18,7 @@ public static class ChurchExperiment
     public sealed record Result(Relation Surface,object View);
 
     public static Result Run(Relation observation,Graph original,JsonElement layout,JsonElement mapping,IReadOnlyDictionary<string,IElement> profiles,
-        JsonElement model,string modelHash,string arm,int passes=6,int steps=2,int candidates=96)
+        JsonElement model,string modelHash,string arm,int passes=6,int steps=2,int candidates=96,JsonElement? hypotheses=null)
     {
         if(!Arms.Contains(arm)||passes is <1 or >MaximumPasses||steps is <1 or >8||candidates is <1 or >256)
             throw new ArgumentException("Choose a declared arm and bounded church experiment budgets.");
@@ -27,8 +27,9 @@ public static class ChurchExperiment
         var topology=arm!="shapes-only";
         var native=new List<IElement>();var stages=new List<Stage>();var quiet=0;var applied=0;var totalMoved=0;
         Dictionary<string,ChurchScene.Part>? retainedParts=null;
-        var initial=new ChurchScene(original,original,layout,false,true,moveInk:false);
+        var initial=new ChurchScene(original,original,layout,false,true,moveInk:false,hypotheses:hypotheses);
         initial.BindProfiles(profiles);initial.AddMappings(mapping);initial.AddLineRules(model);
+        if(hypotheses is {} initialPlan)initial.PrepareDerived(initialPlan);
         stages.Add(ProjectStage(0,original,initial,ChurchSettlement.Errors(initial),0,0,[],sourceOrder,shapes));
         for(var pass=1;pass<=passes;pass++)
         {
@@ -48,14 +49,19 @@ public static class ChurchExperiment
                 continue;
             }
             var before=graph;
-            var scene=new ChurchScene(original,graph,layout,moveShapes,true,retainedParts,moveInk);
+            Relation[] knots=[];
+            if(hypotheses is {} splitPlan&&pass==1)(graph,knots)=ChurchHypotheses.SplitKnots(graph,splitPlan,profiles);
+            var scene=new ChurchScene(original,graph,layout,moveShapes,true,retainedParts,moveInk,hypotheses);
+            scene.Imports.AddRange(knots);
             scene.BindProfiles(profiles);scene.AddMappings(mapping);
+            if(hypotheses is {} knotPlan)ChurchHypotheses.LinkKnots(scene,knotPlan);
             if(moveInk)scene.AddLineRules(model);
             var beforeErrors=ChurchSettlement.Errors(scene);var memory=new Dictionary<Relation,IElement>(ReferenceEqualityComparer.Instance);
             var rounds=new List<ChurchSettlement.Round>();
             for(var inner=0;inner<steps;inner++)rounds.Add(ChurchSettlement.Step(scene,memory));
             var movement=rounds.Sum(r=>r.Moved);totalMoved+=movement;
             graph=scene.PublishGraph(G(rounds.Select(r=>(IElement)r.Surface).ToArray()));
+            if(hypotheses is {} derivedPlan)scene.PrepareDerived(derivedPlan);
             var world=scene.Root;
             var publication=ReadWitness.Create(new Carrier(),before.Surface,world,graph.Surface,G(),G(rounds.Select(r=>(IElement)r.Surface).ToArray()));
             native.Add(G(local is null?new Placeholder():local,world,G(rounds.Select(r=>(IElement)r.Surface).ToArray()),publication,graph.Surface));
@@ -69,10 +75,10 @@ public static class ChurchExperiment
         Validate(root);
         return new(root,new{arm,stages,accepted=applied,moved=totalMoved,passes=native.Count,passBudget=passes,
             stopReason=quiet>=2||arm=="local-models"&&stages[^1].Applied==0?"quiet under selected laws":"budget reached; remaining strain is retained",
-            qualification="Source-local learned repair, line and closure opinions; authored source-supported shape constructions and affine error responses. No final church rendering or labels enter inference. This is bounded local topology rewriting coupled with native carrier tension, not a trained church recognizer or a general settlement law."});
+            qualification=hypotheses.HasValue?"Source-local learned repair/line/closure opinions plus existing authored church family, support, symmetry, repetition and clearance experts compiled into native port errors. Source-seeded parameters settle; the old final rendering is not a coordinate target. Repeated opinions are not independent observations.":"Source-local learned repair, line and closure opinions; authored source-supported shape constructions and affine error responses. No final church rendering or labels enter inference. This is bounded local topology rewriting coupled with native carrier tension, not a trained church recognizer or a general settlement law."});
     }
     private static Stage ProjectStage(int pass,Graph graph,ChurchScene scene,ChurchSettlement.ErrorView[] errors,int applied,int moved,object[] transfers,IElement[] sourceOrder,bool includeShapes=true)
-        =>new(pass,Project(graph,sourceOrder),includeShapes?scene.Parts.Select(p=>(object)new{p.Id,p.Role,p.Prior,points=scene.Points(p),p.Segments,bounds=scene.Bounds(p)}).ToArray():[],
+        =>new(pass,Project(graph,sourceOrder),includeShapes?scene.Parts.Select(p=>(object)new{p.Id,p.Role,p.Prior,points=scene.Points(p),segments=p.Seed.TryGetProperty("shape",out var shape)&&shape.GetString()=="frame"?Array.Empty<int[]>():p.Segments,bounds=scene.Bounds(p)}).Concat(scene.DerivedParts).ToArray():[],
             includeShapes?errors:[],applied,moved,transfers,graph.Edges.Count(e=>!NeighborhoodClosure.IsInferred(e.Source)),graph.Edges.Count(e=>NeighborhoodClosure.IsInferred(e.Source)),Components(graph),Cycles(graph),
             graph.Edges.Where(e=>!NeighborhoodClosure.IsInferred(e.Source)).Sum(e=>{e.Span.TryReadSegment(out _,out var a,out var b);return Math.Abs(b.Ticks-a.Ticks)/(double)PatchEvidence.Q;})/Math.Max(1,sourceOrder.Length));
 

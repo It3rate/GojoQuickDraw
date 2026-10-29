@@ -26,6 +26,7 @@ public sealed class ChurchScene
     public readonly Dictionary<Relation, NegotiatingMachine> Sites = new(ReferenceEqualityComparer.Instance);
     public readonly Dictionary<Relation, Relation> Correspondence = new(ReferenceEqualityComparer.Instance);
     public readonly List<Relation> Imports=[];
+    public object[] DerivedParts {get;private set;}=[];
     private readonly Dictionary<Relation,double[]> initialSiteSamples=new(ReferenceEqualityComparer.Instance);
     public readonly Graph Source;
     private readonly bool moveInk;
@@ -37,7 +38,7 @@ public sealed class ChurchScene
         G(G(ProfileIds.Values.ToArray()),G(Imports.Cast<IElement>().ToArray())));
 
     public ChurchScene(Graph source, Graph current, JsonElement layout, bool feedback, bool shapes,
-        IReadOnlyDictionary<string,Part>? previousParts = null, bool moveInk = true)
+        IReadOnlyDictionary<string,Part>? previousParts = null, bool moveInk = true, JsonElement? hypotheses = null)
     {
         this.moveInk=moveInk;
         Source = source; Graph = current;
@@ -86,8 +87,8 @@ public sealed class ChurchScene
             var machine = new NegotiatingMachine(Space.Offsets(origin, width, height));
             machine.AddResponse(machine.Port(0, 0), x, responseD: 4, max: Capacity, maxStep: feedback ? 8 : 0);
             machine.AddResponse(machine.Port(0, 1), y, responseD: 4, max: Capacity, maxStep: feedback ? 8 : 0);
-            machine.AddResponse(machine.Port(1, 0), width, responseD: 4, min: Math.Max(4, (long)width.Value / 2), max: Capacity, maxStep: feedback ? 8 : 0);
-            machine.AddResponse(machine.Port(3, 1), height, responseD: 4, min: Math.Max(4, (long)height.Value / 2), max: Capacity, maxStep: feedback ? 8 : 0);
+            machine.AddResponse(machine.Port(1, 0), width, responseD: 4, min: hypotheses.HasValue?4:Math.Max(4, (long)width.Value / 2), max: Capacity, maxStep: feedback ? 8 : 0);
+            machine.AddResponse(machine.Port(3, 1), height, responseD: 4, min: hypotheses.HasValue?4:Math.Max(4, (long)height.Value / 2), max: Capacity, maxStep: feedback ? 8 : 0);
             // The rendered shape is an executable native affine construction.
             // All points consume the same four mutable parameters. It is not a
             // cached SVG or a semantic label which the executor must understand.
@@ -99,6 +100,25 @@ public sealed class ChurchScene
             var prior = item.GetProperty("status").GetString() == "prior-only";
             var part = new Part(item.GetProperty("id").GetString()!, role, prior, machine, construction, normalized, lines, bounds, item.Clone());
             Parts.Add(part); Machines.Add(machine);
+            if(hypotheses.HasValue)
+            {
+                // The proposed boundary is actual ordered native topology over
+                // this construction's output roles, not only review indices.
+                var boundary=G(lines.Select(e=>(IElement)new Relation(outputs[e[0]],outputs[e[1]])).ToArray());
+                Imports.Add(ReadWitness.Create(new Carrier(),construction,G(outputs),boundary,G(),Source.Surface));
+            }
+            if(item.TryGetProperty("sourceGeometry",out var oldGeometry)&&oldGeometry.ValueKind==JsonValueKind.Object)
+            {
+                // Family replacement is an explicit construction hypothesis,
+                // not a movement of acquired points or a new observation.
+                var oldBounds=item.GetProperty("sourceBounds").Deserialize<double[]>()!;
+                var oldPoints=oldGeometry.GetProperty("points").Deserialize<double[][]>()!;
+                var oldOutputs=oldPoints.Select(p=>(IElement)Space.Plus(origin,Space.Plus(
+                    Space.Times(Space.Times(Space.Point(1,0),width.ValueSlot,width),Quant((p[0]-oldBounds[0])/(oldBounds[2]-oldBounds[0])),1024),
+                    Space.Times(Space.Times(Space.Point(0,1),height.ValueSlot,height),Quant((p[1]-oldBounds[1])/(oldBounds[3]-oldBounds[1])),1024)))).ToArray();
+                var priorConstruction=TransformSurface.Create(new Carrier(),G(origin,width,height),G(oldOutputs),G(oldOutputs.Select(_=>(IElement)new Placeholder()).ToArray()),G(),G(Space.Basis));
+                Imports.Add(ReadWitness.Create(new Carrier(),priorConstruction,G(Source.Surface,machine.Surface),construction,G(),G(priorConstruction,construction)));
+            }
             if(previous is not null)
             {
                 var oldPorts=new[]{Left(previous),Top(previous),Right(previous),Bottom(previous)};
@@ -117,10 +137,10 @@ public sealed class ChurchScene
             var support = G(machine.Definition, Source.Surface);
             foreach (var (port, value) in new[] { (Left(part), bounds[0]), (Top(part), bounds[1]), (Right(part), bounds[2]), (Bottom(part), bounds[3]) })
                 Add("Scaffold seed allowance", "shape", Coordinate(value)-48, Coordinate(value)+48, 1, support, (port, 1));
-            Add("Positive horizontal extent", "shape", Math.Max(4, Tick(bounds[2]-bounds[0])/2), Capacity, 2, support, (Right(part), 1), (Left(part), -1));
-            Add("Positive vertical extent", "shape", Math.Max(4, Tick(bounds[3]-bounds[1])/2), Capacity, 2, support, (Bottom(part), 1), (Top(part), -1));
+            Add("Positive horizontal extent", "shape", hypotheses.HasValue?4:Math.Max(4, Tick(bounds[2]-bounds[0])/2), Capacity, 2, support, (Right(part), 1), (Left(part), -1));
+            Add("Positive vertical extent", "shape", hypotheses.HasValue?4:Math.Max(4, Tick(bounds[3]-bounds[1])/2), Capacity, 2, support, (Bottom(part), 1), (Top(part), -1));
         }
-        LinkParts();
+        if(hypotheses is {} plan)ChurchHypotheses.Link(this,plan);else LinkParts();
     }
 
     public static long Tick(double value) => checked((long)Math.Round(value * Scale));
@@ -160,6 +180,23 @@ public sealed class ChurchScene
         var combined = inputs.GroupBy(x => x.Port, (IEqualityComparer<Relation>)ReferenceEqualityComparer.Instance)
             .Select(g => (g.Key, g.Sum(x => x.Coefficient))).Where(x => x.Item2 != 0).ToArray();
         if (combined.Length > 0) Rules.Add(new(name, layer, new EvidenceObligation(combined, lower, upper, [2, 2, 2], influence, 4, support)));
+    }
+    public void AddCalibrated(string name,string layer,long lower,long upper,long influence,IElement support,long featureScale,
+        params (Relation Port,long Coefficient)[] inputs)
+    {
+        if(featureScale is <1 or >4096)throw new ArgumentOutOfRangeException(nameof(featureScale));
+        var count=Rules.Count;Add(name,layer,lower,upper,influence,support,inputs);
+        if(Rules.Count==count||featureScale==1)return;
+        var rule=Rules[^1];var error=rule.Error;var fields=F(error.Surface);
+        var calibrated=error.Rules.Select(r=>
+        {
+            var f=F(r);((Relation)f[1]).TryReadSegment(out var axis,out var lo,out var hi);
+            // A finer feature unit must scale its response clipping intervals
+            // as well as its coefficient maps. Passage/actuator limits remain
+            // in their own bases and are not enlarged here.
+            return (IElement)G(f[0],Relation.Segment(axis,checked(lo.Ticks*featureScale),checked(hi.Ticks*featureScale)),f[2]);
+        }).ToArray();
+        Rules[^1]=rule with {Error=EvidenceObligation.Restore(G(fields[0],fields[1],fields[2],fields[3],fields[4],G(calibrated)))};
     }
     private (Relation Port, long Coefficient)[] At(Part p, double[] uv, int axis, long coefficient = 1)
     {
@@ -252,6 +289,10 @@ public sealed class ChurchScene
             throw new InvalidDataException("An active source edge has no imported profile binding.");
     }
     public void AddMappings(JsonElement mapping) => MapInk(mapping);
+    public void PrepareDerived(JsonElement plan)
+    {
+        var result=ChurchPartitions.Build(this,plan);DerivedParts=result.Views;Imports.Add(result.Surface);
+    }
     public void AddLineRules(JsonElement bundle)
     {
         foreach(var edge in Graph.Edges)

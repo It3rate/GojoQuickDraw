@@ -72,7 +72,8 @@ public static class Program
         IReadOnlyDictionary<string,IElement> profiles,JsonElement model,string hash,string arm,string path)
     {
         var result=ChurchExperiment.Run(annotation,original,request.GetProperty("scaffold"),request.GetProperty("mapping"),profiles,
-            model,hash,arm,request.GetProperty("passes").GetInt32(),request.GetProperty("steps").GetInt32(),request.GetProperty("candidates").GetInt32());
+            model,hash,arm,request.GetProperty("passes").GetInt32(),request.GetProperty("steps").GetInt32(),request.GetProperty("candidates").GetInt32(),
+            request.TryGetProperty("heuristics",out var hypotheses)?hypotheses:null);
         using(var output=new GZipStream(File.Create(path),CompressionLevel.Optimal))output.Write(GojoNumericFormat.Encode(result.Surface));
         return result.View;
     }

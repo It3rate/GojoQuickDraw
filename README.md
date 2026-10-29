@@ -432,6 +432,13 @@ The [longer replay guide](docs/church-duration.md) explains exact cached-input
 replays up to 64 passes, milestone comparisons, and the remaining gap with the
 earlier shape cleanup.
 
+The [church expert integration](docs/church-heuristic-settlement.md) imports the
+older support, symmetry, repetition, opening and attachment experts as native
+construction proposals and bidirectional error relations. Its independent review
+separates working ink, unexplained intervals, missing boundary support and the
+settled shape read. The [sixteen-drawing results](reports/church-heuristics-2026-10-29.md)
+record the bounded run and explicit limits.
+
 The [ten-drawing duration comparison](reports/church-duration-2026-10-29.md)
 records what changed after pass six and what additional iterations could not do.
 

@@ -50,6 +50,29 @@ foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"v
                     points++;
                 }
             }
+            var ordinaryParts=F(world[3]).Length;
+            if(stages[index].GetProperty("parts").GetArrayLength()>ordinaryParts)
+            {
+                // Enhanced studies derive wall cells from captured public
+                // bounds. Their native constructions live in the explicit
+                // final import read, without independent cell actuators.
+                var imports=F(F(world[6])[1]);var derived=F(imports[^1]);
+                var geometries=F(derived[1]);
+                if(geometries.Length!=stages[index].GetProperty("parts").GetArrayLength()-ordinaryParts)
+                    throw new InvalidDataException("Derived wall cells lost their native constructions.");
+                foreach(var (geometry,i) in geometries.Select((g,i)=>(g,i)))
+                {
+                    var output=F(F(MachineRunner.Run((Relation)geometry))[2]);
+                    var expected=stages[index].GetProperty("parts")[ordinaryParts+i].GetProperty("points").Deserialize<double[][]>()!;
+                    if(output.Length!=expected.Length)throw new InvalidDataException("Derived wall point count changed.");
+                    for(var n=0;n<output.Length;n++)
+                    {
+                        var xy=Gojo.Experiments.ConstructionMachines.Program.XY(output[n]);
+                        for(var k=0;k<2;k++)Check((xy[k]-ChurchScene.Offset)/ChurchScene.Scale,expected[n][k]);
+                        points++;
+                    }
+                }
+            }
             foreach(var (surface,i) in F(world[4]).Select((s,i)=>(s,i)))
             {
                 var error=EvidenceObligation.Restore((Relation)surface);var read=error.Assess(samples);

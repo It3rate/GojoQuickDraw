@@ -1,0 +1,1052 @@
+{
+  "config": {
+    "sourceStudy": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+    "sourceStudySha256": "38e29a09ede0e31cf2498d638bf5f0404089dc2eff3ecad8042b78e681c71514",
+    "selection": [
+      "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+      "ffaee7573aa8e79b7b953ec9f22316add0896586",
+      "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+      "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+      "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+      "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+      "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+      "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+      "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+      "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+      "0301c0037e88809800a99f23b9a67eb50896786c",
+      "087bed479c398ed40baefcce2cebef6bc18f40c4",
+      "0bd46f98419c00e625bb818038d74abb6e8c5315",
+      "0c7c69dfbe06173c30cd27385cffab76465911b0",
+      "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+      "5bebdc41d7c29fa64be38803ded7bcc1423fd658"
+    ],
+    "inputStudies": {
+      "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffaee7573aa8e79b7b953ec9f22316add0896586": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffba0ee5aa25752e219d715cc5c041cceae3b66d": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "2ebe685d39ad0a3236b5beba484c2a846a3cfcef": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "1fa43407ab2509c3d392ad9a222591bb71f1f933": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "51213f89ae40a8f0eefbf6d6256663d5d36c4247": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "55d36d311f10da3e059e4ac2fc1e210970a23c25": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "0301c0037e88809800a99f23b9a67eb50896786c": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "087bed479c398ed40baefcce2cebef6bc18f40c4": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "0bd46f98419c00e625bb818038d74abb6e8c5315": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "0c7c69dfbe06173c30cd27385cffab76465911b0": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "9d90a583b33d28b0619cce77efb32dd5db9fa461": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "5bebdc41d7c29fa64be38803ded7bcc1423fd658": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2"
+    },
+    "sourceStudyHashes": {
+      "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2": "38e29a09ede0e31cf2498d638bf5f0404089dc2eff3ecad8042b78e681c71514",
+      "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2": "96bfbc11373b9e72a50cda0cc1f28fe64c38e27654f40c510c8aa68f4cf5c451"
+    },
+    "passes": 8,
+    "steps": 2,
+    "candidates": 48,
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "adapterSha256": "f28363f38bb7d7451aae7a26c6d9db488e670544e00800481d798da87d93e3cd",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "9b7af32075aaef435382ff0bc0ecc7db8e39ef3a",
+      "pinnedRevision": "9b7af32075aaef435382ff0bc0ecc7db8e39ef3a",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "b33410d4a5093529a9902b634b4f17204a70239b97fc0fc288587282060d63ee",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "analysis": [
+    {
+      "id": "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+      "keyId": "4950483162628096",
+      "rules": 15,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "containment",
+        "cross-scale",
+        "roof-alignment"
+      ],
+      "initialUnexplained": 0.36946749792596456,
+      "finalUnexplained": 0.3708877385451038,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 15.463841307645486,
+        "roof-alignment": 0.0,
+        "containment": 0.029462782549439476,
+        "cross-scale": 0.0,
+        "mapping": 1.0582615945841156,
+        "line": 7.4049793474257894
+      },
+      "remainingMeanMismatch": {
+        "source": 0.5541666666666667,
+        "shape": 0.0,
+        "attachment": 11.46996209212065,
+        "roof-alignment": 0.0,
+        "containment": 0.08838834764831843,
+        "cross-scale": 0.4100256249798326,
+        "mapping": 2.250406127253064,
+        "line": 4.290852513109277
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 1,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "ffaee7573aa8e79b7b953ec9f22316add0896586",
+      "keyId": "4897692985589760",
+      "rules": 11,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "cross-scale",
+        "roof-alignment",
+        "support"
+      ],
+      "initialUnexplained": 0.0,
+      "finalUnexplained": 0.0,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "support": 0.0,
+        "attachment": 4.59375,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 4.05835369921034,
+        "line": 6.576093065034891
+      },
+      "remainingMeanMismatch": {
+        "source": 0.6388888888888888,
+        "shape": 0.0,
+        "support": 0.0,
+        "attachment": 1.531027295932688,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 2.461231859331627,
+        "line": 4.375223208591763
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 1,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+      "keyId": "6051473534222336",
+      "rules": 11,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "side-or-oblique",
+        "basis": "one strongly offset tower",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "cross-scale",
+        "roof-alignment",
+        "support"
+      ],
+      "initialUnexplained": 0.1425772377278506,
+      "finalUnexplained": 0.11868533833911114,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "support": 4.772970773009195,
+        "attachment": 6.21875,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 1.8447203034077677,
+        "line": 4.621447891326364
+      },
+      "remainingMeanMismatch": {
+        "source": 0.14166666666666666,
+        "shape": 0.08333333333333333,
+        "support": 0.8838834764831843,
+        "attachment": 1.6178919845029878,
+        "roof-alignment": 0.5246338206650507,
+        "cross-scale": 0.0,
+        "mapping": 2.0314188466911647,
+        "line": 2.4945155891858755
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 1,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+      "keyId": "6226189452574720",
+      "rules": 8,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "cross-scale",
+        "roof-alignment"
+      ],
+      "initialUnexplained": 0.47977348815647597,
+      "finalUnexplained": 0.4840188792623,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 20.28125,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 3.089098334238113,
+        "line": 3.1156892546032244
+      },
+      "remainingMeanMismatch": {
+        "source": 0.405,
+        "shape": 0.5416666666666666,
+        "attachment": 16.832581287162014,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 1.808959995484585,
+        "line": 3.34515900330559
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+      "keyId": "4821138091802624",
+      "rules": 8,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "cross-scale",
+        "roof-alignment"
+      ],
+      "initialUnexplained": 0.0740269913694799,
+      "finalUnexplained": 0.018331325583530008,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 2.914529731515255,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 2.6150677181731403,
+        "line": 4.036401209273209
+      },
+      "remainingMeanMismatch": {
+        "source": 0.06818181818181818,
+        "shape": 0.0,
+        "attachment": 1.73530946303051,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 1.1629428714743695,
+        "line": 2.452776647240837
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+      "keyId": "6474467716890624",
+      "rules": 44,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "clearance",
+        "containment",
+        "cross-scale",
+        "repetition",
+        "roof-alignment",
+        "support",
+        "symmetry"
+      ],
+      "initialUnexplained": 0.2588959795951702,
+      "finalUnexplained": 0.2719904984539215,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "support": 0.0,
+        "attachment": 0.16666666666666666,
+        "roof-alignment": 0.0,
+        "containment": 1.1752823708782039,
+        "cross-scale": 0.0,
+        "symmetry": 8.227241335952167,
+        "repetition": 1.7429940729474112,
+        "clearance": 0.0,
+        "mapping": 2.3869487230932607,
+        "line": 4.202464165460959
+      },
+      "remainingMeanMismatch": {
+        "source": 0.265625,
+        "shape": 0.0,
+        "support": 0.44792636594694707,
+        "attachment": 1.191459196523714,
+        "roof-alignment": 0.0,
+        "containment": 1.13316998616041,
+        "cross-scale": 0.0,
+        "symmetry": 2.0207259421636903,
+        "repetition": 1.254341344287794,
+        "clearance": 0.0,
+        "mapping": 1.8876606429552911,
+        "line": 2.595081886954629
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 1,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 2,
+        "window": 2
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+      "keyId": "4981869022019584",
+      "rules": 13,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "containment",
+        "cross-scale",
+        "roof-alignment"
+      ],
+      "initialUnexplained": 0.018844878544780543,
+      "finalUnexplained": 0.01643338670247527,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 7.597614042881936,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "mapping": 2.2576595598566755,
+        "line": 2.0623947784607637
+      },
+      "remainingMeanMismatch": {
+        "source": 0.125,
+        "shape": 0.15625,
+        "attachment": 2.752334463330859,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "mapping": 2.1446920160773817,
+        "line": 2.0623947784607632
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 1,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+      "keyId": "6527982287978496",
+      "rules": 20,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "clearance",
+        "containment",
+        "cross-scale",
+        "repetition",
+        "symmetry"
+      ],
+      "initialUnexplained": 0.23868861699549723,
+      "finalUnexplained": 0.2168092840834233,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 0.0,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "symmetry": 9.165435523385309,
+        "repetition": 0.8672491099284865,
+        "clearance": 0.0,
+        "mapping": 2.593656189501296,
+        "line": 8.794640591007685
+      },
+      "remainingMeanMismatch": {
+        "source": 0.2894736842105263,
+        "shape": 0.0,
+        "attachment": 1.0727778965687391,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "symmetry": 4.69097093716571,
+        "repetition": 0.49526280087309665,
+        "clearance": 0.0,
+        "mapping": 1.3723396196961253,
+        "line": 5.539003119294623
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 0,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 2
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+      "keyId": "6045774917926912",
+      "rules": 13,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "clearance",
+        "containment",
+        "cross-scale"
+      ],
+      "initialUnexplained": 0.2231400040082516,
+      "finalUnexplained": 0.2248429749380936,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 0.0,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "clearance": 0.0,
+        "mapping": 1.6400801983314706,
+        "line": 4.831896338108074
+      },
+      "remainingMeanMismatch": {
+        "source": 0.23684210526315788,
+        "shape": 0.0,
+        "attachment": 0.9370545918653759,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "clearance": 0.0,
+        "mapping": 1.3312160944287723,
+        "line": 3.4962501958668177
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 0,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 2
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+      "keyId": "4944046684372992",
+      "rules": 8,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "cross-scale",
+        "roof-alignment"
+      ],
+      "initialUnexplained": 0.29934729439271207,
+      "finalUnexplained": 0.24148187448971475,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 7.245335557691096,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 2.605374869757348,
+        "line": 7.719249027953144
+      },
+      "remainingMeanMismatch": {
+        "source": 0.11538461538461539,
+        "shape": 0.0,
+        "attachment": 4.053171115382192,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 1.6648103692981266,
+        "line": 3.0935921676911455
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "0301c0037e88809800a99f23b9a67eb50896786c",
+      "keyId": "5117095295582208",
+      "rules": 30,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "containment",
+        "cross-scale",
+        "repetition",
+        "roof-alignment",
+        "symmetry"
+      ],
+      "initialUnexplained": 0.05594915964853088,
+      "finalUnexplained": 0.04904941506161563,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 1.5555555555555556,
+        "roof-alignment": 0.0,
+        "containment": 0.029462782549439476,
+        "cross-scale": 0.0,
+        "symmetry": 11.691342951089922,
+        "repetition": 5.898946356891425,
+        "mapping": 2.7890772970060667,
+        "line": 4.60882098451946
+      },
+      "remainingMeanMismatch": {
+        "source": 0.46474358974358976,
+        "shape": 0.0,
+        "attachment": 1.9999929108569863,
+        "roof-alignment": 0.9346242292170698,
+        "containment": 0.14731391274719738,
+        "cross-scale": 0.0,
+        "symmetry": 5.773502691896258,
+        "repetition": 3.0232405735748347,
+        "mapping": 2.0711790071621423,
+        "line": 2.2391714737574007
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 3,
+        "roof": 3,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 1,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "087bed479c398ed40baefcce2cebef6bc18f40c4",
+      "keyId": "6667304605581312",
+      "rules": 27,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "clearance",
+        "containment",
+        "cross-scale",
+        "repetition",
+        "shape",
+        "symmetry"
+      ],
+      "initialUnexplained": 0.5029686821460616,
+      "finalUnexplained": 0.5221646588496417,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 0.0,
+        "cross-scale": 0.0,
+        "containment": 0.6948470726173387,
+        "symmetry": 27.35196900285852,
+        "repetition": 4.252344863280471,
+        "clearance": 0.0,
+        "mapping": 2.1003004791243236,
+        "line": 5.581092808650964
+      },
+      "remainingMeanMismatch": {
+        "source": 0.09302325581395349,
+        "shape": 0.12742565524193547,
+        "attachment": 2.7906079824586496,
+        "cross-scale": 0.0,
+        "containment": 0.10035617967650697,
+        "symmetry": 10.247967278115858,
+        "repetition": 0.8928082805671473,
+        "clearance": 0.0,
+        "mapping": 2.7231906262856,
+        "line": 2.2980970388562794
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 0,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 3
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "0bd46f98419c00e625bb818038d74abb6e8c5315",
+      "keyId": "5419325802414080",
+      "rules": 9,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "containment",
+        "cross-scale"
+      ],
+      "initialUnexplained": 0.062257928914773525,
+      "finalUnexplained": 0.05996210426705241,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 15.781259699280282,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "mapping": 1.4988669074805392,
+        "line": 3.6915133429591824
+      },
+      "remainingMeanMismatch": {
+        "source": 0.3802083333333333,
+        "shape": 0.0,
+        "attachment": 12.156259699280282,
+        "cross-scale": 0.0,
+        "containment": 0.08838834764831843,
+        "mapping": 1.2823369308491988,
+        "line": 2.559419110164351
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 0,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 1,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "0c7c69dfbe06173c30cd27385cffab76465911b0",
+      "keyId": "5782206867832832",
+      "rules": 10,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "side-or-oblique",
+        "basis": "oblique roof band",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "containment",
+        "cross-scale",
+        "support"
+      ],
+      "initialUnexplained": 0.18202101777345953,
+      "finalUnexplained": 0.16745627007106345,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "support": 0.0,
+        "attachment": 23.95803639457692,
+        "containment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 2.1538177214626777,
+        "line": 7.199632681172119
+      },
+      "remainingMeanMismatch": {
+        "source": 0.0234375,
+        "shape": 0.03125,
+        "support": 0.15329854045255228,
+        "attachment": 18.78125969928028,
+        "containment": 0.0,
+        "cross-scale": 0.0,
+        "mapping": 1.2536280330536778,
+        "line": 4.1746496504667325
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 1,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 0
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+      "keyId": "6581957729189888",
+      "rules": 27,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "clearance",
+        "containment",
+        "cross-scale",
+        "roof-alignment",
+        "shape"
+      ],
+      "initialUnexplained": 0.16322116205592388,
+      "finalUnexplained": 0.11865058850485775,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 1.675,
+        "roof-alignment": 0.0,
+        "containment": 0.0,
+        "cross-scale": 0.0,
+        "clearance": 0.0,
+        "mapping": 2.487528433984802,
+        "line": 2.82842712474619
+      },
+      "remainingMeanMismatch": {
+        "source": 0.03409090909090909,
+        "shape": 0.0,
+        "attachment": 0.7796689266617174,
+        "roof-alignment": 0.0,
+        "containment": 0.06313453403451316,
+        "cross-scale": 0.0,
+        "clearance": 0.0,
+        "mapping": 1.3690938620257693,
+        "line": 1.3637059351454845
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 1,
+        "window": 2
+      },
+      "finalPass": 8
+    },
+    {
+      "id": "5bebdc41d7c29fa64be38803ded7bcc1423fd658",
+      "keyId": "5729703023345664",
+      "rules": 12,
+      "knots": 0,
+      "addedWindows": 0,
+      "view": {
+        "selected": "front-like",
+        "basis": "front-like symmetry prior",
+        "qualification": "A provisional presentation read; not a recovered camera or proven viewpoint."
+      },
+      "layers": [
+        "attachment",
+        "containment",
+        "cross-scale",
+        "roof-alignment"
+      ],
+      "initialUnexplained": 0.07079987147751601,
+      "finalUnexplained": 0.09460491475195215,
+      "initialMeanMismatch": {
+        "source": 0.0,
+        "shape": 0.0,
+        "attachment": 2.3125,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "mapping": 1.7317265122081205,
+        "line": 5.530585181423354
+      },
+      "remainingMeanMismatch": {
+        "source": 0.45588235294117646,
+        "shape": 0.0,
+        "attachment": 1.508279731515255,
+        "roof-alignment": 0.0,
+        "cross-scale": 0.0,
+        "containment": 0.0,
+        "mapping": 1.9709461339095637,
+        "line": 1.5588490403430706
+      },
+      "parts": {
+        "ground": 0,
+        "building": 1,
+        "tower": 0,
+        "roof": 1,
+        "cross": 1,
+        "cross-level": 0,
+        "door": 0,
+        "window": 1
+      },
+      "finalPass": 8
+    }
+  ],
+  "verification": {
+    "status": "passed",
+    "native": {
+      "worlds": 16,
+      "shapePoints": 6192,
+      "errorReads": 20794,
+      "actuatorOutcomes": 16624,
+      "maxDifference": 0,
+      "qualification": "Read-only comparison of restored native graphs, executable shape outputs, error intervals and exact receiver accounting against review projections. No accuracy judgment."
+    },
+    "browser": {
+      "drawings": 16,
+      "panels": 96,
+      "errors": [],
+      "network": []
+    },
+    "pythonTests": 229,
+    "quickDrawTests": 140,
+    "gojoTests": 5545,
+    "sourcePackets": 16,
+    "producerSha256": "ebe4dc97f44fb55a020a58638c27d485d82ab7d46114cbeb8bd33a58a17e345c",
+    "compiledInputAdapterSha256": "f28363f38bb7d7451aae7a26c6d9db488e670544e00800481d798da87d93e3cd",
+    "currentReviewAdapterSha256": "09eb4f9cab013299b769e6bfcd6074d0dae7ab8caa93f90c5c7b8a4d15a91ec8",
+    "upstreamRevision": "9b7af32075aaef435382ff0bc0ecc7db8e39ef3a",
+    "qualification": "Native reproduction and exact accounting, not semantic accuracy. Review/retention presentation evolved after the numerical run; the compiled producer and exact requests are retained."
+  },
+  "calibrationAblation": {
+    "drawings": 16,
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "checks": [
+      {
+        "id": "0301c0037e88809800a99f23b9a67eb50896786c",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "087bed479c398ed40baefcce2cebef6bc18f40c4",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "0bd46f98419c00e625bb818038d74abb6e8c5315",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "0c7c69dfbe06173c30cd27385cffab76465911b0",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "5bebdc41d7c29fa64be38803ded7bcc1423fd658",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "ffaee7573aa8e79b7b953ec9f22316add0896586",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      },
+      {
+        "id": "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+        "sameAcquisition": true,
+        "sameScaffold": true,
+        "samePortOpinions": true,
+        "sameBudgets": true
+      }
+    ],
+    "changed": "Feature-unit response clipping calibration: one versus 256 fine ticks per coarse unit; receiver passage/capacity limits unchanged."
+  },
+  "retention": {
+    "retiredNativeArchives": 1377,
+    "logicalGiBRetired": 27.676,
+    "sourceInputsAndViewsRetained": true,
+    "obsoleteTrialFoldersRemain": true
+  }
+}
