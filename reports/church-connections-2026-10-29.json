@@ -1,0 +1,1192 @@
+{
+  "schema": "gojo.church-connections-report.v1",
+  "implementationCommit": "f6d269aa372a853dc773f1afc0f530830484055b",
+  "study": "D:\\_quickDraw\\data\\church-connections-2026-10-29-v3",
+  "baseline": "D:\\_quickDraw\\data\\church-heuristics-2026-10-29-v3",
+  "cohort": 16,
+  "outerPasses": 8,
+  "innerRounds": 2,
+  "localCandidates": 48,
+  "trainedNewModel": false,
+  "upstream": {
+    "repository": "https://github.com/It3rate/Gojo.git",
+    "revision": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+    "pinnedRevision": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+    "matchesPinnedRevision": true,
+    "sourceSha256": "ecd5acf344b6e28cd739ad5536c1197308c2d9ba4dc154643c171e1cf677c079",
+    "dirtyPaths": [],
+    "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+  },
+  "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+  "sourceSha256": "322a5d7c4966b27634424f56b1550cc42971d03928850ecb2241fdfa2662c893",
+  "connectionChecks": {
+    "drawings": 16,
+    "passes": 8,
+    "innerRounds": 2,
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "sourceSha256": "322a5d7c4966b27634424f56b1550cc42971d03928850ecb2241fdfa2662c893",
+    "sourcePacketsUnchanged": true,
+    "allNativeErrorReadsResolved": true,
+    "captures": 75,
+    "candidates": 79,
+    "maxCapturedResidual": 0.0,
+    "releases": 0,
+    "blocked": 0,
+    "rows": [
+      {
+        "sample": 1,
+        "id": "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+        "keyId": "4950483162628096",
+        "windows": [],
+        "doors": 1,
+        "captures": 2,
+        "candidates": 3,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.9722718241315028,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "open",
+            "active": false,
+            "distance": 44.5,
+            "pressure": 0,
+            "releasePending": false
+          },
+          {
+            "id": "layout-door-1-floor-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.08838834764831843,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 2,
+        "id": "ffaee7573aa8e79b7b953ec9f22316add0896586",
+        "keyId": "4897692985589760",
+        "windows": [],
+        "doors": 0,
+        "captures": 5,
+        "candidates": 5,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-tower-1-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.13258252147247765,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.5303300858899106,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.30935921676911454,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.21875,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 3,
+        "id": "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+        "keyId": "6051473534222336",
+        "windows": [],
+        "doors": 0,
+        "captures": 5,
+        "candidates": 5,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-tower-1-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.35355339059327373,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.5,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.30935921676911454,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 4,
+        "id": "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+        "keyId": "6226189452574720",
+        "windows": [],
+        "doors": 0,
+        "captures": 3,
+        "candidates": 4,
+        "maxCapturedResidual": 0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.397747564417433,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 3.40295138446026,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "open",
+            "active": false,
+            "distance": 64.25,
+            "pressure": 0,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.30935921676911454,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 5,
+        "id": "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+        "keyId": "4821138091802624",
+        "windows": [],
+        "doors": 0,
+        "captures": 4,
+        "candidates": 4,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.08838834764831843,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.46875,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 6,
+        "id": "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+        "keyId": "6474467716890624",
+        "windows": [
+          {
+            "id": "layout-door-2",
+            "shape": "arch",
+            "bounds": [
+              353.5,
+              337,
+              427.5,
+              427.5
+            ]
+          },
+          {
+            "id": "layout-window-1",
+            "shape": "rectangle",
+            "bounds": [
+              77,
+              228.5,
+              163.5,
+              306
+            ]
+          },
+          {
+            "id": "layout-window-2",
+            "shape": "rectangle",
+            "bounds": [
+              356,
+              228.5,
+              442.5,
+              306
+            ]
+          },
+          {
+            "id": "layout-context-window-1",
+            "shape": "arch",
+            "bounds": [
+              92,
+              337,
+              166,
+              427.5
+            ]
+          }
+        ],
+        "doors": 1,
+        "captures": 8,
+        "candidates": 8,
+        "maxCapturedResidual": 0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-tower-1-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.6187184335382291,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.5303300858899106,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.22097086912079608,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.4375,
+            "releasePending": false
+          },
+          {
+            "id": "layout-door-1-floor-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.4861359120657514,
+            "releasePending": false
+          },
+          {
+            "id": "layout-window-1-layout-window-2-reflection",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.65625,
+            "releasePending": false
+          },
+          {
+            "id": "layout-door-2-layout-context-window-1-reflection",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.795495128834866,
+            "releasePending": false
+          },
+          {
+            "id": "entrance-facade-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 1.78125,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 1,
+        "upperTowerGap": 0
+      },
+      {
+        "sample": 7,
+        "id": "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+        "keyId": "4981869022019584",
+        "windows": [],
+        "doors": 1,
+        "captures": 5,
+        "candidates": 5,
+        "maxCapturedResidual": 0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.5745242597140698,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.17677669529663687,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.71875,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.22097086912079608,
+            "releasePending": false
+          },
+          {
+            "id": "cleanup-door-prior-5-floor-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 8,
+        "id": "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+        "keyId": "6527982287978496",
+        "windows": [
+          {
+            "id": "layout-window-1",
+            "shape": "arch",
+            "bounds": [
+              179,
+              286,
+              207,
+              344
+            ]
+          },
+          {
+            "id": "layout-window-2",
+            "shape": "arch",
+            "bounds": [
+              305,
+              286,
+              333,
+              344
+            ]
+          }
+        ],
+        "doors": 0,
+        "captures": 3,
+        "candidates": 3,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.3125,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.13258252147247765,
+            "releasePending": false
+          },
+          {
+            "id": "layout-window-1-layout-window-2-reflection",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.6875,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 9,
+        "id": "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+        "keyId": "6045774917926912",
+        "windows": [
+          {
+            "id": "layout-window-1",
+            "shape": "circle",
+            "bounds": [
+              353,
+              262,
+              388,
+              312
+            ]
+          },
+          {
+            "id": "layout-window-2",
+            "shape": "ellipse",
+            "bounds": [
+              125,
+              262,
+              160,
+              312
+            ]
+          }
+        ],
+        "doors": 0,
+        "captures": 3,
+        "candidates": 3,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.03125,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.30935921676911454,
+            "releasePending": false
+          },
+          {
+            "id": "layout-window-2-layout-window-1-reflection",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.397747564417433,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 10,
+        "id": "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+        "keyId": "4944046684372992",
+        "windows": [],
+        "doors": 0,
+        "captures": 4,
+        "candidates": 4,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.17677669529663687,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.7071067811865475,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.21875,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0,
+        "roofBaseGap": 0.0,
+        "crossFootGap": 0,
+        "crossCenterOffset": 0.0,
+        "roofSpanOffset": 0
+      },
+      {
+        "sample": 11,
+        "id": "0301c0037e88809800a99f23b9a67eb50896786c",
+        "keyId": "5117095295582208",
+        "windows": [],
+        "doors": 1,
+        "captures": 15,
+        "candidates": 15,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "column-contact-0",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.5303300858899106,
+            "releasePending": false
+          },
+          {
+            "id": "column-contact-1",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 1.0606601717798212,
+            "releasePending": false
+          },
+          {
+            "id": "layout-tower-1-ground",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.5745242597140698,
+            "releasePending": false
+          },
+          {
+            "id": "layout-tower-2-ground",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.35355339059327373,
+            "releasePending": false
+          },
+          {
+            "id": "layout-tower-3-ground",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "frame-upper-reference",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.35355339059327373,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.8396893026590251,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.22097086912079608,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-2-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.397747564417433,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-2-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.4861359120657514,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-3-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.35355339059327373,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-3-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.17677669529663687,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 1.375,
+            "releasePending": false
+          },
+          {
+            "id": "cleanup-door-prior-11-floor-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "layout-tower-1-layout-tower-3-reflection",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 2.6875,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 12,
+        "id": "087bed479c398ed40baefcce2cebef6bc18f40c4",
+        "keyId": "6667304605581312",
+        "windows": [
+          {
+            "id": "layout-window-1",
+            "shape": "arch",
+            "bounds": [
+              166,
+              218,
+              229,
+              280
+            ]
+          },
+          {
+            "id": "layout-window-2",
+            "shape": "ellipse",
+            "bounds": [
+              376,
+              241.5,
+              423,
+              286.5
+            ]
+          },
+          {
+            "id": "layout-window-3",
+            "shape": "circle",
+            "bounds": [
+              80.5,
+              241.5,
+              127.5,
+              286.5
+            ]
+          }
+        ],
+        "doors": 0,
+        "captures": 3,
+        "candidates": 3,
+        "maxCapturedResidual": 0.0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.6875,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.7513009550107067,
+            "releasePending": false
+          },
+          {
+            "id": "layout-window-3-layout-window-2-reflection",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 1.90625,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 13,
+        "id": "0bd46f98419c00e625bb818038d74abb6e8c5315",
+        "keyId": "5419325802414080",
+        "windows": [],
+        "doors": 1,
+        "captures": 2,
+        "candidates": 3,
+        "maxCapturedResidual": 0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-cross-axis",
+            "action": "open",
+            "active": false,
+            "distance": 37.5,
+            "pressure": 0,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "layout-door-1-floor-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 14,
+        "id": "0c7c69dfbe06173c30cd27385cffab76465911b0",
+        "keyId": "5782206867832832",
+        "windows": [],
+        "doors": 0,
+        "captures": 3,
+        "candidates": 4,
+        "maxCapturedResidual": 0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-tower-1-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "open",
+            "active": false,
+            "distance": 60.75,
+            "pressure": 0,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.044194173824159216,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 15,
+        "id": "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+        "keyId": "6581957729189888",
+        "windows": [
+          {
+            "id": "layout-window-1",
+            "shape": "rectangle",
+            "bounds": [
+              209,
+              200,
+              270.5,
+              256
+            ]
+          },
+          {
+            "id": "layout-window-2",
+            "shape": "rectangle",
+            "bounds": [
+              298.5,
+              200,
+              360,
+              256
+            ]
+          }
+        ],
+        "doors": 1,
+        "captures": 6,
+        "candidates": 6,
+        "maxCapturedResidual": 0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.22097086912079608,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.44194173824159216,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          },
+          {
+            "id": "layout-door-1-floor-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.22097086912079608,
+            "releasePending": false
+          },
+          {
+            "id": "layout-window-1-layout-window-2-reflection",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.34375,
+            "releasePending": false
+          },
+          {
+            "id": "entrance-facade-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.65625,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      },
+      {
+        "sample": 16,
+        "id": "5bebdc41d7c29fa64be38803ded7bcc1423fd658",
+        "keyId": "5729703023345664",
+        "windows": [
+          {
+            "id": "layout-window-1",
+            "shape": "rectangle",
+            "bounds": [
+              285,
+              302,
+              330,
+              376.5
+            ]
+          }
+        ],
+        "doors": 0,
+        "captures": 4,
+        "candidates": 4,
+        "maxCapturedResidual": 0,
+        "maxColumnOverlap": 0,
+        "connections": [
+          {
+            "id": "layout-roof-base-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.08838834764831843,
+            "releasePending": false
+          },
+          {
+            "id": "layout-roof-support-span",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.17677669529663687,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-axis",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.5,
+            "releasePending": false
+          },
+          {
+            "id": "layout-cross-foot-contact",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          }
+        ],
+        "releases": 0,
+        "blocked": 0,
+        "addedPartialWindows": 0
+      }
+    ],
+    "qualification": "Same-cohort authored construction experiment. This verifies relations and retained provenance, not recognition accuracy."
+  },
+  "nativeAudit": {
+    "worlds": 16,
+    "shapePoints": 6568,
+    "errorReads": 21107,
+    "actuatorOutcomes": 15356,
+    "maxDifference": 0,
+    "qualification": "Read-only comparison of restored native graphs, executable shape outputs, error intervals and exact receiver accounting against review projections. No accuracy judgment."
+  },
+  "browser": {
+    "drawings": 16,
+    "panels": 96,
+    "errors": [],
+    "network": []
+  },
+  "tests": {
+    "python": 238,
+    "quickDrawSolution": 144,
+    "linkedGojoSolution": 5548
+  },
+  "observerUpdate": {
+    "drawings": 16,
+    "currentInferenceRequestsExact": true,
+    "calculationAdapterSha256": "526607f463c66dd081a7fafa2e5be44416a24720085509751232043ad6235251",
+    "currentAdapterSha256": "15204612437c5d01d22360c1516c25803298698320ee9716fbaeb5dc62709795",
+    "renderer": {
+      "schema": "gojo.church-review-read.v1",
+      "rendererSha256": "7296b8a2b7ac66ac32d17eccc8bface83e33c2af5a325d5ba51c5bd0af33156b",
+      "calculationAdapterSha256": "526607f463c66dd081a7fafa2e5be44416a24720085509751232043ad6235251",
+      "views": [
+        {
+          "id": "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+          "sha256": "6e0f45af88dfb2de302255a1373d8887dc98c42d26e2f4b0d873600d3c780246"
+        },
+        {
+          "id": "ffaee7573aa8e79b7b953ec9f22316add0896586",
+          "sha256": "cee01f75be6f4a79d6c1e66d9e68f764b5dd2979dc120c23de861002a20221e1"
+        },
+        {
+          "id": "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+          "sha256": "8a5a9ab4f2198ebd9150dc77fcb22c58e00ce8bcbcccb3d3c2490895a4a824c5"
+        },
+        {
+          "id": "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+          "sha256": "76e5c6c5907acd580115162f9d80d1ec87376b251ab1ae747faec07f042657ef"
+        },
+        {
+          "id": "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+          "sha256": "196c3c037641d90e39dbe657a96ff29c196a65a071d00b09f0d4c2213c8c015c"
+        },
+        {
+          "id": "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+          "sha256": "21370e5a677b172c0053d85fe5b78cf39dee71a5f90974b0211f2ba6cca78f78"
+        },
+        {
+          "id": "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+          "sha256": "a8d42d7ab463ceb7e16f319430dec0748971f03b9da56003250018c62b67a30f"
+        },
+        {
+          "id": "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+          "sha256": "3597a8348c260c18b8cea6d884a757cb543d7e98ef20eaf718b2aa395d6ba8a4"
+        },
+        {
+          "id": "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+          "sha256": "467e029b03522c469d152b636390713bb7a20f145e1958f74aeb6cf01943da0d"
+        },
+        {
+          "id": "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+          "sha256": "1fa8979a6414eccd87fde026864c9b263c65a53f729120f5e0cb998517294f87"
+        },
+        {
+          "id": "0301c0037e88809800a99f23b9a67eb50896786c",
+          "sha256": "e8a7dbc55131eeb1ae417d2e859555895c3fa1e3f83d05270dcd60684b3c7d45"
+        },
+        {
+          "id": "087bed479c398ed40baefcce2cebef6bc18f40c4",
+          "sha256": "cf7e1650f9e01fec84c8173310b8279dffa9f78385f86c91d990332eeaefda2a"
+        },
+        {
+          "id": "0bd46f98419c00e625bb818038d74abb6e8c5315",
+          "sha256": "1f6e700ba38ae8d29df0fe44e98247f60a87f0fa48e4993d44f1dbb7feb46b50"
+        },
+        {
+          "id": "0c7c69dfbe06173c30cd27385cffab76465911b0",
+          "sha256": "88fc5b6bf1d258d0e96a250fcd4d108b22f0190dc05cbd36ab05db4231409069"
+        },
+        {
+          "id": "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+          "sha256": "2337e4ee1065e434263132666a85c6ca7bbff282454ac4baf440c3d93e930f9b"
+        },
+        {
+          "id": "5bebdc41d7c29fa64be38803ded7bcc1423fd658",
+          "sha256": "a9cbd081a670df36e4304b632bdd2352afe707596aa5acdd1cc9a0657d07e601"
+        }
+      ],
+      "qualification": "Regenerable observation of saved native result views; rebuilding the page does not rerun or mutate settlement."
+    },
+    "qualification": "Only the observer changed after calculation. Current inference recompiles the exact retained scaffolds, mappings and compiled plans for all 16 acquisitions."
+  },
+  "familyTuningChanges": [
+    {
+      "sample": 15,
+      "part": "layout-window-1",
+      "before": "circle",
+      "after": "rectangle"
+    },
+    {
+      "sample": 15,
+      "part": "layout-window-2",
+      "before": "circle",
+      "after": "rectangle"
+    }
+  ],
+  "nativeCompressedBytes": 1242040901,
+  "qualification": "Same-cohort authored debugging and structural verification, not held-out recognition accuracy or calibrated probability."
+}
