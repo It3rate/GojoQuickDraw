@@ -55,9 +55,23 @@ def overlap(a, b):
     return area / max(1e-6, min((a[2]-a[0])*(a[3]-a[1]), (b[2]-b[0])*(b[3]-b[1])))
 
 
-def compile_plan(observed, layout):
+def compile_plan(observed, layout, connections=False):
+    context={}
+    if connections:
+        from .church_opening_context import revise
+        layout,context=revise(observed,layout)
     augmented, discoveries = supplement(observed, layout)
     proposal = cleanup.build(observed, augmented)
+    if connections:
+        source_to_proposal={p['sourcePart']:p['id'] for p in proposal['parts'] if p.get('sourcePart')}
+        for pair in context.get('pairs',[]):
+            if all(pair[k] in source_to_proposal for k in ('left','right','axisPart')):
+                mapped={k:source_to_proposal[pair[k]] for k in ('left','right','axisPart')}
+                mapped['leader']=source_to_proposal[pair['leader']]
+                existing=next((p for p in proposal['symmetries'] if {p['left'],p['right']}=={mapped['left'],mapped['right']}),None)
+                if existing:existing['leader']=mapped['leader']
+                else:
+                    proposal['symmetries'].append(mapped)
     original = {p['id']: p for p in augmented['parts']}
     # Visible wall cells will be derived from live frame/tower ports, rather
     # than independently parameterized rectangles which could drift apart.
@@ -89,8 +103,8 @@ def compile_plan(observed, layout):
         item = dict(id=aliases[p['id']], role=p['role'], bounds=seed, shape=p['shape'],
                     status='prior-only' if p['status']=='prior-only' else 'source-supported',
                     spans=list(source.get('spans', [])) if source else [], participants=[], geometry=geo,
-                    sourceGeometry=deepcopy(source['geometry']) if source else None,
-                    sourceBounds=list(source['bounds']) if source else None,
+                    sourceGeometry=deepcopy(source.get('earlierHypothesis',source)['geometry']) if source else None,
+                    sourceBounds=list(source.get('earlierHypothesis',source)['bounds']) if source else None,
                     proposal=p['id'], parent=aliases.get(p['parent']), changes=p['changes'])
         if item['parent']:
             item['participants'] = [item['parent']]
@@ -194,6 +208,10 @@ def compile_plan(observed, layout):
     scaffold=dict(parts=parts)
     mapping=layout_mapping.build(observed,scaffold)
     plan['knots']=corner_knots(observed,scaffold)
+    if connections:
+        from .church_connection_plan import extend
+        plan['connections']=extend(parts,proposed,aliases,proposal,rules,context)
+        plan['openingContext']=context
     return scaffold,mapping,plan,proposal
 
 

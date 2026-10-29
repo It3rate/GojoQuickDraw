@@ -439,6 +439,10 @@ separates working ink, unexplained intervals, missing boundary support and the
 settled shape read. The [sixteen-drawing results](reports/church-heuristics-2026-10-29.md)
 record the bounded run and explicit limits.
 
+The [contact and repetition extension](docs/church-connections.md) tests native
+capture/hold/release constructions, neighboring-column separation and revisable
+multi-row opening proposals. It is enabled explicitly with `--connections`.
+
 The [ten-drawing duration comparison](reports/church-duration-2026-10-29.md)
 records what changed after pass six and what additional iterations could not do.
 

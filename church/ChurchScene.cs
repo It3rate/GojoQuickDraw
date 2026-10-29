@@ -17,7 +17,7 @@ public sealed class ChurchScene
     public const long Offset = 512;
     public const long Capacity = 4096;
     public sealed record Part(string Id, string Role, bool Prior, NegotiatingMachine Machine,
-        Relation Geometry, double[][] Normalized, int[][] Segments, double[] InitialBounds, JsonElement Seed);
+        Relation Geometry, double[][] Normalized, int[][] Segments, double[] InitialBounds, JsonElement Seed,int OutputOffset=0);
     public sealed record Rule(string Name, string Layer, EvidenceObligation Error);
     public readonly ConstructionRecipes Space = new();
     public readonly List<Part> Parts = [];
@@ -27,18 +27,21 @@ public sealed class ChurchScene
     public readonly Dictionary<Relation, Relation> Correspondence = new(ReferenceEqualityComparer.Instance);
     public readonly List<Relation> Imports=[];
     public object[] DerivedParts {get;private set;}=[];
+    public object[]? CaptureViews {get;set;}
     private readonly Dictionary<Relation,double[]> initialSiteSamples=new(ReferenceEqualityComparer.Instance);
     public readonly Graph Source;
     private readonly bool moveInk;
     public Graph Graph { get; private set; }
     public Relation Root => G(Source.Surface, Graph.Surface, G(Machines.Select(m => (IElement)m.Surface).ToArray()),
-        G(Parts.Select(p => (IElement)G(p.Machine.Surface, p.Geometry)).ToArray()),
+        G(Parts.Select(p => (IElement)(p.Machine.Ports.Count>8?
+            G(p.Machine.Surface,p.Geometry,G(Left(p),Top(p),Right(p),Bottom(p))):G(p.Machine.Surface, p.Geometry))).ToArray()),
         G(Rules.Select(r => (IElement)r.Error.Surface).ToArray()),
         G(Correspondence.Select(p => (IElement)new Relation(p.Key, p.Value)).ToArray()),
         G(G(ProfileIds.Values.ToArray()),G(Imports.Cast<IElement>().ToArray())));
 
     public ChurchScene(Graph source, Graph current, JsonElement layout, bool feedback, bool shapes,
-        IReadOnlyDictionary<string,Part>? previousParts = null, bool moveInk = true, JsonElement? hypotheses = null)
+        IReadOnlyDictionary<string,Part>? previousParts = null, bool moveInk = true, JsonElement? hypotheses = null,
+        ChurchCaptureController? capture=null,int pass=0)
     {
         this.moveInk=moveInk;
         Source = source; Graph = current;
@@ -140,16 +143,32 @@ public sealed class ChurchScene
             Add("Positive horizontal extent", "shape", hypotheses.HasValue?4:Math.Max(4, Tick(bounds[2]-bounds[0])/2), Capacity, 2, support, (Right(part), 1), (Left(part), -1));
             Add("Positive vertical extent", "shape", hypotheses.HasValue?4:Math.Max(4, Tick(bounds[3]-bounds[1])/2), Capacity, 2, support, (Bottom(part), 1), (Top(part), -1));
         }
-        if(hypotheses is {} plan)ChurchHypotheses.Link(this,plan);else LinkParts();
+        if(hypotheses is {} plan)
+        {
+            if(capture is not null&&feedback)capture.Begin(this,plan,pass);
+            ChurchHypotheses.Link(this,plan);
+        }
+        else LinkParts();
     }
 
     public static long Tick(double value) => checked((long)Math.Round(value * Scale));
     public static long Coordinate(double value) => checked(Tick(value)+Offset);
     private static long Quant(double value) => checked((long)Math.Round(value * 1024));
-    public static Relation Left(Part p) => p.Machine.Port(0, 0);
-    public static Relation Right(Part p) => p.Machine.Port(1, 0);
-    public static Relation Top(Part p) => p.Machine.Port(0, 1);
-    public static Relation Bottom(Part p) => p.Machine.Port(3, 1);
+    public static Relation Left(Part p) => p.Machine.Port(p.OutputOffset, 0);
+    public static Relation Right(Part p) => p.Machine.Port(p.OutputOffset+1, 0);
+    public static Relation Top(Part p) => p.Machine.Port(p.OutputOffset, 1);
+    public static Relation Bottom(Part p) => p.Machine.Port(p.OutputOffset+3, 1);
+    public void ReplaceParts(IReadOnlyList<Part> next,NegotiatingMachine host,Dictionary<Relation,Relation> ports,Relation witness)
+    {
+        var retired=Parts.Select(p=>p.Machine).ToHashSet(ReferenceEqualityComparer.Instance);
+        Machines.RemoveAll(m=>retired.Contains(m));Machines.Add(host);Parts.Clear();Parts.AddRange(next);Imports.Add(witness);
+        for(var i=0;i<Rules.Count;i++)
+        {
+            var rule=Rules[i];var fields=F(rule.Error.Surface);
+            var terms=rule.Error.Terms.Select(t=>{var f=F(t);return (IElement)G(ports.GetValueOrDefault((Relation)f[0],(Relation)f[0]),f[1],f[2]);}).ToArray();
+            Rules[i]=rule with {Error=EvidenceObligation.Restore(G(G(fields[0],witness),G(terms),fields[2],fields[3],fields[4],fields[5]))};
+        }
+    }
     public static double Read(IElement sample)
     {
         if (!ProjectionResidue.TryRead(sample, out _, out var n, out var d)) throw new InvalidDataException("An unresolved coordinate remains.");

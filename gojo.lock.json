@@ -1,6 +1,6 @@
 {
   "repository": "https://github.com/It3rate/Gojo.git",
-  "commit": "9b7af32075aaef435382ff0bc0ecc7db8e39ef3a",
+  "commit": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
   "defaultCheckout": "../Gojo",
   "contract": "QuickDraw annotation, neighborhood evidence, native construction machines, error obligations and port negotiation at this revision",
   "qualification": "The checkout is linked, not vendored. Runs record its actual revision and content fingerprint."

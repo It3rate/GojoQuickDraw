@@ -41,6 +41,13 @@ foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"v
             foreach(var machine in machines)foreach(var sample in F(machine.CurrentPublication).Cast<Relation>())samples[(Relation)F(sample)[0]]=sample;
             foreach(var (part,i) in F(world[3]).Select((p,i)=>(F(p),i)))
             {
+                if(part.Length==3)
+                {
+                    var host=NegotiatingMachine.Restore((Relation)part[0]);
+                    var bounds=stages[index].GetProperty("parts")[i].GetProperty("bounds").Deserialize<double[]>()!;
+                    foreach(var (port,k) in F(part[2]).Select((p,k)=>(p,k)))
+                        Check((ChurchScene.Read(F(host.Publish((Relation)port))[2])-ChurchScene.Offset)/ChurchScene.Scale,bounds[k]);
+                }
                 var geometry=MachineRunner.Run((Relation)part[1]);var expected=stages[index].GetProperty("parts")[i].GetProperty("points").Deserialize<double[][]>()!;
                 var output=F(F(geometry)[2]);if(expected.Length!=output.Length)throw new InvalidDataException("Shape point count changed during restoration.");
                 for(var n=0;n<output.Length;n++)

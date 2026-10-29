@@ -14,7 +14,9 @@ let browser;
  for(let i=0;i<count;i++){
   await page.selectOption('#drawing',String(i));assert.equal(await page.locator('.panel').count(),6);
   const frames=await page.locator('.panel svg').evaluateAll(rows=>rows.map(r=>r.getAttribute('viewBox')));assert.equal(new Set(frames).size,1);
-  assert.equal(await page.locator('.working').count(),0);await page.check('#ink');assert(await page.locator('.working').count()>0);
+  assert.equal(await page.locator('.working').count(),0);await page.check('#ink');
+  await page.waitForFunction(()=>document.querySelectorAll('.working').length>0);
+  assert(await page.locator('.working').count()>0,'Working ink did not render for drawing '+(i+1));
   await page.check('#unknown');await page.check('#missing');await page.check('#joints');
   const expected=await page.evaluate(i=>DATA[i].panels.reduce((a,b)=>a+b.unknown.length,0),i);assert.equal(await page.locator('.unresolved').count(),expected);
   const expectedMissing=await page.evaluate(i=>DATA[i].panels.reduce((a,b)=>a+b.missing.length,0),i);assert.equal(await page.locator('.missing').count(),expectedMissing);
@@ -23,7 +25,14 @@ let browser;
   for(const stage of stages){await page.selectOption('#pass',stage);assert((await page.locator('.caption').last().innerText()).includes('Pass '+stage))}
   await page.selectOption('#pass',stages.at(-1));
   await page.uncheck('#ink');await page.uncheck('#unknown');await page.uncheck('#missing');await page.uncheck('#joints');panels+=6;
-  if([7,10,11,14,15].includes(i))await page.screenshot({path:path.join(output,'case-'+(i+1)+'.png'),fullPage:true});
+  if([5,7,9,10,11,14,15].includes(i))await page.screenshot({path:path.join(output,'case-'+(i+1)+'.png'),fullPage:true});
+  const captures=await page.evaluate(i=>DATA[i].steps.at(-1).stage.captures?.length||0,i);
+  if(captures){
+   await page.locator('details').last().evaluate(d=>d.open=true);
+   assert.equal(await page.locator('#connections tr').count(),captures+1);
+   assert(!(await page.locator('#connections').innerText()).includes('NaN'));
+   if(i===5)await page.screenshot({path:path.join(output,'connection-details.png'),fullPage:true});
+  }
  }
  await page.selectOption('#drawing',String(Math.min(count-1,9)));await page.screenshot({path:path.join(output,'comparison.png'),fullPage:true});
  if(count>1){await page.selectOption('#drawing','0');await page.locator('#next').click();assert.equal(await page.locator('#drawing').inputValue(),'1');await page.locator('h1').click();await page.keyboard.press('ArrowLeft');assert.equal(await page.locator('#drawing').inputValue(),'0')}

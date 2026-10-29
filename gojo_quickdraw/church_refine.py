@@ -32,6 +32,14 @@ def run(args):
     if len(origins)!=len(selection):
         raise ValueError('Do not count the same acquisition twice')
     source_states={str(root):digest(root/'study.json') for root in set(origins.values())}
+    baseline_root=args.baseline_study.resolve() if getattr(args,'baseline_study',None) else None
+    if baseline_root:
+        if baseline_root==output or baseline_root in output.parents or output in baseline_root.parents:
+            raise ValueError('Keep the read-only baseline separate from the output')
+        baseline_state=json.loads((baseline_root/'study.json').read_text(encoding='utf-8-sig'))
+        if baseline_state['status']!='complete' or baseline_state['config']['modelSha256']!=state['config']['modelSha256']:
+            raise ValueError('The baseline must be complete and use the same provider bytes')
+        source_states[str(baseline_root)]=digest(baseline_root/'study.json')
     for root in set(origins.values()):
         if root==output or root in output.parents or output in root.parents:
             raise ValueError('Keep every source study separate from the output')
@@ -43,10 +51,11 @@ def run(args):
         raise ValueError('Retained provider bytes changed')
     work=Path(args.work or Path('D:/_quickDraw/_work')/output.name).resolve()
     if output==work or output in work.parents or work in output.parents or any(
-            root==work or root in work.parents or work in root.parents for root in origins.values()):
+            root==work or root in work.parents or work in root.parents for root in set(origins.values())|({baseline_root} if baseline_root else set())):
         raise ValueError('Keep temporary work separate from retained studies')
     work.mkdir(parents=True,exist_ok=True); output.mkdir(parents=True,exist_ok=True)
     config=dict(sourceStudy=str(source),sourceStudySha256=digest(source/'study.json'),selection=[p['id'] for p in selection],
+        connections=getattr(args,'connections',False),baselineStudy=str(args.baseline_study.resolve()) if getattr(args,'baseline_study',None) else None,
         inputStudies={ident:str(root) for ident,root in origins.items()},sourceStudyHashes=source_states,
         passes=args.passes,steps=args.steps,candidates=state['config']['candidates'],modelSha256=digest(model),
         adapterSha256=fingerprint(),upstream=upstream.fingerprint(upstream.resolve(args.gojo_root)))
@@ -59,15 +68,17 @@ def run(args):
         for name in ('inputs','models','baseline','proposals','drawings'):
             (output/name).mkdir(exist_ok=True)
         shutil.copyfile(model,output/'models/local-providers.json')
+        dataset._atomic_json(output/'selection.json',selection)
         dataset._atomic_json(output/'study.json',report)
         command=build(upstream.resolve(args.gojo_root),work)
         receipts=[]
         for index,row in enumerate(selection):
             ident=row['id']; origin=origins[ident]; input_path=origin/'inputs'/(ident+'.json.gz')
-            input_hash=digest(input_path); baseline_hash=digest(origin/'drawings'/ident/'view.json')
+            input_hash=digest(input_path)
             with gzip.open(input_path,'rt',encoding='utf-8') as stream:
                 retained=json.load(stream)
-            baseline=origin/'drawings'/ident/'view.json'
+            baseline=(baseline_root or origin)/'drawings'/ident/'view.json'
+            baseline_hash=digest(baseline)
             shutil.copyfile(baseline,output/'baseline'/(ident+'.json'))
             packet=retained['packet']
             source_hash=hashlib.sha256(packet['sourceOriginalJson'].encode()).hexdigest()
@@ -75,7 +86,7 @@ def run(args):
             if (retained['id']!=ident or earlier['id']!=ident or packet['source']['recognized'] is not True or
                     source_hash!=earlier['sourceSha256']):
                 raise ValueError('Acquisition identity or recognition status changed')
-            scaffold,mapping,heuristics,proposal=compile_plan(packet['observation'],retained['scaffold'])
+            scaffold,mapping,heuristics,proposal=compile_plan(packet['observation'],retained['scaffold'],getattr(args,'connections',False))
             request={**retained,'scaffold':scaffold,'mapping':mapping,'heuristics':heuristics,
                      'arms':['bidirectional'],'passes':args.passes,'steps':args.steps,
                      'candidates':config['candidates'],
@@ -107,6 +118,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--source-study',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--selection',type=Path,help='Optional explicit IDs; each row may name a completed source study')
+    p.add_argument('--baseline-study',type=Path,help='Optional read-only comparison views from the same acquisitions')
+    p.add_argument('--connections',action='store_true',help='Reconsider opening rows and test native capture/hold/release constructions')
     p.add_argument('--limit',type=int,default=10);p.add_argument('--passes',type=int,default=12)
     p.add_argument('--steps',type=int,default=4);p.add_argument('--work',type=Path);p.add_argument('--gojo-root',type=Path)
     state=run(p.parse_args())
