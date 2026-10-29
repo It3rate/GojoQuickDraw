@@ -1,5 +1,8 @@
 # Longer runs of the same church experiment
 
+The [ten-drawing duration results](../reports/church-duration-2026-10-29.md)
+compare the six-pass prefixes with runs allowed up to 64 passes.
+
 The six-pass study was a bounded inference experiment, not a six-step trained
 network. The local providers can be queried again after geometry changes. Their
 weights do not learn during a run, and querying the same acquisition again does

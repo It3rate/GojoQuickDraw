@@ -432,6 +432,9 @@ The [longer replay guide](docs/church-duration.md) explains exact cached-input
 replays up to 64 passes, milestone comparisons, and the remaining gap with the
 earlier shape cleanup.
 
+The [ten-drawing duration comparison](reports/church-duration-2026-10-29.md)
+records what changed after pass six and what additional iterations could not do.
+
 ## Verify changes
 
 ```powershell
