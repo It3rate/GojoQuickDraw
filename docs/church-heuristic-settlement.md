@@ -105,6 +105,7 @@ object in response to later strain. In particular, the residual-ink retry occurs
 once at admission, while the coverage diagnostic is reread at every saved pass.
 A future inference epoch can use persistent unexplained ink or blocked strain
 to request new hypotheses. A low geometric strain is not semantic accuracy.
+Source/seed influence does not decay on a schedule in this experiment.
 
 ## Run and inspect
 

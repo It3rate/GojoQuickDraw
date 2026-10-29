@@ -20,6 +20,11 @@ conversion errors. Each native archive is independently restored by the producer
 The exact source packets and frozen provider bytes are checked against their
 retained inputs. No new model is fitted, and there is no human accuracy score.
 
+This is a broader system comparison: construction families and mappings change,
+and two inner rounds replace the earlier one. It does not isolate the effect of
+each added heuristic. The v2/v3 calibration ablation does hold inputs and budgets
+fixed.
+
 The six-panel review shows acquisition, two earlier reference stages, initial
 construction proposals, new pass six and a selectable new pass. It uses one
 common frame, preserves the selected pass between drawings, and supports
