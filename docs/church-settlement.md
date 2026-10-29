@@ -44,6 +44,10 @@ drawings remain explicit preparation failures; the runner does not replace failu
 until it obtains a more attractive cohort. Whole-acquisition split assignments are
 retained for future learning, but this run does not fit a new model.
 
+The outer pass budget permits 1–64 passes and still defaults to six. See
+[exact longer replays](church-duration.md) for reusing selected cached inputs and
+checking that their earlier trajectories stay identical.
+
 The output must be separate from the source. Repeating the same command resumes
 completed drawings; source, implementation, model and budget changes require a new
 study folder. Large runs retain substantial native evidence. Work batches, binaries

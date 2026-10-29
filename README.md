@@ -428,6 +428,10 @@ native boundary import together.
 The [1,024-drawing results](reports/church-settlement-2026-10-29.md) record the
 four-way comparison, remaining strain, visual failures and the next learning work.
 
+The [longer replay guide](docs/church-duration.md) explains exact cached-input
+replays up to 64 passes, milestone comparisons, and the remaining gap with the
+earlier shape cleanup.
+
 ## Verify changes
 
 ```powershell

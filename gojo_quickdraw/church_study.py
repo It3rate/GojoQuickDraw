@@ -20,6 +20,7 @@ from . import dataset, upstream
 
 ARMS = ('local-models', 'shapes-only', 'fixed-scaffold', 'bidirectional')
 SCHEMA = 'gojo.church-coupled-study.v2'
+MAX_PASSES = 64
 
 
 def select(path, limit, seed, excluded=()):
@@ -119,7 +120,7 @@ def run(args):
     source = args.input.resolve(); output = args.output.resolve(); gojo = upstream.resolve(args.gojo_root)
     if output == source or output in source.parents or source in output.parents:
         raise ValueError('Choose a new study folder separate from the source file')
-    if not 1 <= args.workers <= 8 or not 1 <= args.passes <= 16 or not 1 <= args.steps <= 8 or not 1 <= args.candidates <= 256:
+    if not 1 <= args.workers <= 8 or not 1 <= args.passes <= MAX_PASSES or not 1 <= args.steps <= 8 or not 1 <= args.candidates <= 256:
         raise ValueError('Choose bounded worker, iteration and candidate budgets')
     output.mkdir(parents=True, exist_ok=True)
     work = Path(args.work or Path('D:/_quickDraw/_work')/output.name).resolve(); work.mkdir(parents=True, exist_ok=True)

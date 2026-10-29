@@ -64,7 +64,21 @@ public class ChurchStudyTests
     {
         var ink=Ink();var bundle=Json(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"providers.json")));
         Assert.Throws<ArgumentException>(()=>ChurchExperiment.Run(ink.Surface,ink,Layout(),Json("{}"),Profiles(ink),bundle,"x","unbounded",2,2,16));
-        Assert.Throws<ArgumentException>(()=>ChurchExperiment.Run(ink.Surface,ink,Layout(),Json("{}"),Profiles(ink),bundle,"x","bidirectional",17,2,16));
+        Assert.Throws<ArgumentException>(()=>ChurchExperiment.Run(ink.Surface,ink,Layout(),Json("{}"),Profiles(ink),bundle,"x","bidirectional",ChurchExperiment.MaximumPasses+1,2,16));
+    }
+
+    [Fact] public void LargerEffortBudgetPreservesTheEarlierPassesAndRestoresItsController()
+    {
+        var ink=Ink();var bundle=Json(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"providers.json")));
+        var shortRun=ChurchExperiment.Run(ink.Surface,ink,Layout(),Json("""{"targets":[]}"""),Profiles(ink),bundle,"fixture-model","shapes-only",6,1,16);
+        var longRun=ChurchExperiment.Run(ink.Surface,ink,Layout(),Json("""{"targets":[]}"""),Profiles(ink),bundle,"fixture-model","shapes-only",ChurchExperiment.MaximumPasses,1,16);
+        var shortView=Json(JsonSerializer.Serialize(shortRun.View,GojoQuickDraw.ChurchStudy.Program.Json));
+        var longView=Json(JsonSerializer.Serialize(longRun.View,GojoQuickDraw.ChurchStudy.Program.Json));
+        var stages=longView.GetProperty("stages");
+        foreach(var (stage,i) in shortView.GetProperty("stages").EnumerateArray().Select((s,i)=>(s,i)))
+            Assert.True(System.Text.Json.Nodes.JsonNode.DeepEquals(System.Text.Json.Nodes.JsonNode.Parse(stage.GetRawText()),System.Text.Json.Nodes.JsonNode.Parse(stages[i].GetRawText())));
+        var restored=(Relation)GojoNumericFormat.Decode(GojoNumericFormat.Encode(longRun.Surface))[0];ChurchExperiment.Validate(restored);
+        Assert.True(F(F(restored)[4])[0] is Relation limit&&limit.TryReadSegment(out _,out _,out var end)&&end.Ticks==ChurchExperiment.MaximumPasses);
     }
 
     [Fact] public void GraphPublicationContainsOnlyAcceptedDisplacement()

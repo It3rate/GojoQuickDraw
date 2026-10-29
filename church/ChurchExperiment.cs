@@ -11,6 +11,7 @@ namespace GojoQuickDraw.ChurchStudy;
 
 public static class ChurchExperiment
 {
+    public const int MaximumPasses=64;
     public static readonly string[] Arms=["local-models","shapes-only","fixed-scaffold","bidirectional"];
     public sealed record Stage(int Pass,View Graph,object[] Parts,ChurchSettlement.ErrorView[] Errors,int Applied,int Moved,
         object[] Transfers,int SourceEdges,int InferredEdges,int Components,int Cycles,double SourceCoverage);
@@ -19,7 +20,7 @@ public static class ChurchExperiment
     public static Result Run(Relation observation,Graph original,JsonElement layout,JsonElement mapping,IReadOnlyDictionary<string,IElement> profiles,
         JsonElement model,string modelHash,string arm,int passes=6,int steps=2,int candidates=96)
     {
-        if(!Arms.Contains(arm)||passes is <1 or >16||steps is <1 or >8||candidates is <1 or >256)
+        if(!Arms.Contains(arm)||passes is <1 or >MaximumPasses||steps is <1 or >8||candidates is <1 or >256)
             throw new ArgumentException("Choose a declared arm and bounded church experiment budgets.");
         var graph=original;var sourceOrder=original.Edges.Select(e=>e.Source).ToArray();
         var shapes=arm!="local-models";var moveShapes=arm is "shapes-only" or "bidirectional";var moveInk=arm!="shapes-only";
@@ -80,7 +81,7 @@ public static class ChurchExperiment
         var f=F(root);if(f.Length!=5)throw new InvalidDataException("Incomplete church run.");
         var source=Read((Relation)f[1]);var final=Read((Relation)f[3]);
         var controller=F(f[4]);if(controller.Length!=2||controller[0] is not Relation budget||!budget.TryReadSegment(out var axis,out var zero,out var limit)||
-            zero.Ticks!=0||limit.Ticks is <1 or >16||controller[1] is not CarrierLocation executed||!ReferenceEquals(executed.Carrier,axis)||executed.Ticks!=F(f[2]).Length||executed.Ticks>limit.Ticks)
+            zero.Ticks!=0||limit.Ticks is <1 or >MaximumPasses||controller[1] is not CarrierLocation executed||!ReferenceEquals(executed.Carrier,axis)||executed.Ticks!=F(f[2]).Length||executed.Ticks>limit.Ticks)
             throw new InvalidDataException("The church controller lost its declared effort budget.");
         var current=source.Surface;
         foreach(var stage in F(f[2]))

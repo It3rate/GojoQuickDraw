@@ -40,18 +40,14 @@ public static class Program
                     var results=new List<object>();
                     foreach(var arm in r.GetProperty("arms").EnumerateArray().Select(v=>v.GetString()!))
                     {
-                        var result=ChurchExperiment.Run(annotation,original,r.GetProperty("scaffold"),r.GetProperty("mapping"),profiles,
-                            model.RootElement,hash,arm,r.GetProperty("passes").GetInt32(),r.GetProperty("steps").GetInt32(),r.GetProperty("candidates").GetInt32());
                         var path=Path.Combine(folder,arm+".gojo.bin.gz");
-                        using(var output=new GZipStream(File.Create(path+".tmp"),CompressionLevel.Optimal))output.Write(GojoNumericFormat.Encode(result.Surface));
-                        using(var stored=new GZipStream(File.OpenRead(path+".tmp"),CompressionMode.Decompress))
-                        {
-                            using var bytes=new MemoryStream();stored.CopyTo(bytes);
-                            var restored=GojoNumericFormat.Decode(bytes.ToArray());
-                            if(restored.Length!=1||restored[0] is not Relation root)throw new InvalidDataException("Connected church archive did not restore.");
-                            ChurchExperiment.Validate(root);
-                        }
-                        File.Move(path+".tmp",path,true);results.Add(result.View);
+                        var armView=WriteArm(annotation,original,r,profiles,model.RootElement,hash,arm,path+".tmp");
+                        // A long history must not keep its live proof graph while
+                        // the independent restore allocates a second copy.
+                        if(r.GetProperty("passes").GetInt32()>16)
+                            GC.Collect(GC.MaxGeneration,GCCollectionMode.Forced,blocking:true,compacting:false);
+                        RestoreArchive(path+".tmp");
+                        File.Move(path+".tmp",path,true);results.Add(armView);
                         Console.Error.WriteLine($"{id}: {arm} independently restored");
                     }
                     var view=new{id,keyId=packet.GetProperty("source").GetProperty("key_id").GetString(),
@@ -69,5 +65,25 @@ public static class Program
             return 0;
         }
         catch(Exception ex){Console.Error.WriteLine(ex);return 1;}
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    private static object WriteArm(Relation annotation,NeighborhoodGraph.Graph original,JsonElement request,
+        IReadOnlyDictionary<string,IElement> profiles,JsonElement model,string hash,string arm,string path)
+    {
+        var result=ChurchExperiment.Run(annotation,original,request.GetProperty("scaffold"),request.GetProperty("mapping"),profiles,
+            model,hash,arm,request.GetProperty("passes").GetInt32(),request.GetProperty("steps").GetInt32(),request.GetProperty("candidates").GetInt32());
+        using(var output=new GZipStream(File.Create(path),CompressionLevel.Optimal))output.Write(GojoNumericFormat.Encode(result.Surface));
+        return result.View;
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    private static void RestoreArchive(string path)
+    {
+        using var stored=new GZipStream(File.OpenRead(path),CompressionMode.Decompress);
+        using var bytes=new MemoryStream();stored.CopyTo(bytes);
+        var restored=GojoNumericFormat.Decode(bytes.ToArray());
+        if(restored.Length!=1||restored[0] is not Relation root)throw new InvalidDataException("Connected church archive did not restore.");
+        ChurchExperiment.Validate(root);
     }
 }

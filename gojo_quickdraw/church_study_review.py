@@ -75,7 +75,7 @@ def write(output):
         rows=views[page*12:(page+1)*12]
         text='window.CHURCH_PAGE='+json.dumps(rows,separators=(',',':'),allow_nan=False).replace('<','\\u003c')+';\n'
         target=pages/f'page-{page+1:05d}.js';temp=target.with_suffix('.js.tmp');temp.write_text(text,encoding='utf-8');temp.replace(target)
-    manifest=dict(drawings=len(views),pages=page_count,state=state.get('status','pilot'),selected=state.get('selected',len(views)),summary=summary,failures=state.get('preparationErrors',0)+state.get('nativeErrors',0),reason=state.get('supersededReason'))
+    manifest=dict(drawings=len(views),pages=page_count,passBudget=state.get('config',{}).get('passes',6),state=state.get('status','pilot'),selected=state.get('selected',len(views)),summary=summary,failures=state.get('preparationErrors',0)+state.get('nativeErrors',0),reason=state.get('supersededReason'))
     content=HTML.replace('__MANIFEST__',json.dumps(manifest,separators=(',',':')).replace('<','\\u003c'))
     target=output/'review.html';temp=output/'review.html.tmp';temp.write_text(content,encoding='utf-8');temp.replace(target)
 
@@ -90,7 +90,7 @@ HTML=r'''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewpo
 <script>
 const MANIFEST=__MANIFEST__, $=id=>document.getElementById(id), colors={building:'#32869e',tower:'#5a7199',roof:'#c67526',cross:'#b54479',door:'#289582',window:'#9167b1'},labels={'local-models':'Local models','shapes-only':'Shapes around fixed ink','fixed-scaffold':'Fixed scaffold','bidirectional':'Bidirectional'};
 let rows=[],page=1,selected=0,loading=false,script;
-const params=new URLSearchParams(location.hash.slice(1));page=Math.max(1,Math.min(MANIFEST.pages,Number(params.get('page'))||1));$('arm').value=params.get('arm')||'bidirectional';$('step').max=MANIFEST.state==='pilot'?6:16;$('step').value=params.get('pass')||6;
+const params=new URLSearchParams(location.hash.slice(1));page=Math.max(1,Math.min(MANIFEST.pages,Number(params.get('page'))||1));$('arm').value=params.get('arm')||'bidirectional';$('step').max=MANIFEST.passBudget||6;$('step').value=params.get('pass')??String(MANIFEST.passBudget||6);
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 const num=x=>x==null?'—':Number(x).toFixed(2);
 const path=points=>points.map((p,i)=>(i?'L':'M')+p[0].toFixed(3)+' '+p[1].toFixed(3)).join(' ');
