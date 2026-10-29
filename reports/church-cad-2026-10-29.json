@@ -1,0 +1,479 @@
+{
+  "schema": "gojo.church-cad-report.v1",
+  "date": "2026-10-29",
+  "status": "complete",
+  "study": "D:\\_quickDraw\\data\\church-cad-2026-10-29-v1",
+  "configuration": {
+    "sourceStudy": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+    "sourceStudySha256": "38e29a09ede0e31cf2498d638bf5f0404089dc2eff3ecad8042b78e681c71514",
+    "selection": [
+      "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+      "ffaee7573aa8e79b7b953ec9f22316add0896586",
+      "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+      "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+      "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+      "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+      "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+      "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+      "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+      "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+      "0301c0037e88809800a99f23b9a67eb50896786c",
+      "087bed479c398ed40baefcce2cebef6bc18f40c4",
+      "0bd46f98419c00e625bb818038d74abb6e8c5315",
+      "0c7c69dfbe06173c30cd27385cffab76465911b0",
+      "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+      "5bebdc41d7c29fa64be38803ded7bcc1423fd658"
+    ],
+    "connections": true,
+    "cad": true,
+    "baselineStudy": "D:\\_quickDraw\\data\\church-connections-2026-10-29-v3",
+    "inputStudies": {
+      "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffaee7573aa8e79b7b953ec9f22316add0896586": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffba0ee5aa25752e219d715cc5c041cceae3b66d": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "2ebe685d39ad0a3236b5beba484c2a846a3cfcef": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "1fa43407ab2509c3d392ad9a222591bb71f1f933": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "51213f89ae40a8f0eefbf6d6256663d5d36c4247": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "55d36d311f10da3e059e4ac2fc1e210970a23c25": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "0301c0037e88809800a99f23b9a67eb50896786c": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "087bed479c398ed40baefcce2cebef6bc18f40c4": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "0bd46f98419c00e625bb818038d74abb6e8c5315": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "0c7c69dfbe06173c30cd27385cffab76465911b0": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "9d90a583b33d28b0619cce77efb32dd5db9fa461": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "5bebdc41d7c29fa64be38803ded7bcc1423fd658": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2"
+    },
+    "sourceStudyHashes": {
+      "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2": "38e29a09ede0e31cf2498d638bf5f0404089dc2eff3ecad8042b78e681c71514",
+      "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2": "96bfbc11373b9e72a50cda0cc1f28fe64c38e27654f40c510c8aa68f4cf5c451",
+      "D:\\_quickDraw\\data\\church-connections-2026-10-29-v3": "4f98be794ec2a834a76e806dca127344c3fb96849d56fb81031c5de78c33e78d"
+    },
+    "passes": 8,
+    "steps": 2,
+    "candidates": 48,
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "adapterSha256": "e2065c526e56c24a8e0b75888b58bbe207465228d2041aaaf7ddf3e6934bd90e",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+      "pinnedRevision": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "ecd5acf344b6e28cd739ad5536c1197308c2d9ba4dc154643c171e1cf677c079",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "scope": "Targeted same-cohort structural regression, not held-out recognition accuracy. No new model training. Ordinary conversion defaults are unchanged.",
+  "elapsedIncludingProductionArchivesAndReviewSeconds": 579.308435,
+  "compressedWorldBytes": 1243596323,
+  "cases": [
+    {
+      "sample": 3,
+      "keyId": "6051473534222336",
+      "relation": "left boundary collinearity",
+      "previousFinalSignedOffset": -5.0,
+      "newInitialSignedOffset": -20.25,
+      "newFinalSignedOffset": 0.0,
+      "firstCapturedPass": 3,
+      "heldThroughPass": 8,
+      "finalShapeCounts": {
+        "door": 0,
+        "window": 0,
+        "cross": 1,
+        "tower": 1
+      }
+    },
+    {
+      "sample": 6,
+      "keyId": "6474467716890624",
+      "relation": "outward assembly axis",
+      "previousFinalSignedOffset": 22.25,
+      "newInitialSignedOffset": 21.75,
+      "newFinalSignedOffset": 0.0,
+      "firstCapturedPass": 3,
+      "heldThroughPass": 8,
+      "finalShapeCounts": {
+        "door": 1,
+        "window": 4,
+        "cross": 1,
+        "tower": 1
+      }
+    },
+    {
+      "sample": 14,
+      "keyId": "5782206867832832",
+      "relation": "right boundary collinearity",
+      "previousFinalSignedOffset": -4,
+      "newInitialSignedOffset": -5,
+      "newFinalSignedOffset": 0.0,
+      "firstCapturedPass": 3,
+      "heldThroughPass": 8,
+      "finalShapeCounts": {
+        "door": 0,
+        "window": 0,
+        "cross": 1,
+        "tower": 1
+      }
+    }
+  ],
+  "checks": {
+    "drawings": 16,
+    "changedCases": [
+      3,
+      6,
+      14
+    ],
+    "unchangedCases": [
+      1,
+      2,
+      4,
+      5,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      15,
+      16
+    ],
+    "sourcePacketsUnchanged": true,
+    "maxCapturedResidual": 0.0,
+    "captured": 78,
+    "candidates": 82,
+    "rows": [
+      {
+        "sample": 1,
+        "keyId": "4950483162628096",
+        "captured": 2,
+        "candidates": 3,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 1,
+          "window": 0,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 2,
+        "keyId": "4897692985589760",
+        "captured": 5,
+        "candidates": 5,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 0,
+          "cross": 1,
+          "tower": 1
+        }
+      },
+      {
+        "sample": 3,
+        "keyId": "6051473534222336",
+        "captured": 6,
+        "candidates": 6,
+        "cad": [
+          {
+            "id": "cad-collinear-layout-tower-1-layout-building",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0.4861359120657514,
+            "releasePending": false
+          }
+        ],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": false,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 0,
+          "cross": 1,
+          "tower": 1
+        },
+        "edgeOffset": 0.0
+      },
+      {
+        "sample": 4,
+        "keyId": "6226189452574720",
+        "captured": 3,
+        "candidates": 4,
+        "cad": [],
+        "maxCapturedResidual": 0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 0,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 5,
+        "keyId": "4821138091802624",
+        "captured": 4,
+        "candidates": 4,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 0,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 6,
+        "keyId": "6474467716890624",
+        "captured": 9,
+        "candidates": 9,
+        "cad": [
+          {
+            "id": "cad-assembly-axis-layout-tower-1-layout-building",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 3.8125,
+            "releasePending": false
+          }
+        ],
+        "maxCapturedResidual": 0,
+        "unchangedStages": false,
+        "sourceShapeCounts": {
+          "door": 1,
+          "window": 4,
+          "cross": 1,
+          "tower": 1
+        },
+        "assemblyAxisOffset": 0.0
+      },
+      {
+        "sample": 7,
+        "keyId": "4981869022019584",
+        "captured": 5,
+        "candidates": 5,
+        "cad": [],
+        "maxCapturedResidual": 0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 1,
+          "window": 0,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 8,
+        "keyId": "6527982287978496",
+        "captured": 3,
+        "candidates": 3,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 2,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 9,
+        "keyId": "6045774917926912",
+        "captured": 3,
+        "candidates": 3,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 2,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 10,
+        "keyId": "4944046684372992",
+        "captured": 4,
+        "candidates": 4,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 0,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 11,
+        "keyId": "5117095295582208",
+        "captured": 15,
+        "candidates": 15,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 1,
+          "window": 0,
+          "cross": 1,
+          "tower": 3
+        }
+      },
+      {
+        "sample": 12,
+        "keyId": "6667304605581312",
+        "captured": 3,
+        "candidates": 3,
+        "cad": [],
+        "maxCapturedResidual": 0.0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 3,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 13,
+        "keyId": "5419325802414080",
+        "captured": 2,
+        "candidates": 3,
+        "cad": [],
+        "maxCapturedResidual": 0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 1,
+          "window": 0,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 14,
+        "keyId": "5782206867832832",
+        "captured": 4,
+        "candidates": 5,
+        "cad": [
+          {
+            "id": "cad-collinear-layout-tower-1-layout-building",
+            "action": "held",
+            "active": true,
+            "distance": 0,
+            "pressure": 0,
+            "releasePending": false
+          }
+        ],
+        "maxCapturedResidual": 0,
+        "unchangedStages": false,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 0,
+          "cross": 1,
+          "tower": 1
+        },
+        "edgeOffset": 0.0
+      },
+      {
+        "sample": 15,
+        "keyId": "6581957729189888",
+        "captured": 6,
+        "candidates": 6,
+        "cad": [],
+        "maxCapturedResidual": 0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 1,
+          "window": 2,
+          "cross": 1,
+          "tower": 0
+        }
+      },
+      {
+        "sample": 16,
+        "keyId": "5729703023345664",
+        "captured": 4,
+        "candidates": 4,
+        "cad": [],
+        "maxCapturedResidual": 0,
+        "unchangedStages": true,
+        "sourceShapeCounts": {
+          "door": 0,
+          "window": 1,
+          "cross": 1,
+          "tower": 0
+        }
+      }
+    ],
+    "qualification": "Same-cohort structural regression checks, not held-out recognition accuracy or learned utility.",
+    "shapeCountQualification": "Role counts include inferred priors; they do not classify every counted part as acquired ink."
+  },
+  "nativeAudit": {
+    "worlds": 16,
+    "shapePoints": 6568,
+    "errorReads": 21126,
+    "actuatorOutcomes": 15320,
+    "maxDifference": 0,
+    "qualification": "Read-only comparison of restored native graphs, executable shape outputs, error intervals and exact receiver accounting against review projections. No accuracy judgment."
+  },
+  "browser": {
+    "drawings": 16,
+    "panels": 96,
+    "errors": [],
+    "network": []
+  },
+  "observer": {
+    "recompiledPlans": 16,
+    "savedWorldsAndViewsUnchanged": true,
+    "calculationAdapterSha256": "e2065c526e56c24a8e0b75888b58bbe207465228d2041aaaf7ddf3e6934bd90e",
+    "currentAdapterSha256": "59f4632374c26ae0f725d7ce753e46b52146e44796b6c91027e066e4cd732f50",
+    "qualification": "Observer labels updated after calculation. All runtime plans recompile identically; views and native archives are unchanged."
+  },
+  "nativeControl": {
+    "opinions": 11,
+    "initialDiscrepancySum": 57.01605047755841,
+    "finalDiscrepancySum": 41.998040790512796,
+    "sourceUnchanged": true,
+    "baselineUnchanged": true,
+    "restoredMaxDifference": 0,
+    "inputSha256": "9cd5de4ec4c887506e3ca36dc24515f5cc002d8b6354eddb9bb11687f36984ad",
+    "nativeSha256": "295725b625f09f466d3754f014fda5508a9b400e3351a302d804ba219c081b0a",
+    "qualification": "Authored four-member native control. Discrepancy sum is a diagnostic of normalized error reads, not conserved energy or recognition accuracy. Small requests can remain below actuator resolution. The real cohort contained no eligible three-or-more-member row.",
+    "browser": {
+      "rounds": 17,
+      "baselineUnchanged": true,
+      "errors": [],
+      "network": []
+    },
+    "elapsedIncludingSnapshotsAndBaselineMs": 1552.4963,
+    "nativeUncompressedBytes": 49570379
+  },
+  "verification": {
+    "python": 246,
+    "quickDrawDotNet": 147,
+    "linkedGojoDotNet": 5548,
+    "linkedGojoProjects": 13,
+    "focusedCadPython": 8,
+    "focusedReviewPython": 3,
+    "cadControl": "Build, actual execution, unchanged baseline/source, native restoration and 17-state browser check passed."
+  },
+  "limits": [
+    "Collinearity is restricted to exposed vertical faces across selected stacked contacts, not arbitrary near lines.",
+    "Outward symmetry requires a front-like view, one upper frame and distinct acquired motif support; no global symmetry detector.",
+    "Repeated row errors are soft; small requests can stall below damped actuator resolution.",
+    "Four inherited cross-centering candidates remain open; no general curve tangency or skew correction.",
+    "Support routes and native error responses are implemented; learned communication utility and general adaptive routing are direction only.",
+    "This study retains complete histories. Timings do not isolate arithmetic or establish production throughput."
+  ]
+}

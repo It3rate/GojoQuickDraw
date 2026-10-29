@@ -28,8 +28,11 @@ public static class ChurchHypotheses
             }).ToArray();
             var offset=ChurchScene.Offset*terms.Sum(t=>t.Coefficient);
             long Limit(string key)=>checked((long)Math.Round(rule.GetProperty(key).GetDouble()*ChurchScene.Scale*256)+offset);
+            IElement support=G(terms.Select(t=>(IElement)t.Port).ToArray());
+            if(rule.TryGetProperty("supportParts",out var supporting))
+                support=G(support,G(supporting.EnumerateArray().Select(id=>(IElement)scene.Parts.Single(p=>p.Id==id.GetString()).Geometry).ToArray()));
             scene.AddCalibrated(rule.GetProperty("name").GetString()!,rule.GetProperty("layer").GetString()!,Limit("lower"),Limit("upper"),
-                rule.GetProperty("influence").GetInt64(),G(terms.Select(t=>(IElement)t.Port).ToArray()),256,terms);
+                rule.GetProperty("influence").GetInt64(),support,256,terms);
         }
     }
 

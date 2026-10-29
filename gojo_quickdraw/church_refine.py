@@ -19,6 +19,8 @@ def digest(path):
 
 
 def run(args):
+    if getattr(args,'cad',False) and not getattr(args,'connections',False):
+        raise ValueError('--cad requires --connections')
     source=args.source_study.resolve(); output=args.output.resolve()
     if output==source or source in output.parents or output in source.parents:
         raise ValueError('Keep the comparison source separate from the new experiment')
@@ -55,7 +57,7 @@ def run(args):
         raise ValueError('Keep temporary work separate from retained studies')
     work.mkdir(parents=True,exist_ok=True); output.mkdir(parents=True,exist_ok=True)
     config=dict(sourceStudy=str(source),sourceStudySha256=digest(source/'study.json'),selection=[p['id'] for p in selection],
-        connections=getattr(args,'connections',False),baselineStudy=str(args.baseline_study.resolve()) if getattr(args,'baseline_study',None) else None,
+        connections=getattr(args,'connections',False),cad=getattr(args,'cad',False),baselineStudy=str(args.baseline_study.resolve()) if getattr(args,'baseline_study',None) else None,
         inputStudies={ident:str(root) for ident,root in origins.items()},sourceStudyHashes=source_states,
         passes=args.passes,steps=args.steps,candidates=state['config']['candidates'],modelSha256=digest(model),
         adapterSha256=fingerprint(),upstream=upstream.fingerprint(upstream.resolve(args.gojo_root)))
@@ -86,7 +88,7 @@ def run(args):
             if (retained['id']!=ident or earlier['id']!=ident or packet['source']['recognized'] is not True or
                     source_hash!=earlier['sourceSha256']):
                 raise ValueError('Acquisition identity or recognition status changed')
-            scaffold,mapping,heuristics,proposal=compile_plan(packet['observation'],retained['scaffold'],getattr(args,'connections',False))
+            scaffold,mapping,heuristics,proposal=compile_plan(packet['observation'],retained['scaffold'],getattr(args,'connections',False),getattr(args,'cad',False))
             request={**retained,'scaffold':scaffold,'mapping':mapping,'heuristics':heuristics,
                      'arms':['bidirectional'],'passes':args.passes,'steps':args.steps,
                      'candidates':config['candidates'],
@@ -120,6 +122,7 @@ def main():
     p.add_argument('--selection',type=Path,help='Optional explicit IDs; each row may name a completed source study')
     p.add_argument('--baseline-study',type=Path,help='Optional read-only comparison views from the same acquisitions')
     p.add_argument('--connections',action='store_true',help='Reconsider opening rows and test native capture/hold/release constructions')
+    p.add_argument('--cad',action='store_true',help='Propose nearby collinearity, outward symmetry and repeated-row CAD relations')
     p.add_argument('--limit',type=int,default=10);p.add_argument('--passes',type=int,default=12)
     p.add_argument('--steps',type=int,default=4);p.add_argument('--work',type=Path);p.add_argument('--gojo-root',type=Path)
     state=run(p.parse_args())

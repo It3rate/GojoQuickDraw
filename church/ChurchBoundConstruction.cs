@@ -54,6 +54,8 @@ public static class ChurchBoundConstruction
         {
             var native=G(recipe.Bindings.Select(b=>(IElement)G(Declared(b.Target),G(b.Terms.Select(t=>(IElement)G(Declared(t.Slot),
                 Relation.Segment(new Carrier(),0,checked((long)Math.Round(t.Coefficient*1024))),Relation.Segment(new Carrier(),0,1024))).ToArray()))).ToArray());
+            if(recipe.Input.ValueKind==JsonValueKind.Object&&recipe.Input.TryGetProperty("supportParts",out var supporting))
+                native=G(native,G(supporting.EnumerateArray().Select(id=>(IElement)old[ids[id.GetString()!]].Geometry).ToArray()));
             var trial=new Dictionary<Slot,Binding>(chosen);var proposed=rounding.ToArray();
             try
             {

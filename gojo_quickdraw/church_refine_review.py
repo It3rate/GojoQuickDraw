@@ -88,9 +88,10 @@ def write(folder):
             panels.append(dict(title=title,stage=stage,**diagnostic))
         plan=request['heuristics']
         label='Connected constructions' if state['config'].get('connections') else 'Added experts'
+        if state['config'].get('cad'):label='CAD relations'
         if state['config'].get('connections'):
-            panels[3]['title']='Connected constructions · pass 6'
-            panels[4]['title']='Connected constructions · final'
+            panels[3]['title']=label+' · pass 6'
+            panels[4]['title']=label+' · final'
         steps=[dict(title=label+' · selected pass',stage=stage,
                     **coverage(request['packet']['observation'],request['scaffold'],stage)) for stage in new['stages']]
         for panel in panels+steps:
@@ -102,9 +103,11 @@ def write(folder):
                              addedWindows=sum(d['accepted'] for d in plan['discoveries']),view=plan['view'],
                              connections=len(plan.get('connections',{}).get('recipes',[]))),
                          openingChanges=plan.get('openingContext',{}).get('changes',[]),
+                         cad=plan.get('cad'),cadGuides=[r for r in plan.get('connections',{}).get('recipes',[]) if r.get('family') in ('collinearity','shared assembly axis')],
                          layers=sorted({r['layer'] for r in plan['rules']})))
     payload=json.dumps(rows,separators=(',',':'),allow_nan=False).replace('<','\\u003c')
     page=PAGE.replace('__DATA__',payload).replace('__COLORS__',json.dumps(COLORS)).replace('__STATUS__',html.escape(state['status']))
+    page=page.replace('__TITLE__','Church experts and CAD relations' if state['config'].get('cad') else 'Church experts, connected')
     (folder/'review.html').write_text(page,encoding='utf-8')
     metadata=dict(schema='gojo.church-review-read.v1',rendererSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         calculationAdapterSha256=state['config']['adapterSha256'],
@@ -126,6 +129,7 @@ def write(folder):
             parts={role:sum(p['role']==role and bool(p['segments']) for p in final['stage']['parts']) for role in COLORS},
             captured=sum(c['active'] for c in final['stage'].get('captures',[])),
             remainingConnections=final['stage'].get('captures',[]),openingChanges=row['openingChanges'],
+            cad=row['cad'],
             finalPass=final['stage']['pass']))
     (folder/'analysis.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
     return rows
@@ -135,12 +139,12 @@ PAGE='''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewpor
 <title>Church experts · native settlement</title><style>
 :root{color-scheme:light;font:16px system-ui;color:#193e49;background:#f3f5ef}*{box-sizing:border-box}body{margin:0;padding:18px}h1{font-size:24px;margin:0 0 5px}p{margin:5px 0 12px;color:#536e74}button,select{font:inherit;padding:7px;border:1px solid #c4d3cc;border-radius:7px;background:white;color:inherit}header{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.toolbar{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0}#panels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.panel{background:white;border:1px solid #cbd9d2;border-radius:12px;padding:12px;min-width:0}h2{font-size:17px;margin:0 0 5px}.panel svg{width:100%;height:340px}.caption{font-size:13px;color:#536e74;min-height:34px}details{margin-top:16px}table{border-collapse:collapse;font-size:14px}td,th{padding:5px 12px;text-align:left;border-bottom:1px solid #d1dad5}.legend{font-size:14px;color:#526d73}#facts{font-size:14px;margin:8px 0}a{color:#236c72}@media(max-width:1000px){#panels{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){body{padding:10px}#panels{grid-template-columns:1fr}.panel svg{height:300px}select{max-width:100%}}
 #connections{max-width:100%;overflow-x:auto}#revisions p{overflow-wrap:anywhere}
-</style><h1>Church experts, connected</h1><p>Same drawings and local models. More authored construction proposals and native error relations. __STATUS__.</p>
+</style><h1>__TITLE__</h1><p>Same drawings and local models. More authored construction proposals and native error relations. __STATUS__.</p>
 <header><button id="prev" aria-label="Previous drawing">←</button><select id="drawing" aria-label="Drawing"></select><button id="next" aria-label="Next drawing">→</button><span id="count"></span></header>
-<div class="toolbar"><label>New pass <select id="pass" aria-label="Settlement pass"></select></label><label><input id="ink" type="checkbox"> Green interpreted ink</label><label><input id="unknown" type="checkbox"> Unexplained ink</label><label><input id="missing" type="checkbox"> Missing expected ink</label><label><input id="joints" type="checkbox"> Interpreted joints</label></div>
+<div class="toolbar"><label>New pass <select id="pass" aria-label="Settlement pass"></select></label><label><input id="ink" type="checkbox"> Green interpreted ink</label><label><input id="unknown" type="checkbox"> Unexplained ink</label><label><input id="missing" type="checkbox"> Missing expected ink</label><label><input id="joints" type="checkbox"> Interpreted joints</label><label><input id="guides" type="checkbox"> Alignment guides</label></div>
 <div class="legend">Faint ink = original · colors = proposed shapes · gray dotted = prior additions · orange = unexplained ink · gray dashes = missing boundary support.</div>
 <div id="facts"></div><div id="panels"></div><details><summary>Remaining mismatch by relationship</summary><p>Mean normalized port demand in drawing units, not recognition accuracy or physical energy. Source strain can rise while the conceptual shape improves.</p><div id="errors"></div></details>
-<details><summary>Construction capture and opening revisions</summary><p>Capture substitutes an actual shared construction. It preserves exact relations during parameter settlement; strong opposing requests can release it on a later pass. Distances and pressure are authored diagnostic reads, not physical forces.</p><div id="connections"></div><div id="revisions"></div></details>
+<details><summary>Construction capture and opening revisions</summary><p>Capture substitutes an actual shared construction. It preserves exact relations during parameter settlement; strong opposing requests can release it on a later pass. Distances and pressure are authored diagnostic reads, not physical forces.</p><div id="connections"></div><div id="revisions"></div><div id="cad"></div></details>
 <p>← / → drawings. Families, supports and pairings are authored inference proposals; source bounds seed the machines. Interior corners expose additional source-interval sites. Native carrier tension moves parameters. Unknown ink is never erased, and a missing boundary is never labeled acquired ink.</p>
 <script>const DATA=__DATA__,COLORS=__COLORS__;const $=id=>document.getElementById(id);let index=0;let selectedPass=Number.MAX_SAFE_INTEGER;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -158,14 +162,18 @@ function render(){if(!DATA.length){$('facts').textContent='Waiting for the first
  if($('joints').checked)out+=s.graph.sites.map(j=>`<circle cx="${j.point[0]}" cy="${j.point[1]}" r="2.5" fill="#dc9450"><title>${esc(j.kind||'joint')}</title></circle>`).join('');
  if($('unknown').checked)out+=panel.unknown.map(u=>`<polyline class="unresolved" points="${u.points.map(p=>p.join(',')).join(' ')}" stroke="#df9020" stroke-width="2.5" fill="none"><title>${esc(u.span+' · '+u.reason)}</title></polyline>`).join('');
  if($('missing').checked)out+=panel.missing.map(u=>`<polyline class="missing" points="${u.points.map(p=>p.join(',')).join(' ')}" stroke="#7d8588" stroke-dasharray="4 3" stroke-width="2" fill="none"><title>${esc(u.part+' · '+u.reason)}</title></polyline>`).join('');}
+ if(panel&&$('guides').checked)for(const guide of row.cadGuides||[]){const child=panel.stage.parts.find(p=>p.id===guide.bindings[0].target.part);const owner=panel.stage.parts.find(p=>p.id===guide.bindings[0].terms[0].part);if(!child||!owner)continue;
+ const k=guide.bindings[0].target.coordinate;const x=guide.family==='collinearity'?child.bounds[k]:(child.bounds[0]+child.bounds[2])/2;const y=guide.family==='collinearity'?owner.bounds[k]:(owner.bounds[0]+owner.bounds[2])/2;const top=Math.min(child.bounds[1],owner.bounds[1])-12,bottom=Math.max(child.bounds[3],owner.bounds[3])+12;
+ for(const [position,color] of [[x,'#c24b91'],[y,'#337b87']])out+=`<path class="alignment-guide" d="M${position},${top}L${position},${bottom}" stroke="${color}" stroke-dasharray="4 4" stroke-width="1"><title>${esc(guide.family+' · current separation '+Math.abs(x-y).toFixed(2))}</title></path>`;}
  return `<svg viewBox="${frame}" role="img">${out}</svg>`}
  $('panels').innerHTML=`<section class="panel"><h2>Original drawing</h2>${svg(null)}<div class="caption">Exact acquisition retained. ${esc(row.keyId)}</div></section>`+panels.map(p=>`<section class="panel"><h2>${esc(p.title)}</h2>${svg(p)}<div class="caption">Pass ${p.stage.pass} · ${p.stage.parts.filter(s=>s.segments.length).length} visible parts${p.unexplainedFraction!==undefined?' · unexplained '+(p.unexplainedFraction*100).toFixed(1)+'%':''}<br>${p.stage.applied} rewrites · ${p.stage.moved} actuator responses</div></section>`).join('');
  const captures=chosen.stage.captures||[];
  $('facts').textContent=`${row.proposals.rules} relationship opinions · ${row.proposals.knots} interior corner proposals · ${row.proposals.addedWindows} residual-ink window proposals · ${row.proposals.view?.selected||'view open'}${captures.length?' · '+captures.filter(c=>c.active).length+'/'+captures.length+' constructions captured':''}`;
  $('connections').innerHTML=captures.length?'<table><tr><th>Construction</th><th>State</th><th>Entry distance</th><th>Opposing request</th></tr>'+captures.map(c=>`<tr><td>${esc(c.id)}</td><td>${esc(c.action)}${c.releasePending?' · release pending':''}</td><td>${c.distance.toFixed(2)}</td><td>${c.pressure.toFixed(2)}</td></tr>`).join('')+'</table>':'No connection captures in this pass.';
  $('revisions').innerHTML=(row.openingChanges||[]).map(c=>`<p>${esc(c.part+' · '+c.action+(c.selected?' → '+c.selected:''))}<br>${esc(c.basis)}</p>`).join('');
+ $('cad').innerHTML=(row.cad?.decisions||[]).map(c=>`<p>${esc(c.kind+' · '+(c.proposed?'proposed':'left open')+' · '+c.parts.join(' / '))}<br>${esc(c.basis)}</p>`).join('')+(row.cad?.groups||[]).map(g=>`<p>${esc(g.kind+' · '+g.parts.join(' / '))}<br>${esc(g.basis)}</p>`).join('');
  const end=chosen.stage.errors;const start=row.panels[2].stage.errors;const layers=[...new Set(end.map(e=>e.layer))];const mean=(rows,key)=>{const x=rows.filter(e=>e.layer===key);return x.length?x.reduce((a,b)=>a+b.demand,0)/x.length:0};
  $('errors').innerHTML='<table><tr><th>Relationship</th><th>Before</th><th>After</th></tr>'+layers.map(l=>`<tr><td>${esc(l)}</td><td>${mean(start,l).toFixed(3)}</td><td>${mean(end,l).toFixed(3)}</td></tr>`).join('')+'</table>';
 }
-DATA.forEach((r,i)=>$('drawing').add(new Option(`${i+1}. church · ${r.keyId}`,i)));$('drawing').onchange=()=>choose(+$('drawing').value);$('prev').onclick=()=>choose(index-1);$('next').onclick=()=>choose(index+1);$('pass').onchange=()=>{selectedPass=+$('pass').value;render()};['ink','unknown','missing','joints'].forEach(id=>$(id).onchange=render);document.onkeydown=e=>{if(e.target.matches('input,select,textarea'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();choose(index+(e.key==='ArrowLeft'?-1:1))}if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();selectedPass=Math.max(0,Math.min(DATA[index].steps.at(-1).stage.pass,+$('pass').value+(e.key==='ArrowUp'?-1:1)));render()}};window.onhashchange=()=>{index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render()};index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render();
+DATA.forEach((r,i)=>$('drawing').add(new Option(`${i+1}. church · ${r.keyId}`,i)));$('drawing').onchange=()=>choose(+$('drawing').value);$('prev').onclick=()=>choose(index-1);$('next').onclick=()=>choose(index+1);$('pass').onchange=()=>{selectedPass=+$('pass').value;render()};['ink','unknown','missing','joints','guides'].forEach(id=>$(id).onchange=render);document.onkeydown=e=>{if(e.target.matches('input,select,textarea'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();choose(index+(e.key==='ArrowLeft'?-1:1))}if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();selectedPass=Math.max(0,Math.min(DATA[index].steps.at(-1).stage.pass,+$('pass').value+(e.key==='ArrowUp'?-1:1)));render()}};window.onhashchange=()=>{index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render()};index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render();
 </script></html>'''

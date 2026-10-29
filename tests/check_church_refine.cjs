@@ -25,6 +25,12 @@ let browser;
   for(const stage of stages){await page.selectOption('#pass',stage);assert((await page.locator('.caption').last().innerText()).includes('Pass '+stage))}
   await page.selectOption('#pass',stages.at(-1));
   await page.uncheck('#ink');await page.uncheck('#unknown');await page.uncheck('#missing');await page.uncheck('#joints');panels+=6;
+  if(await page.evaluate(i=>(DATA[i].cadGuides||[]).length>0,i)){
+   await page.check('#guides');await page.waitForFunction(()=>document.querySelectorAll('.alignment-guide').length>0);
+   assert(!(await page.locator('#panels').innerHTML()).includes('NaN'));
+   await page.screenshot({path:path.join(output,'alignment-'+(i+1)+'.png'),fullPage:true});
+   await page.uncheck('#guides');
+  }
   if([5,7,9,10,11,14,15].includes(i))await page.screenshot({path:path.join(output,'case-'+(i+1)+'.png'),fullPage:true});
   const captures=await page.evaluate(i=>DATA[i].steps.at(-1).stage.captures?.length||0,i);
   if(captures){

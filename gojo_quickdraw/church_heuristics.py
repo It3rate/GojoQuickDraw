@@ -55,7 +55,9 @@ def overlap(a, b):
     return area / max(1e-6, min((a[2]-a[0])*(a[3]-a[1]), (b[2]-b[0])*(b[3]-b[1])))
 
 
-def compile_plan(observed, layout, connections=False):
+def compile_plan(observed, layout, connections=False, cad=False):
+    if cad and not connections:
+        raise ValueError('CAD relation proposals require the connected construction experiment')
     context={}
     if connections:
         from .church_opening_context import revise
@@ -212,6 +214,9 @@ def compile_plan(observed, layout, connections=False):
         from .church_connection_plan import extend
         plan['connections']=extend(parts,proposed,aliases,proposal,rules,context)
         plan['openingContext']=context
+        if cad:
+            from .church_cad import extend as cad_relations
+            plan['cad']=cad_relations(parts,proposed,aliases,proposal,rules,context,plan['connections'])
     return scaffold,mapping,plan,proposal
 
 

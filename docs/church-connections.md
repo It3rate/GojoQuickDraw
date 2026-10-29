@@ -1,9 +1,96 @@
 # Capturing church contacts and repeated parts
 
+## CAD relation extension
+
+The intended native shape is the existing `EvidenceObligation` surface:
+
+```text
+G(supporting exposed ports and construction witnesses,
+  G(G(input port, input-to-feature calibration, response calibration)),
+  allowed interval, feature carrier, influence, response ensemble)
+```
+
+Near-collinearity supplies `x(A) - x(B)` over stacked boundary ports. A shared
+axis supplies `(L(A)+R(A)) - (L(B)+R(B))`; capture substitutes the corresponding
+affine construction while retaining each segment's identity. A repeated row
+supplies the second difference of consecutive centres, plus a spanning set of
+common extent/level opinions. Native parameter settlement still enters through
+carrier tension and existing receiver capacity.
+
+These are exploratory authored proposals. A relation's arithmetic agreement
+and its usefulness to connected neighbours are separate reads. A future
+facilitator or filter can specialize through its connected operation, exposure,
+admission and response surfaces; it need not be a new canonical node category.
+Repeated routes from one source remain one source, and a filter must expose
+blocked participation rather than erase it. Automatic utility learning and
+general communication adaptation are not implemented by this extension.
+
 This opt-in extension of `church_refine` tests a distinction that the previous
 experiment lacked: attracting independent constructions toward a relationship,
 then choosing a construction that maintains that relationship exactly.
 Ordinary conversion and the earlier experiments retain their existing behavior.
+
+Enable it with `--connections --cad`. The completed
+[sixteen-case comparison](../reports/church-cad-2026-10-29.md) uses the same
+recognized acquisitions, frozen local providers and eight-pass budget as v3.
+It adds the following proposals:
+
+| Relation | Present behavior | Admission and limits |
+| --- | --- | --- |
+| Collinear boundary continuation | Equal exposed left or right coordinates across a stacked contact; one-sided capture preserves the upper frame's intrinsic width. | Requires actual vertical boundary segments on both frames and an already selected stacked contact. Small source offsets or a supported overhang correction admit a candidate; intentional insets and contained openings do not. This is not a general search over every nearby segment. |
+| Outward assembly symmetry | An upper frame can consume its parent's midpoint; an already connected roof/cross follows that change. | Front-like view, one upper frame, distinct source-supported reflected motifs, bounded source offset and no competing boundary-continuation claim. Repeated routes from the same acquired intervals count once. Inherited roof/cross axes supply no extra votes. |
+| Equal repeated extents and head levels | A spanning set of width, height and upper-level error opinions connects a row. | At least three existing source-supported windows in one owner, compatible family and similar scale/level. Existing selected reflection links avoid duplicate dimension/level opinions. No fixed row count or new windows. |
+| Equal adjacent centre intervals | Local second-difference error opinions connect consecutive triples. | Already approximately regular pitches, with distinct acquired support. These remain soft opinions, without exact spacing capture. |
+
+The collinearity capture band is 3.5% of the larger frame width, clamped to
+4–12 drawing units; the search band is 10%, clamped to 4–32. Outward symmetry
+admits an offset up to 12% of the owner width, clamped to 12–48. These authored
+thresholds select hypotheses, not calibrated recognition probabilities. The
+existing release-pressure mechanism remains in force.
+
+The native error support and capture declaration now retain actual supporting
+construction references as well as the operative exposed ports. Supporting
+motifs explain why a relation was admitted; they do not silently become extra
+response routes. Native settlement still evaluates the affine laws rather than
+dispatching on CAD names.
+
+Existing rectangle/cross constructions already supply parallel and perpendicular
+geometry internally. Contact, midpoint, reflection, clearance and selected
+non-overlap relations operate between some parts. These are separate from a
+general CAD constraint recognizer. Collinearity combines equal direction with
+zero supporting-line offset; collinear segments need not touch or share site
+identity. General curve tangency needs contact and tangent-direction surfaces
+that these bounding frames do not yet expose. The
+[SolveSpace constraint reference](https://solvespace.com/ref.pl) is the primary
+CAD comparison for equal extents, midpoint, symmetry and tangency.
+
+The real cohort supplied two continuation candidates and one outward-axis
+candidate. All three captured at pass three and held through pass eight. The
+other thirteen drawings retained identical saved stages. None of the sixteen
+had an eligible row of three or more windows; the additional row laws have
+focused tests and a separate authored native control, not real-cohort coverage.
+That control reuses one connected scene for sixteen rounds and compares it to
+the same frames without row opinions:
+
+```powershell
+python tools/cad-control/run.py --output D:/_quickDraw/data/my-cad-control --work D:/_quickDraw/_work/my-cad-control
+```
+
+Its `review.html` displays saved settlement reads and remaining discrepancies;
+`world.gojo.bin.gz` retains the actual connected world and round witnesses.
+Independent native restoration must reproduce the saved bounds exactly. Small
+requests can remain below the current damped actuator resolution: a valid error
+read does not imply that the error became zero. No renderer rounding hides it.
+
+Competence and usefulness remain separate: a local equation can calculate
+correctly while its effect conflicts with a neighbour. A facilitator can expose
+routes, calibrations and admission rules; a suppressor can limit those routes
+while preserving blocked participation. Learning their utility will require
+responses over repeated occasions, with shared-source provenance and a
+counterfactual or other comparison. The current response witnesses are a useful
+basis, but this experiment does not train routing utility or implement a new
+communication ecology. An exclusion/error structure is not automatically the
+kernel's formal dual operation, nor is an error magnitude itself material energy.
 
 ## What was missing
 
@@ -136,13 +223,13 @@ records the renderer fingerprint, calculation fingerprint and saved view hashes.
 It is valid to rebuild this observer without rerunning the native calculation;
 the original calculation fingerprint remains unchanged.
 
-## Coverage check after the sixteen-case review
+## Historical coverage check: v3 without `--cad`
 
-The CAD comparison is useful, but current selected constraints are narrower
+The CAD comparison is useful, but v3's selected constraints were narrower
 than a general geometric constraint detector. Individual rectangles and crosses
 have intrinsic parallel/perpendicular structure; selected contacts, reflected
 frames and repeated extents negotiate across parts. General nearby-edge
-collinearity and general curve tangency are not automatically proposed.
+collinearity and general curve tangency were not automatically proposed.
 
 In sample 3 the tower's left edge is at 87.5 and the wall's left edge at 92.5.
 The tower base meets the wall top, but no candidate asks those nearly continuing
@@ -152,7 +239,7 @@ does not erase intentional thickness or clearance.
 
 Sample 6 has two consistent local systems: building/door/window axis 259.75,
 and tower/roof/cross axis 282. Their 22.25-unit offset is not being tested by an
-outward symmetry proposal. A useful next experiment would propose a common axis
+outward symmetry proposal. The new `--cad` experiment above proposes a common axis
 for a larger assembly when internal motifs support it, alongside asymmetric or
 alternative-view interpretations. Several children inheriting one parent axis
 are not independent votes for its location.
@@ -163,7 +250,8 @@ constructions have upright frames. A future shared-frame hypothesis could
 explain coherent rotation/shear while retaining local deviations. A confident
 upright wall and differently skewed openings need more than one global transform;
 camera/view evidence must remain distinct from drawing error. These are proposals,
-not additional settlement behavior in the completed v3 study.
+not additional settlement behavior in the completed v3 study. Affine/skew
+normalization also remains outside the CAD extension.
 
 ## Runtime observation
 

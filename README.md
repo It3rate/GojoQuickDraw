@@ -445,6 +445,14 @@ multi-row opening proposals. It is enabled explicitly with `--connections`.
 The [sixteen-case results](reports/church-connections-2026-10-29.md) record the
 captured relationships, reported-case fixes and remaining open cross proposals.
 
+Add `--cad` alongside `--connections` to test stacked-edge collinearity, outward
+assembly symmetry and repeated-row extent/spacing opinions. The
+[CAD comparison](reports/church-cad-2026-10-29.md) records the three changed cases,
+unchanged controls, exact native restores and the authored native repetition
+control. **Alignment guides** shows the tested supporting lines and axes in the
+offline review. This remains an opt-in research pass, separate from Studio's
+default conversion.
+
 The [ten-drawing duration comparison](reports/church-duration-2026-10-29.md)
 records what changed after pass six and what additional iterations could not do.
 
