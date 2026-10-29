@@ -1,0 +1,232 @@
+{
+  "schema": "gojo.church-runtime-observation.v1",
+  "codeCommit": "356e44e433c985659cc747de9a83725d17ab7223",
+  "linkedGojoCommit": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+  "sourceStudy": "D:\\_quickDraw\\data\\church-connections-2026-10-29-v3",
+  "recordedCohortSeconds": 510.683094,
+  "recordedCohortDrawings": 16,
+  "recordedAverageSecondsPerDrawing": 31.917693375,
+  "summary": [
+    {
+      "sample": 3,
+      "parts": 4,
+      "nativeImportMs": 19.8084,
+      "prepareShapeOpinionsMs": 65.14969997806475,
+      "firstNeighborhoodProposalAndScoringMs": 102.5567,
+      "connectedSeconds": 5.6868571,
+      "archiveRoundTripSeconds": 20.037432,
+      "compressedArchiveBytes": 61727282
+    },
+    {
+      "sample": 6,
+      "parts": 9,
+      "nativeImportMs": 42.2729,
+      "prepareShapeOpinionsMs": 1380.9976000338793,
+      "firstNeighborhoodProposalAndScoringMs": 30.8024,
+      "connectedSeconds": 8.9362566,
+      "archiveRoundTripSeconds": 50.527251699999994,
+      "compressedArchiveBytes": 154910819
+    },
+    {
+      "sample": 11,
+      "parts": 9,
+      "nativeImportMs": 59.2925,
+      "prepareShapeOpinionsMs": 522.1759999985807,
+      "firstNeighborhoodProposalAndScoringMs": 61.204800000000006,
+      "connectedSeconds": 9.1990105,
+      "archiveRoundTripSeconds": 56.8342775,
+      "compressedArchiveBytes": 181170734
+    }
+  ],
+  "measurements": {
+    "cases": [
+      {
+        "computation": {
+          "sample": 3,
+          "id": "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+          "sourceEdges": 12,
+          "parts": 4,
+          "importMs": 19.8084,
+          "proposalDiscoveryMs": 53.1408,
+          "candidates": 39,
+          "featureAndScoreMs": 49.4159,
+          "scoreRows": [
+            {
+              "provider": "line",
+              "calls": 5000,
+              "totalMs": 161.5728,
+              "microsecondsPerCall": 32.31456
+            },
+            {
+              "provider": "repair",
+              "calls": 5000,
+              "totalMs": 218.058,
+              "microsecondsPerCall": 43.6116
+            },
+            {
+              "provider": "closure",
+              "calls": 5000,
+              "totalMs": 117.7644,
+              "microsecondsPerCall": 23.55288
+            }
+          ],
+          "connectedInferenceAndHistoryMs": 5686.8571,
+          "encodeMs": 9875.5029,
+          "compressWriteMs": 2736.9679,
+          "viewWriteMs": 12.1295,
+          "archiveBytes": 61727282,
+          "numericBytes": 186569634
+        },
+        "gcBeforeRestoreMs": 85.2539,
+        "restore": {
+          "readDecompressMs": 371.1793,
+          "decodeMs": 6989.9257,
+          "validateMs": 63.8562
+        }
+      },
+      {
+        "computation": {
+          "sample": 6,
+          "id": "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+          "sourceEdges": 31,
+          "parts": 9,
+          "importMs": 42.2729,
+          "proposalDiscoveryMs": 20.8016,
+          "candidates": 32,
+          "featureAndScoreMs": 10.0008,
+          "scoreRows": [
+            {
+              "provider": "line",
+              "calls": 5000,
+              "totalMs": 52.3946,
+              "microsecondsPerCall": 10.47892
+            },
+            {
+              "provider": "repair",
+              "calls": 5000,
+              "totalMs": 63.4977,
+              "microsecondsPerCall": 12.69954
+            },
+            {
+              "provider": "closure",
+              "calls": 5000,
+              "totalMs": 47.1596,
+              "microsecondsPerCall": 9.43192
+            }
+          ],
+          "connectedInferenceAndHistoryMs": 8936.2566,
+          "encodeMs": 22892.5136,
+          "compressWriteMs": 6811.3855,
+          "viewWriteMs": 4.4542,
+          "archiveBytes": 154910819,
+          "numericBytes": 465507474
+        },
+        "gcBeforeRestoreMs": 178.842,
+        "restore": {
+          "readDecompressMs": 780.8842,
+          "decodeMs": 19976.0954,
+          "validateMs": 66.373
+        }
+      },
+      {
+        "computation": {
+          "sample": 11,
+          "id": "0301c0037e88809800a99f23b9a67eb50896786c",
+          "sourceEdges": 29,
+          "parts": 9,
+          "importMs": 59.2925,
+          "proposalDiscoveryMs": 31.6977,
+          "candidates": 48,
+          "featureAndScoreMs": 29.5071,
+          "scoreRows": [
+            {
+              "provider": "line",
+              "calls": 5000,
+              "totalMs": 47.5575,
+              "microsecondsPerCall": 9.5115
+            },
+            {
+              "provider": "repair",
+              "calls": 5000,
+              "totalMs": 79.3632,
+              "microsecondsPerCall": 15.872640000000002
+            }
+          ],
+          "connectedInferenceAndHistoryMs": 9199.0105,
+          "encodeMs": 24507.9055,
+          "compressWriteMs": 8139.5929,
+          "viewWriteMs": 6.9775,
+          "archiveBytes": 181170734,
+          "numericBytes": 542584808
+        },
+        "gcBeforeRestoreMs": 308.946,
+        "restore": {
+          "readDecompressMs": 1069.6616,
+          "decodeMs": 22982.9461,
+          "validateMs": 134.1714
+        }
+      }
+    ],
+    "processorCount": 16,
+    "runtime": "10.0.12",
+    "modelHash": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "qualification": "Three current cached church inputs, one warmed sequential run per case, on this machine. Eight passes / two settlement rounds / 48 candidates. Connected time includes native history, projections and built-in validation; archive encoding/compression/restore are measured separately. Raw stroke fitting and Python church proposal discovery are excluded."
+  },
+  "pythonMeasurements": [
+    {
+      "sample": 3,
+      "loadParsedPacketMs": 3.4061999758705497,
+      "initialAreaEstimatesMs": 14.405000023543835,
+      "compileCurrentShapeOpinionsMs": 50.74469995452091,
+      "spans": 12,
+      "parts": 4
+    },
+    {
+      "sample": 6,
+      "loadParsedPacketMs": 4.975099989678711,
+      "initialAreaEstimatesMs": 716.5996000403538,
+      "compileCurrentShapeOpinionsMs": 664.3979999935254,
+      "spans": 31,
+      "parts": 9
+    },
+    {
+      "sample": 11,
+      "loadParsedPacketMs": 6.102499959524721,
+      "initialAreaEstimatesMs": 163.48270000889897,
+      "compileCurrentShapeOpinionsMs": 358.6932999896817,
+      "spans": 29,
+      "parts": 9
+    }
+  ],
+  "existingFolderPilot": {
+    "sourceFolder": "D:\\_quickDraw\\data\\church3000\\results\\church",
+    "sourceKey": "5283351252434944",
+    "sourceSha256": "9f087d2df178b10e0c1cb210019790d1f15a6f0beb3e48bf1de8b7adf72383b6",
+    "evidencePath": "records/4131df2a30c991f5a4ff964e16f43e9ffd78300d.evidence.json.gz",
+    "evidenceSha256": "f17bc33469b52a143f67a4c3bacec4f86a05bcd665a227d3ccea2c935c112129",
+    "readSourceMs": 16.15829998627305,
+    "prepareFromFittedMs": 37.74520003935322,
+    "rawStrokeFittingRun": false,
+    "id": "9f087d2df178b10e0c1cb210019790d1f15a6f0b",
+    "nativeProducerIndependentRestore": true,
+    "sourceUnchanged": true,
+    "passes": 8,
+    "parts": 4,
+    "wallSeconds": 26.0609851
+  },
+  "coverageFindings": {
+    "sample3": {
+      "towerLeft": 87.5,
+      "buildingLeft": 92.5,
+      "edgeOffset": 5,
+      "generalNearCollinearityProposed": false
+    },
+    "sample6": {
+      "buildingDoorWindowAxis": 259.75,
+      "towerRoofCrossAxis": 282,
+      "offset": 22.25,
+      "outwardSymmetryProposal": false
+    }
+  },
+  "qualification": "Read-only timing and coverage audit. No training, inference rules, source records or existing experiment outputs changed. Three selected cases, one sequential warm run each; raw provider loops use prepared feature cells. Archive phases and in-memory trace/projection overhead are not pure model evaluation. The cold build/startup is excluded."
+}

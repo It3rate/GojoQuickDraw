@@ -135,3 +135,56 @@ cannot lend its fill indices to an earlier version. `review-metadata.json`
 records the renderer fingerprint, calculation fingerprint and saved view hashes.
 It is valid to rebuild this observer without rerunning the native calculation;
 the original calculation fingerprint remains unchanged.
+
+## Coverage check after the sixteen-case review
+
+The CAD comparison is useful, but current selected constraints are narrower
+than a general geometric constraint detector. Individual rectangles and crosses
+have intrinsic parallel/perpendicular structure; selected contacts, reflected
+frames and repeated extents negotiate across parts. General nearby-edge
+collinearity and general curve tangency are not automatically proposed.
+
+In sample 3 the tower's left edge is at 87.5 and the wall's left edge at 92.5.
+The tower base meets the wall top, but no candidate asks those nearly continuing
+vertical edges to share their supporting line. Collinearity should preserve
+separate segment identity and should require evidence beyond proximity, so it
+does not erase intentional thickness or clearance.
+
+Sample 6 has two consistent local systems: building/door/window axis 259.75,
+and tower/roof/cross axis 282. Their 22.25-unit offset is not being tested by an
+outward symmetry proposal. A useful next experiment would propose a common axis
+for a larger assembly when internal motifs support it, alongside asymmetric or
+alternative-view interpretations. Several children inheriting one parent axis
+are not independent votes for its location.
+
+An inferred global or per-object affine normalization is also not implemented.
+The source-line laws encourage near-axis continuity and canonical shape
+constructions have upright frames. A future shared-frame hypothesis could
+explain coherent rotation/shear while retaining local deviations. A confident
+upright wall and differently skewed openings need more than one global transform;
+camera/view evidence must remain distinct from drawing error. These are proposals,
+not additional settlement behavior in the completed v3 study.
+
+## Runtime observation
+
+The [timing record](../reports/church-runtime-2026-10-29.json) separates current
+provider calls from the full research pipeline. The existing sixteen-case run
+took 510.68 seconds including generation, full native archives, their producer
+restore checks and review generation. The later independent whole-cohort audit
+is additional work.
+
+On this machine, selected examples 3, 6 and 11 took 5.69, 8.94 and 9.20 seconds
+for eight connected passes with two rounds per pass. This includes native
+history creation, view projections and internal validation. Archive encoding,
+compression, reading, decoding and validation added 20.04, 50.53 and 56.83 seconds.
+Prepared-feature provider calls took about 9–44 microseconds each; first-neighborhood
+candidate construction plus feature/scoring work took 31–103 milliseconds.
+These are selected-case measurements, not a throughput guarantee or dataset mean.
+
+A bounded functional pilot loaded one existing recognized `church3000` record,
+used only its fitted source fields, and ran all eight passes successfully without
+raw-stroke fitting. Native production and archive restore took 26.06 seconds;
+source-packet loading and shape preparation were about 16 and 38 milliseconds.
+The original record remained unchanged. The study CLI still expects prepared
+study packets; a direct Studio-folder adapter for this experimental pass remains
+integration work. No new model training is needed for that adapter.
