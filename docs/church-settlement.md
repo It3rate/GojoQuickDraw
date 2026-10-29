@@ -5,6 +5,9 @@ existing three small neighborhood providers to executable native constructions a
 native error obligations. It does not change Studio's default converter or promote
 the old final church cleanup to training truth.
 
+See the [29 October results](../reports/church-settlement-2026-10-29.md) for the
+1,024-drawing comparison and its limitations.
+
 ## Run and inspect
 
 ```powershell
@@ -28,6 +31,10 @@ four-version detail view. Page changes preserve the selected comparison and pass
 Arrow keys navigate drawings; Shift with left/right navigates pages; up/down changes
 the pass. The gallery is regenerated during processing and can also be regenerated
 independently from retained results. Reload to read newly completed drawings.
+
+Joint glyphs describe the interpreted source graph. The colored scaffold boundaries
+are separate constructions connected through the native error relations; drawing
+them at the same coordinate does not weld them into the source graph.
 
 The sample count is a hard bound on selected acquisitions. Selection is a seeded
 priority sample from records whose `recognized` is exactly true. This is the game's
@@ -145,6 +152,8 @@ are supplied separately as qualified hypotheses. Unmapped ink is preserved.
 | `preparation.json`, `native-results.json` | Per-acquisition preparation and native outcomes |
 | `summary.json`, `pages/*.js`, `review.html` | Rebuildable descriptive summary and offline paged review |
 | `boundary-import.json` | Lossless import receipts binding declared scaffold edges to the actual native generator output roles |
+| `analysis.json`, `analysis-drawings.json` | Descriptive whole-cohort comparisons and per-drawing inspection priorities |
+| `native-audit.json`, `native-audit-selection.json`, `verification.json` | Final verification facts and the independent native restoration sample, when audited |
 
 The numerical run first retains the native point generators, error relations and
 source graph. The separate final import adds the scaffold's declared directed

@@ -31,9 +31,28 @@ let browser;
   await page.locator('#next').click();await page.waitForFunction(()=>document.getElementById('page').value==='2'&&document.querySelector('.card'));
   await page.waitForTimeout(200);assert.equal(await page.locator('#step').inputValue(),selected);assert.equal(await page.locator('#arm').inputValue(),arm);
  }
+ const pages=await page.locator('#page option').count(),seen=new Set();
+ await page.locator('#step').evaluate(e=>{e.value=e.max;e.dispatchEvent(new Event('input'))});
+ const finalPass=await page.locator('#step').inputValue();
+ for(let number=1;number<=pages;number++){
+  if(await page.locator('#page').inputValue()!==String(number))await page.selectOption('#page',String(number));
+  await page.waitForFunction(first=>document.querySelector('.card h2')?.textContent.startsWith(first+'. church'),(number-1)*12+1);
+  const rows=await page.evaluate(()=>window.CHURCH_PAGE.map(r=>({id:r.id,key:r.keyId})));
+  assert.equal(rows.length,await page.locator('.card').count());
+  for(const row of rows){assert(!seen.has(row.id),'Drawing repeated between pages');seen.add(row.id)}
+  const retained=await page.evaluate(()=>JSON.stringify(window.CHURCH_PAGE));
+  for(const arm of ['local-models','shapes-only','fixed-scaffold','bidirectional']){
+   await page.selectOption('#arm',arm);const html=await page.locator('#grid').innerHTML();
+   assert(!html.includes('NaN')&&!html.includes('Infinity'));inspected+=rows.length;
+  }
+  assert.equal(await page.locator('#step').inputValue(),finalPass,'Pass changed between pages');
+  assert.equal(await page.evaluate(()=>JSON.stringify(window.CHURCH_PAGE)),retained,'Review mutated retained projections');
+ }
+ assert.equal(seen.size,await page.evaluate(()=>MANIFEST.drawings));
+ await page.screenshot({path:path.join(output,'last-page.png'),fullPage:true});
  await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
  await page.screenshot({path:path.join(output,'mobile.png'),fullPage:true});
  assert.deepEqual(errors,[]);assert.deepEqual(network,[]);
- const result={drawingsOnPage:count,projectionsInspected:inspected,errors,network,immutable:true,keyboard:true,mobileOverflow:false};
+ const result={drawingsOnFirstPage:count,pagesInspected:pages,uniqueDrawingsInspected:seen.size,projectionsInspected:inspected,errors,network,immutable:true,keyboard:true,mobileOverflow:false};
  fs.writeFileSync(path.join(output,'summary.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(async()=>{if(browser)await browser.close()});

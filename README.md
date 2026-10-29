@@ -425,6 +425,9 @@ authored; this is a structural baseline for future learning, not an accuracy cla
 Use `tools/RunChurchStudy.ps1 -Output <new-folder>` to run computation and the final
 native boundary import together.
 
+The [1,024-drawing results](reports/church-settlement-2026-10-29.md) record the
+four-way comparison, remaining strain, visual failures and the next learning work.
+
 ## Verify changes
 
 ```powershell

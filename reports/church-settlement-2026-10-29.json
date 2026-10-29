@@ -1,0 +1,498 @@
+{
+  "schema": "gojo.quickdraw.church-study-report/v1",
+  "analysis": {
+    "drawings": 1024,
+    "versions": {
+      "local-models": {
+        "mappingStrain": null,
+        "sourceStrain": null,
+        "attachmentStrain": null,
+        "containmentStrain": null,
+        "sourceCoverage": 0.9728193913512625,
+        "rewrites": 11.619140625,
+        "laterRewrites": 8.0654296875,
+        "passes": 5.5810546875,
+        "quiet": 0.376953125,
+        "components": 2.2880859375,
+        "cycles": 0.841796875,
+        "sites": 17.2509765625,
+        "drawings": 1024,
+        "fixedSampleMean": 3.233405734138209,
+        "fixedSamples": 227732,
+        "missingSamples": 6694,
+        "jointTypes": {
+          "Y": 681,
+          "endpoint": 6952,
+          "L": 6246,
+          "X": 776,
+          "I": 1140,
+          "coincident rays": 259,
+          "T": 1511,
+          "K": 94,
+          "unresolved": 6
+        },
+        "numericRounds": 0,
+        "roundsWithQuantumRemainder": 0
+      },
+      "shapes-only": {
+        "mappingStrain": 1.9762439710330335,
+        "sourceStrain": 0,
+        "attachmentStrain": 0.9265844850328326,
+        "containmentStrain": 0.9521958364536098,
+        "sourceCoverage": 1,
+        "rewrites": 0,
+        "laterRewrites": 0,
+        "passes": 5.779296875,
+        "quiet": 0.0810546875,
+        "components": 5.552734375,
+        "cycles": 0,
+        "sites": 18.634765625,
+        "drawings": 1024,
+        "fixedSampleMean": 0.0,
+        "fixedSamples": 227732,
+        "missingSamples": 0,
+        "jointTypes": {
+          "endpoint": 11372,
+          "L": 6884,
+          "coincident rays": 227,
+          "I": 599
+        },
+        "numericRounds": 5918,
+        "roundsWithQuantumRemainder": 5883
+      },
+      "fixed-scaffold": {
+        "mappingStrain": 1.7922382705103865,
+        "sourceStrain": 0.16989491012722052,
+        "attachmentStrain": 0.5997807343221423,
+        "containmentStrain": 1.0972512005870443,
+        "sourceCoverage": 0.9758610400949401,
+        "rewrites": 13.2109375,
+        "laterRewrites": 9.6572265625,
+        "passes": 5.9990234375,
+        "quiet": 0.0048828125,
+        "components": 2.4150390625,
+        "cycles": 0.7216796875,
+        "sites": 17.4140625,
+        "drawings": 1024,
+        "fixedSampleMean": 3.471065753934022,
+        "fixedSamples": 227732,
+        "missingSamples": 6004,
+        "jointTypes": {
+          "Y": 648,
+          "endpoint": 7234,
+          "L": 6367,
+          "I": 1103,
+          "X": 760,
+          "coincident rays": 256,
+          "T": 1370,
+          "K": 87,
+          "unresolved": 7
+        },
+        "numericRounds": 6143,
+        "roundsWithQuantumRemainder": 6142
+      },
+      "bidirectional": {
+        "mappingStrain": 1.6580250328099557,
+        "sourceStrain": 0.16571062120085353,
+        "attachmentStrain": 0.9076792291993069,
+        "containmentStrain": 0.9764639174841403,
+        "sourceCoverage": 0.9759915035080561,
+        "rewrites": 13.17578125,
+        "laterRewrites": 9.6220703125,
+        "passes": 5.998046875,
+        "quiet": 0.0068359375,
+        "components": 2.40625,
+        "cycles": 0.7265625,
+        "sites": 17.4052734375,
+        "drawings": 1024,
+        "fixedSampleMean": 3.4319713714786495,
+        "fixedSamples": 227732,
+        "missingSamples": 5992,
+        "jointTypes": {
+          "Y": 648,
+          "endpoint": 7215,
+          "L": 6365,
+          "I": 1106,
+          "X": 759,
+          "coincident rays": 253,
+          "T": 1383,
+          "K": 88,
+          "unresolved": 6
+        },
+        "numericRounds": 6142,
+        "roundsWithQuantumRemainder": 6141
+      }
+    },
+    "pairedMappingDifference": {
+      "drawings": 1024,
+      "mean": -0.1342132377004307,
+      "median": -0.10161543766812126,
+      "percentile95": [
+        -0.14651471384421844,
+        -0.1212277489775158
+      ]
+    },
+    "pairedMappingOutcomes": {
+      "higher": 133,
+      "lower": 857,
+      "equal": 34
+    },
+    "jointIncidenceChangedFromLocal": 512,
+    "jointIncidenceChangedFromFixed": 118,
+    "drawingsWithUnrepresentedProfiles": 91,
+    "unrepresentedProfiles": 115,
+    "complexity": {
+      "9\u201316": {
+        "drawings": 632,
+        "meanBidirectionalDrift": 3.5910267551124213,
+        "incidenceChanged": 326
+      },
+      "17\u201332": {
+        "drawings": 219,
+        "meanBidirectionalDrift": 2.700124492947459,
+        "incidenceChanged": 136
+      },
+      "1\u20138": {
+        "drawings": 171,
+        "meanBidirectionalDrift": 3.804208404967081,
+        "incidenceChanged": 49
+      },
+      "33+": {
+        "drawings": 2,
+        "meanBidirectionalDrift": 1.4814369791111646,
+        "incidenceChanged": 1
+      }
+    },
+    "inspectHighSourceDisplacement": [
+      {
+        "id": "96573a35586012c4088342be0a4a8f7146e03b3d",
+        "keyId": "5677319744126976",
+        "page": 51,
+        "card": 8
+      },
+      {
+        "id": "9e8a3e5f343b0a6a17f575cc3ddeca5b9b90bb92",
+        "keyId": "6009997710327808",
+        "page": 54,
+        "card": 10
+      },
+      {
+        "id": "3acdd4d401b53f94ec6ff7f63a9d6ae18b34be94",
+        "keyId": "6114964228014080",
+        "page": 20,
+        "card": 12
+      },
+      {
+        "id": "9f2bf4366ce47360a2068b3b043c9a8b6d69faf4",
+        "keyId": "6450850195046400",
+        "page": 55,
+        "card": 2
+      },
+      {
+        "id": "5e85f8f91e2b21aa3cde6c0ee80ac6ad6a134062",
+        "keyId": "5430162961203200",
+        "page": 31,
+        "card": 11
+      },
+      {
+        "id": "484d9d06c67751710757cc3e09da4f9625ce4a16",
+        "keyId": "5736014377123840",
+        "page": 25,
+        "card": 4
+      },
+      {
+        "id": "562c1bb417a9d78c3efe45df05cf19205d6e8645",
+        "keyId": "4851875595681792",
+        "page": 29,
+        "card": 5
+      },
+      {
+        "id": "fd6caa0448ce60df0b8b9071c47f8a6cc1b18f3b",
+        "keyId": "5414209187741696",
+        "page": 85,
+        "card": 3
+      },
+      {
+        "id": "14a145b42ef389c3bb8f2cf11fcc7af0d52df173",
+        "keyId": "5818965496430592",
+        "page": 9,
+        "card": 2
+      },
+      {
+        "id": "4a3f42ff22ac09465b8a2a30cf40f9e370e15b07",
+        "keyId": "6397461201420288",
+        "page": 25,
+        "card": 9
+      },
+      {
+        "id": "1b3ecf83d60c6ed44250685bde83789087244f1e",
+        "keyId": "5735828955332608",
+        "page": 11,
+        "card": 1
+      },
+      {
+        "id": "3e82f385a14de7b118be5a3df9b599978707621e",
+        "keyId": "5663428892950528",
+        "page": 22,
+        "card": 2
+      },
+      {
+        "id": "9cdfc049f68df43540b84d58385a85e353bd196d",
+        "keyId": "6484994262302720",
+        "page": 53,
+        "card": 10
+      },
+      {
+        "id": "f51be0144e1f3907703ea5d2d6cff88bf7ded8a0",
+        "keyId": "6558615689232384",
+        "page": 83,
+        "card": 2
+      },
+      {
+        "id": "801a607b4d3453e8de484b09f37e601c9fc7969d",
+        "keyId": "4571660738887680",
+        "page": 43,
+        "card": 3
+      },
+      {
+        "id": "781c623cb40af5c9d3b1d8313a95c1d68f43b5fe",
+        "keyId": "5934770364088320",
+        "page": 40,
+        "card": 2
+      },
+      {
+        "id": "fd6c470546ced0653a1e1507c6fce5356dbdd6c2",
+        "keyId": "5045575567278080",
+        "page": 85,
+        "card": 2
+      },
+      {
+        "id": "f588bcff4085d209cbaa54a1a638e32418fd2257",
+        "keyId": "6476208353050624",
+        "page": 83,
+        "card": 3
+      },
+      {
+        "id": "815555b64e5f1bf362f3b3905e245afa633da8d0",
+        "keyId": "5374961373937664",
+        "page": 43,
+        "card": 8
+      },
+      {
+        "id": "6ab7ce4febfd17e0cb9eb6530fdbe1b635a8ad9f",
+        "keyId": "6125146836303872",
+        "page": 35,
+        "card": 8
+      }
+    ],
+    "qualification": "Fresh game-recognized drawings; descriptive authored strain and source displacement, not semantic accuracy. No final rendering is a target. A lower compatibility score can accompany a worse interpretation. Fixed-parameter source samples have a separate missing count. Joint-incidence signatures describe source participation and kinds; equality does not prove geometric equality. Bootstrap resamples complete drawings."
+  },
+  "verification": {
+    "schema": "gojo.quickdraw.church-study-verification/v1",
+    "verifiedUtc": "2026-10-29T15:45:53.262819+00:00",
+    "drawings": 1024,
+    "numericalVersions": 4096,
+    "preparationErrors": 0,
+    "nativeErrors": 0,
+    "inferenceByteHashMatchesRun": true,
+    "inferenceSha256": "88d3c8b217ac945874120d7a40fb875cd806815982f5d1347cee32e226a88de3",
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "9b7af32075aaef435382ff0bc0ecc7db8e39ef3a",
+      "pinnedRevision": "9b7af32075aaef435382ff0bc0ecc7db8e39ef3a",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "b33410d4a5093529a9902b634b4f17204a70239b97fc0fc288587282060d63ee",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    },
+    "budgets": {
+      "passes": 6,
+      "steps": 1,
+      "candidates": 48,
+      "seed": 291043
+    },
+    "originalCorpusSha256": "322a5d7c4966b27634424f56b1550cc42971d03928850ecb2241fdfa2662c893",
+    "acquisitionAudit": {
+      "drawings": 1024,
+      "uniqueKeys": 1024,
+      "recognized": 1024,
+      "withPointTimes": 1024,
+      "withRecordTimestamp": 1024,
+      "priorModelOverlap": 0,
+      "sourceHashesVerified": true,
+      "splits": {
+        "train": 716,
+        "validation": 151,
+        "test": 157
+      }
+    },
+    "nativeBoundaryWorlds": 4096,
+    "nativeBoundaryReceiptSha256": "3a7614c3fa6d4b65137c73e3a9c862853d43e4d160594b056ea4801a452e2ef6",
+    "nativeEncoderAssemblySha256": "34308f726c5fd3862707971a8a4652b3e998ceddccc2ef25296c869dcd2c00ef",
+    "nativeFinalizationSeconds": 2984.0154385,
+    "independentNativeSampleAudit": {
+      "worlds": 64,
+      "shapePoints": 11682,
+      "errorReads": 38719,
+      "actuatorOutcomes": 17442,
+      "maxDifference": 0,
+      "qualification": "Read-only comparison of restored native graphs, executable shape outputs, error intervals and exact receiver accounting against review projections. No accuracy judgment."
+    },
+    "nativeAuditSelection": {
+      "drawings": [
+        {
+          "id": "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+          "keyId": "4821138091802624",
+          "reasons": [
+            "documented visual inspection",
+            "largest mapping-strain increase"
+          ]
+        },
+        {
+          "id": "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+          "keyId": "6474467716890624",
+          "reasons": [
+            "documented visual inspection"
+          ]
+        },
+        {
+          "id": "6601fa7d3d9b2923397d0b6340300694b0199eb9",
+          "keyId": "6543997784817664",
+          "reasons": [
+            "documented visual inspection",
+            "largest native profile count"
+          ]
+        },
+        {
+          "id": "2ee2c5174ab3f03c0e104fcd9d8632dbb56f7fb6",
+          "keyId": "5164819797770240",
+          "reasons": [
+            "largest native profile count"
+          ]
+        },
+        {
+          "id": "86f2650a13db3d4e4914d86f83206602af4dea75",
+          "keyId": "6660203074289664",
+          "reasons": [
+            "retained degenerate source profiles"
+          ]
+        },
+        {
+          "id": "18b3276a32e55aa101057920d2e7fb126bbc2472",
+          "keyId": "6029384014102528",
+          "reasons": [
+            "retained degenerate source profiles"
+          ]
+        },
+        {
+          "id": "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+          "keyId": "4944046684372992",
+          "reasons": [
+            "largest mapping-strain reduction"
+          ]
+        },
+        {
+          "id": "cc9fc7c9508a8f8b8b27123fbc97dd12bbb35ac6",
+          "keyId": "4800747264802816",
+          "reasons": [
+            "largest mapping-strain reduction"
+          ]
+        },
+        {
+          "id": "4058ffbd3395e651777ecee83a2d15ba2f560005",
+          "keyId": "5571803671953408",
+          "reasons": [
+            "largest mapping-strain increase"
+          ]
+        },
+        {
+          "id": "2c83c050c8fc3765a105f3840f40bf88dc949c61",
+          "keyId": "5808794225344512",
+          "reasons": [
+            "seeded random supplement"
+          ]
+        },
+        {
+          "id": "2282f70565d5fa011f0362e259370a047262abd6",
+          "keyId": "5961576920121344",
+          "reasons": [
+            "seeded random supplement"
+          ]
+        },
+        {
+          "id": "24fed356ffa8ae130e837be500b89bc543f38963",
+          "keyId": "6746535087833088",
+          "reasons": [
+            "seeded random supplement"
+          ]
+        },
+        {
+          "id": "289b610b7830d13a79601b124fb909815bf391c6",
+          "keyId": "5071238521159680",
+          "reasons": [
+            "seeded random supplement"
+          ]
+        },
+        {
+          "id": "9d0cd09599a05c2951d0c6748d9aebb39c9cb288",
+          "keyId": "5960366825668608",
+          "reasons": [
+            "seeded random supplement"
+          ]
+        },
+        {
+          "id": "486b285423de0fd662443fcf25ce2f94df92fb96",
+          "keyId": "4524329544974336",
+          "reasons": [
+            "seeded random supplement"
+          ]
+        },
+        {
+          "id": "a799b491dc2bdc69928093b0ba07d8dcb10dbf54",
+          "keyId": "6743109784305664",
+          "reasons": [
+            "seeded random supplement"
+          ]
+        }
+      ],
+      "qualification": "Native restoration audit sample, selected across complexity and mapping-strain extremes plus seeded random supplements; no semantic accuracy labels."
+    },
+    "browser": {
+      "drawingsOnFirstPage": 12,
+      "pagesInspected": 86,
+      "uniqueDrawingsInspected": 1024,
+      "projectionsInspected": 4288,
+      "errors": [],
+      "network": [],
+      "immutable": true,
+      "keyboard": true,
+      "mobileOverflow": false
+    },
+    "tests": {
+      "python": {
+        "passed": 219,
+        "logSha256": "b90e242b67990875f219c75aafae288ad1622fdbb0907bfc2dbf0ef99b7eb77e"
+      },
+      "quickdraw": {
+        "passed": 134,
+        "logSha256": "1246f20570fb43cc05802bc5a8abea12f926714b0e755039dc36a7a9c120db2c"
+      },
+      "gojo": {
+        "passed": 5545,
+        "logSha256": "52165fc366ca815f53053e3cb60ec61e12b7f3a18cbd6a9a26eedf2de7b8975c"
+      }
+    },
+    "ordinaryConverterSmoke": {
+      "records": 3,
+      "nativeRestoreVerified": true,
+      "artifactHashesVerified": true
+    },
+    "archives": 4096,
+    "views": 1024,
+    "temporaryFiles": 0,
+    "storageBytes": 90794372600,
+    "nativeArchiveBytes": 89687502313,
+    "qualification": "All numerical worlds were independently restored by the producer before acceptance. Final boundary imports preserve the original transport rows. Full final wrappers were independently restored for a stratified 16-drawing sample. These checks establish native fidelity and accounting, not semantic accuracy or convergence."
+  }
+}
