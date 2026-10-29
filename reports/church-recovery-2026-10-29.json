@@ -1,0 +1,1208 @@
+{
+  "schema": "gojo.church-recovery-report.v1",
+  "date": "2026-10-29",
+  "study": "D:\\_quickDraw\\data\\church-recovery-2026-10-29-v1",
+  "configuration": {
+    "sourceStudy": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+    "sourceStudySha256": "38e29a09ede0e31cf2498d638bf5f0404089dc2eff3ecad8042b78e681c71514",
+    "selection": [
+      "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+      "ffaee7573aa8e79b7b953ec9f22316add0896586",
+      "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+      "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+      "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+      "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+      "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+      "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+      "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+      "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+      "0301c0037e88809800a99f23b9a67eb50896786c",
+      "087bed479c398ed40baefcce2cebef6bc18f40c4",
+      "0bd46f98419c00e625bb818038d74abb6e8c5315",
+      "0c7c69dfbe06173c30cd27385cffab76465911b0",
+      "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+      "5bebdc41d7c29fa64be38803ded7bcc1423fd658"
+    ],
+    "connections": true,
+    "cad": true,
+    "recoverMissing": true,
+    "baselineStudy": "D:\\_quickDraw\\data\\church-cad-2026-10-29-v1",
+    "inputStudies": {
+      "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffaee7573aa8e79b7b953ec9f22316add0896586": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ffba0ee5aa25752e219d715cc5c041cceae3b66d": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "2ebe685d39ad0a3236b5beba484c2a846a3cfcef": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "1fa43407ab2509c3d392ad9a222591bb71f1f933": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "51213f89ae40a8f0eefbf6d6256663d5d36c4247": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "55d36d311f10da3e059e4ac2fc1e210970a23c25": "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2",
+      "0301c0037e88809800a99f23b9a67eb50896786c": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "087bed479c398ed40baefcce2cebef6bc18f40c4": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "0bd46f98419c00e625bb818038d74abb6e8c5315": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "0c7c69dfbe06173c30cd27385cffab76465911b0": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "9d90a583b33d28b0619cce77efb32dd5db9fa461": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2",
+      "5bebdc41d7c29fa64be38803ded7bcc1423fd658": "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2"
+    },
+    "sourceStudyHashes": {
+      "D:\\_quickDraw\\data\\church-duration-2026-10-29-v2": "38e29a09ede0e31cf2498d638bf5f0404089dc2eff3ecad8042b78e681c71514",
+      "D:\\_quickDraw\\data\\church-settlement-2026-10-29-v2": "96bfbc11373b9e72a50cda0cc1f28fe64c38e27654f40c510c8aa68f4cf5c451",
+      "D:\\_quickDraw\\data\\church-cad-2026-10-29-v1": "263ba01c1b01e28aeedc3cbf654dfea8fb61f886415894fcc2f3b0d17986042c"
+    },
+    "passes": 8,
+    "steps": 2,
+    "candidates": 48,
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "adapterSha256": "e71ca02fe69acee1884de22d46304693efd09f9f6a99aca4c5bc1b1df444158f",
+    "upstream": {
+      "repository": "https://github.com/It3rate/Gojo.git",
+      "revision": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+      "pinnedRevision": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+      "matchesPinnedRevision": true,
+      "sourceSha256": "ecd5acf344b6e28cd739ad5536c1197308c2d9ba4dc154643c171e1cf677c079",
+      "dirtyPaths": [],
+      "qualification": "Source-content fingerprint includes C#, project and Python sources; build artifacts are excluded."
+    }
+  },
+  "scope": "Authored residual-supported second proposal read over the same recognized sources. Same-cohort regression, not human labels or semantic accuracy. No model trains.",
+  "cases": [
+    {
+      "sample": 4,
+      "keyId": "6226189452574720",
+      "sourceSupportedRecoveredParts": [
+        {
+          "id": "layout-recovered-tower-1",
+          "role": "tower",
+          "prior": false,
+          "points": [
+            [
+              170,
+              132
+            ],
+            [
+              295,
+              132
+            ],
+            [
+              295,
+              438.5
+            ],
+            [
+              170,
+              438.5
+            ],
+            [
+              170,
+              236.7607421875
+            ],
+            [
+              295,
+              236.7607421875
+            ]
+          ],
+          "segments": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              5
+            ],
+            [
+              5,
+              2
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              4,
+              0
+            ]
+          ],
+          "bounds": [
+            170,
+            132,
+            295,
+            438.5
+          ]
+        },
+        {
+          "id": "layout-recovered-roof-1",
+          "role": "roof",
+          "prior": false,
+          "points": [
+            [
+              170,
+              132
+            ],
+            [
+              232.5,
+              58.5
+            ],
+            [
+              295,
+              132
+            ]
+          ],
+          "segments": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              0
+            ]
+          ],
+          "bounds": [
+            170,
+            58.5,
+            295,
+            132
+          ]
+        },
+        {
+          "id": "layout-recovered-cross-1",
+          "role": "cross",
+          "prior": false,
+          "points": [
+            [
+              225.00244140625,
+              267
+            ],
+            [
+              239.99755859375,
+              267
+            ],
+            [
+              239.99755859375,
+              312.2060546875
+            ],
+            [
+              278.75,
+              312.2060546875
+            ],
+            [
+              278.75,
+              326.5
+            ],
+            [
+              239.99755859375,
+              326.5
+            ],
+            [
+              239.99755859375,
+              386
+            ],
+            [
+              225.00244140625,
+              386
+            ],
+            [
+              225.00244140625,
+              326.5
+            ],
+            [
+              186.25,
+              326.5
+            ],
+            [
+              186.25,
+              312.2060546875
+            ],
+            [
+              225.00244140625,
+              312.2060546875
+            ],
+            [
+              232.5,
+              319.4111328125
+            ],
+            [
+              232.5,
+              267
+            ],
+            [
+              232.5,
+              386
+            ],
+            [
+              186.25,
+              319.4111328125
+            ],
+            [
+              278.75,
+              319.4111328125
+            ]
+          ],
+          "segments": [
+            [
+              13,
+              14
+            ],
+            [
+              15,
+              16
+            ]
+          ],
+          "bounds": [
+            186.25,
+            267,
+            278.75,
+            386
+          ]
+        }
+      ],
+      "captured": 6,
+      "candidates": 6,
+      "earlierFinalUnexplained": 0.4810664174273975,
+      "newInitialUnexplained": 0.19858154341630166,
+      "newFinalUnexplained": 0.19509753798979618,
+      "decisions": [
+        {
+          "kind": "pointed enclosure",
+          "accepted": true,
+          "parts": [
+            "layout-recovered-tower-1",
+            "layout-recovered-roof-1"
+          ],
+          "bounds": [
+            166.95219426667836,
+            131.88196721311476,
+            292.8965867945311,
+            437.403
+          ],
+          "capBounds": [
+            166.95219426667836,
+            58.439344262295094,
+            292.8965867945311,
+            131.88196721311476
+          ],
+          "apex": [
+            256.7344262295082,
+            58.439344262295094
+          ],
+          "spans": [
+            "stroke-000-span-000",
+            "stroke-000-span-001",
+            "stroke-000-span-002",
+            "stroke-000-span-003",
+            "stroke-001-span-000",
+            "stroke-001-span-001"
+          ],
+          "sourceIntervals": [
+            {
+              "span": "stroke-000-span-000",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            },
+            {
+              "span": "stroke-000-span-001",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            },
+            {
+              "span": "stroke-000-span-002",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            },
+            {
+              "span": "stroke-000-span-003",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            },
+            {
+              "span": "stroke-001-span-000",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            }
+          ],
+          "sourceStrokeOrder": [
+            0,
+            1
+          ],
+          "penUpGaps": [
+            [
+              [
+                127.47540983606558,
+                437.40327868852455
+              ],
+              [
+                117.19344262295081,
+                437.40327868852455
+              ]
+            ],
+            [
+              [
+                294.9245901639344,
+                145.1016393442623
+              ],
+              [
+                300.79999999999995,
+                131.88196721311476
+              ]
+            ]
+          ],
+          "tipAngle": 58.9008993586121,
+          "residualLength": 802.3284916218945,
+          "basis": "Pointed near-closed acquisition route with two continuing walls; one common eave is inferred across unequal contour runs."
+        },
+        {
+          "kind": "crossing",
+          "accepted": true,
+          "parts": [
+            "layout-recovered-cross-1"
+          ],
+          "replacedPriorParts": [
+            "layout-cross",
+            "layout-cross-level"
+          ],
+          "point": [
+            231.7639344262295,
+            323.4979497714482
+          ],
+          "spans": [
+            "stroke-004-span-000",
+            "stroke-005-span-000"
+          ],
+          "segmentFractions": [
+            0.47472648479639823,
+            0.4304375093641812
+          ],
+          "sourceIntervals": [
+            {
+              "span": "stroke-004-span-000",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            },
+            {
+              "span": "stroke-005-span-000",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            }
+          ],
+          "intersectionAngle": 79.59142252586818,
+          "verticalBounds": [
+            231.76393442622947,
+            267.016393442623,
+            231.7639344262295,
+            385.99344262295085
+          ],
+          "horizontalBounds": [
+            181.82295081967214,
+            320.7349039318105,
+            274.3606557377049,
+            344.8655737704918
+          ],
+          "residualLength": 216.44887584919115,
+          "markerBasis": "residual-curved-arm-crossing",
+          "basis": "Two substantial residual arms cross in their interiors; page height is an opinion, not an admission veto."
+        }
+      ]
+    },
+    {
+      "sample": 9,
+      "keyId": "6045774917926912",
+      "sourceSupportedRecoveredParts": [
+        {
+          "id": "layout-recovered-cross-1",
+          "role": "cross",
+          "prior": false,
+          "points": [
+            [
+              241.4453125,
+              33.5
+            ],
+            [
+              259.0546875,
+              33.5
+            ],
+            [
+              259.0546875,
+              83.83447265625
+            ],
+            [
+              330.75,
+              83.83447265625
+            ],
+            [
+              330.75,
+              99.75
+            ],
+            [
+              259.0546875,
+              99.75
+            ],
+            [
+              259.0546875,
+              166
+            ],
+            [
+              241.4453125,
+              166
+            ],
+            [
+              241.4453125,
+              99.75
+            ],
+            [
+              169.75,
+              99.75
+            ],
+            [
+              169.75,
+              83.83447265625
+            ],
+            [
+              241.4453125,
+              83.83447265625
+            ],
+            [
+              250.25,
+              91.85693359375
+            ],
+            [
+              250.25,
+              33.5
+            ],
+            [
+              250.25,
+              166
+            ],
+            [
+              169.75,
+              91.85693359375
+            ],
+            [
+              330.75,
+              91.85693359375
+            ]
+          ],
+          "segments": [
+            [
+              13,
+              14
+            ],
+            [
+              15,
+              16
+            ]
+          ],
+          "bounds": [
+            169.75,
+            33.5,
+            330.75,
+            166
+          ]
+        }
+      ],
+      "captured": 2,
+      "candidates": 2,
+      "earlierFinalUnexplained": 0.2400364265131793,
+      "newInitialUnexplained": 0.02365984940933314,
+      "newFinalUnexplained": 0.08927725506870944,
+      "decisions": [
+        {
+          "kind": "crossing",
+          "accepted": true,
+          "parts": [
+            "layout-recovered-cross-1"
+          ],
+          "replacedPriorParts": [
+            "layout-cross",
+            "layout-cross-level"
+          ],
+          "point": [
+            238.6186982975571,
+            89.04946966906583
+          ],
+          "spans": [
+            "stroke-003-span-000",
+            "stroke-004-span-000"
+          ],
+          "segmentFractions": [
+            0.440393041530177,
+            0.5932010948539036
+          ],
+          "sourceIntervals": [
+            {
+              "span": "stroke-003-span-000",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            },
+            {
+              "span": "stroke-004-span-000",
+              "ranges": [
+                [
+                  0.0,
+                  1.0
+                ]
+              ]
+            }
+          ],
+          "intersectionAngle": 84.83781553650016,
+          "verticalBounds": [
+            237.10843373493978,
+            32.00000000000003,
+            239.80722891566265,
+            161.5421686746988
+          ],
+          "horizontalBounds": [
+            142.6506024096386,
+            86.91046738199708,
+            301.8795180722892,
+            102.16867469879523
+          ],
+          "residualLength": 290.5361745502317,
+          "markerBasis": "residual-curved-arm-crossing",
+          "basis": "Two substantial residual arms cross in their interiors; page height is an opinion, not an admission veto."
+        }
+      ]
+    }
+  ],
+  "regression": {
+    "drawings": 16,
+    "changed": [
+      4,
+      9
+    ],
+    "unchanged": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "sourcePacketsAndProvidersUnchanged": true,
+    "rows": [
+      {
+        "sample": 1,
+        "keyId": "4950483162628096",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 2,
+        "candidates": 3
+      },
+      {
+        "sample": 2,
+        "keyId": "4897692985589760",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 5,
+        "candidates": 5
+      },
+      {
+        "sample": 3,
+        "keyId": "6051473534222336",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 6,
+        "candidates": 6
+      },
+      {
+        "sample": 4,
+        "keyId": "6226189452574720",
+        "unchanged": false,
+        "recovered": [
+          {
+            "kind": "pointed enclosure",
+            "accepted": true,
+            "parts": [
+              "layout-recovered-tower-1",
+              "layout-recovered-roof-1"
+            ],
+            "bounds": [
+              166.95219426667836,
+              131.88196721311476,
+              292.8965867945311,
+              437.403
+            ],
+            "capBounds": [
+              166.95219426667836,
+              58.439344262295094,
+              292.8965867945311,
+              131.88196721311476
+            ],
+            "apex": [
+              256.7344262295082,
+              58.439344262295094
+            ],
+            "spans": [
+              "stroke-000-span-000",
+              "stroke-000-span-001",
+              "stroke-000-span-002",
+              "stroke-000-span-003",
+              "stroke-001-span-000",
+              "stroke-001-span-001"
+            ],
+            "sourceIntervals": [
+              {
+                "span": "stroke-000-span-000",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              },
+              {
+                "span": "stroke-000-span-001",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              },
+              {
+                "span": "stroke-000-span-002",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              },
+              {
+                "span": "stroke-000-span-003",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              },
+              {
+                "span": "stroke-001-span-000",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              }
+            ],
+            "sourceStrokeOrder": [
+              0,
+              1
+            ],
+            "penUpGaps": [
+              [
+                [
+                  127.47540983606558,
+                  437.40327868852455
+                ],
+                [
+                  117.19344262295081,
+                  437.40327868852455
+                ]
+              ],
+              [
+                [
+                  294.9245901639344,
+                  145.1016393442623
+                ],
+                [
+                  300.79999999999995,
+                  131.88196721311476
+                ]
+              ]
+            ],
+            "tipAngle": 58.9008993586121,
+            "residualLength": 802.3284916218945,
+            "basis": "Pointed near-closed acquisition route with two continuing walls; one common eave is inferred across unequal contour runs."
+          },
+          {
+            "kind": "crossing",
+            "accepted": true,
+            "parts": [
+              "layout-recovered-cross-1"
+            ],
+            "replacedPriorParts": [
+              "layout-cross",
+              "layout-cross-level"
+            ],
+            "point": [
+              231.7639344262295,
+              323.4979497714482
+            ],
+            "spans": [
+              "stroke-004-span-000",
+              "stroke-005-span-000"
+            ],
+            "segmentFractions": [
+              0.47472648479639823,
+              0.4304375093641812
+            ],
+            "sourceIntervals": [
+              {
+                "span": "stroke-004-span-000",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              },
+              {
+                "span": "stroke-005-span-000",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              }
+            ],
+            "intersectionAngle": 79.59142252586818,
+            "verticalBounds": [
+              231.76393442622947,
+              267.016393442623,
+              231.7639344262295,
+              385.99344262295085
+            ],
+            "horizontalBounds": [
+              181.82295081967214,
+              320.7349039318105,
+              274.3606557377049,
+              344.8655737704918
+            ],
+            "residualLength": 216.44887584919115,
+            "markerBasis": "residual-curved-arm-crossing",
+            "basis": "Two substantial residual arms cross in their interiors; page height is an opinion, not an admission veto."
+          }
+        ],
+        "captured": 6,
+        "candidates": 6
+      },
+      {
+        "sample": 5,
+        "keyId": "4821138091802624",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 4,
+        "candidates": 4
+      },
+      {
+        "sample": 6,
+        "keyId": "6474467716890624",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 9,
+        "candidates": 9
+      },
+      {
+        "sample": 7,
+        "keyId": "4981869022019584",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 5,
+        "candidates": 5
+      },
+      {
+        "sample": 8,
+        "keyId": "6527982287978496",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 3,
+        "candidates": 3
+      },
+      {
+        "sample": 9,
+        "keyId": "6045774917926912",
+        "unchanged": false,
+        "recovered": [
+          {
+            "kind": "crossing",
+            "accepted": true,
+            "parts": [
+              "layout-recovered-cross-1"
+            ],
+            "replacedPriorParts": [
+              "layout-cross",
+              "layout-cross-level"
+            ],
+            "point": [
+              238.6186982975571,
+              89.04946966906583
+            ],
+            "spans": [
+              "stroke-003-span-000",
+              "stroke-004-span-000"
+            ],
+            "segmentFractions": [
+              0.440393041530177,
+              0.5932010948539036
+            ],
+            "sourceIntervals": [
+              {
+                "span": "stroke-003-span-000",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              },
+              {
+                "span": "stroke-004-span-000",
+                "ranges": [
+                  [
+                    0.0,
+                    1.0
+                  ]
+                ]
+              }
+            ],
+            "intersectionAngle": 84.83781553650016,
+            "verticalBounds": [
+              237.10843373493978,
+              32.00000000000003,
+              239.80722891566265,
+              161.5421686746988
+            ],
+            "horizontalBounds": [
+              142.6506024096386,
+              86.91046738199708,
+              301.8795180722892,
+              102.16867469879523
+            ],
+            "residualLength": 290.5361745502317,
+            "markerBasis": "residual-curved-arm-crossing",
+            "basis": "Two substantial residual arms cross in their interiors; page height is an opinion, not an admission veto."
+          }
+        ],
+        "captured": 2,
+        "candidates": 2
+      },
+      {
+        "sample": 10,
+        "keyId": "4944046684372992",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 4,
+        "candidates": 4
+      },
+      {
+        "sample": 11,
+        "keyId": "5117095295582208",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 15,
+        "candidates": 15
+      },
+      {
+        "sample": 12,
+        "keyId": "6667304605581312",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 3,
+        "candidates": 3
+      },
+      {
+        "sample": 13,
+        "keyId": "5419325802414080",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 2,
+        "candidates": 3
+      },
+      {
+        "sample": 14,
+        "keyId": "5782206867832832",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 4,
+        "candidates": 5
+      },
+      {
+        "sample": 15,
+        "keyId": "6581957729189888",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 6,
+        "candidates": 6
+      },
+      {
+        "sample": 16,
+        "keyId": "5729703023345664",
+        "unchanged": true,
+        "recovered": [],
+        "captured": 4,
+        "candidates": 4
+      }
+    ],
+    "qualification": "Same-cohort structural regression and candidate recovery, not semantic accuracy or human annotation."
+  },
+  "nativeAudit": {
+    "worlds": 16,
+    "shapePoints": 6704,
+    "errorReads": 21569,
+    "actuatorOutcomes": 15412,
+    "recoveryWitnesses": 24,
+    "recoveryIntervals": 72,
+    "maxDifference": 0,
+    "qualification": "Read-only comparison of restored native graphs, executable shape outputs, error intervals and exact receiver accounting against review projections. No accuracy judgment."
+  },
+  "browser": {
+    "drawings": 16,
+    "panels": 96,
+    "errors": [],
+    "network": []
+  },
+  "additionalProposalScan": {
+    "scope": "32 additional recognized cached acquisitions, outside the sixteen reviewed examples. Proposal-only coverage check; no semantic accuracy labels or new model training.",
+    "drawings": 32,
+    "changed": 0,
+    "towers": 0,
+    "crosses": 0
+  },
+  "studioPilot": {
+    "sourceKeyId": "6226189452574720",
+    "sourceOriginalUnchanged": true,
+    "stages": 10,
+    "errors": 0,
+    "nativeRestoreVerified": true,
+    "artifactHashesVerified": true,
+    "results": "D:\\_quickDraw\\data\\church-recovery-2026-10-29-v1\\studio-pilot\\results",
+    "recoveryDecisions": [
+      {
+        "accepted": true,
+        "apex": [
+          256.7344262295082,
+          58.439344262295094
+        ],
+        "basis": "Pointed near-closed acquisition route with two continuing walls; one common eave is inferred across unequal contour runs.",
+        "bounds": [
+          166.95219426667836,
+          131.88196721311476,
+          292.8965867945311,
+          437.403
+        ],
+        "capBounds": [
+          166.95219426667836,
+          58.439344262295094,
+          292.8965867945311,
+          131.88196721311476
+        ],
+        "kind": "pointed enclosure",
+        "parts": [
+          "layout-recovered-tower-1",
+          "layout-recovered-roof-1"
+        ],
+        "penUpGaps": [
+          [
+            [
+              127.47540983606558,
+              437.40327868852455
+            ],
+            [
+              117.19344262295081,
+              437.40327868852455
+            ]
+          ],
+          [
+            [
+              294.9245901639344,
+              145.1016393442623
+            ],
+            [
+              300.79999999999995,
+              131.88196721311476
+            ]
+          ]
+        ],
+        "residualLength": 802.3284916218945,
+        "sourceIntervals": [
+          {
+            "ranges": [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            "span": "stroke-000-span-000"
+          },
+          {
+            "ranges": [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            "span": "stroke-000-span-001"
+          },
+          {
+            "ranges": [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            "span": "stroke-000-span-002"
+          },
+          {
+            "ranges": [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            "span": "stroke-000-span-003"
+          },
+          {
+            "ranges": [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            "span": "stroke-001-span-000"
+          }
+        ],
+        "sourceStrokeOrder": [
+          0,
+          1
+        ],
+        "spans": [
+          "stroke-000-span-000",
+          "stroke-000-span-001",
+          "stroke-000-span-002",
+          "stroke-000-span-003",
+          "stroke-001-span-000",
+          "stroke-001-span-001"
+        ],
+        "tipAngle": 58.9008993586121
+      },
+      {
+        "accepted": true,
+        "basis": "Two substantial residual arms cross in their interiors; page height is an opinion, not an admission veto.",
+        "horizontalBounds": [
+          181.82295081967214,
+          320.7349039318105,
+          274.3606557377049,
+          344.8655737704918
+        ],
+        "intersectionAngle": 79.59142252586818,
+        "kind": "crossing",
+        "markerBasis": "residual-curved-arm-crossing",
+        "parts": [
+          "layout-recovered-cross-1"
+        ],
+        "point": [
+          231.7639344262295,
+          323.4979497714482
+        ],
+        "replacedPriorParts": [
+          "layout-cross",
+          "layout-cross-level"
+        ],
+        "residualLength": 216.44887584919115,
+        "segmentFractions": [
+          0.47472648479639823,
+          0.4304375093641812
+        ],
+        "sourceIntervals": [
+          {
+            "ranges": [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            "span": "stroke-004-span-000"
+          },
+          {
+            "ranges": [
+              [
+                0.0,
+                1.0
+              ]
+            ],
+            "span": "stroke-005-span-000"
+          }
+        ],
+        "spans": [
+          "stroke-004-span-000",
+          "stroke-005-span-000"
+        ],
+        "verticalBounds": [
+          231.76393442622947,
+          267.016393442623,
+          231.7639344262295,
+          385.99344262295085
+        ]
+      }
+    ]
+  },
+  "verification": {
+    "python": 254,
+    "quickDrawDotNet": 148,
+    "linkedGojoDotNet": 5548,
+    "linkedGojoProjects": 13,
+    "focusedRecoveryNative": 1
+  },
+  "elapsedIncludingProductionArchivesAndReviewSeconds": 586.147642,
+  "compressedWorldBytes": 1273349163,
+  "limitations": [
+    "Recovery is a proposal stage, not dynamic part rediscovery during every settlement round.",
+    "Pointed recovery handles near-closed one/two-stroke narrow regions extending into the body; many-stroke/open and upper-only missed towers remain unsupported.",
+    "Initial shallow roof remains in sample 4; occlusion and correctness of all earlier parts are unresolved.",
+    "Selected interpretation pairs are weak authored training material, not human-approved targets.",
+    "First mapping, its residue and recovered support refer to the same acquisition; they are not independent evidence.",
+    "The extra 32-drawing proposal scan has no labels and supplies no recall/precision estimate."
+  ]
+}

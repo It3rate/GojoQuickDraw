@@ -89,6 +89,7 @@ def write(folder):
         plan=request['heuristics']
         label='Connected constructions' if state['config'].get('connections') else 'Added experts'
         if state['config'].get('cad'):label='CAD relations'
+        if state['config'].get('recoverMissing'):label='Residual recovery'
         if state['config'].get('connections'):
             panels[3]['title']=label+' · pass 6'
             panels[4]['title']=label+' · final'
@@ -103,11 +104,12 @@ def write(folder):
                              addedWindows=sum(d['accepted'] for d in plan['discoveries']),view=plan['view'],
                              connections=len(plan.get('connections',{}).get('recipes',[]))),
                          openingChanges=plan.get('openingContext',{}).get('changes',[]),
-                         cad=plan.get('cad'),cadGuides=[r for r in plan.get('connections',{}).get('recipes',[]) if r.get('family') in ('collinearity','shared assembly axis')],
+                         recovery=plan.get('recovery'),cad=plan.get('cad'),cadGuides=[r for r in plan.get('connections',{}).get('recipes',[]) if r.get('family') in ('collinearity','shared assembly axis')],
                          layers=sorted({r['layer'] for r in plan['rules']})))
     payload=json.dumps(rows,separators=(',',':'),allow_nan=False).replace('<','\\u003c')
     page=PAGE.replace('__DATA__',payload).replace('__COLORS__',json.dumps(COLORS)).replace('__STATUS__',html.escape(state['status']))
     page=page.replace('__TITLE__','Church experts and CAD relations' if state['config'].get('cad') else 'Church experts, connected')
+    if state['config'].get('recoverMissing'):page=page.replace('Church experts and CAD relations','Church experts and residual recovery')
     (folder/'review.html').write_text(page,encoding='utf-8')
     metadata=dict(schema='gojo.church-review-read.v1',rendererSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         calculationAdapterSha256=state['config']['adapterSha256'],
@@ -129,7 +131,7 @@ def write(folder):
             parts={role:sum(p['role']==role and bool(p['segments']) for p in final['stage']['parts']) for role in COLORS},
             captured=sum(c['active'] for c in final['stage'].get('captures',[])),
             remainingConnections=final['stage'].get('captures',[]),openingChanges=row['openingChanges'],
-            cad=row['cad'],
+            cad=row['cad'],recovery=row['recovery'],
             finalPass=final['stage']['pass']))
     (folder/'analysis.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
     return rows
@@ -144,7 +146,7 @@ PAGE='''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewpor
 <div class="toolbar"><label>New pass <select id="pass" aria-label="Settlement pass"></select></label><label><input id="ink" type="checkbox"> Green interpreted ink</label><label><input id="unknown" type="checkbox"> Unexplained ink</label><label><input id="missing" type="checkbox"> Missing expected ink</label><label><input id="joints" type="checkbox"> Interpreted joints</label><label><input id="guides" type="checkbox"> Alignment guides</label></div>
 <div class="legend">Faint ink = original · colors = proposed shapes · gray dotted = prior additions · orange = unexplained ink · gray dashes = missing boundary support.</div>
 <div id="facts"></div><div id="panels"></div><details><summary>Remaining mismatch by relationship</summary><p>Mean normalized port demand in drawing units, not recognition accuracy or physical energy. Source strain can rise while the conceptual shape improves.</p><div id="errors"></div></details>
-<details><summary>Construction capture and opening revisions</summary><p>Capture substitutes an actual shared construction. It preserves exact relations during parameter settlement; strong opposing requests can release it on a later pass. Distances and pressure are authored diagnostic reads, not physical forces.</p><div id="connections"></div><div id="revisions"></div><div id="cad"></div></details>
+<details><summary>Construction capture and proposal revisions</summary><p>Capture substitutes an actual shared construction. It preserves exact relations during parameter settlement; strong opposing requests can release it on a later pass. Distances and pressure are authored diagnostic reads, not physical forces.</p><div id="connections"></div><div id="revisions"></div><div id="cad"></div><div id="recovery"></div></details>
 <p>← / → drawings. Families, supports and pairings are authored inference proposals; source bounds seed the machines. Interior corners expose additional source-interval sites. Native carrier tension moves parameters. Unknown ink is never erased, and a missing boundary is never labeled acquired ink.</p>
 <script>const DATA=__DATA__,COLORS=__COLORS__;const $=id=>document.getElementById(id);let index=0;let selectedPass=Number.MAX_SAFE_INTEGER;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -172,6 +174,7 @@ function render(){if(!DATA.length){$('facts').textContent='Waiting for the first
  $('connections').innerHTML=captures.length?'<table><tr><th>Construction</th><th>State</th><th>Entry distance</th><th>Opposing request</th></tr>'+captures.map(c=>`<tr><td>${esc(c.id)}</td><td>${esc(c.action)}${c.releasePending?' · release pending':''}</td><td>${c.distance.toFixed(2)}</td><td>${c.pressure.toFixed(2)}</td></tr>`).join('')+'</table>':'No connection captures in this pass.';
  $('revisions').innerHTML=(row.openingChanges||[]).map(c=>`<p>${esc(c.part+' · '+c.action+(c.selected?' → '+c.selected:''))}<br>${esc(c.basis)}</p>`).join('');
  $('cad').innerHTML=(row.cad?.decisions||[]).map(c=>`<p>${esc(c.kind+' · '+(c.proposed?'proposed':'left open')+' · '+c.parts.join(' / '))}<br>${esc(c.basis)}</p>`).join('')+(row.cad?.groups||[]).map(g=>`<p>${esc(g.kind+' · '+g.parts.join(' / '))}<br>${esc(g.basis)}</p>`).join('');
+ $('recovery').innerHTML=(row.recovery?.decisions||[]).map(c=>`<p>${esc(c.kind+' recovered · '+c.spans.length+' source profiles · '+c.parts.join(' / '))}<br>${esc(c.basis)}<br>Source support is retained; inferred joins and ideal boundaries are proposals.</p>`).join('');
  const end=chosen.stage.errors;const start=row.panels[2].stage.errors;const layers=[...new Set(end.map(e=>e.layer))];const mean=(rows,key)=>{const x=rows.filter(e=>e.layer===key);return x.length?x.reduce((a,b)=>a+b.demand,0)/x.length:0};
  $('errors').innerHTML='<table><tr><th>Relationship</th><th>Before</th><th>After</th></tr>'+layers.map(l=>`<tr><td>${esc(l)}</td><td>${mean(start,l).toFixed(3)}</td><td>${mean(end,l).toFixed(3)}</td></tr>`).join('')+'</table>';
 }

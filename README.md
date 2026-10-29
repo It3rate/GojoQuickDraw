@@ -453,6 +453,16 @@ control. **Alignment guides** shows the tested supporting lines and axes in the
 offline review. This remains an opt-in research pass, separate from Studio's
 default conversion.
 
+The [residual recovery pass](docs/church-recovery.md) rereads substantial
+unexplained contours after the first area proposal. New Studio processing now
+uses it for pointed tower/cap outlines and missing straight/curved-arm crosses,
+retaining the earlier proposal and source support. Cached church studies enable
+the same pass with `--recover-missing`. Recovery is an authored weak
+interpretation, not a human label or new model training.
+The [sixteen-case recovery results](reports/church-recovery-2026-10-29.md)
+include the source-linked steeple/cross repair, unchanged controls and a complete
+Studio pipeline pilot.
+
 The [ten-drawing duration comparison](reports/church-duration-2026-10-29.md)
 records what changed after pass six and what additional iterations could not do.
 

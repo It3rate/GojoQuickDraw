@@ -16,6 +16,7 @@ if(args.Length!=3)throw new ArgumentException("Usage: STUDY_FOLDER MAX_DRAWINGS 
 var limit=int.Parse(args[1]);if(limit is <1 or >1024)throw new ArgumentOutOfRangeException(nameof(limit));
 var options=GojoQuickDraw.ChurchStudy.Program.Json;
 var worlds=0;var points=0;var reads=0;var outcomes=0;var maxDifference=0d;
+var recoveryWitnesses=0;var recoveryIntervals=0;
 foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"view.json",SearchOption.AllDirectories).Order().Take(limit))
 {
     using var view=JsonDocument.Parse(File.ReadAllText(file));
@@ -58,6 +59,26 @@ foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"v
                 }
             }
             var ordinaryParts=F(world[3]).Length;
+            foreach(var import in F(F(world[6])[1]).Cast<Relation>())
+            {
+                if(!ReadWitness.TryRead(import,out var beforeRecovery,out _,out var recovered,out _,out _)||
+                    beforeRecovery is not Relation beforeRelation||!beforeRelation.TryReadOrderedGroup(out var beforeFields)||
+                    beforeFields.Length!=2||beforeFields[0] is not Relation firstRelation||!firstRelation.TryReadOrderedGroup(out var firstFields)||
+                    firstFields.Length!=7||!ReferenceEquals(firstFields[0],original.Surface))continue;
+                foreach(var interval in F(beforeFields[1]))
+                {
+                    var pair=F(interval);var source=original.Edges.Single(e=>ReferenceEquals(e.Source,pair[0]));
+                    source.Span.TryReadSegment(out var actualAxis,out _,out _);
+                    if(pair[1] is not Relation span||!span.TryReadSegment(out var axis,out var a,out var b)||
+                        !ReferenceEquals(axis,actualAxis)||a.Ticks<0||b.Ticks>PatchEvidence.Q||a.Ticks>=b.Ticks)
+                        throw new InvalidDataException("Recovery lost its actual unexplained source interval");
+                    recoveryIntervals++;
+                }
+                if(F(recovered).Any(g=>!F(world[3]).Any(p=>ReferenceEquals(F(p)[1],g))))
+                    throw new InvalidDataException("Recovery witness does not select its live target constructions");
+                foreach(var p in F(firstFields[3]))MachineRunner.Run((Relation)F(p)[1]);
+                recoveryWitnesses++;
+            }
             if(stages[index].GetProperty("parts").GetArrayLength()>ordinaryParts)
             {
                 // Enhanced studies derive wall cells from captured public
@@ -107,7 +128,7 @@ foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"v
         worlds++;
     }
 }
-var report=new{worlds,shapePoints=points,errorReads=reads,actuatorOutcomes=outcomes,maxDifference,
+var report=new{worlds,shapePoints=points,errorReads=reads,actuatorOutcomes=outcomes,recoveryWitnesses,recoveryIntervals,maxDifference,
     qualification="Read-only comparison of restored native graphs, executable shape outputs, error intervals and exact receiver accounting against review projections. No accuracy judgment."};
 File.WriteAllText(args[2],JsonSerializer.Serialize(report,new JsonSerializerOptions{WriteIndented=true}));Console.WriteLine(JsonSerializer.Serialize(report));
 void Check(double actual,double expected)

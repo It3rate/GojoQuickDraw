@@ -310,6 +310,7 @@ public sealed class ChurchScene
     public void AddMappings(JsonElement mapping) => MapInk(mapping);
     public void PrepareDerived(JsonElement plan)
     {
+        ChurchRecovery.Attach(this,plan);
         var result=ChurchPartitions.Build(this,plan);DerivedParts=result.Views;Imports.Add(result.Surface);
     }
     public void AddLineRules(JsonElement bundle)

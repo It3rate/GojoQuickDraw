@@ -12,7 +12,7 @@ import math
 
 COLORS = {"ground": "#63735f", "building": "#277da8", "tower": "#56729a", "roof": "#bf712a",
           "cross": "#ae3f6d", "cross-level": "#ae3f6d", "door": "#23846c", "window": "#8c68aa"}
-POLICY = {"version": "church-area-layout.v8", "learned": False, "maximumSamples": 2048,
+POLICY = {"version": "church-area-layout.v9", "learned": False, "maximumSamples": 2048,
           "maximumUprights": 16, "maximumDoors": 2, "maximumWindows": 8,
           "maximumRoofs": 6, "maximumCrosses": 6, "domePartitions": 32,
           "basis": "normalized observer page; down is a chosen church-upright premise",
@@ -195,7 +195,7 @@ def _upright_regions(spans, excluded, scene):
                   key=lambda c:-c['weight'])[:POLICY['maximumUprights']]
 
 
-def estimate(observed):
+def estimate(observed, *, recover_missing=True):
     """Place a small ideal construction from broad source regions and priors."""
     spans = observed.get("spans", [])
     samples, reduced = _samples(observed)
@@ -406,7 +406,7 @@ def estimate(observed):
             relate(item["id"]+"-inside-building",[building["id"],item["id"]],sum(max(0,v) for v in (l-a,top-b,c-r,d-g)))
             if role=="door":relate(item["id"]+"-on-ground",["layout-ground",item["id"]],d-g)
             else:relate(item["id"]+"-above-ground",["layout-ground",item["id"]],max(0,d-g))
-    return {"schema":"gojo.quickdraw-area-layout.v1","sourceId":observed.get("sourceId"),"status":"proposed",
+    result={"schema":"gojo.quickdraw-area-layout.v1","sourceId":observed.get("sourceId"),"status":"proposed",
         "parts":parts,"relations":relations,"alternatives":distinct,"policy":deepcopy(POLICY),"sampleReduction":reduced,
         "sequence":["ground level","building area","local cap and tower areas","independent upper markers","optional openings"],
         "roofReads":roof_reads,"towerReads":tower_reads,"markerReads":marker_reads,
@@ -414,6 +414,10 @@ def estimate(observed):
         "qualification":POLICY["qualification"],"sourceUnchanged":True,
         "openQuestions":["One main building envelope remains; local towers and triangular or domed caps are provisional interpretations.",
                          "Missing cross uses an explicit prior-only placement. Missing openings are left open."]}
+    if recover_missing:
+        from .layout_recovery import recover
+        result=recover(observed,result)
+    return result
 
 
 def enrich_context(observed, context):
