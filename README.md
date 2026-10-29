@@ -408,6 +408,21 @@ See [storage and evidence](docs/storage.md), [design and training direction](doc
 the root [evidence inventory](EVIDENCE_INVENTORY.md), and [verification](docs/verification.md). The bundled examples are authored controls;
 real QuickDraw data and large generated datasets stay outside this repository.
 
+## Connected church experiment
+
+The independent [connected church study](docs/church-settlement.md) combines the
+existing small joint, line and closure models with native Gojo constructions and
+explicit error structures. It compares local-only, fixed-ink, fixed-scaffold and
+bidirectional runs on a bounded recognized cohort, retaining every executed pass.
+It leaves the Studio converter and existing datasets unchanged.
+
+```powershell
+python -m gojo_quickdraw.church_study run --input D:/_quickDraw/quickdraw/church.ndjson --output D:/_quickDraw/data/church-settlement-2026-10-29-v2 --limit 1024 --workers 8 --passes 6 --steps 1 --candidates 48
+```
+
+Open the output's `review.html` for the paged comparison. Shape expectations remain
+authored; this is a structural baseline for future learning, not an accuracy claim.
+
 ## Verify changes
 
 ```powershell

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework><OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <GojoRoot Condition="'$(GojoRoot)' == ''">$(MSBuildThisFileDirectory)..\..\Gojo</GojoRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../learning/GojoQuickDraw.Learning.csproj" />
+    <ProjectReference Include="$(GojoRoot)/experiments/ConstructionMachines/ConstructionMachines.csproj" />
+  </ItemGroup>
+</Project>

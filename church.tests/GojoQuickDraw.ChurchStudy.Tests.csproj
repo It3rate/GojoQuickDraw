@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><IsPackable>false</IsPackable></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0-pre.3"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <ProjectReference Include="../church/GojoQuickDraw.ChurchStudy.csproj" />
+    <ProjectReference Include="../tools/church-audit/ChurchAudit.csproj" />
+    <None Include="../models/neighborhood-closure-2026-10-28.json" Link="providers.json" CopyToOutputDirectory="PreserveNewest" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+</Project>

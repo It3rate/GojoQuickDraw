@@ -2,10 +2,15 @@
   <Project Path="desktop/GojoQuickDraw.Desktop.csproj" />
   <Project Path="native/GojoQuickDraw.Native.csproj" />
   <Project Path="learning/GojoQuickDraw.Learning.csproj" />
+  <Project Path="church/GojoQuickDraw.ChurchStudy.csproj" />
+  <Folder Name="/Tools/">
+    <Project Path="tools/church-audit/ChurchAudit.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="desktop.tests/GojoQuickDraw.Desktop.Tests.csproj" />
     <Project Path="native.tests/GojoQuickDraw.Native.Tests.csproj" />
     <Project Path="learning.tests/GojoQuickDraw.Learning.Tests.csproj" />
+    <Project Path="church.tests/GojoQuickDraw.ChurchStudy.Tests.csproj" />
   </Folder>
   <Folder Name="/Tests/Python/">
     <File Path="tests/test_context.py" />
