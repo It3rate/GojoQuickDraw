@@ -26,6 +26,21 @@ internal sealed partial class MainWindow
     private Expander _analysisOptions = null!;
     private Control _inspectionDrawer = null!;
     private readonly CheckBox _showJoints = new() { Content = "Joints", IsChecked = true, VerticalAlignment = VerticalAlignment.Center };
+    private readonly NumericUpDown _refinementCount = Number(12, 1, 10000), _refinementPasses = Number(8, 1, 16);
+    private readonly TextBox _refinementOutput = new();
+
+    private Control RefinementControls() => new Expander
+    {
+        Header = "Connected church refinement — compare the newer method",
+        HorizontalContentAlignment = HorizontalAlignment.Stretch,
+        Content = Card(Stack(10,
+            Text("Keep the original ten stages and add a separate comparison using connected joints, shapes, symmetry, CAD relations and residual steeple/cross recovery."),
+            Text("Uses game-recognized churches from the selected folder, in the selected inspection order. No raw drawing conversion or new training. Native history can take about a minute per church and substantial disk space.", 12),
+            Buttons(Field("Maximum churches", _refinementCount), Field("Settlement passes", _refinementPasses)),
+            Field("Result folder (optional)", _refinementOutput, "Blank creates a new sibling result folder. Reuse the same path and settings to resume; choose a new folder after processing code changes."),
+            Buttons(JobButton("Run connected refinement", [PipelineAction.Refine], true),
+                JobButton("Open comparison", [PipelineAction.RefineReview]))))
+    };
 
     private Control BrowserPage()
     {
@@ -69,7 +84,7 @@ internal sealed partial class MainWindow
                 SmallButton("▶", () => MoveStage(_resultView, 1)),_showJoints),
             paging, _inspectionDrawer, _gallery,
             Text("Click a pair to enlarge it. ← / → drawing · Shift + ← / → page · ↑ / ↓ stage. Gray dotted doors, windows and crosses are added expectations. Paging keeps the stage.", 12),
-            _layerSummary, _analysisOptions, expert);
+            _layerSummary, _analysisOptions, RefinementControls(), expert);
     }
 
     private async Task LoadGallery(IReadOnlyList<DrawingRow> rows, long revision, CancellationToken cancellation)

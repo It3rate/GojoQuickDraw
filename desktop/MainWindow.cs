@@ -204,7 +204,7 @@ internal sealed partial class MainWindow : Window
 
     private PipelineOptions Options(PipelineAction action, string run)
     {
-        var limit = action is PipelineAction.Catalog or PipelineAction.Review or PipelineAction.Refresh or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Analyze ? (int)_analysisCount.Value! : action == PipelineAction.Train ? (int)_trainingCount.Value! : action == PipelineAction.Encode ? (int)_encodingCount.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
+        var limit = action == PipelineAction.Refine ? (int)_refinementCount.Value! : action is PipelineAction.Catalog or PipelineAction.Review or PipelineAction.Refresh or PipelineAction.Verify ? (int)_reviewLimit.Value! : action == PipelineAction.Analyze ? (int)_analysisCount.Value! : action == PipelineAction.Train ? (int)_trainingCount.Value! : action == PipelineAction.Encode ? (int)_encodingCount.Value! : action == PipelineAction.Stages ? (int)_stageCount.Value! : (int)_limit.Value!;
         var selected = _drawings.SelectedItem as DrawingRow;
         var target = action is PipelineAction.Convert or PipelineAction.Setup ? _dataset.Text?.Trim() ?? "" : InspectionPath;
         if ((action == PipelineAction.Probe || action == PipelineAction.Stages && _stageSelection.SelectedIndex == 0) && selected is not null)
@@ -224,7 +224,8 @@ internal sealed partial class MainWindow : Window
             string.IsNullOrWhiteSpace(_trainingOutput.Text) ? Workspace.ModelFolder(_dataset.Text ?? "") : _trainingOutput.Text.Trim(),
             _encodingMode.SelectedIndex==0 ? [_encodingNeighborhoodModel.Text?.Trim() ?? ""] : _encodingUseModel.IsChecked==true ? [_encodingModel.Text?.Trim() ?? ""] : [],
             string.IsNullOrWhiteSpace(_encodingOutput.Text) ? null : _encodingOutput.Text.Trim(), (int)_encodingPatches.Value!,
-            _trainingMode.SelectedIndex==0,_encodingMode.SelectedIndex==0,_encodingUseModel.IsChecked==true,_encodingUseLine.IsChecked==true,(int)_encodingPasses.Value!,_encodingUseClosure.IsChecked==true);
+            _trainingMode.SelectedIndex==0,_encodingMode.SelectedIndex==0,_encodingUseModel.IsChecked==true,_encodingUseLine.IsChecked==true,(int)_encodingPasses.Value!,_encodingUseClosure.IsChecked==true,
+            string.IsNullOrWhiteSpace(_refinementOutput.Text) ? null : _refinementOutput.Text.Trim(), (int)_refinementPasses.Value!);
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);
@@ -248,6 +249,8 @@ internal sealed partial class MainWindow : Window
                 if (action == PipelineAction.Refresh && refreshedDataset is not null)
                     options = options with { Dataset = refreshedDataset, RunFolder = Workspace.InspectorFolder(refreshedDataset) };
                 var plan = Pipeline.Plan(action, options);
+                if (action == PipelineAction.Refine && plan.Artifact is { } refinementPage)
+                    _refinementOutput.Text = Path.GetDirectoryName(refinementPage);
                 SetStatus(TitleFor(action), "Working locally. You can stop this run and resume conversion later.");
                 AppendLog($"{DateTime.Now:HH:mm:ss} · {TitleFor(action)}");
                 var result = await Pipeline.Run(plan, AppendLog, _cancellation.Token);
@@ -270,12 +273,14 @@ internal sealed partial class MainWindow : Window
                 if (action != PipelineAction.Analyze && plan.Artifact is { } artifact && File.Exists(artifact))
                 {
                     _lastArtifact = artifact;
-                    if (action is PipelineAction.Review or PipelineAction.Stages or PipelineAction.Gallery or PipelineAction.Refresh && _autoOpen.IsChecked == true && !_smoke
+                    if ((action == PipelineAction.RefineReview || action is PipelineAction.Refine or PipelineAction.Review or PipelineAction.Stages or PipelineAction.Gallery or PipelineAction.Refresh && _autoOpen.IsChecked == true) && !_smoke
                         && !(action == PipelineAction.Review && actions.Contains(PipelineAction.Gallery))) Open(artifact);
                 }
                 SetStatus(result.RetainedErrors ? "Converted with retained errors" : "Completed", Describe(action, result));
                 if (action == PipelineAction.Train) ShowTraining(result);
                 if (action == PipelineAction.Encode && result.Data is { } encoded) await LoadEncodingRun(encoded.GetProperty("output").GetString()!);
+                if (action == PipelineAction.Refine && result.Data is { } refined)
+                    _refinementOutput.Text = refined.GetProperty("output").GetString();
                 if (action is PipelineAction.Probe or PipelineAction.ExampleProbe) ShowProbes(result);
             }
             if (retained) SetStatus("Finished with records to review", "Successful records were processed. Failed sources remain in the dataset's errors folder; see run details.", true);
@@ -294,6 +299,8 @@ internal sealed partial class MainWindow : Window
 
     private static string TitleFor(PipelineAction action) => action switch
     {
+        PipelineAction.Refine => "Settling connected church shapes…",
+        PipelineAction.RefineReview => "Opening saved connected results…",
         PipelineAction.Convert => "Converting through every drawing stage…", PipelineAction.Verify => "Verifying native archives…",
         PipelineAction.Review => "Building the evidence review…", PipelineAction.Stages => "Generating drawing steps…",
         PipelineAction.Gallery => "Building input / final comparisons…",
@@ -310,6 +317,8 @@ internal sealed partial class MainWindow : Window
         int Count(string field) => data.TryGetProperty(field, out var value) ? value.GetInt32() : 0;
         return action switch
         {
+            PipelineAction.Refine => $"{Count("completed")} churches refined · {Count("resumed")} reused · {Count("errors")} errors. The original ten stages are unchanged; open the comparison to inspect connected passes.",
+            PipelineAction.RefineReview => $"Comparison refreshed from {Count("completed")} completed churches. No settlement was run.",
             PipelineAction.Train => $"Trained {Count("parameterCount")} weights from {Count("sourceDrawings")} source drawings and controlled constructions. Open the model review for held-out results.",
             PipelineAction.Encode => $"{Count("sourceDrawings")} paired drawings · {Count("localPatches")} local opinions · {Count("changedPatches")} different / additional patch opinions. Inspect alternatives in Encoding.",
             PipelineAction.Convert => $"{Count("converted")} converted · {Count("resumed")} reused · {Count("errors")} retained errors · {Count("storedRecords")} stored drawings"

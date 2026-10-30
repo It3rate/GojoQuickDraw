@@ -9,6 +9,16 @@ The saved baseline is the drawing we received and the evidence we can read from 
 Seeded church parts and expectations are separate proposals. Later simplification,
 joint merging, and synthesis are retained interpretations, not training labels.
 
+Studio now also offers an optional **Connected church refinement** pass over an
+existing fitted dataset. It keeps the ten-stage result and opens a separate
+comparison with iterative joints, shapes, CAD relations and residual part
+recovery. Choose a bounded count; completed results can be resumed or inspected
+after Stop. See [the Studio refinement guide](docs/studio-refinement.md).
+
+The [compact primitives and cooperating structures discussion](docs/compact-structures.md)
+inventories the pre-numeric mechanics, reusable machines and possible compact
+execution forms, distinguishing implemented fixtures from proposed extensions.
+
 ## Run from a checkout
 
 Requirements: Python 3.10 or newer, the .NET 10 SDK, and a sibling Gojo checkout.

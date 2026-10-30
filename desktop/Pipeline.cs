@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace GojoQuickDraw.Desktop;
 
-public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery, Refresh, Train, Encode }
+public enum PipelineAction { Convert, Verify, Review, Stages, Probe, ExampleProbe, Setup, Catalog, Analyze, Gallery, Refresh, Train, Encode, Refine, RefineReview }
 public sealed record PipelineOptions(string Repository, string Python, string Gojo, string Input, string Dataset,
     string Category = "church", int Limit = 25, bool AllRecords = false, bool Recursive = false, bool RetryErrors = false,
     double FitTolerance = 6, int MaxPoints = 20000, int MaxSpans = 256, string? KeyId = null, string? RunFolder = null,
@@ -13,7 +13,8 @@ public sealed record PipelineOptions(string Repository, string Python, string Go
     int Offset = 0, int Workers = 4, string? AnalysisOutput = null, string Recognition = "all",
     int TrainingSynthetic = 2500, int TrainingEpochs = 35, long TrainingSeed = 31, string? TrainingOutput = null,
     IReadOnlyList<string>? EncodingModels = null, string? EncodingOutput = null, int EncodingPatches = 128,
-    bool TrainingNeighborhoods = false, bool EncodingNeighborhoods = false, bool EncodingRepair = true, bool EncodingLine = true,int EncodingPasses=4,bool EncodingClosure=true);
+    bool TrainingNeighborhoods = false, bool EncodingNeighborhoods = false, bool EncodingRepair = true, bool EncodingLine = true,int EncodingPasses=4,bool EncodingClosure=true,
+    string? RefinementOutput = null, int RefinementPasses = 8);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -41,6 +42,25 @@ public static class Pipeline
         void Ordering() => arguments.AddRange(["--order", options.InspectionOrder, "--seed", options.InspectionSeed.ToString(CultureInfo.InvariantCulture)]);
         switch (action)
         {
+            case PipelineAction.RefineReview:
+                if (string.IsNullOrWhiteSpace(options.RefinementOutput) || !File.Exists(Path.Combine(options.RefinementOutput,"study.json")))
+                    throw new ArgumentException("Run connected refinement first, or enter its result folder.");
+                arguments=["-u","-m","gojo_quickdraw.church_dataset","--output",Path.GetFullPath(options.RefinementOutput),"--review-only"];
+                artifact=Path.Combine(Path.GetFullPath(options.RefinementOutput),"review.html");
+                break;
+            case PipelineAction.Refine:
+                if (!Directory.Exists(options.Dataset)) throw new ArgumentException("Open a generated dataset first.");
+                if (options.Limit > 10000 || options.RefinementPasses is < 1 or > 16)
+                    throw new ArgumentException("Choose 1..10000 churches and 1..16 connected passes.");
+                var refinementOutput = string.IsNullOrWhiteSpace(options.RefinementOutput)
+                    ? Path.GetFullPath(options.Dataset).TrimEnd(Path.DirectorySeparatorChar) + "-refinements/connected-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")
+                    : Path.GetFullPath(options.RefinementOutput);
+                arguments = ["-u", "-m", "gojo_quickdraw.church_dataset", "--gojo-root", Path.GetFullPath(options.Gojo),
+                    "--dataset", Path.GetFullPath(options.Dataset), "--output", refinementOutput,
+                    "--limit", options.Limit.ToString(), "--passes", options.RefinementPasses.ToString(),
+                    "--order", options.InspectionOrder, "--seed", options.InspectionSeed.ToString(CultureInfo.InvariantCulture)];
+                artifact = Path.Combine(refinementOutput, "review.html");
+                break;
             case PipelineAction.Encode:
                 arguments.Add(options.EncodingNeighborhoods?"consolidate":"encode"); Dataset();
                 var encodingOutput=string.IsNullOrWhiteSpace(options.EncodingOutput) ? Workspace.EncodingFolder(options.Dataset) : Path.GetFullPath(options.EncodingOutput);

@@ -1,0 +1,185 @@
+{
+  "date": "2026-10-30",
+  "status": "complete",
+  "upstream": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+  "cleanup": {
+    "remainingNative": 64,
+    "views": 1024,
+    "inputs": 1024,
+    "receiptRetired": 4032,
+    "receiptRetained": 64,
+    "latestRecoveryNative": 16,
+    "latestCadNative": 16,
+    "bytesFreed": 68385647978
+  },
+  "removedFolders": [
+    {
+      "relativePath": "data/church-duration-2026-10-29-v1",
+      "files": 35,
+      "bytes": 763844041.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "data/church-heuristics-2026-10-29-v1",
+      "files": 24,
+      "bytes": 489842571.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "data/church-heuristics-2026-10-29-v2",
+      "files": 87,
+      "bytes": 1197686390.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "data/church-connections-2026-10-29-v1",
+      "files": 70,
+      "bytes": 1004277034.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "data/church-connections-2026-10-29-v2",
+      "files": 87,
+      "bytes": 1260540486.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-cad-2026-10-29-v1",
+      "files": 306,
+      "bytes": 78603408.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-case4-2026-10-29",
+      "files": 5,
+      "bytes": 140457.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-contacts-2026-10-29-v1",
+      "files": 408,
+      "bytes": 120348084.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-duration-2026-10-29-v1",
+      "files": 53,
+      "bytes": 15284343.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-duration-2026-10-29-v2",
+      "files": 156,
+      "bytes": 1217533807.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-heuristics-2026-10-29-v1",
+      "files": 193,
+      "bytes": 91108157.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-heuristics-2026-10-29-v2",
+      "files": 74,
+      "bytes": 16864943.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-heuristics-2026-10-29-v3",
+      "files": 82,
+      "bytes": 17439764.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-recovery-2026-10-29-v1",
+      "files": 147,
+      "bytes": 33732179.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-settlement-2026-10-29-v1",
+      "files": 654,
+      "bytes": 1572547797.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-settlement-2026-10-29-v2",
+      "files": 727,
+      "bytes": 1959000944.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/church-timing-2026-10-29",
+      "files": 81,
+      "bytes": 476060065.0,
+      "status": "removed"
+    },
+    {
+      "relativePath": "_work/reviews",
+      "files": 20,
+      "bytes": 17005948.0,
+      "status": "removed"
+    }
+  ],
+  "nativeHistoryRetirement": {
+    "retiredCount": 2655,
+    "status": "complete",
+    "dateUtc": "2026-10-30T01:51:17.2825142Z",
+    "bytesReleased": 58053787560,
+    "retainedNativeCount": 64,
+    "protectedIds": [
+      "0301c0037e88809800a99f23b9a67eb50896786c",
+      "087bed479c398ed40baefcce2cebef6bc18f40c4",
+      "0bd46f98419c00e625bb818038d74abb6e8c5315",
+      "0c7c69dfbe06173c30cd27385cffab76465911b0",
+      "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+      "2ebe685d39ad0a3236b5beba484c2a846a3cfcef",
+      "51213f89ae40a8f0eefbf6d6256663d5d36c4247",
+      "55d36d311f10da3e059e4ac2fc1e210970a23c25",
+      "5bebdc41d7c29fa64be38803ded7bcc1423fd658",
+      "9d90a583b33d28b0619cce77efb32dd5db9fa461",
+      "a7e94f7e94d09bf1893539dbb53b9ee39ab5130b",
+      "ad9b84cdbd18583f09ff34f5e8d0317b4df65e26",
+      "ff9440ecc7712e8937b4b7931d7859b9e1ce8ef1",
+      "ffaee7573aa8e79b7b953ec9f22316add0896586",
+      "ffb28fe76d878e0f4ff05bdf3eca609921f19ba5",
+      "ffba0ee5aa25752e219d715cc5c041cceae3b66d"
+    ]
+  },
+  "blockedCleanup": {
+    "outcome": "left in place",
+    "path": "D:/_quickDraw/data/studio-refinement-2026-10-30-v1",
+    "reason": "Automatic approval review rejected action: blocked by policy"
+  },
+  "studio": {
+    "defaultDrawingLimit": 12,
+    "existingTenStagesRetained": true,
+    "resumeVerified": true,
+    "sourceDatasetReadOnly": true,
+    "checks": {
+      "sourceSame": true,
+      "modelSame": true,
+      "allNineStagesSame": true,
+      "currentRuntime": true,
+      "nativeRestored": true,
+      "receiptHashes": true,
+      "nativeBytes": 80508948
+    },
+    "networkRequests": 0,
+    "review": "D:/_quickDraw/data/studio-refinement-2026-10-30-v2/review.html",
+    "browserErrors": 0,
+    "defaultPasses": 8,
+    "selectedPipeline": "opt-in connected CAD/recovery settlement"
+  },
+  "tests": {
+    "allPassed": true,
+    "retiredAndRetainedReviewLinks": true,
+    "nativeStartup": true,
+    "quickdrawDotnet": 149,
+    "gojoDotnet": 5548,
+    "releaseBuild": true,
+    "python": 257
+  },
+  "qualification": "Compact structure document is discussion only. No kernel or model changes. Retired proof histories require regeneration; source acquisitions and current reference archives remain."
+}

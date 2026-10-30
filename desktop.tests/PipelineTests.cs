@@ -22,6 +22,26 @@ public sealed class PipelineTests : IDisposable
         RunFolder: Path.Combine(_root, "runs"));
 
     [Fact]
+    public void ConnectedRefinementUsesSavedDatasetWithBoundedPassesAndSeparateResults()
+    {
+        var plan = Pipeline.Plan(PipelineAction.Refine, Options with { Limit=12, RefinementPasses=8, InspectionOrder="random", InspectionSeed=42 });
+        var args=plan.Arguments.ToList();
+        Assert.Contains("gojo_quickdraw.church_dataset",args);
+        Assert.DoesNotContain("process",args);Assert.DoesNotContain("--input",args);
+        Assert.Equal(Dataset,args[args.IndexOf("--dataset")+1]);
+        Assert.Equal("12",args[args.IndexOf("--limit")+1]);
+        Assert.Equal("8",args[args.IndexOf("--passes")+1]);
+        Assert.Equal("random",args[args.IndexOf("--order")+1]);
+        Assert.StartsWith(Dataset+"-refinements",plan.Artifact);
+        Assert.Throws<ArgumentException>(()=>Pipeline.Plan(PipelineAction.Refine,Options with{Limit=10001}));
+        Assert.Throws<ArgumentException>(()=>Pipeline.Plan(PipelineAction.Refine,Options with{RefinementPasses=0}));
+        var output=Path.Combine(_root,"connected");Directory.CreateDirectory(output);
+        File.WriteAllText(Path.Combine(output,"study.json"),"{}");
+        var open=Pipeline.Plan(PipelineAction.RefineReview,Options with{RefinementOutput=output});
+        Assert.Contains("--review-only",open.Arguments);Assert.DoesNotContain("--dataset",open.Arguments);
+    }
+
+    [Fact]
     public void EncodingSelectsProvidersExplicitlyWithoutTrainingOrChangingTheSourceFolder()
     {
         var model=Path.Combine(_root,"weights with spaces.json");

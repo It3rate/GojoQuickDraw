@@ -80,6 +80,8 @@ def write(folder):
         panels=[]
         earlier=[('Earlier · pass 6',old,6,None),('Earlier · pass 64',old,64,None)] if old['passBudget']>=64 else [
             ('Earlier · initial',old,0,None),('Earlier · final',old,old['passes'],None)]
+        if state['config'].get('baselineKind') == 'saved-studio':
+            earlier=[('Saved Studio areas · reference',old,0,None),('Saved Studio cleanup · reference',old,1,None)]
         for title,result,wanted,scaffold in earlier+[
             ('Proposed families · before settlement',new,0,request['scaffold']),
             ('Added experts · pass 6',new,6,request['scaffold']),('Added experts · final',new,10**6,request['scaffold'])]:
@@ -110,6 +112,9 @@ def write(folder):
     page=PAGE.replace('__DATA__',payload).replace('__COLORS__',json.dumps(COLORS)).replace('__STATUS__',html.escape(state['status']))
     page=page.replace('__TITLE__','Church experts and CAD relations' if state['config'].get('cad') else 'Church experts, connected')
     if state['config'].get('recoverMissing'):page=page.replace('Church experts and CAD relations','Church experts and residual recovery')
+    if state['config'].get('baselineKind') == 'saved-studio':
+        page=page.replace('Same drawings and local models. More authored construction proposals and native error relations.',
+            'Saved Studio shapes beside a new connected refinement. Blank reference panels mean that stage was not saved. References do not guide inference.')
     (folder/'review.html').write_text(page,encoding='utf-8')
     metadata=dict(schema='gojo.church-review-read.v1',rendererSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         calculationAdapterSha256=state['config']['adapterSha256'],

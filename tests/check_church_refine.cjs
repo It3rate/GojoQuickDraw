@@ -33,7 +33,7 @@ let browser;
   }
   if([5,7,9,10,11,14,15].includes(i))await page.screenshot({path:path.join(output,'case-'+(i+1)+'.png'),fullPage:true});
   if(await page.evaluate(i=>(DATA[i].recovery?.decisions||[]).length>0,i)){
-   assert((await page.locator('#recovery').innerText()).includes('recovered'));
+   assert((await page.locator('#recovery').textContent()).includes('recovered'));
    await page.screenshot({path:path.join(output,'recovered-'+(i+1)+'.png'),fullPage:true});
   }
   const captures=await page.evaluate(i=>DATA[i].steps.at(-1).stage.captures?.length||0,i);
