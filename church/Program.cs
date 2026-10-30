@@ -77,9 +77,10 @@ public static class Program
         IReadOnlyDictionary<string,IElement> profiles,JsonElement model,string hash,string arm,string path)
     {
         var mode=request.TryGetProperty("archiveMode",out var selectedMode)?selectedMode.GetString()!:"history";
+        var execution=request.TryGetProperty("executionMode",out var selectedExecution)?selectedExecution.GetString()!:"audit";
         var result=ChurchExperiment.Run(annotation,original,request.GetProperty("scaffold"),request.GetProperty("mapping"),profiles,
             model,hash,arm,request.GetProperty("passes").GetInt32(),request.GetProperty("steps").GetInt32(),request.GetProperty("candidates").GetInt32(),
-            request.TryGetProperty("heuristics",out var hypotheses)?hypotheses:null,mode);
+            request.TryGetProperty("heuristics",out var hypotheses)?hypotheses:null,mode,execution);
         var watch=Stopwatch.StartNew();var bytes=GojoNumericFormat.Encode(result.Surface);
         using(var output=new GZipStream(File.Create(path),mode=="current"?CompressionLevel.Fastest:CompressionLevel.Optimal))output.Write(bytes);
         result.TimingMs.Encode=watch.Elapsed.TotalMilliseconds;result.Archive.NativeBytes=bytes.Length;result.Archive.StoredBytes=new FileInfo(path).Length;

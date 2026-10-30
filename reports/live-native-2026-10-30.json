@@ -1,0 +1,167 @@
+{
+  "upstreamRevision": "7c812793b137008e1894150135c5fc6168bd4c3d",
+  "case": "6226189452574720",
+  "runs": {
+    "final-live-8": {
+      "runtime": "church\\bin\\Debug\\net10.0\\GojoQuickDraw.ChurchStudy.dll",
+      "runtimeSha256": "333680e276acd1ae26dfaefbdb47a6a09d2b217f166fb4df056c2b0868ca916b",
+      "sourceRequest": "D:\\_quickDraw\\data\\studio-refinement-2026-10-30-v2\\inputs\\ffba0ee5aa25752e219d715cc5c041cceae3b66d.json.gz",
+      "sourceRequestSha256": "e3bd7d37d62258c2a787dacb87ece28b65f5a63efc7b8a11674ec356d7f12ef2",
+      "requestedMode": "current",
+      "executionMode": "live",
+      "workerSeconds": 5.601783900056034,
+      "viewBytes": 66181,
+      "sourceSha256": "ffba0ee5aa25752e219d715cc5c041cceae3b66db514798ad16288641e555ca1",
+      "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+      "importMs": 191.3456,
+      "arms": [
+        {
+          "arm": "bidirectional",
+          "archiveBytes": 1240980,
+          "stageSha256": "348a4ba4a4e73a9f8c7a721a0b1f05c51bfeac2ce94deb9f4c9017f0dd526c51",
+          "stageCount": 2,
+          "timingMs": {
+            "localInference": 222.6935,
+            "sceneImport": 340.1219,
+            "nativeSettlement": 4032.2694,
+            "viewRead": 115.6695,
+            "capture": 52.082,
+            "encode": 174.4722,
+            "restore": 275.3137
+          },
+          "archiveMode": "current",
+          "executionMode": "live",
+          "passes": 8,
+          "live": {
+            "workingSceneBuilds": 1,
+            "stableIdentities": true,
+            "machines": 25,
+            "sites": 24,
+            "rules": 151
+          }
+        }
+      ],
+      "scope": "One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics."
+    },
+    "final-live-64": {
+      "runtime": "church\\bin\\Debug\\net10.0\\GojoQuickDraw.ChurchStudy.dll",
+      "runtimeSha256": "333680e276acd1ae26dfaefbdb47a6a09d2b217f166fb4df056c2b0868ca916b",
+      "sourceRequest": "D:\\_quickDraw\\data\\studio-refinement-2026-10-30-v2\\inputs\\ffba0ee5aa25752e219d715cc5c041cceae3b66d.json.gz",
+      "sourceRequestSha256": "e3bd7d37d62258c2a787dacb87ece28b65f5a63efc7b8a11674ec356d7f12ef2",
+      "requestedMode": "current",
+      "executionMode": "live",
+      "workerSeconds": 7.046198100084439,
+      "viewBytes": 66204,
+      "sourceSha256": "ffba0ee5aa25752e219d715cc5c041cceae3b66db514798ad16288641e555ca1",
+      "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+      "importMs": 167.5479,
+      "arms": [
+        {
+          "arm": "bidirectional",
+          "archiveBytes": 1241630,
+          "stageSha256": "debd8602ea8fc47338718f293fc352dc2f0e06d32b5b2afb8f264b4fa0dbea44",
+          "stageCount": 2,
+          "timingMs": {
+            "localInference": 196.4966,
+            "sceneImport": 321.802,
+            "nativeSettlement": 5605.0378,
+            "viewRead": 104.0174,
+            "capture": 49.8744,
+            "encode": 195.0734,
+            "restore": 252.0989
+          },
+          "archiveMode": "current",
+          "executionMode": "live",
+          "passes": 12,
+          "live": {
+            "workingSceneBuilds": 1,
+            "stableIdentities": true,
+            "machines": 25,
+            "sites": 24,
+            "rules": 151
+          }
+        }
+      ],
+      "scope": "One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics."
+    },
+    "final-audit-8": {
+      "runtime": "church\\bin\\Debug\\net10.0\\GojoQuickDraw.ChurchStudy.dll",
+      "runtimeSha256": "333680e276acd1ae26dfaefbdb47a6a09d2b217f166fb4df056c2b0868ca916b",
+      "sourceRequest": "D:\\_quickDraw\\data\\studio-refinement-2026-10-30-v2\\inputs\\ffba0ee5aa25752e219d715cc5c041cceae3b66d.json.gz",
+      "sourceRequestSha256": "e3bd7d37d62258c2a787dacb87ece28b65f5a63efc7b8a11674ec356d7f12ef2",
+      "requestedMode": "current",
+      "executionMode": "audit",
+      "workerSeconds": 7.33580240001902,
+      "viewBytes": 283465,
+      "sourceSha256": "ffba0ee5aa25752e219d715cc5c041cceae3b66db514798ad16288641e555ca1",
+      "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+      "importMs": 170.052,
+      "arms": [
+        {
+          "arm": "bidirectional",
+          "archiveBytes": 1176559,
+          "stageSha256": "d4685cdefacab1f413daf33bba3695f123fb6680feaf097bb174a88acfe11b09",
+          "stageCount": 9,
+          "timingMs": {
+            "localInference": 738.9156,
+            "sceneImport": 1137.4324000000001,
+            "nativeSettlement": 4351.8809,
+            "viewRead": 369.4092,
+            "capture": 57.7404,
+            "encode": 105.8868,
+            "restore": 224.1834
+          },
+          "archiveMode": "current",
+          "executionMode": "audit",
+          "passes": 8,
+          "live": null
+        }
+      ],
+      "scope": "One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics."
+    }
+  },
+  "independentRestore": {
+    "worlds": 1,
+    "currentCheckpoints": 1,
+    "currentEdges": 19,
+    "shapePoints": 41,
+    "errorReads": 151,
+    "actuatorOutcomes": 60,
+    "recoveryWitnesses": 0,
+    "recoveryIntervals": 0,
+    "maxDifference": 0,
+    "qualification": "Read-only comparison of restored native graphs, executable shape outputs and error intervals against review projections. Retained receiver accounting is checked exactly, including latest responses in live checkpoints. Omitted earlier provenance and receipts cannot be audited. No accuracy judgment."
+  },
+  "browser": {
+    "drawings": 1,
+    "panels": 5,
+    "errors": [],
+    "network": []
+  },
+  "desktop": {
+    "success": true,
+    "errors": [],
+    "dataset": "D:/_quickDraw/data/church-recovery-2026-10-29-v1/studio-pilot",
+    "total": 1,
+    "firstPageRecords": 1,
+    "lastPageRecords": 1,
+    "pageText": "Page 1 of 1 \u00b7 1 drawings on this page",
+    "existingInspectorAvailable": false,
+    "startupRequiredManualLoad": false,
+    "viewerWorksWithoutPythonOrGojo": true,
+    "nativeGalleryCards": 1,
+    "resultViewPreserved": true,
+    "recognitionCounts": {}
+  },
+  "tests": {
+    "gojo": 5556,
+    "quickdraw": 173,
+    "python": 258
+  },
+  "limits": [
+    "Initial source proposals and classification remain authored host/model inference.",
+    "Live topology and construction choices stay fixed after admission.",
+    "Current checkpoint restores native local machines and laws, not the whole scene scheduler/publication bridge.",
+    "Timings are individual observations; adaptive and live paths do different inference work."
+  ]
+}

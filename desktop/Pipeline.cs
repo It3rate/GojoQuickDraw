@@ -50,8 +50,8 @@ public static class Pipeline
                 break;
             case PipelineAction.Refine:
                 if (!Directory.Exists(options.Dataset)) throw new ArgumentException("Open a generated dataset first.");
-                if (options.Limit > 10000 || options.RefinementPasses is < 1 or > 16)
-                    throw new ArgumentException("Choose 1..10000 churches and 1..16 connected passes.");
+                if (options.Limit > 10000 || options.RefinementPasses is < 1 or > 64)
+                    throw new ArgumentException("Choose 1..10000 churches and 1..64 connected passes.");
                 var refinementOutput = string.IsNullOrWhiteSpace(options.RefinementOutput)
                     ? Path.GetFullPath(options.Dataset).TrimEnd(Path.DirectorySeparatorChar) + "-refinements/connected-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")
                     : Path.GetFullPath(options.RefinementOutput);
@@ -59,6 +59,7 @@ public static class Pipeline
                     "--dataset", Path.GetFullPath(options.Dataset), "--output", refinementOutput,
                     "--limit", options.Limit.ToString(), "--passes", options.RefinementPasses.ToString(),
                     "--archive-mode", options.RefinementHistory ? "history" : "current",
+                    "--execution-mode", options.RefinementHistory ? "audit" : "live",
                     "--order", options.InspectionOrder, "--seed", options.InspectionSeed.ToString(CultureInfo.InvariantCulture)];
                 artifact = Path.Combine(refinementOutput, "review.html");
                 break;

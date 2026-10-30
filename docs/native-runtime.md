@@ -68,7 +68,7 @@ decompressed format and also opens older `.gojo.json.gz` archives. Existing
 datasets are not rewritten; a dataset can contain both formats through its
 recorded artifact paths.
 
-**Connected church refinement** defaults to a current-state native checkpoint.
+**Connected church refinement** defaults to live execution and a current-state native checkpoint.
 It retains:
 
 * Executable machine definitions, live carriers and their remaining tension.
@@ -76,27 +76,63 @@ It retains:
 * Current part geometry, derived wall constructions and error laws.
 * Fitted source geometry, imported source profiles and current interval links.
 * Explicit open origins for inferred closure segments.
-* Small visual observations of every executed pass.
+* Initial and final visual observations (every executed pass in audit mode).
 
 It omits the full proposal history, discarded intervals, old import routes and
-individual response receipts. Missing history is represented by open structure
+older response receipts. Live checkpoints retain each machine's latest native
+accounting and actual capacity/actuator references, with open slots marking
+omitted request derivations and preview traces. Audit/current checkpoints omit
+those receipts too.
+Missing history is represented by open structure
 and documented by the checkpoint's loss contract. This is not a complete replay
 or a resumption of the adaptive topology/capture controller. Restored machines
 can execute and answer fresh local numeric requests; their current error laws
-can be reevaluated.
+can be reevaluated. The current checkpoint does not recreate the whole live scene
+scheduler or its graph-publication bridge. The running live world and the
+selected saved checkpoint are different structural reads.
 
-The **Keep full proof history** checkbox retains the earlier audit behavior.
-CLI callers can choose `--archive-mode current` or `--archive-mode history`.
+The **Inspection mode: adaptive passes and full history** checkbox retains the
+earlier audit behavior. CLI callers choose execution independently from storage:
+`--execution-mode live --archive-mode current` is the default;
+`--execution-mode audit --archive-mode history` keeps the earlier full audit.
+Audit execution can also save only a current checkpoint. Live execution rejects
+history storage rather than pretending to retain a history it did not collect.
 Changing the storage mode requires a new result folder, just like changing the
 processing version. Source datasets are unaffected.
 
-## What is still expensive
+## One native working world
 
-The connected loop still creates a new native scene each outer pass and imports
-previous published values. Its live ancestry is not yet bounded, even when the
-saved checkpoint is small. The response machinery also creates native preview
-graphs and witnesses. These are real native calculations with implementation
-overhead; smaller archives do not eliminate them.
+The live path imports the source and admits local joint repairs, shape machines
+and supported connections once. It then keeps the same native world, machine
+definitions, actuator carriers, exposed ports, graph sites and error relations.
+Repeated steps introduce signed tension through the existing native response
+mechanism. They do not build another scene or serialize/parse JSON.
+
+Working graph sites own mutable tick references distinct from acquired sites.
+An explicit publication maps accepted machine displacement into these sites;
+reading alone does not move them. Current receipts and unresolved strain remain
+available. Old round witnesses are released. A reusable, isolated native preview
+workspace avoids cloning each eligible machine on every response; it is derived
+from the native definition and invalidated when its dependencies change.
+
+This first live path **holds topology and admitted construction choices fixed**.
+It does not repeatedly run the classifiers, merge more joints, or capture/release
+different machines mid-run. Numeric symmetry, clearance, mapping, source anchor
+and other admitted error laws still negotiate through their connected ports.
+Trend memory persists across steps. The audit path continues to rebuild scenes,
+reset its pass-local memory and explore adaptive construction replacements.
+Their final images therefore need not be identical.
+
+Only the initial and final images are read out. The final executable checkpoint
+is encoded once and independently restored. Its smaller representation is an
+export of the live world, not the representation used to shuttle each iteration.
+
+History-free execution is not allocation-free execution. Native equations still
+create transient reads, acceptance witnesses and local response calculations.
+That cost remains measurable; this change does not assert that arbitrary Gojo
+settlement is cheap, nor that the source recognition heuristics are now native.
+
+## Other measured costs
 
 This change additionally compiles the frozen logistic provider into numeric
 lookup tables once, preserving the exact accumulation order. It removes a
@@ -109,19 +145,18 @@ The review's collapsed **Processing and saved native state** section exposes
 these measurements and the actual native archive. Python run metadata records
 proposal preparation, build, worker and review time separately.
 
-## The next runtime step
+## Following runtime work
 
 The useful direction is a persistent native working world with compact,
 indexed execution tables derived from its relations. Arithmetic and finite
 resolution are already available; a new bit vocabulary is not required first.
 
-1. Keep the same machines alive across numeric passes; replace only the
-   constructions affected by accepted topology changes.
+1. Extend the live path with explicit local construction replacement and port
+   remapping, rather than returning to whole-scene rebuilding.
 2. Cache immutable read plans and invalidate only dependencies touched by
    accepted carrier changes.
-3. Make transient witnesses and optional audit retention explicit policies.
-   Preserve blocked participation, residue and active uncertainty in the live
-   world even when chronological explanation is omitted.
+3. Further reduce transient witness allocation while preserving current blocked
+   participation, residue and active uncertainty.
 4. Compile repeated relation expressions into indexed operations while keeping
    a correspondence back to native carriers, ordered relations and ports.
 5. Move proposal mechanisms into native structures incrementally, testing
@@ -132,4 +167,6 @@ execution, and more native conceptual inference. Improving one does not
 automatically establish the others.
 
 See the [measured verification report](../reports/native-runtime-2026-10-30.md)
-for the controlled comparisons and their limits.
+for the earlier archive comparisons, and the
+[live execution report](../reports/live-native-2026-10-30.md) for the persistent
+world checks, timings and remaining limits.

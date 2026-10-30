@@ -10,8 +10,10 @@ To run the newer connected experiment on an existing folder:
 1. Open the dataset and select its category folder and inspection order.
 2. Under the gallery, expand **Connected church refinement — compare the newer method**.
 3. Choose the maximum church count (default 12) and settlement passes (default 8).
-4. Leave **Keep full proof history** unchecked for a current native checkpoint
-   and all visual passes. Check it only when complete historical audit is useful.
+4. Leave **Inspection mode: adaptive passes and full history** unchecked to
+   build one native world and settle it in place, saving current state and the
+   initial/final images. Check it for adaptive construction changes and the
+   complete historical inspection path.
 5. Click **Run connected refinement**, then **Open comparison**.
 
 The result folder is separate from the source. A blank result field creates a
@@ -34,8 +36,12 @@ The runtime consumes saved fitted source intervals, so it does not reparse the
 raw QuickDraw corpus. It rebuilds current source-based proposals, compiles the
 same connected/CAD/recovery relations used in the latest church comparison,
 and runs the frozen local neighborhood providers. No training occurs here.
-The default is eight outer passes with two local response rounds per pass,
-48 local candidates, and the retained neighborhood-closure provider bundle.
+The default is eight passes with two native response rounds per pass, up to 64
+passes. Live mode admits up to 48 local candidates once and then holds topology
+and captured construction choices fixed while the same carriers and relations
+settle. The retained neighborhood-closure provider bundle supplies initial
+opinions; it is not rerun each numeric pass. Inspection mode retains the earlier
+repeated inference and adaptive capture/release behavior.
 
 Saved Studio area and cleanup panels are **comparison only**. They never enter
 the native source packet or supply final settlement target coordinates. If a
@@ -49,7 +55,8 @@ and provider before resume can reuse them.
 The default checkpoint retains executable current machines, shared bindings,
 source intervals and current error laws. It omits old proposal/response history
 and does not resume the adaptive topology controller. Fresh local numeric
-requests still execute on restored machines. Visual passes remain inspectable.
+requests still execute on restored machines. Initial/final images remain
+inspectable; intermediate passes are retained only in inspection mode.
 The optional full history is much larger. Separate timings and the native
 archive are available under **Processing and saved native state** in the review.
 See [the runtime explanation](native-runtime.md) for the native calculation boundary.
@@ -65,7 +72,12 @@ CLI equivalent:
 python -m gojo_quickdraw.church_dataset --dataset D:/_quickDraw/data/church3000 --output D:/_quickDraw/data/church3000-connected --limit 12 --passes 8
 ```
 
-The one-drawing integration pilot at
+For the earlier adaptive inspection path, add
+`--execution-mode audit --archive-mode history`. For adaptive execution with
+only a final native checkpoint and visual pass observations, use
+`--execution-mode audit --archive-mode current`.
+
+The earlier audit-path integration pilot at
 `D:/_quickDraw/data/studio-refinement-2026-10-30-v2` reused the existing saved
 sample `6226189452574720`. All nine connected saved stages were exactly equal
 to that acquisition's previous residual-recovery study stages. Source/model

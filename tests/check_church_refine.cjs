@@ -12,7 +12,9 @@ let browser;
  assert.equal(await page.locator('#ink').isChecked(),false,'Green working ink should be optional');
  let panels=0;
  for(let i=0;i<count;i++){
-  await page.selectOption('#drawing',String(i));assert.equal(await page.locator('.panel').count(),6);
+  await page.selectOption('#drawing',String(i));
+  const expectedPanels=await page.evaluate(i=>DATA[i].runtime?.executionMode==='live'?5:6,i);
+  assert.equal(await page.locator('.panel').count(),expectedPanels);
   const frames=await page.locator('.panel svg').evaluateAll(rows=>rows.map(r=>r.getAttribute('viewBox')));assert.equal(new Set(frames).size,1);
   assert.equal(await page.locator('.working').count(),0);await page.check('#ink');
   await page.waitForFunction(()=>document.querySelectorAll('.working').length>0);
@@ -24,7 +26,10 @@ let browser;
   const stages=await page.locator('#pass option').evaluateAll(o=>o.map(e=>e.value));
   for(const stage of stages){await page.selectOption('#pass',stage);assert((await page.locator('.caption').last().innerText()).includes('Pass '+stage))}
   await page.selectOption('#pass',stages.at(-1));
-  await page.uncheck('#ink');await page.uncheck('#unknown');await page.uncheck('#missing');await page.uncheck('#joints');panels+=6;
+  await page.locator('h1').click();await page.keyboard.press('ArrowUp');
+  assert.equal(await page.locator('#pass').inputValue(),stages.at(-2)||stages[0]);
+  await page.keyboard.press('ArrowDown');assert.equal(await page.locator('#pass').inputValue(),stages.at(-1));
+  await page.uncheck('#ink');await page.uncheck('#unknown');await page.uncheck('#missing');await page.uncheck('#joints');panels+=expectedPanels;
   if(await page.evaluate(i=>(DATA[i].cadGuides||[]).length>0,i)){
    await page.check('#guides');await page.waitForFunction(()=>document.querySelectorAll('.alignment-guide').length>0);
    assert(!(await page.locator('#panels').innerHTML()).includes('NaN'));

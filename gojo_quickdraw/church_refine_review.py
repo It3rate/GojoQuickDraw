@@ -82,9 +82,12 @@ def write(folder):
             ('Earlier · initial',old,0,None),('Earlier · final',old,old['passes'],None)]
         if state['config'].get('baselineKind') == 'saved-studio':
             earlier=[('Saved Studio areas · reference',old,0,None),('Saved Studio cleanup · reference',old,1,None)]
-        for title,result,wanted,scaffold in earlier+[
-            ('Proposed families · before settlement',new,0,request['scaffold']),
-            ('Added experts · pass 6',new,6,request['scaffold']),('Added experts · final',new,10**6,request['scaffold'])]:
+        is_live=new.get('executionMode')=='live'
+        current=[('Proposed families · before settlement',new,0,request['scaffold'])]
+        if not is_live:
+            current.append(('Added experts · pass 6',new,6,request['scaffold']))
+        current.append(('Native live world · final' if is_live else 'Added experts · final',new,10**6,request['scaffold']))
+        for title,result,wanted,scaffold in earlier+current:
             stage=min(result['stages'],key=lambda s:abs(s['pass']-wanted)) if wanted<10**6 else result['stages'][-1]
             diagnostic=coverage(request['packet']['observation'],scaffold,stage) if scaffold else dict(unknown=[],missing=[])
             panels.append(dict(title=title,stage=stage,**diagnostic))
@@ -92,7 +95,9 @@ def write(folder):
         label='Connected constructions' if state['config'].get('connections') else 'Added experts'
         if state['config'].get('cad'):label='CAD relations'
         if state['config'].get('recoverMissing'):label='Residual recovery'
-        if state['config'].get('connections'):
+        if is_live:
+            label='Native live world'
+        elif state['config'].get('connections'):
             panels[3]['title']=label+' · pass 6'
             panels[4]['title']=label+' · final'
         steps=[dict(title=label+' · selected pass',stage=stage,
@@ -101,7 +106,8 @@ def write(folder):
             for part in panel['stage']['parts']:
                 part['fillIndices']=boundary_fill(part)
         rows.append(dict(id=ident,keyId=view['keyId'],source=view['source'],panels=panels,
-                         runtime=dict(archiveMode=new.get('archiveMode','history'),
+                         runtime=dict(archiveMode=new.get('archiveMode','history'),executionMode=new.get('executionMode','audit'),
+                             qualification=new.get('qualification'),live=new.get('live'),
                              timingMs={'sourceImport':view['importMs'], **new.get('timingMs',{})}
                                  if 'importMs' in view else new.get('timingMs',{}),
                              lossContract=new.get('lossContract'),
@@ -121,6 +127,11 @@ def write(folder):
     if state['config'].get('baselineKind') == 'saved-studio':
         page=page.replace('Same drawings and local models. More authored construction proposals and native error relations.',
             'Saved Studio shapes beside a new connected refinement. Blank reference panels mean that stage was not saved. References do not guide inference.')
+    if state['config'].get('executionMode')=='live':
+        page=page.replace('Church experts and residual recovery','One native world · live settlement')
+        page=page.replace('New pass <select','Saved view <select')
+        page=page.replace('strong opposing requests can release it on a later pass.',
+            'this live run keeps the admitted construction fixed. Adaptive release remains available in inspection mode.')
     (folder/'review.html').write_text(page,encoding='utf-8')
     metadata=dict(schema='gojo.church-review-read.v1',rendererSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         calculationAdapterSha256=state['config']['adapterSha256'],
@@ -189,10 +200,10 @@ function render(){if(!DATA.length){$('facts').textContent='Waiting for the first
  $('recovery').innerHTML=(row.recovery?.decisions||[]).map(c=>`<p>${esc(c.kind+' recovered · '+c.spans.length+' source profiles · '+c.parts.join(' / '))}<br>${esc(c.basis)}<br>Source support is retained; inferred joins and ideal boundaries are proposals.</p>`).join('');
  const end=chosen.stage.errors;const start=row.panels[2].stage.errors;const layers=[...new Set(end.map(e=>e.layer))];const mean=(rows,key)=>{const x=rows.filter(e=>e.layer===key);return x.length?x.reduce((a,b)=>a+b.demand,0)/x.length:0};
  $('errors').innerHTML='<table><tr><th>Relationship</th><th>Before</th><th>After</th></tr>'+layers.map(l=>`<tr><td>${esc(l)}</td><td>${mean(start,l).toFixed(3)}</td><td>${mean(end,l).toFixed(3)}</td></tr>`).join('')+'</table>';
- const rt=row.runtime, compact=rt.archiveMode==='current';
- $('runtime').innerHTML=`<p>${compact?'Current executable Gojo state. Keeps active machines, shared connections and error relations. Full proposal and response history is omitted; this is not an exact continuation of the adaptive controller.':'Full native audit history, including prior worlds and response witnesses.'} Visual passes remain available above.</p>`+
+ const rt=row.runtime, compact=rt.archiveMode==='current', live=rt.executionMode==='live';
+ $('runtime').innerHTML=`<p>${live?'One mutable native world. Initial admission chooses connections; the same carriers, machines and ports settle repeatedly. Construction choices stay fixed. Only initial and final views are saved.':compact?'Current executable Gojo state. Keeps active machines, shared connections and error relations. Full proposal and response history is omitted; this is not an exact continuation of the adaptive controller. Visual passes remain available above.':'Full native audit history, including prior worlds and response witnesses. Visual passes remain available above.'}</p>`+
  (rt.archiveBytes===null?'<p>Native archive unavailable.</p>':`<p><a href="drawings/${encodeURIComponent(row.id)}/bidirectional.gojo.bin.gz">Native ${compact?'checkpoint':'history'}</a> · ${(rt.archiveBytes/1048576).toFixed(2)} MiB</p>`)+
  (Object.keys(rt.timingMs).length?'<table><tr><th>Work</th><th>Seconds</th></tr>'+Object.entries(rt.timingMs).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${(v/1000).toFixed(3)}</td></tr>`).join('')+'</table>':'<p>Separate timings were not recorded in this older run.</p>');
 }
-DATA.forEach((r,i)=>$('drawing').add(new Option(`${i+1}. church · ${r.keyId}`,i)));$('drawing').onchange=()=>choose(+$('drawing').value);$('prev').onclick=()=>choose(index-1);$('next').onclick=()=>choose(index+1);$('pass').onchange=()=>{selectedPass=+$('pass').value;render()};['ink','unknown','missing','joints','guides'].forEach(id=>$(id).onchange=render);document.onkeydown=e=>{if(e.target.matches('input,select,textarea'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();choose(index+(e.key==='ArrowLeft'?-1:1))}if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();selectedPass=Math.max(0,Math.min(DATA[index].steps.at(-1).stage.pass,+$('pass').value+(e.key==='ArrowUp'?-1:1)));render()}};window.onhashchange=()=>{index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render()};index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render();
+DATA.forEach((r,i)=>$('drawing').add(new Option(`${i+1}. church · ${r.keyId}`,i)));$('drawing').onchange=()=>choose(+$('drawing').value);$('prev').onclick=()=>choose(index-1);$('next').onclick=()=>choose(index+1);$('pass').onchange=()=>{selectedPass=+$('pass').value;render()};['ink','unknown','missing','joints','guides'].forEach(id=>$(id).onchange=render);document.onkeydown=e=>{if(e.target.matches('input,select,textarea'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();choose(index+(e.key==='ArrowLeft'?-1:1))}if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();const steps=DATA[index].steps;const at=steps.findIndex(s=>s.stage.pass===+$('pass').value);selectedPass=steps[Math.max(0,Math.min(steps.length-1,at+(e.key==='ArrowUp'?-1:1)))].stage.pass;render()}};window.onhashchange=()=>{index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render()};index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render();
 </script></html>'''

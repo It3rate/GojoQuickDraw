@@ -36,10 +36,15 @@ public static class ChurchExperiment
     public sealed record Result(Relation Surface,object View,Timings TimingMs,ArchiveStats Archive);
 
     public static Result Run(Relation observation,Graph original,JsonElement layout,JsonElement mapping,IReadOnlyDictionary<string,IElement> profiles,
-        JsonElement model,string modelHash,string arm,int passes=6,int steps=2,int candidates=96,JsonElement? hypotheses=null,string archiveMode="history")
+        JsonElement model,string modelHash,string arm,int passes=6,int steps=2,int candidates=96,JsonElement? hypotheses=null,string archiveMode="history",string executionMode="audit")
     {
-        if(!Arms.Contains(arm)||passes is <1 or >MaximumPasses||steps is <1 or >8||candidates is <1 or >256||archiveMode is not ("history" or "current"))
+        if(!Arms.Contains(arm)||passes is <1 or >MaximumPasses||steps is <1 or >8||candidates is <1 or >256||archiveMode is not ("history" or "current")||executionMode is not ("audit" or "live"))
             throw new ArgumentException("Choose a declared arm and bounded church experiment budgets.");
+        if(executionMode=="live")
+        {
+            if(archiveMode!="current"||arm=="local-models")throw new ArgumentException("Live numeric settlement requires a shape arm and current-state storage; choose audit for adaptive rewrites or history.");
+            return ChurchLiveExperiment.Run(observation,original,layout,mapping,profiles,model,modelHash,arm,passes,steps,candidates,hypotheses);
+        }
         var timing=new Timings();var archive=new ArchiveStats();var watch=Stopwatch.StartNew();
         var graph=original;var sourceOrder=original.Edges.Select(e=>e.Source).ToArray();
         var shapes=arm!="local-models";var moveShapes=arm is "shapes-only" or "bidirectional";var moveInk=arm!="shapes-only";
@@ -117,12 +122,12 @@ public static class ChurchExperiment
             G(observation,original.Surface,G(native.ToArray()),graph.Surface,G(Relation.Segment(axis,0,passes),new CarrierLocation(axis,native.Count)));
         if(archiveMode=="history")Validate(root);
         timing.Capture+=watch.Elapsed.TotalMilliseconds;
-        return new(root,new{arm,stages,accepted=applied,moved=totalMoved,passes=executed,passBudget=passes,archiveMode,
+        return new(root,new{arm,stages,accepted=applied,moved=totalMoved,passes=executed,passBudget=passes,archiveMode,executionMode,
             lossContract=archiveMode=="current"?ChurchCheckpoint.LossContract:"Complete retained run and native history.",timingMs=timing,archive,
             stopReason=quiet>=2||arm=="local-models"&&stages[^1].Applied==0?"quiet under selected laws":"budget reached; remaining strain is retained",
             qualification=hypotheses.HasValue?"Source-local learned repair/line/closure opinions plus existing authored church family, support, symmetry, repetition and clearance experts compiled into native port errors. Source-seeded parameters settle; the old final rendering is not a coordinate target. Repeated opinions are not independent observations.":"Source-local learned repair, line and closure opinions; authored source-supported shape constructions and affine error responses. No final church rendering or labels enter inference. This is bounded local topology rewriting coupled with native carrier tension, not a trained church recognizer or a general settlement law."},timing,archive);
     }
-    private static Stage ProjectStage(int pass,Graph graph,ChurchScene scene,ChurchSettlement.ErrorView[] errors,int applied,int moved,object[] transfers,IElement[] sourceOrder,bool includeShapes=true)
+    internal static Stage ProjectStage(int pass,Graph graph,ChurchScene scene,ChurchSettlement.ErrorView[] errors,int applied,int moved,object[] transfers,IElement[] sourceOrder,bool includeShapes=true)
         =>new(pass,Project(graph,sourceOrder),includeShapes?scene.Parts.Select(p=>(object)new{p.Id,p.Role,p.Prior,points=scene.Points(p),segments=p.Seed.TryGetProperty("shape",out var shape)&&shape.GetString()=="frame"?Array.Empty<int[]>():p.Segments,bounds=scene.Bounds(p)}).Concat(scene.DerivedParts).ToArray():[],
             includeShapes?errors:[],applied,moved,transfers,graph.Edges.Count(e=>!NeighborhoodClosure.IsInferred(e.Source)),graph.Edges.Count(e=>NeighborhoodClosure.IsInferred(e.Source)),Components(graph),Cycles(graph),
             graph.Edges.Where(e=>!NeighborhoodClosure.IsInferred(e.Source)).Sum(e=>{e.Span.TryReadSegment(out _,out var a,out var b);return Math.Abs(b.Ticks-a.Ticks)/(double)PatchEvidence.Q;})/Math.Max(1,sourceOrder.Length),scene.CaptureViews);

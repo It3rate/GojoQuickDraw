@@ -29,21 +29,29 @@ public sealed class ChurchScene
     public object[] DerivedParts {get;private set;}=[];
     public object[]? CaptureViews {get;set;}
     private readonly Dictionary<Relation,double[]> initialSiteSamples=new(ReferenceEqualityComparer.Instance);
+    private readonly ChurchLiveGraph? liveGraph;
+    private Relation? liveRoot;
+    private Relation? derivedSurface;
+    private bool recoveryAttached;
+    public bool IsLive {get;}
+    public Relation? CurrentGraphPublication => liveGraph?.CurrentPublication;
     public readonly Graph Source;
     private readonly bool moveInk;
     public Graph Graph { get; private set; }
-    public Relation Root => G(Source.Surface, Graph.Surface, G(Machines.Select(m => (IElement)m.Surface).ToArray()),
+    public Relation Root => liveRoot ?? BuildRoot();
+    private Relation BuildRoot() => G(Source.Surface, Graph.Surface, G(Machines.Select(m => (IElement)(IsLive?m.LiveSurface:m.Surface)).ToArray()),
         G(Parts.Select(p => (IElement)(p.Machine.Ports.Count>8?
-            G(p.Machine.Surface,p.Geometry,G(Left(p),Top(p),Right(p),Bottom(p))):G(p.Machine.Surface, p.Geometry))).ToArray()),
+            G(IsLive?p.Machine.LiveSurface:p.Machine.Surface,p.Geometry,G(Left(p),Top(p),Right(p),Bottom(p))):G(IsLive?p.Machine.LiveSurface:p.Machine.Surface, p.Geometry))).ToArray()),
         G(Rules.Select(r => (IElement)r.Error.Surface).ToArray()),
         G(Correspondence.Select(p => (IElement)new Relation(p.Key, p.Value)).ToArray()),
-        G(G(ProfileIds.Values.ToArray()),G(Imports.Cast<IElement>().ToArray())));
+        G(G(ProfileIds.Values.ToArray()),G(Imports.Where(i=>!IsLive||!ReferenceEquals(i,derivedSurface)).Cast<IElement>().ToArray())));
 
     public ChurchScene(Graph source, Graph current, JsonElement layout, bool feedback, bool shapes,
         IReadOnlyDictionary<string,Part>? previousParts = null, bool moveInk = true, JsonElement? hypotheses = null,
-        ChurchCaptureController? capture=null,int pass=0)
+        ChurchCaptureController? capture=null,int pass=0,bool live=false)
     {
-        this.moveInk=moveInk;
+        this.moveInk=moveInk;IsLive=live;
+        if(live){liveGraph=new ChurchLiveGraph(current);current=liveGraph.Graph;}
         Source = source; Graph = current;
         foreach (var site in current.Sites)
         {
@@ -71,6 +79,7 @@ public sealed class ChurchScene
             for (var k = 0; k < 2; k++) Add("Ink displacement allowance", "source", Coordinate(anchor[k]) - 24, Coordinate(anchor[k]) + 24,
                 2, site, (machine.Port(0, k), 1));
         }
+        if(liveGraph is not null){liveGraph.Bind(Sites);Imports.Add(liveGraph.Surface);}
         if (!shapes) return;
         foreach (var item in layout.GetProperty("parts").EnumerateArray())
         {
@@ -82,12 +91,12 @@ public sealed class ChurchScene
             var lines = geometry.GetProperty("segments").Deserialize<int[][]>()!;
             var normalized = points.Select(p => new[] { (p[0]-bounds[0])/(bounds[2]-bounds[0]), (p[1]-bounds[1])/(bounds[3]-bounds[1]) }).ToArray();
             var previous=previousParts is not null&&previousParts.TryGetValue(item.GetProperty("id").GetString()!,out var retained)?retained:null;
-            var live=previous is null?bounds:Bounds(previous);
-            var x = NativeProgram.Parameter(Coordinate(live[0])); var y = NativeProgram.Parameter(Coordinate(live[1]));
-            var width = NativeProgram.Parameter(Math.Max(4, Tick(live[2]-live[0])));
-            var height = NativeProgram.Parameter(Math.Max(4, Tick(live[3]-live[1])));
+            var initial=previous is null?bounds:Bounds(previous);
+            var x = NativeProgram.Parameter(Coordinate(initial[0])); var y = NativeProgram.Parameter(Coordinate(initial[1]));
+            var width = NativeProgram.Parameter(Math.Max(4, Tick(initial[2]-initial[0])));
+            var height = NativeProgram.Parameter(Math.Max(4, Tick(initial[3]-initial[1])));
             var origin = Space.Plus(Space.Times(Space.Point(1, 0), x.ValueSlot, x), Space.Times(Space.Point(0, 1), y.ValueSlot, y));
-            var machine = new NegotiatingMachine(Space.Offsets(origin, width, height));
+            var machine = new NegotiatingMachine(Space.Offsets(origin, width, height),retainHistory:!IsLive);
             machine.AddResponse(machine.Port(0, 0), x, responseD: 4, max: Capacity, maxStep: feedback ? 8 : 0);
             machine.AddResponse(machine.Port(0, 1), y, responseD: 4, max: Capacity, maxStep: feedback ? 8 : 0);
             machine.AddResponse(machine.Port(1, 0), width, responseD: 4, min: hypotheses.HasValue?4:Math.Max(4, (long)width.Value / 2), max: Capacity, maxStep: feedback ? 8 : 0);
@@ -151,6 +160,17 @@ public sealed class ChurchScene
         else LinkParts();
     }
 
+    /// <summary>Finish one-time topology/construction admission. Numeric passes
+    /// retain this working relation, its parameters and its exposed ports.</summary>
+    public Relation SealLive()
+    {
+        if(!IsLive)throw new InvalidOperationException("Only a live scene can seal its working surface.");
+        return liveRoot ??= BuildRoot();
+    }
+    private void RequireSetup()
+    {
+        if(liveRoot is not null)throw new InvalidOperationException("Live topology is admitted once. Start a new admission to change its constructions or laws.");
+    }
     public static long Tick(double value) => checked((long)Math.Round(value * Scale));
     public static long Coordinate(double value) => checked(Tick(value)+Offset);
     private static long Quant(double value) => checked((long)Math.Round(value * 1024));
@@ -160,6 +180,7 @@ public sealed class ChurchScene
     public static Relation Bottom(Part p) => p.Machine.Port(p.OutputOffset+3, 1);
     public void ReplaceParts(IReadOnlyList<Part> next,NegotiatingMachine host,Dictionary<Relation,Relation> ports,Relation witness)
     {
+        RequireSetup();
         var retired=Parts.Select(p=>p.Machine).ToHashSet(ReferenceEqualityComparer.Instance);
         Machines.RemoveAll(m=>retired.Contains(m));Machines.Add(host);Parts.Clear();Parts.AddRange(next);Imports.Add(witness);
         for(var i=0;i<Rules.Count;i++)
@@ -187,13 +208,14 @@ public sealed class ChurchScene
         var y = NativeProgram.Parameter(Coordinate(xy[1]));
         var output = Space.Plus(Space.Times(Space.Point(1, 0), x.ValueSlot, x), Space.Times(Space.Point(0, 1), y.ValueSlot, y));
         var definition = TransformSurface.Create(new Carrier(), G(x, y), G(output), G(new Placeholder()), G(), G(Space.Basis));
-        var machine = new NegotiatingMachine(definition);
+        var machine = new NegotiatingMachine(definition,retainHistory:!IsLive);
         machine.AddResponse(machine.Port(0, 0), x, responseD: 4, max: Capacity, maxStep: moveInk?8:0);
         machine.AddResponse(machine.Port(0, 1), y, responseD: 4, max: Capacity, maxStep: moveInk?8:0);
         return machine;
     }
     public void Add(string name, string layer, long lower, long upper, long influence, IElement support, params (Relation Port, long Coefficient)[] inputs)
     {
+        RequireSetup();
         // Pure authored setup. The retained native interval, affine terms,
         // response shares and influence own subsequent calculation.
         var combined = inputs.GroupBy(x => x.Port, (IEqualityComparer<Relation>)ReferenceEqualityComparer.Instance)
@@ -300,6 +322,7 @@ public sealed class ChurchScene
     public Dictionary<string,IElement> ProfileIds { get; } = new();
     public void BindProfiles(IReadOnlyDictionary<string,IElement> bindings)
     {
+        RequireSetup();
         // Native annotation profiles can include degenerate taps which the
         // active graph omits. Binding through a filtered edge ordinal would
         // shift every later association. Only actual imported witnesses bind.
@@ -310,8 +333,14 @@ public sealed class ChurchScene
     public void AddMappings(JsonElement mapping) => MapInk(mapping);
     public void PrepareDerived(JsonElement plan)
     {
-        ChurchRecovery.Attach(this,plan);
-        var result=ChurchPartitions.Build(this,plan);DerivedParts=result.Views;Imports.Add(result.Surface);
+        if(!IsLive||!recoveryAttached){ChurchRecovery.Attach(this,plan);recoveryAttached=true;}
+        var result=ChurchPartitions.Build(this,plan);DerivedParts=result.Views;
+        if(IsLive&&derivedSurface is not null)
+        {
+            var previous=Imports.FindIndex(i=>ReferenceEquals(i,derivedSurface));
+            if(previous>=0)Imports.RemoveAt(previous);
+        }
+        Imports.Add(result.Surface);derivedSurface=result.Surface;
     }
     public void AddLineRules(JsonElement bundle)
     {
@@ -329,6 +358,7 @@ public sealed class ChurchScene
     }
     public Graph PublishGraph(IElement occasion)
     {
+        if(liveGraph is not null){Graph=liveGraph.Publish();return Graph;}
         var replacements=new Dictionary<Relation,Relation>(ReferenceEqualityComparer.Instance);
         foreach(var (old,machine) in Sites)
         {

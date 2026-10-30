@@ -8,7 +8,7 @@ import subprocess
 from time import perf_counter
 
 
-def run(runtime, source, output, mode):
+def run(runtime, source, output, mode, execution='audit', passes=None):
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=True)
     if any(output.iterdir()):
@@ -17,6 +17,9 @@ def run(runtime, source, output, mode):
     with gzip.open(source, 'rt', encoding='utf-8') if source.suffix == '.gz' else source.open(encoding='utf-8') as stream:
         request = json.load(stream)
     request['archiveMode'] = mode
+    request['executionMode'] = execution
+    if passes is not None:
+        request['passes'] = passes
     packet = json.dumps(request, separators=(',', ':'), allow_nan=False)
     input_path = output/'request.ndjson'
     input_path.write_text(packet+'\n', encoding='utf-8')
@@ -35,10 +38,11 @@ def run(runtime, source, output, mode):
         path = folder/(arm['arm']+'.gojo.bin.gz')
         arms.append(dict(arm=arm['arm'], archiveBytes=path.stat().st_size,
             stageSha256=hashlib.sha256(json.dumps(arm['stages'], sort_keys=True, separators=(',', ':')).encode()).hexdigest(),
-            stageCount=len(arm['stages']), timingMs=arm.get('timingMs'), archiveMode=arm.get('archiveMode', 'history')))
+            stageCount=len(arm['stages']), timingMs=arm.get('timingMs'), archiveMode=arm.get('archiveMode', 'history'),
+            executionMode=arm.get('executionMode', 'audit'), passes=arm['passes'], live=arm.get('live')))
     report = dict(runtime=str(runtime), runtimeSha256=hashlib.sha256(Path(runtime).read_bytes()).hexdigest(),
         sourceRequest=str(source.resolve()), sourceRequestSha256=hashlib.sha256(source.read_bytes()).hexdigest(),
-        requestedMode=mode, workerSeconds=elapsed, viewBytes=(folder/'view.json').stat().st_size,
+        requestedMode=mode, executionMode=execution, workerSeconds=elapsed, viewBytes=(folder/'view.json').stat().st_size,
         sourceSha256=view['sourceSha256'], modelSha256=view['modelSha256'], importMs=view.get('importMs'), arms=arms,
         scope='One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics.')
     (output/'benchmark.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
@@ -51,5 +55,7 @@ if __name__ == '__main__':
     parser.add_argument('--input', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--mode', choices=('current', 'history'), default='current')
+    parser.add_argument('--execution', choices=('live', 'audit'), default='audit')
+    parser.add_argument('--passes', type=int)
     args = parser.parse_args()
-    run(args.runtime, args.input, args.output, args.mode)
+    run(args.runtime, args.input, args.output, args.mode, args.execution, args.passes)

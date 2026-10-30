@@ -17,10 +17,12 @@ public static class ChurchCheckpoint
     // G(executed pass, omitted-history slots), all imported source profiles).
     // No field is a domain opcode.
     public const string LossContract = "Current native state only: executable geometry, shared parameter/port identities, current source intervals and error laws are retained. Historical proposal alternatives, discarded intervals, transfer receipts, prior construction imports and per-pass provenance are omitted. Unobserved closure origins stay open. This checkpoint accepts fresh local numeric requests; it does not resume the adaptive topology/capture controller or replay earlier passes. Visual stages remain separate observations.";
+    public static readonly string LiveLossContract = LossContract.Replace("transfer receipts, ", "older transfer receipts, ")+
+        " Each machine's latest native response accounting is retained with actual capacity/actuator references and explicit omitted explanation slots; detailed request derivations and preview traces are not retained. This is current evidence, not a response history. Only initial and final visual observations are retained. Restoration exposes local numeric machines and current laws; it does not recreate the whole live scene scheduler/publication bridge.";
     public sealed record State(Graph Source,Graph Current,NegotiatingMachine[] Machines,Relation[] Parts,
         EvidenceObligation[] Obligations,Relation[] Derived,IElement[] UnobservedSources,IElement[] SourceProfiles);
 
-    public static Relation Capture(ChurchScene scene,int pass)
+    public static Relation Capture(ChurchScene scene,int pass,bool retainCurrentResponses=false)
     {
         var omission=new Placeholder();
         var sites=new Dictionary<Relation,Relation>(ReferenceEqualityComparer.Instance);
@@ -51,7 +53,8 @@ public static class ChurchCheckpoint
             // Selected state starts a new observation epoch at the CURRENT
             // clock value. It does not invent an empty timeline since time zero.
             var timeline=G(Relation.Point(clock,checked((long)clock.Value)),f[5]);
-            return G(f[0],f[1],f[2],f[3],f[4],f[5],timeline,G(),f[8],
+            var latest=retainCurrentResponses&&machine.LastReceipt is {} response?G(CurrentAccounting(response,omission)):G();
+            return G(f[0],f[1],f[2],f[3],f[4],f[5],timeline,latest,f[8],
                 MachineRunner.Run(machine.Definition),f[10],f[11]);
         }).ToArray();
         Relation Geometry(Relation geometry)
@@ -87,6 +90,23 @@ public static class ChurchCheckpoint
             G(correspondence.ToArray()),G(inferred.Values.ToArray()),G(derived),
             G(new CarrierLocation(effort,pass),G(omission)),G(scene.ProfileIds.Values.ToArray()));
         Validate(root);return root;
+    }
+
+    private static Relation CurrentAccounting(Relation response,Placeholder omission)
+    {
+        var fields=F(response);
+        if(fields.Length!=5||fields[2] is not Relation output||!output.TryReadOrderedGroup(out var result)||result.Length!=2)
+            return response; // Preserve an unusual rejected/unsupported response in full.
+        var outcomes=F(result[1]).Select(row=>
+        {
+            var f=F(row);var beforeAfter=F(f[4]);
+            // Select native quantities, capacity and before/after sites without
+            // copying the request forest or the private candidate world. The
+            // open input/provenance explicitly says why reconstruction stops.
+            return (IElement)ReadWitness.Create(new Carrier(),omission,f[1],f[2],f[3],
+                G(beforeAfter[0],beforeAfter[1],omission));
+        }).ToArray();
+        return ReadWitness.Create(new Carrier(),omission,fields[1],G(result[0],G(outcomes)),fields[3],omission);
     }
 
     public static State Restore(Relation root)

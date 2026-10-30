@@ -72,14 +72,16 @@ def prepare(packet, ident, model):
     return request, baseline, proposal
 
 
-def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='category', seed=0, model=None, work=None, archive_mode='current'):
+def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='category', seed=0, model=None, work=None, archive_mode='current', execution_mode='live'):
     if archive_mode not in ('current', 'history'):
         raise ValueError('Choose current native state or full audit history')
+    if execution_mode not in ('live', 'audit') or execution_mode == 'live' and archive_mode != 'current':
+        raise ValueError('Live settlement keeps current state only; choose audit execution for historical inspection')
     source, output = Path(source).resolve(), Path(output).resolve()
     if source == output or source in output.parents or output in source.parents:
         raise ValueError('Keep connected results separate from the source dataset')
-    if not 1 <= passes <= 16 or not 1 <= steps <= 8:
-        raise ValueError('Choose 1..16 passes and 1..8 responses per pass')
+    if not 1 <= passes <= 64 or not 1 <= steps <= 8:
+        raise ValueError('Choose 1..64 passes and 1..8 responses per pass')
     cohort = select(source, limit, order, seed)
     if not cohort:
         raise ValueError('No completed, game-recognized church drawings in the selected folder')
@@ -88,7 +90,7 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
     gojo = upstream.resolve(gojo_root)
     config = dict(sourceDataset=str(source), limit=limit, passes=passes, steps=steps, candidates=48,
         order=order, seed=seed, recognition='recognized', connections=True, cad=True, recoverMissing=True,
-        baselineKind='saved-studio', archiveMode=archive_mode, selection=[row['sourceSha256'][:40] for _, row in cohort],
+        baselineKind='saved-studio', archiveMode=archive_mode, executionMode=execution_mode, selection=[row['sourceSha256'][:40] for _, row in cohort],
         sourceRecords=[dict(folder=str(folder), itemId=row['itemId'], sourceSha256=row['sourceSha256'],
             evidenceSha256=row['evidenceSha256']) for folder, row in cohort],
         modelSha256=model_hash, adapterSha256=fingerprint(), upstream=upstream.fingerprint(gojo))
@@ -133,7 +135,7 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
                 raise ValueError('A saved connected result changed; preserve it and choose a new result folder')
             started = perf_counter()
             request, baseline, proposal = prepare(packet, ident, output/'models/local-providers.json')
-            request.update(passes=passes, steps=steps, archiveMode=archive_mode)
+            request.update(passes=passes, steps=steps, archiveMode=archive_mode, executionMode=execution_mode)
             dataset._gzip_json(output/'inputs'/(ident+'.json.gz'), request)
             dataset._atomic_json(output/'baseline'/(ident+'.json'), baseline)
             dataset._atomic_json(output/'proposals'/(ident+'.json'), dict(heuristics=request['heuristics'], reference=proposal))
@@ -157,7 +159,7 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
                 artifacts=[result_folder/'view.json',result_folder/'bidirectional.gojo.bin.gz',
                     output/'inputs'/(ident+'.json.gz'),output/'baseline'/(ident+'.json'),
                     output/'proposals'/(ident+'.json'),output/'models/local-providers.json']
-                dataset._atomic_json(receipt, dict(version=2,nativeRestored=True,archiveMode=archive_mode,
+                dataset._atomic_json(receipt, dict(version=2,nativeRestored=True,archiveMode=archive_mode,executionMode=execution_mode,
                     artifacts={path.relative_to(output).as_posix():dataset.sha256(path) for path in artifacts}))
                 completed += 1
             else:
@@ -181,7 +183,7 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
         report['lastRunTimingMs'] = timings
         dataset._atomic_json(state_path, report)
     return dict(output=str(output), completed=completed, resumed=resumed, errors=errors, storedErrors=errors,
-        review=str(output/'review.html'), passes=passes, recognition='recognized',archiveMode=archive_mode,timingMs=timings)
+        review=str(output/'review.html'), passes=passes, recognition='recognized',archiveMode=archive_mode,executionMode=execution_mode,timingMs=timings)
 
 
 def review(output):
@@ -204,6 +206,8 @@ def main():
     parser.add_argument('--steps', type=int, default=2); parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--order', choices=('category', 'recent', 'random'), default='category')
     parser.add_argument('--work', type=Path)
+    parser.add_argument('--execution-mode', choices=('live', 'audit'), default='live',
+        help='One live native world with initial/final views, or adaptive rebuilding with inspectable passes')
     parser.add_argument('--archive-mode', choices=('current', 'history'), default='current',
         help='Current executable native state plus visual passes, or the larger full proof history')
     args = parser.parse_args()
@@ -213,7 +217,7 @@ def main():
         if args.dataset is None:
             raise ValueError('Choose a source dataset folder')
         result = run(args.dataset, args.output, args.gojo_root, limit=args.limit, passes=args.passes,
-            steps=args.steps, seed=args.seed, order=args.order, model=args.model, work=args.work, archive_mode=args.archive_mode)
+            steps=args.steps, seed=args.seed, order=args.order, model=args.model, work=args.work, archive_mode=args.archive_mode, execution_mode=args.execution_mode)
         print(json.dumps(result)); return 1 if result['errors'] else 0
     except Exception as error:
         print(str(error), file=sys.stderr); return 2

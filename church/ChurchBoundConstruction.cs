@@ -104,7 +104,7 @@ public static class ChurchBoundConstruction
         // evaluator's private definition. Local previews need only its actual
         // parameter/affine construction, not every acquired source ancestor.
         scene.Imports.Add(G(definition,G(declarations.ToArray())));
-        var host=new NegotiatingMachine(definition);var parts=new List<ChurchScene.Part>();var portMap=new Dictionary<Relation,Relation>(ReferenceEqualityComparer.Instance);
+        var host=new NegotiatingMachine(definition,retainHistory:!scene.IsLive);var parts=new List<ChurchScene.Part>();var portMap=new Dictionary<Relation,Relation>(ReferenceEqualityComparer.Instance);
         foreach(var (p,i) in old.Select((p,i)=>(p,i)))
         {
             var fs=formsByPart[p.Id];var offset=i*4;

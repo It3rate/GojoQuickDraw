@@ -118,24 +118,13 @@ foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"v
                 var demand=ChurchScene.Read(EvidenceObligation.Demand(read))/Math.Max(1,norm)/ChurchScene.Scale;
                 Check(demand,stages[index].GetProperty("errors")[i].GetProperty("demand").GetDouble());reads++;
             }
-            foreach(var machine in machines)foreach(var receipt in F(F(machine.Surface)[7]).Cast<Relation>())
-                foreach(var outcome in NegotiatingMachine.Outcomes(receipt))
-                {
-                    var total=(N:BigInteger.Zero,D:BigInteger.One);var values=new[]{outcome.Requested,outcome.Accepted,outcome.BoundsBlocked,outcome.CapacityDeferred,outcome.QuantumRemainder,outcome.CandidateBlocked};
-                    for(var i=0;i<values.Length;i++)
-                    {
-                        if(!ProjectionResidue.TryRead(values[i],out _,out var n,out var d))throw new InvalidDataException("Unresolved actuator accounting.");
-                        if(i>0)n=-n;total=(total.N*d+n*total.D,total.D*d);
-                        var gcd=BigInteger.GreatestCommonDivisor(total.N,total.D);if(gcd!=0)total=(total.N/gcd,total.D/gcd);
-                    }
-                    if(total.N!=0)throw new InvalidDataException("Restored signed participation did not balance.");outcomes++;
-                }
+            AuditReceipts(machines);
         }
         worlds++;
     }
 }
 var report=new{worlds,currentCheckpoints,currentEdges,shapePoints=points,errorReads=reads,actuatorOutcomes=outcomes,recoveryWitnesses,recoveryIntervals,maxDifference,
-    qualification="Read-only comparison of restored native graphs, executable shape outputs and error intervals against review projections. Full-history archives also verify saved receiver accounting. Current checkpoints verify the final state only; omitted earlier provenance and receipts cannot be audited. No accuracy judgment."};
+    qualification="Read-only comparison of restored native graphs, executable shape outputs and error intervals against review projections. Retained receiver accounting is checked exactly, including latest responses in live checkpoints. Omitted earlier provenance and receipts cannot be audited. No accuracy judgment."};
 File.WriteAllText(args[2],JsonSerializer.Serialize(report,new JsonSerializerOptions{WriteIndented=true}));Console.WriteLine(JsonSerializer.Serialize(report));
 void AuditCurrent(Relation root,JsonElement drawing,JsonElement result)
 {
@@ -169,6 +158,7 @@ void AuditCurrent(Relation root,JsonElement drawing,JsonElement result)
         currentEdges++;
     }
     var samples=state.Machines.SelectMany(m=>F(m.CurrentPublication).Cast<Relation>()).ToDictionary(p=>(Relation)F(p)[0],p=>p,(IEqualityComparer<Relation>)ReferenceEqualityComparer.Instance);
+    AuditReceipts(state.Machines);
     var parts=final.GetProperty("parts");
     if(parts.GetArrayLength()!=state.Parts.Length+state.Derived.Length)throw new InvalidDataException("Current shape count differs from the saved review.");
     foreach(var (part,i) in state.Parts.Select((p,i)=>(F(p),i)))
@@ -195,6 +185,21 @@ void AuditCurrent(Relation root,JsonElement drawing,JsonElement result)
             var xy=Gojo.Experiments.ConstructionMachines.Program.XY(output[n]);for(var k=0;k<2;k++)Check((xy[k]-ChurchScene.Offset)/ChurchScene.Scale,expected[n][k]);points++;
         }
     }
+}
+void AuditReceipts(IEnumerable<NegotiatingMachine> machines)
+{
+            foreach(var machine in machines)foreach(var receipt in F(F(machine.Surface)[7]).Cast<Relation>())
+                foreach(var outcome in NegotiatingMachine.Outcomes(receipt))
+                {
+                    var total=(N:BigInteger.Zero,D:BigInteger.One);var values=new[]{outcome.Requested,outcome.Accepted,outcome.BoundsBlocked,outcome.CapacityDeferred,outcome.QuantumRemainder,outcome.CandidateBlocked};
+                    for(var i=0;i<values.Length;i++)
+                    {
+                        if(!ProjectionResidue.TryRead(values[i],out _,out var n,out var d))throw new InvalidDataException("Unresolved actuator accounting.");
+                        if(i>0)n=-n;total=(total.N*d+n*total.D,total.D*d);
+                        var gcd=BigInteger.GreatestCommonDivisor(total.N,total.D);if(gcd!=0)total=(total.N/gcd,total.D/gcd);
+                    }
+                    if(total.N!=0)throw new InvalidDataException("Restored signed participation did not balance.");outcomes++;
+                }
 }
 void Check(double actual,double expected)
 {
