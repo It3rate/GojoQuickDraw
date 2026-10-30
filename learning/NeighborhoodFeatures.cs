@@ -116,15 +116,68 @@ public static class NeighborhoodFeatures
             throw new InvalidDataException("A neighborhood opinion lost its actual source/cells or finite score basis.");
         return v.Ticks/(double)Q;
     }
-    public static (double Probability,int Unseen) Predict(JsonElement model,int[] bands)
+    // This is a compiled host-side logistic provider, not a native Gojo model.
+    // Cache by immutable JSON element identity, not model name or feature names:
+    // distinct trained coefficients must never share an opinion accidentally.
+    // Bound the cache so completed runs cannot retain every model document.
+    private static readonly Dictionary<JsonElement,CompiledProvider> Providers=[];
+    private static readonly Queue<JsonElement> ProviderOrder=[];
+    private static readonly object ProviderLock=new();
+    private const int ProviderCacheLimit=16;
+    public static CompiledProvider Compile(JsonElement model)
     {
-        var columns=model.GetProperty("columns").EnumerateArray().Select(v=>v.GetString()!).ToArray();
-        var tokens=Tokens(bands);var weights=model.GetProperty("weights").EnumerateArray().Select(v=>v.GetDouble()).ToArray();
-        if(columns.Length!=weights.Length||weights.Any(v=>!double.IsFinite(v)))throw new InvalidDataException("Malformed local provider weights.");
-        var index=columns.Select((t,i)=>(t,i)).ToDictionary(v=>v.t,v=>v.i);var score=0.0;var unseen=0;
-        foreach(var token in tokens){if(index.TryGetValue(token,out var k))score+=weights[k];else unseen++;}
-        return (1/(1+Math.Exp(-Math.Clamp(score,-40,40))),unseen);
+        lock(ProviderLock)
+        {
+            if(Providers.TryGetValue(model,out var saved))return saved;
+            var compiled=new CompiledProvider(model);
+            if(Providers.Count==ProviderCacheLimit)Providers.Remove(ProviderOrder.Dequeue());
+            Providers.Add(model,compiled);ProviderOrder.Enqueue(model);
+            return compiled;
+        }
     }
+    public sealed class CompiledProvider
+    {
+        private readonly double? bias;
+        private readonly Dictionary<(int Index,int Band),double> cells=[];
+        private readonly Dictionary<(int First,int Second),double> pair03=[];
+        private readonly Dictionary<(int First,int Second),double> pair15=[];
+        internal CompiledProvider(JsonElement model)
+        {
+            var columns=model.GetProperty("columns").EnumerateArray().Select(v=>v.GetString()!).ToArray();
+            var weights=model.GetProperty("weights").EnumerateArray().Select(v=>v.GetDouble()).ToArray();
+            if(columns.Length!=weights.Length||weights.Any(v=>!double.IsFinite(v)))throw new InvalidDataException("Malformed local provider weights.");
+            var unique=new HashSet<string>(StringComparer.Ordinal);
+            for(var i=0;i<columns.Length;i++)
+            {
+                var token=columns[i];
+                if(token is null||!unique.Add(token))throw new InvalidDataException("The provider needs distinct non-null columns.");
+                if(token=="bias"){bias=weights[i];continue;}
+                var fields=token.Split(':');
+                if(fields.Length==2&&int.TryParse(fields[0],out var index)&&int.TryParse(fields[1],out var band)&&token==$"{index}:{band}")
+                    cells.Add((index,band),weights[i]);
+                else if(fields.Length==5&&int.TryParse(fields[2],out var first)&&int.TryParse(fields[4],out var second))
+                {
+                    if(token==$"pair:0:{first}:3:{second}")pair03.Add((first,second),weights[i]);
+                    else if(token==$"pair:1:{first}:5:{second}")pair15.Add((first,second),weights[i]);
+                }
+                // Other column spellings were never emitted by Tokens and stay
+                // unused. In particular, do not reinterpret noncanonical aliases.
+            }
+        }
+        public (double Probability,int Unseen) Predict(int[] bands)
+        {
+            var score=0.0;var unseen=0;
+            if(bias is {} value)score+=value;else unseen++;
+            // Keep the old summation order exactly, including present zero-weight
+            // cells. Numeric keys remove per-opinion token strings and JSON reads.
+            for(var i=0;i<bands.Length;i++)
+                if(cells.TryGetValue((i,bands[i]),out var weight))score+=weight;else unseen++;
+            if(pair03.TryGetValue((bands[0],bands[Math.Min(3,bands.Length-1)]),out var first))score+=first;else unseen++;
+            if(pair15.TryGetValue((bands[1],bands[Math.Min(5,bands.Length-1)]),out var second))score+=second;else unseen++;
+            return (1/(1+Math.Exp(-Math.Clamp(score,-40,40))),unseen);
+        }
+    }
+    public static (double Probability,int Unseen) Predict(JsonElement model,int[] bands)=>Compile(model).Predict(bands);
     public static void ValidateBundle(JsonElement bundle)
     {
         if(bundle.GetProperty("schema").GetString()!="gojo.neighborhood-models.v1")throw new InvalidDataException("Expected a neighborhood provider bundle.");

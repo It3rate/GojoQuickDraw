@@ -41,6 +41,7 @@ class ChurchDatasetTests(unittest.TestCase):
             row=dict(itemId='saved',sourceSha256=sha,evidenceSha256='unchanged',evidencePath='source.gz')
             model=root/'model.json';model.write_text('{}')
             def execute(command,path,output,log):
+                self.assertEqual('current', json.loads(path.read_text())['archiveMode'])
                 folder=output/'drawings'/ident;folder.mkdir(parents=True,exist_ok=True)
                 (folder/'view.json').write_text(json.dumps(dict(sourceSha256=sha,modelSha256=refine.dataset.sha256(model))))
                 (folder/'bidirectional.gojo.bin.gz').write_bytes(b'native test artifact')
@@ -55,9 +56,14 @@ class ChurchDatasetTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError,'interrupted'):
                     refine.run(source,output,root,limit=1,model=model,work=work)
                 self.assertTrue((output/'drawings'/ident/'receipt.json').is_file())
+                state=json.loads((output/'study.json').read_text())
+                self.assertEqual('current',state['config']['archiveMode'])
                 render.side_effect=None
                 second=refine.run(source,output,root,limit=1,model=model,work=work)
                 self.assertEqual(1,second['resumed']);self.assertEqual(1,native.call_count);self.assertEqual(1,build.call_count)
+                self.assertEqual(0,second['timingMs']['nativeWorker'])
+                with self.assertRaisesRegex(ValueError,'another selection'):
+                    refine.run(source,output,root,limit=1,model=model,work=work,archive_mode='history')
                 opened=refine.review(output)
                 self.assertEqual(1,opened['completed']);self.assertEqual(1,native.call_count)
                 (output/'proposals'/(ident+'.json')).write_text('{}')

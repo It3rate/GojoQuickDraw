@@ -34,6 +34,14 @@ class FakeEncoder:
 
 
 class DatasetTests(unittest.TestCase):
+    def test_native_archive_uses_returned_codec_and_preserves_identity(self):
+        for suffix in ('.gojo.bin.gz', '.gojo.json.gz'):
+            self.assertEqual(self.root/'native'/('abc'+suffix),
+                dataset.native_archive_path(self.root,'abc',{'archive':'abc'+suffix}))
+        for name in ('../abc.gojo.bin.gz', 'different.gojo.bin.gz', None):
+            with self.assertRaises(ValueError):
+                dataset.native_archive_path(self.root,'abc',{'archive':name})
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)

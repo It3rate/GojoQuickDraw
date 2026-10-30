@@ -123,7 +123,7 @@ of the same longer catalog. Changing the browse order never changes strokes or a
 manifest.json                  extraction configuration and source fingerprints
 index.ndjson                   append-only per-record success/error journal
 records/<id>.evidence.json.gz   review and proposal cache
-native/<id>.gojo.json.gz        independently restorable native Gojo archive
+native/<id>.gojo.bin.gz         independently restorable native Gojo archive
 errors/<id>.source.json.gz      failed source text and diagnostic, when present
 .index-cache.sqlite3           disposable disk-backed journal projection
 .convert.lock                  operating-system writer lock
@@ -133,6 +133,14 @@ The manifest is `gojo.quickdraw-dataset.v1`. The record adapter is
 `gojo.quickdraw-evidence-packet.v1`. Both are initial experimental contracts.
 The index records source identity, source file and line, exact-record digest,
 artifact paths and hashes, observed counts, and the native reader's summary.
+
+New native archives use `GojoNumericFormat` binary under gzip. Older
+`.gojo.json.gz` archives remain readable, detected from decompressed content.
+The complete native graph, source aliases and construction stages are preserved
+by either codec. Readers follow each recorded `nativePath`; mixed old/new
+collections do not need migration. Evidence and stage view caches remain JSON.
+Connected refinement has a separate current-state/history retention choice;
+see [native runtime](native-runtime.md).
 
 An item ID is derived from extraction fingerprint, source-text digest, and effective
 category. A source key alone is not an archive identity: the same key with different

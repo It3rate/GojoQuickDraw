@@ -105,7 +105,7 @@ def _one(task):
         if native["summary"]["sourceSha256"] != row["sourceSha256"] or native["summary"]["sourceId"] != row["keyId"]:
             raise ValueError("Analysis native archive changed acquisition identity")
         evidence_path = folder / "records" / (row["itemId"] + ".evidence.json.gz")
-        native_path = folder / "native" / (row["itemId"] + ".gojo.json.gz")
+        native_path = dataset.native_archive_path(folder, row["itemId"], native)
         artifacts = {}
         if row.get("executeStages"):
             from .pipeline_artifacts import capture

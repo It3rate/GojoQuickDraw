@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using Gojo.Core;
@@ -116,6 +117,37 @@ public static class NativeRecord
     }
 
     public static string Capture(string itemKey, Relation root) => GojoStructureCompactJson.Serialize(GojoStructureCompactJson.FromElement(itemKey, root));
+
+    public static Read RestoreBinary(ReadOnlySpan<byte> bytes)
+    {
+        var roots = GojoNumericFormat.Decode(bytes);
+        if (roots.Length != 1 || roots[0] is not Relation root || !TryRead(root, out var read))
+            throw new InvalidDataException("Incomplete or inconsistent native record archive; no partial record was published.");
+        return read;
+    }
+
+    /// <summary>Read the stored codec by content, including temporary filenames.
+    /// Both codecs retain the complete same graph; neither is a lossy preview.</summary>
+    public static Read ReadArchive(string path)
+    {
+        using var file = File.OpenRead(path);
+        using var gzip = new GZipStream(file, CompressionMode.Decompress);
+        using var bytes = new MemoryStream();
+        gzip.CopyTo(bytes);
+        return RestoreArchiveContent(bytes.GetBuffer().AsSpan(0, checked((int)bytes.Length)));
+    }
+
+    public static Read RestoreArchiveContent(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.StartsWith("GOJO"u8)) return RestoreBinary(bytes);
+        if (bytes.StartsWith(new byte[] { 0xef, 0xbb, 0xbf })) bytes = bytes[3..];
+        var first = 0;
+        while (first < bytes.Length && bytes[first] is (byte)' ' or (byte)'\t' or (byte)'\r' or (byte)'\n') first++;
+        if (first == bytes.Length || bytes[first] != (byte)'{')
+            throw new InvalidDataException("Unsupported native record archive header.");
+        // A damaged binary header must not silently become a legacy import.
+        return Restore(new UTF8Encoding(false, true).GetString(bytes));
+    }
 
     public static Read Restore(string json)
     {

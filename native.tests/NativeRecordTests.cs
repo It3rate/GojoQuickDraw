@@ -127,7 +127,9 @@ public sealed partial class NativeRecordTests
             Assert.Equal(3, rows.Length); Assert.False(rows[0]["ok"]!.GetValue<bool>()); Assert.False(rows[1]["ok"]!.GetValue<bool>()); Assert.True(rows[2]["ok"]!.GetValue<bool>());
             Assert.Single(Directory.GetFiles(directory));
             var inspect = new StringWriter();
-            Assert.Equal(0, Worker.Run(["inspect", "--input", Path.Combine(directory, "fixture.gojo.json.gz"), "--source"], TextReader.Null, inspect, errors));
+            Assert.Equal("fixture.gojo.bin.gz", rows[2]["archive"]!.GetValue<string>());
+            Assert.Equal("gojo-numeric-v2", rows[2]["archiveFormat"]!.GetValue<string>());
+            Assert.Equal(0, Worker.Run(["inspect", "--input", Path.Combine(directory, "fixture.gojo.bin.gz"), "--source"], TextReader.Null, inspect, errors));
             Assert.NotNull(JsonNode.Parse(inspect.ToString())!["sourceOriginalJson"]);
         }
         finally { Directory.Delete(directory, recursive: true); }

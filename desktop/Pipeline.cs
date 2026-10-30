@@ -14,7 +14,7 @@ public sealed record PipelineOptions(string Repository, string Python, string Go
     int TrainingSynthetic = 2500, int TrainingEpochs = 35, long TrainingSeed = 31, string? TrainingOutput = null,
     IReadOnlyList<string>? EncodingModels = null, string? EncodingOutput = null, int EncodingPatches = 128,
     bool TrainingNeighborhoods = false, bool EncodingNeighborhoods = false, bool EncodingRepair = true, bool EncodingLine = true,int EncodingPasses=4,bool EncodingClosure=true,
-    string? RefinementOutput = null, int RefinementPasses = 8);
+    string? RefinementOutput = null, int RefinementPasses = 8, bool RefinementHistory = false);
 public sealed record CommandPlan(PipelineAction Action, string Executable, string WorkingDirectory, IReadOnlyList<string> Arguments, string? Artifact);
 public sealed record JobResult(int ExitCode, bool Cancelled, JsonElement? Data, string Error)
 {
@@ -58,6 +58,7 @@ public static class Pipeline
                 arguments = ["-u", "-m", "gojo_quickdraw.church_dataset", "--gojo-root", Path.GetFullPath(options.Gojo),
                     "--dataset", Path.GetFullPath(options.Dataset), "--output", refinementOutput,
                     "--limit", options.Limit.ToString(), "--passes", options.RefinementPasses.ToString(),
+                    "--archive-mode", options.RefinementHistory ? "history" : "current",
                     "--order", options.InspectionOrder, "--seed", options.InspectionSeed.ToString(CultureInfo.InvariantCulture)];
                 artifact = Path.Combine(refinementOutput, "review.html");
                 break;

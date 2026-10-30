@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Diagnostics;
 using Gojo.Core;
 using Gojo.Encoding.Structures;
 using Gojo.Experiments.QuickDraw;
@@ -28,6 +29,7 @@ public static class Program
                     var packet=r.GetProperty("packet");
                     foreach(var key in new[]{"cleanup","constructionProgram","boundaryMapping","layout"})if(packet.TryGetProperty(key,out _))throw new InvalidDataException("Final or category interpretations cannot be imported as source features.");
                     if(packet.GetProperty("source").GetProperty("recognized").ValueKind!=JsonValueKind.True)throw new InvalidDataException("This cohort requires an explicitly game-recognized acquisition.");
+                    var importWatch=Stopwatch.StartNew();
                     var annotation=QuickDrawAnnotationEvidence.Import(packet);
                     if(!QuickDrawAnnotationEvidence.TryRead(annotation,out var read))throw new InvalidDataException("Source fitted annotation did not restore.");
                     var original=NeighborhoodGraph.FromAnnotation(read);
@@ -37,6 +39,8 @@ public static class Program
                     var imported=read.Profiles.ToArray();
                     if(ids.Length!=imported.Length)throw new InvalidDataException("Imported profile count differs from the supplied fitted source.");
                     var profiles=ids.Select((id,i)=>(id,source:(IElement)imported[i].Witness)).ToDictionary(p=>p.id,p=>p.source);
+                    var importMs=importWatch.Elapsed.TotalMilliseconds;
+                    var archiveMode=r.TryGetProperty("archiveMode",out var selectedMode)?selectedMode.GetString()!:"history";
                     var results=new List<object>();
                     foreach(var arm in r.GetProperty("arms").EnumerateArray().Select(v=>v.GetString()!))
                     {
@@ -46,14 +50,15 @@ public static class Program
                         // the independent restore allocates a second copy.
                         if(r.GetProperty("passes").GetInt32()>16)
                             GC.Collect(GC.MaxGeneration,GCCollectionMode.Forced,blocking:true,compacting:false);
-                        RestoreArchive(path+".tmp");
-                        File.Move(path+".tmp",path,true);results.Add(armView);
+                        var restoreWatch=Stopwatch.StartNew();RestoreArchive(path+".tmp",archiveMode);
+                        armView.TimingMs.Restore=restoreWatch.Elapsed.TotalMilliseconds;
+                        File.Move(path+".tmp",path,true);results.Add(armView.View);
                         Console.Error.WriteLine($"{id}: {arm} independently restored");
                     }
                     var view=new{id,keyId=packet.GetProperty("source").GetProperty("key_id").GetString(),
                         source=packet.GetProperty("observation").GetProperty("strokes").EnumerateArray().Select(s=>s.GetProperty("points").Deserialize<double[][]>()!).ToArray(),
                         sourceSha256=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(packet.GetProperty("sourceOriginalJson").GetString()!))).ToLowerInvariant(),
-                        modelSha256=hash,sourceProfiles=profiles.Count,unrepresentedProfiles=profiles.Count-original.Edges.Length,results};
+                        modelSha256=hash,sourceProfiles=profiles.Count,unrepresentedProfiles=profiles.Count-original.Edges.Length,importMs,results};
                     var json=JsonSerializer.Serialize(view,Json);File.WriteAllText(Path.Combine(folder,"view.json.tmp"),json,Encoding.UTF8);File.Move(Path.Combine(folder,"view.json.tmp"),Path.Combine(folder,"view.json"),true);
                     Console.WriteLine(JsonSerializer.Serialize(new{id,ok=true,drawings=++count},Json));
                 }
@@ -68,23 +73,26 @@ public static class Program
     }
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
-    private static object WriteArm(Relation annotation,NeighborhoodGraph.Graph original,JsonElement request,
+    private static (object View,ChurchExperiment.Timings TimingMs) WriteArm(Relation annotation,NeighborhoodGraph.Graph original,JsonElement request,
         IReadOnlyDictionary<string,IElement> profiles,JsonElement model,string hash,string arm,string path)
     {
+        var mode=request.TryGetProperty("archiveMode",out var selectedMode)?selectedMode.GetString()!:"history";
         var result=ChurchExperiment.Run(annotation,original,request.GetProperty("scaffold"),request.GetProperty("mapping"),profiles,
             model,hash,arm,request.GetProperty("passes").GetInt32(),request.GetProperty("steps").GetInt32(),request.GetProperty("candidates").GetInt32(),
-            request.TryGetProperty("heuristics",out var hypotheses)?hypotheses:null);
-        using(var output=new GZipStream(File.Create(path),CompressionLevel.Optimal))output.Write(GojoNumericFormat.Encode(result.Surface));
-        return result.View;
+            request.TryGetProperty("heuristics",out var hypotheses)?hypotheses:null,mode);
+        var watch=Stopwatch.StartNew();var bytes=GojoNumericFormat.Encode(result.Surface);
+        using(var output=new GZipStream(File.Create(path),mode=="current"?CompressionLevel.Fastest:CompressionLevel.Optimal))output.Write(bytes);
+        result.TimingMs.Encode=watch.Elapsed.TotalMilliseconds;result.Archive.NativeBytes=bytes.Length;result.Archive.StoredBytes=new FileInfo(path).Length;
+        return (result.View,result.TimingMs);
     }
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
-    private static void RestoreArchive(string path)
+    private static void RestoreArchive(string path,string mode)
     {
         using var stored=new GZipStream(File.OpenRead(path),CompressionMode.Decompress);
         using var bytes=new MemoryStream();stored.CopyTo(bytes);
         var restored=GojoNumericFormat.Decode(bytes.ToArray());
         if(restored.Length!=1||restored[0] is not Relation root)throw new InvalidDataException("Connected church archive did not restore.");
-        ChurchExperiment.Validate(root);
+        if(mode=="current")ChurchCheckpoint.Validate(root);else ChurchExperiment.Validate(root);
     }
 }

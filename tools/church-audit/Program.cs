@@ -16,6 +16,7 @@ if(args.Length!=3)throw new ArgumentException("Usage: STUDY_FOLDER MAX_DRAWINGS 
 var limit=int.Parse(args[1]);if(limit is <1 or >1024)throw new ArgumentOutOfRangeException(nameof(limit));
 var options=GojoQuickDraw.ChurchStudy.Program.Json;
 var worlds=0;var points=0;var reads=0;var outcomes=0;var maxDifference=0d;
+var currentCheckpoints=0;var currentEdges=0;
 var recoveryWitnesses=0;var recoveryIntervals=0;
 foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"view.json",SearchOption.AllDirectories).Order().Take(limit))
 {
@@ -25,7 +26,12 @@ foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"v
         var arm=result.GetProperty("arm").GetString()!;
         using var stream=new GZipStream(File.OpenRead(Path.Combine(Path.GetDirectoryName(file)!,arm+".gojo.bin.gz")),CompressionMode.Decompress);
         using var bytes=new MemoryStream();stream.CopyTo(bytes);
-        var root=BoundaryImport.Unwrap((Relation)GojoNumericFormat.Decode(bytes.ToArray())[0],out var boundaryImport);ChurchExperiment.Validate(root);
+        var restored=(Relation)GojoNumericFormat.Decode(bytes.ToArray())[0];
+        if(F(restored).Length==11)
+        {
+            AuditCurrent(restored,view.RootElement,result);currentCheckpoints++;worlds++;continue;
+        }
+        var root=BoundaryImport.Unwrap(restored,out var boundaryImport);ChurchExperiment.Validate(root);
         var f=F(root);var original=Read((Relation)f[1]);var final=Read((Relation)f[3]);var stages=result.GetProperty("stages").EnumerateArray().ToArray();
         if(!QuickDrawAnnotationEvidence.TryRead((Relation)f[0],out var acquisition)||
             original.Edges.Any(e=>!acquisition.Profiles.Any(p=>ReferenceEquals(p.Witness,e.Source))))
@@ -128,9 +134,68 @@ foreach(var file in Directory.EnumerateFiles(Path.Combine(args[0],"drawings"),"v
         worlds++;
     }
 }
-var report=new{worlds,shapePoints=points,errorReads=reads,actuatorOutcomes=outcomes,recoveryWitnesses,recoveryIntervals,maxDifference,
-    qualification="Read-only comparison of restored native graphs, executable shape outputs, error intervals and exact receiver accounting against review projections. No accuracy judgment."};
+var report=new{worlds,currentCheckpoints,currentEdges,shapePoints=points,errorReads=reads,actuatorOutcomes=outcomes,recoveryWitnesses,recoveryIntervals,maxDifference,
+    qualification="Read-only comparison of restored native graphs, executable shape outputs and error intervals against review projections. Full-history archives also verify saved receiver accounting. Current checkpoints verify the final state only; omitted earlier provenance and receipts cannot be audited. No accuracy judgment."};
 File.WriteAllText(args[2],JsonSerializer.Serialize(report,new JsonSerializerOptions{WriteIndented=true}));Console.WriteLine(JsonSerializer.Serialize(report));
+void AuditCurrent(Relation root,JsonElement drawing,JsonElement result)
+{
+    ChurchCheckpoint.Validate(root);var state=ChurchCheckpoint.Restore(root);
+    if(!result.TryGetProperty("archiveMode",out var mode)||mode.GetString()!="current")throw new InvalidDataException("Review does not identify its qualified current checkpoint.");
+    if(drawing.TryGetProperty("sourceProfiles",out var count)&&count.GetInt32()!=state.SourceProfiles.Length)
+        throw new InvalidDataException("Current checkpoint lost imported source profiles.");
+    var final=result.GetProperty("stages").EnumerateArray().Last();var graph=final.GetProperty("graph");
+    var expectedSites=graph.GetProperty("sites").EnumerateArray().ToArray();var expectedEdges=graph.GetProperty("edges").EnumerateArray().ToArray();
+    if(expectedSites.Length!=state.Current.Sites.Length||expectedEdges.Length!=state.Current.Edges.Length)
+        throw new InvalidDataException("Current graph cardinality changed during restoration.");
+    var siteIds=new Dictionary<Relation,string>(ReferenceEqualityComparer.Instance);
+    foreach(var (site,i) in state.Current.Sites.Select((s,i)=>(s,i)))
+    {
+        var expected=expectedSites[i];var xy=XY(site);for(var k=0;k<2;k++)Check(xy[k],expected.GetProperty("point")[k].GetDouble());
+        siteIds.Add(site,expected.GetProperty("id").GetString()!);
+        if(Degree(state.Current,site)!=expected.GetProperty("degree").GetInt32()||Kind(state.Current,site)!=expected.GetProperty("kind").GetString())
+            throw new InvalidDataException("Current joint topology changed during restoration.");
+    }
+    foreach(var (edge,i) in state.Current.Edges.Select((e,i)=>(e,i)))
+    {
+        var expected=expectedEdges[i];var controls=expected.GetProperty("controls").Deserialize<double[][]>()!;
+        if(controls.Length!=edge.Points.Length||siteIds[edge.A]!=expected.GetProperty("start").GetString()||siteIds[edge.B]!=expected.GetProperty("end").GetString())
+            throw new InvalidDataException("Current edge lost its ordered endpoint binding.");
+        for(var n=0;n<controls.Length;n++)for(var k=0;k<2;k++)Check(edge.Points[n][k],controls[n][k]);
+        edge.Span.TryReadSegment(out _,out var a,out var b);Check(a.Ticks/(double)PatchEvidence.Q,expected.GetProperty("interval")[0].GetDouble());Check(b.Ticks/(double)PatchEvidence.Q,expected.GetProperty("interval")[1].GetDouble());
+        var inferred=state.UnobservedSources.Any(s=>ReferenceEquals(s,edge.Source));
+        if(inferred!=expected.GetProperty("inferred").GetBoolean())throw new InvalidDataException("An unobserved passage changed into acquired ink.");
+        if(!inferred&&expected.GetProperty("source").GetString()!="p"+Array.FindIndex(state.Source.Edges,e=>ReferenceEquals(e.Source,edge.Source)))
+            throw new InvalidDataException("Current source interval changed its native source identity.");
+        currentEdges++;
+    }
+    var samples=state.Machines.SelectMany(m=>F(m.CurrentPublication).Cast<Relation>()).ToDictionary(p=>(Relation)F(p)[0],p=>p,(IEqualityComparer<Relation>)ReferenceEqualityComparer.Instance);
+    var parts=final.GetProperty("parts");
+    if(parts.GetArrayLength()!=state.Parts.Length+state.Derived.Length)throw new InvalidDataException("Current shape count differs from the saved review.");
+    foreach(var (part,i) in state.Parts.Select((p,i)=>(F(p),i)))
+    {
+        foreach(var (port,k) in F(part[1]).Select((p,k)=>(p,k)))Check((ChurchScene.Read(F(samples[(Relation)port])[2])-ChurchScene.Offset)/ChurchScene.Scale,parts[i].GetProperty("bounds")[k].GetDouble());
+        Geometry((Relation)part[0],parts[i]);
+    }
+    foreach(var (geometry,i) in state.Derived.Select((g,i)=>(g,i)))Geometry(geometry,parts[state.Parts.Length+i]);
+    var errors=final.GetProperty("errors");if(errors.GetArrayLength()!=state.Obligations.Length)throw new InvalidDataException("Current error law count differs from the saved review.");
+    foreach(var (error,i) in state.Obligations.Select((e,i)=>(e,i)))
+    {
+        var read=error.Assess(samples);var resolved=EvidenceObligation.Resolved(read);
+        if(resolved!=errors[i].GetProperty("resolved").GetBoolean())throw new InvalidDataException("Current error changed its unresolved status.");
+        var norm=Math.Sqrt(error.Terms.Sum(t=>{var map=(Relation)F(t)[1];((Relation)map.Right).TryReadSegment(out _,out var a,out var b);return Math.Pow(b.Ticks-a.Ticks,2);}));
+        var demand=resolved?ChurchScene.Read(EvidenceObligation.Demand(read))/Math.Max(1,norm)/ChurchScene.Scale:0;
+        Check(demand,errors[i].GetProperty("demand").GetDouble());reads++;
+    }
+    void Geometry(Relation geometry,JsonElement expectedPart)
+    {
+        var output=F(F(MachineRunner.Run(geometry))[2]);var expected=expectedPart.GetProperty("points").Deserialize<double[][]>()!;
+        if(output.Length!=expected.Length)throw new InvalidDataException("Current native geometry changed point count.");
+        for(var n=0;n<output.Length;n++)
+        {
+            var xy=Gojo.Experiments.ConstructionMachines.Program.XY(output[n]);for(var k=0;k<2;k++)Check((xy[k]-ChurchScene.Offset)/ChurchScene.Scale,expected[n][k]);points++;
+        }
+    }
+}
 void Check(double actual,double expected)
 {
     var diff=Math.Abs(actual-expected);maxDifference=Math.Max(maxDifference,diff);

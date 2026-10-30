@@ -225,7 +225,7 @@ internal sealed partial class MainWindow : Window
             _encodingMode.SelectedIndex==0 ? [_encodingNeighborhoodModel.Text?.Trim() ?? ""] : _encodingUseModel.IsChecked==true ? [_encodingModel.Text?.Trim() ?? ""] : [],
             string.IsNullOrWhiteSpace(_encodingOutput.Text) ? null : _encodingOutput.Text.Trim(), (int)_encodingPatches.Value!,
             _trainingMode.SelectedIndex==0,_encodingMode.SelectedIndex==0,_encodingUseModel.IsChecked==true,_encodingUseLine.IsChecked==true,(int)_encodingPasses.Value!,_encodingUseClosure.IsChecked==true,
-            string.IsNullOrWhiteSpace(_refinementOutput.Text) ? null : _refinementOutput.Text.Trim(), (int)_refinementPasses.Value!);
+            string.IsNullOrWhiteSpace(_refinementOutput.Text) ? null : _refinementOutput.Text.Trim(), (int)_refinementPasses.Value!, _refinementHistory.IsChecked==true);
     }
 
     private Task Execute(params PipelineAction[] actions) => _activeWork = Workflow(actions);

@@ -1,8 +1,10 @@
 using System.IO.Compression;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Gojo.Experiments.QuickDraw;
+using Gojo.Core;
 using GojoQuickDraw.Native;
 
 return Worker.Run(args, Console.In, Console.Out, Console.Error);
@@ -22,7 +24,7 @@ namespace GojoQuickDraw.Native
                 }
                 if (args.Length >= 3 && args[0] == "inspect" && args[1] == "--input")
                 {
-                    var read = NativeRecord.Restore(ReadCompressed(args[2]));
+                    var read = NativeRecord.ReadArchive(args[2]);
                     output.WriteLine(JsonSerializer.Serialize(new { ok = true, summary = NativeRecord.Summarize(read),
                         jointComparison = args.Contains("--joints") ? JointReadback.Json(read) : (JsonElement?)null,
                         sourceOriginalJson = args.Contains("--source") ? read.SourceOriginalJson : null }));
@@ -42,18 +44,24 @@ namespace GojoQuickDraw.Native
                         key = packet.RootElement.GetProperty("itemKey").GetString();
                         if (key is null || !Regex.IsMatch(key, "\\A[A-Za-z0-9_-]{1,128}\\z", RegexOptions.CultureInvariant))
                             throw new InvalidDataException("itemKey must contain 1..128 ASCII letters, digits, '-' or '_'.");
+                        var clock = Stopwatch.StartNew();
                         var root = NativeRecord.Import(packet.RootElement);
-                        var json = NativeRecord.Capture(key, root);
+                        var importMs = clock.Elapsed.TotalMilliseconds;
                         NativeRecord.Read restored;
-                        var filename = key + ".gojo.json.gz";
+                        var filename = key + ".gojo.bin.gz";
                         var path = Path.Combine(destination, filename); var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                        double encodeMs, restoreMs;
                         try
                         {
+                            clock.Restart();
                             using (var file = File.Create(temporary))
-                            using (var gzip = new GZipStream(file, CompressionLevel.SmallestSize))
-                            using (var writer = new StreamWriter(gzip, new UTF8Encoding(false))) writer.Write(json);
+                            using (var gzip = new GZipStream(file, CompressionLevel.Optimal))
+                                gzip.Write(GojoNumericFormat.Encode(root));
+                            encodeMs = clock.Elapsed.TotalMilliseconds;
                             // Validate bytes actually stored, including gzip integrity, before publishing.
-                            restored = NativeRecord.Restore(ReadCompressed(temporary));
+                            clock.Restart();
+                            restored = NativeRecord.ReadArchive(temporary);
+                            restoreMs = clock.Elapsed.TotalMilliseconds;
                             File.Move(temporary, path, overwrite: true);
                         }
                         finally { if (File.Exists(temporary)) File.Delete(temporary); }
@@ -64,6 +72,7 @@ namespace GojoQuickDraw.Native
                             residue = restored.DrawingSteps.Passes[i].Residue.Select(edge => edge.Controls.Select(site => new[] { site.Position.X, site.Position.Y }).ToArray()).ToArray()
                         }).ToArray();
                         output.WriteLine(JsonSerializer.Serialize(new { ok = true, itemKey = key, archive = filename,
+                            archiveFormat = "gojo-numeric-v2", importMs, encodeMs, restoreMs,
                             summary = NativeRecord.Summarize(restored), stageViews, jointComparison = JointReadback.Json(restored) }));
                     }
                     catch (Exception exception) when (exception is not OutOfMemoryException and not StackOverflowException)
@@ -74,11 +83,6 @@ namespace GojoQuickDraw.Native
             }
             catch (Exception exception) when (exception is not OutOfMemoryException and not StackOverflowException)
             { error.WriteLine(exception.Message); return 1; }
-        }
-        private static string ReadCompressed(string path)
-        {
-            using var file = File.OpenRead(path); using var gzip = new GZipStream(file, CompressionMode.Decompress);
-            using var reader = new StreamReader(gzip, new UTF8Encoding(false, true)); return reader.ReadToEnd();
         }
     }
 }

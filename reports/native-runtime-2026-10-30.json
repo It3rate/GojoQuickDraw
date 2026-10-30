@@ -1,0 +1,273 @@
+{
+  "connected": [
+    {
+      "id": "ffba0ee5aa25752e219d715cc5c041cceae3b66d",
+      "keyId": "6226189452574720",
+      "equalVisualStages": true,
+      "stages": 9,
+      "archiveBytes": 1176559,
+      "timingMs": {
+        "localInference": 990.3948,
+        "sceneImport": 1282.6938,
+        "nativeSettlement": 5229.5692,
+        "viewRead": 377.3216,
+        "capture": 36.1744,
+        "encode": 92.708,
+        "restore": 194.8549
+      },
+      "importMs": 164.9462
+    },
+    {
+      "id": "1fa43407ab2509c3d392ad9a222591bb71f1f933",
+      "keyId": "6474467716890624",
+      "equalVisualStages": true,
+      "stages": 9,
+      "archiveBytes": 2562128,
+      "timingMs": {
+        "localInference": 636.352,
+        "sceneImport": 1877.9397000000001,
+        "nativeSettlement": 6803.905000000001,
+        "viewRead": 482.519,
+        "capture": 67.7877,
+        "encode": 155.0817,
+        "restore": 232.2637
+      },
+      "importMs": 188.1769
+    },
+    {
+      "id": "0301c0037e88809800a99f23b9a67eb50896786c",
+      "keyId": "5117095295582208",
+      "equalVisualStages": true,
+      "stages": 9,
+      "archiveBytes": 2551240,
+      "timingMs": {
+        "localInference": 985.1806,
+        "sceneImport": 1827.0491000000002,
+        "nativeSettlement": 7284.1623,
+        "viewRead": 397.64410000000004,
+        "capture": 48.6874,
+        "encode": 128.5539,
+        "restore": 229.5411
+      },
+      "importMs": 193.0926
+    }
+  ],
+  "codecStagesEqual": true,
+  "codecJointsEqual": true,
+  "legacyRestored": true,
+  "baselineConnected": {
+    "runtime": "D:\\_quickDraw\\_work\\native-runtime-2026-10-30\\baseline-bin\\GojoQuickDraw.ChurchStudy.dll",
+    "runtimeSha256": "1421e933e00e2207b11b7ca815b5da61e1cb55656a82c6258ec4c582d389a952",
+    "sourceRequest": "D:\\_quickDraw\\data\\studio-refinement-2026-10-30-v2\\inputs\\ffba0ee5aa25752e219d715cc5c041cceae3b66d.json.gz",
+    "sourceRequestSha256": "e3bd7d37d62258c2a787dacb87ece28b65f5a63efc7b8a11674ec356d7f12ef2",
+    "requestedMode": "history",
+    "workerSeconds": 31.16741410002578,
+    "viewBytes": 282653,
+    "sourceSha256": "ffba0ee5aa25752e219d715cc5c041cceae3b66db514798ad16288641e555ca1",
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "timingMs": null,
+    "arms": [
+      {
+        "arm": "bidirectional",
+        "archiveBytes": 80508948,
+        "stageSha256": "d4685cdefacab1f413daf33bba3695f123fb6680feaf097bb174a88acfe11b09",
+        "stageCount": 9,
+        "timingMs": null,
+        "archiveMode": "history"
+      }
+    ],
+    "scope": "One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics."
+  },
+  "firstCurrentConnected": {
+    "runtime": "D:\\_quickDraw\\_work\\native-runtime-2026-10-30\\current-bin\\GojoQuickDraw.ChurchStudy.dll",
+    "runtimeSha256": "5ddfcddfb62adcf5a4478c01dabf865d6ad1d975f0b473e61430ff4c7601ec64",
+    "sourceRequest": "D:\\_quickDraw\\data\\studio-refinement-2026-10-30-v2\\inputs\\ffba0ee5aa25752e219d715cc5c041cceae3b66d.json.gz",
+    "sourceRequestSha256": "e3bd7d37d62258c2a787dacb87ece28b65f5a63efc7b8a11674ec356d7f12ef2",
+    "requestedMode": "current",
+    "workerSeconds": 10.17280950001441,
+    "viewBytes": 283441,
+    "sourceSha256": "ffba0ee5aa25752e219d715cc5c041cceae3b66db514798ad16288641e555ca1",
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "importMs": 286.4424,
+    "arms": [
+      {
+        "arm": "bidirectional",
+        "archiveBytes": 1179462,
+        "stageSha256": "d4685cdefacab1f413daf33bba3695f123fb6680feaf097bb174a88acfe11b09",
+        "stageCount": 9,
+        "timingMs": {
+          "localInference": 1228.2577,
+          "sceneImport": 1532.1658,
+          "nativeSettlement": 5686.8324,
+          "viewRead": 495.83090000000004,
+          "capture": 43.1667,
+          "encode": 88.261,
+          "restore": 162.572
+        },
+        "archiveMode": "current"
+      }
+    ],
+    "scope": "One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics."
+  },
+  "baselineCodec": {
+    "runtimeSha256": "751b59e2f3793bd3334ab0fb6b8fb64bbdf1cc5225b95c62205b4e76d3d2d305",
+    "packet": "D:\\_quickDraw\\data\\church3000\\results\\church\\records\\6e12fdf4aaf43860c23f4e8cd23431ebe43a2b46.evidence.json.gz",
+    "packetSha256": "ffbceffef09be76bb2ce373e84256627df6319d0f0318946de7835d09e271c6d",
+    "workerSeconds": 15.033517099916935,
+    "archiveBytes": 12067007,
+    "archive": "6e12fdf4aaf43860c23f4e8cd23431ebe43a2b46.gojo.json.gz",
+    "stageSha256": "38b0e8c766a8667805ad11d5b4cf40a4b13863f86df7fc1d322f158cf111ffbf",
+    "jointsSha256": "25e28c21aebfdcbba91829d4f61aecbf8bdcdd562c39bf6069eb10812e7bf749",
+    "timingMs": null,
+    "scope": "One fresh native worker process: import retained packet, encode, compress, independently restore, read stage/joint views. Excludes fitting, authored proposal preparation and build."
+  },
+  "currentCodec": {
+    "runtimeSha256": "575ffb2c87e715b10729fa09f44e1a488faa45c43f7440065dd6550bfdb2072c",
+    "packet": "D:\\_quickDraw\\data\\church3000\\results\\church\\records\\6e12fdf4aaf43860c23f4e8cd23431ebe43a2b46.evidence.json.gz",
+    "packetSha256": "ffbceffef09be76bb2ce373e84256627df6319d0f0318946de7835d09e271c6d",
+    "workerSeconds": 3.995825199992396,
+    "archiveBytes": 9056277,
+    "archive": "6e12fdf4aaf43860c23f4e8cd23431ebe43a2b46.gojo.bin.gz",
+    "stageSha256": "38b0e8c766a8667805ad11d5b4cf40a4b13863f86df7fc1d322f158cf111ffbf",
+    "jointsSha256": "25e28c21aebfdcbba91829d4f61aecbf8bdcdd562c39bf6069eb10812e7bf749",
+    "timingMs": {
+      "importMs": 766.8139,
+      "encodeMs": 1493.1636,
+      "restoreMs": 1412.0632
+    },
+    "scope": "One fresh native worker process: import retained packet, encode, compress, independently restore, read stage/joint views. Excludes fitting, authored proposal preparation and build."
+  },
+  "audits": [
+    {
+      "worlds": 1,
+      "currentCheckpoints": 1,
+      "currentEdges": 22,
+      "shapePoints": 41,
+      "errorReads": 161,
+      "actuatorOutcomes": 0,
+      "recoveryWitnesses": 0,
+      "recoveryIntervals": 0,
+      "maxDifference": 0,
+      "qualification": "Read-only comparison of restored native graphs, executable shape outputs and error intervals against review projections. Full-history archives also verify saved receiver accounting. Current checkpoints verify the final state only; omitted earlier provenance and receipts cannot be audited. No accuracy judgment."
+    },
+    {
+      "worlds": 1,
+      "currentCheckpoints": 1,
+      "currentEdges": 35,
+      "shapePoints": 119,
+      "errorReads": 335,
+      "actuatorOutcomes": 0,
+      "recoveryWitnesses": 0,
+      "recoveryIntervals": 0,
+      "maxDifference": 0,
+      "qualification": "Read-only comparison of restored native graphs, executable shape outputs and error intervals against review projections. Full-history archives also verify saved receiver accounting. Current checkpoints verify the final state only; omitted earlier provenance and receipts cannot be audited. No accuracy judgment."
+    },
+    {
+      "worlds": 1,
+      "currentCheckpoints": 1,
+      "currentEdges": 34,
+      "shapePoints": 84,
+      "errorReads": 385,
+      "actuatorOutcomes": 0,
+      "recoveryWitnesses": 0,
+      "recoveryIntervals": 0,
+      "maxDifference": 0,
+      "qualification": "Read-only comparison of restored native graphs, executable shape outputs and error intervals against review projections. Full-history archives also verify saved receiver accounting. Current checkpoints verify the final state only; omitted earlier provenance and receipts cannot be audited. No accuracy judgment."
+    }
+  ],
+  "pythonTests": 258,
+  "quickDrawTests": 166,
+  "gojoTests": 5548,
+  "sameBuildFullHistory": {
+    "runtime": "D:\\_quickDraw\\_work\\native-runtime-2026-10-30\\studio-pilot\\bin\\GojoQuickDraw.ChurchStudy.dll",
+    "runtimeSha256": "18da95fbbcb001d9bca8a1c40fce3c2e708f32a946f1128bcca80392faf55fac",
+    "sourceRequest": "D:\\_quickDraw\\data\\studio-refinement-2026-10-30-v2\\inputs\\ffba0ee5aa25752e219d715cc5c041cceae3b66d.json.gz",
+    "sourceRequestSha256": "e3bd7d37d62258c2a787dacb87ece28b65f5a63efc7b8a11674ec356d7f12ef2",
+    "requestedMode": "history",
+    "workerSeconds": 32.21846160001587,
+    "viewBytes": 282994,
+    "sourceSha256": "ffba0ee5aa25752e219d715cc5c041cceae3b66db514798ad16288641e555ca1",
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "importMs": 158.7396,
+    "arms": [
+      {
+        "arm": "bidirectional",
+        "archiveBytes": 80514308,
+        "stageSha256": "d4685cdefacab1f413daf33bba3695f123fb6680feaf097bb174a88acfe11b09",
+        "stageCount": 9,
+        "timingMs": {
+          "localInference": 815.1222,
+          "sceneImport": 1192.0855,
+          "nativeSettlement": 4023.7472000000002,
+          "viewRead": 350.6562,
+          "capture": 116.009,
+          "encode": 15708.7596,
+          "restore": 9598.2235
+        },
+        "archiveMode": "history"
+      }
+    ],
+    "scope": "One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics."
+  },
+  "sameBuildCurrent": {
+    "runtime": "D:\\_quickDraw\\_work\\native-runtime-2026-10-30\\studio-pilot\\bin\\GojoQuickDraw.ChurchStudy.dll",
+    "runtimeSha256": "18da95fbbcb001d9bca8a1c40fce3c2e708f32a946f1128bcca80392faf55fac",
+    "sourceRequest": "D:\\_quickDraw\\data\\studio-refinement-2026-10-30-v2\\inputs\\ffba0ee5aa25752e219d715cc5c041cceae3b66d.json.gz",
+    "sourceRequestSha256": "e3bd7d37d62258c2a787dacb87ece28b65f5a63efc7b8a11674ec356d7f12ef2",
+    "requestedMode": "current",
+    "workerSeconds": 6.329180000000633,
+    "viewBytes": 283440,
+    "sourceSha256": "ffba0ee5aa25752e219d715cc5c041cceae3b66db514798ad16288641e555ca1",
+    "modelSha256": "4812a1ca53e24c4f2cef62aa7ecdbb51ceed5b5791cd5cdd7c38a290197486ce",
+    "importMs": 148.1078,
+    "arms": [
+      {
+        "arm": "bidirectional",
+        "archiveBytes": 1176559,
+        "stageSha256": "d4685cdefacab1f413daf33bba3695f123fb6680feaf097bb174a88acfe11b09",
+        "stageCount": 9,
+        "timingMs": {
+          "localInference": 673.236,
+          "sceneImport": 929.0230999999999,
+          "nativeSettlement": 3611.0112,
+          "viewRead": 339.7968,
+          "capture": 32.6842,
+          "encode": 149.3907,
+          "restore": 272.8911
+        },
+        "archiveMode": "current"
+      }
+    ],
+    "scope": "One fresh worker process. Includes native import, inference, settlement, archive and independent restore. Excludes build, Python proposal preparation and HTML diagnostics."
+  },
+  "sameBuildTimingComparison": {
+    "equalInputsAndBuild": true,
+    "equalAllStages": true,
+    "archiveReductionPercent": 98.53869575579039,
+    "workerSpeedup": 5.090463788360048
+  },
+  "upstreamRevision": "bcecf48d28739bb1877c4bd1ce2f1b31f8eda4b4",
+  "baselineRevision": "3ed23b13d0e0ce4d65b324c13cd4296756e9c1d3",
+  "qualification": "Small controlled implementation comparisons, not a recognition-quality or corpus-throughput benchmark. Timings exclude raw fitting, Python proposal generation, compilation and review rendering; individual machine load varies.",
+  "studioStartup": {
+    "success": true,
+    "errors": [],
+    "dataset": "D:/_quickDraw/_work/native-runtime-2026-10-30/pipeline-smoke",
+    "total": 1,
+    "firstPageRecords": 1,
+    "lastPageRecords": 1,
+    "pageText": "Page 1 of 1 \u00b7 1 drawings on this page",
+    "existingInspectorAvailable": false,
+    "startupRequiredManualLoad": false,
+    "viewerWorksWithoutPythonOrGojo": true,
+    "nativeGalleryCards": 1,
+    "resultViewPreserved": true,
+    "recognitionCounts": {}
+  },
+  "browser": {
+    "drawings": 1,
+    "panels": 6,
+    "errors": [],
+    "network": []
+  }
+}

@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import shutil
 import sys
+from time import perf_counter
 
 from . import dataset, upstream
 from .church_study import build, execute_batch, fingerprint
@@ -71,7 +72,9 @@ def prepare(packet, ident, model):
     return request, baseline, proposal
 
 
-def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='category', seed=0, model=None, work=None):
+def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='category', seed=0, model=None, work=None, archive_mode='current'):
+    if archive_mode not in ('current', 'history'):
+        raise ValueError('Choose current native state or full audit history')
     source, output = Path(source).resolve(), Path(output).resolve()
     if source == output or source in output.parents or output in source.parents:
         raise ValueError('Keep connected results separate from the source dataset')
@@ -85,7 +88,7 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
     gojo = upstream.resolve(gojo_root)
     config = dict(sourceDataset=str(source), limit=limit, passes=passes, steps=steps, candidates=48,
         order=order, seed=seed, recognition='recognized', connections=True, cad=True, recoverMissing=True,
-        baselineKind='saved-studio', selection=[row['sourceSha256'][:40] for _, row in cohort],
+        baselineKind='saved-studio', archiveMode=archive_mode, selection=[row['sourceSha256'][:40] for _, row in cohort],
         sourceRecords=[dict(folder=str(folder), itemId=row['itemId'], sourceSha256=row['sourceSha256'],
             evidenceSha256=row['evidenceSha256']) for folder, row in cohort],
         modelSha256=model_hash, adapterSha256=fingerprint(), upstream=upstream.fingerprint(gojo))
@@ -106,6 +109,7 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
         createdUtc=(previous or {}).get('createdUtc', datetime.now(timezone.utc).isoformat()),
         qualification='Read-only fitted source; saved Studio cleanup is comparison only. Frozen local models plus authored CAD/error relations. No new training or semantic accuracy claim.')
     completed, resumed, errors = 0, 0, 0
+    timings = dict(preparation=0.0, build=0.0, nativeWorker=0.0, review=0.0)
     with dataset._writer_lock(output):
         for name in ('inputs', 'models', 'baseline', 'proposals', 'drawings'):
             (output/name).mkdir(exist_ok=True)
@@ -127,17 +131,23 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
                     resumed += 1; completed += 1
                     continue
                 raise ValueError('A saved connected result changed; preserve it and choose a new result folder')
+            started = perf_counter()
             request, baseline, proposal = prepare(packet, ident, output/'models/local-providers.json')
-            request.update(passes=passes, steps=steps)
+            request.update(passes=passes, steps=steps, archiveMode=archive_mode)
             dataset._gzip_json(output/'inputs'/(ident+'.json.gz'), request)
             dataset._atomic_json(output/'baseline'/(ident+'.json'), baseline)
             dataset._atomic_json(output/'proposals'/(ident+'.json'), dict(heuristics=request['heuristics'], reference=proposal))
+            timings['preparation'] += (perf_counter()-started)*1000
             if command is None:
                 print('Connected refinement: building native runtime', file=sys.stderr, flush=True)
+                started = perf_counter()
                 command = build(gojo, work)
+                timings['build'] += (perf_counter()-started)*1000
             path = work/(ident+'.ndjson')
             path.write_text(json.dumps(request, separators=(',', ':'), allow_nan=False)+'\n', encoding='utf-8')
+            started = perf_counter()
             rows = execute_batch(command, path, output, work/(ident+'.log'))
+            timings['nativeWorker'] += (perf_counter()-started)*1000
             if len(rows) != 1 or rows[0]['id'] != ident:
                 raise RuntimeError('Native worker returned the wrong acquisition')
             if rows[0]['ok']:
@@ -147,7 +157,7 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
                 artifacts=[result_folder/'view.json',result_folder/'bidirectional.gojo.bin.gz',
                     output/'inputs'/(ident+'.json.gz'),output/'baseline'/(ident+'.json'),
                     output/'proposals'/(ident+'.json'),output/'models/local-providers.json']
-                dataset._atomic_json(receipt, dict(version=2,nativeRestored=True,
+                dataset._atomic_json(receipt, dict(version=2,nativeRestored=True,archiveMode=archive_mode,
                     artifacts={path.relative_to(output).as_posix():dataset.sha256(path) for path in artifacts}))
                 completed += 1
             else:
@@ -158,14 +168,20 @@ def run(source, output, gojo_root, *, limit=12, passes=8, steps=2, order='catego
             # Small previews stay current; growing large cohorts refresh at
             # powers of two so repeated embedding is linear in total rows.
             if len(cohort)<=32 or completed and completed & (completed-1)==0:
+                started = perf_counter()
                 write(output)
+                timings['review'] += (perf_counter()-started)*1000
             print(f'Connected refinement {index+1}/{len(cohort)}: {completed} complete, {errors} errors', file=sys.stderr, flush=True)
         report.update(status='complete' if not errors else 'complete-with-errors', completed=completed,
             errors=errors, resumed=resumed, finishedUtc=datetime.now(timezone.utc).isoformat())
         dataset._atomic_json(state_path, report)
+        started = perf_counter()
         write(output)
+        timings['review'] += (perf_counter()-started)*1000
+        report['lastRunTimingMs'] = timings
+        dataset._atomic_json(state_path, report)
     return dict(output=str(output), completed=completed, resumed=resumed, errors=errors, storedErrors=errors,
-        review=str(output/'review.html'), passes=passes, recognition='recognized')
+        review=str(output/'review.html'), passes=passes, recognition='recognized',archiveMode=archive_mode,timingMs=timings)
 
 
 def review(output):
@@ -188,6 +204,8 @@ def main():
     parser.add_argument('--steps', type=int, default=2); parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--order', choices=('category', 'recent', 'random'), default='category')
     parser.add_argument('--work', type=Path)
+    parser.add_argument('--archive-mode', choices=('current', 'history'), default='current',
+        help='Current executable native state plus visual passes, or the larger full proof history')
     args = parser.parse_args()
     try:
         if args.review_only:
@@ -195,7 +213,7 @@ def main():
         if args.dataset is None:
             raise ValueError('Choose a source dataset folder')
         result = run(args.dataset, args.output, args.gojo_root, limit=args.limit, passes=args.passes,
-            steps=args.steps, seed=args.seed, order=args.order, model=args.model, work=args.work)
+            steps=args.steps, seed=args.seed, order=args.order, model=args.model, work=args.work, archive_mode=args.archive_mode)
         print(json.dumps(result)); return 1 if result['errors'] else 0
     except Exception as error:
         print(str(error), file=sys.stderr); return 2

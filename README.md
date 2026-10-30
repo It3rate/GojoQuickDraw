@@ -15,6 +15,11 @@ comparison with iterative joints, shapes, CAD relations and residual part
 recovery. Choose a bounded count; completed results can be resumed or inspected
 after Stop. See [the Studio refinement guide](docs/studio-refinement.md).
 
+See [what Gojo actually executes](docs/native-runtime.md) for the native/host
+boundary and the current-state storage option. Ordinary conversion now uses
+binary native archives; connected refinement saves current executable state by
+default, with full proof history optional. Older JSON archives remain readable.
+
 The [compact primitives and cooperating structures discussion](docs/compact-structures.md)
 inventories the pre-numeric mechanics, reusable machines and possible compact
 execution forms, distinguishing implemented fixtures from proposed extensions.

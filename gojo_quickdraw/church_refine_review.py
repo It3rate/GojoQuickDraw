@@ -101,6 +101,12 @@ def write(folder):
             for part in panel['stage']['parts']:
                 part['fillIndices']=boundary_fill(part)
         rows.append(dict(id=ident,keyId=view['keyId'],source=view['source'],panels=panels,
+                         runtime=dict(archiveMode=new.get('archiveMode','history'),
+                             timingMs={'sourceImport':view['importMs'], **new.get('timingMs',{})}
+                                 if 'importMs' in view else new.get('timingMs',{}),
+                             lossContract=new.get('lossContract'),
+                             archiveBytes=(folder/'drawings'/ident/'bidirectional.gojo.bin.gz').stat().st_size
+                                 if (folder/'drawings'/ident/'bidirectional.gojo.bin.gz').is_file() else None),
                          steps=steps,
                          proposals=dict(rules=len(plan['rules']),knots=len(plan['knots']),
                              addedWindows=sum(d['accepted'] for d in plan['discoveries']),view=plan['view'],
@@ -152,6 +158,7 @@ PAGE='''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewpor
 <div class="legend">Faint ink = original · colors = proposed shapes · gray dotted = prior additions · orange = unexplained ink · gray dashes = missing boundary support.</div>
 <div id="facts"></div><div id="panels"></div><details><summary>Remaining mismatch by relationship</summary><p>Mean normalized port demand in drawing units, not recognition accuracy or physical energy. Source strain can rise while the conceptual shape improves.</p><div id="errors"></div></details>
 <details><summary>Construction capture and proposal revisions</summary><p>Capture substitutes an actual shared construction. It preserves exact relations during parameter settlement; strong opposing requests can release it on a later pass. Distances and pressure are authored diagnostic reads, not physical forces.</p><div id="connections"></div><div id="revisions"></div><div id="cad"></div><div id="recovery"></div></details>
+<details><summary>Processing and saved native state</summary><div id="runtime"></div></details>
 <p>← / → drawings. Families, supports and pairings are authored inference proposals; source bounds seed the machines. Interior corners expose additional source-interval sites. Native carrier tension moves parameters. Unknown ink is never erased, and a missing boundary is never labeled acquired ink.</p>
 <script>const DATA=__DATA__,COLORS=__COLORS__;const $=id=>document.getElementById(id);let index=0;let selectedPass=Number.MAX_SAFE_INTEGER;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -182,6 +189,10 @@ function render(){if(!DATA.length){$('facts').textContent='Waiting for the first
  $('recovery').innerHTML=(row.recovery?.decisions||[]).map(c=>`<p>${esc(c.kind+' recovered · '+c.spans.length+' source profiles · '+c.parts.join(' / '))}<br>${esc(c.basis)}<br>Source support is retained; inferred joins and ideal boundaries are proposals.</p>`).join('');
  const end=chosen.stage.errors;const start=row.panels[2].stage.errors;const layers=[...new Set(end.map(e=>e.layer))];const mean=(rows,key)=>{const x=rows.filter(e=>e.layer===key);return x.length?x.reduce((a,b)=>a+b.demand,0)/x.length:0};
  $('errors').innerHTML='<table><tr><th>Relationship</th><th>Before</th><th>After</th></tr>'+layers.map(l=>`<tr><td>${esc(l)}</td><td>${mean(start,l).toFixed(3)}</td><td>${mean(end,l).toFixed(3)}</td></tr>`).join('')+'</table>';
+ const rt=row.runtime, compact=rt.archiveMode==='current';
+ $('runtime').innerHTML=`<p>${compact?'Current executable Gojo state. Keeps active machines, shared connections and error relations. Full proposal and response history is omitted; this is not an exact continuation of the adaptive controller.':'Full native audit history, including prior worlds and response witnesses.'} Visual passes remain available above.</p>`+
+ (rt.archiveBytes===null?'<p>Native archive unavailable.</p>':`<p><a href="drawings/${encodeURIComponent(row.id)}/bidirectional.gojo.bin.gz">Native ${compact?'checkpoint':'history'}</a> · ${(rt.archiveBytes/1048576).toFixed(2)} MiB</p>`)+
+ (Object.keys(rt.timingMs).length?'<table><tr><th>Work</th><th>Seconds</th></tr>'+Object.entries(rt.timingMs).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${(v/1000).toFixed(3)}</td></tr>`).join('')+'</table>':'<p>Separate timings were not recorded in this older run.</p>');
 }
 DATA.forEach((r,i)=>$('drawing').add(new Option(`${i+1}. church · ${r.keyId}`,i)));$('drawing').onchange=()=>choose(+$('drawing').value);$('prev').onclick=()=>choose(index-1);$('next').onclick=()=>choose(index+1);$('pass').onchange=()=>{selectedPass=+$('pass').value;render()};['ink','unknown','missing','joints','guides'].forEach(id=>$(id).onchange=render);document.onkeydown=e=>{if(e.target.matches('input,select,textarea'))return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();choose(index+(e.key==='ArrowLeft'?-1:1))}if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();selectedPass=Math.max(0,Math.min(DATA[index].steps.at(-1).stage.pass,+$('pass').value+(e.key==='ArrowUp'?-1:1)));render()}};window.onhashchange=()=>{index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render()};index=Math.max(0,Math.min(DATA.length-1,parseInt(location.hash.slice(1))||0));render();
 </script></html>'''

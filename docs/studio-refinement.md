@@ -10,7 +10,9 @@ To run the newer connected experiment on an existing folder:
 1. Open the dataset and select its category folder and inspection order.
 2. Under the gallery, expand **Connected church refinement — compare the newer method**.
 3. Choose the maximum church count (default 12) and settlement passes (default 8).
-4. Click **Run connected refinement**, then **Open comparison**.
+4. Leave **Keep full proof history** unchecked for a current native checkpoint
+   and all visual passes. Check it only when complete historical audit is useful.
+5. Click **Run connected refinement**, then **Open comparison**.
 
 The result folder is separate from the source. A blank result field creates a
 new sibling folder under `<dataset>-refinements`; the selected path appears in
@@ -44,8 +46,15 @@ are retained per drawing, alongside the source snapshot, proposals and model
 bytes. Receipts hash the archive, view, source request, proposal, saved comparison
 and provider before resume can reuse them.
 
-This remains an explicit experiment because complete native histories can take
-roughly a minute and tens of megabytes per church. It is not silently appended
+The default checkpoint retains executable current machines, shared bindings,
+source intervals and current error laws. It omits old proposal/response history
+and does not resume the adaptive topology controller. Fresh local numeric
+requests still execute on restored machines. Visual passes remain inspectable.
+The optional full history is much larger. Separate timings and the native
+archive are available under **Processing and saved native state** in the review.
+See [the runtime explanation](native-runtime.md) for the native calculation boundary.
+
+This remains an explicit experiment. It is not silently appended
 to every conversion. The comparison is an offline browser page opened from
 Studio; the original ten stages remain in Studio's normal viewer. No website
 publication occurs.

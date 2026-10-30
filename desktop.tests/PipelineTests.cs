@@ -31,6 +31,9 @@ public sealed class PipelineTests : IDisposable
         Assert.Equal(Dataset,args[args.IndexOf("--dataset")+1]);
         Assert.Equal("12",args[args.IndexOf("--limit")+1]);
         Assert.Equal("8",args[args.IndexOf("--passes")+1]);
+        Assert.Equal("current",args[args.IndexOf("--archive-mode")+1]);
+        var audit=Pipeline.Plan(PipelineAction.Refine,Options with{RefinementHistory=true}).Arguments.ToList();
+        Assert.Equal("history",audit[audit.IndexOf("--archive-mode")+1]);
         Assert.Equal("random",args[args.IndexOf("--order")+1]);
         Assert.StartsWith(Dataset+"-refinements",plan.Artifact);
         Assert.Throws<ArgumentException>(()=>Pipeline.Plan(PipelineAction.Refine,Options with{Limit=10001}));

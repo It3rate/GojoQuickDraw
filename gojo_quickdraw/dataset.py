@@ -182,6 +182,14 @@ def _safe_path(root, relative):
     return path
 
 
+def native_archive_path(root, item_id, result):
+    """Accept both recorded codecs without trusting an arbitrary worker path."""
+    name = result.get('archive')
+    if name not in (item_id + '.gojo.bin.gz', item_id + '.gojo.json.gz'):
+        raise ValueError('Native encoder returned an unexpected archive identity or format')
+    return _safe_path(root, 'native/' + name)
+
+
 def verify_row(root, row):
     artifacts = [("evidencePath", "evidenceSha256"), ("nativePath", "nativeSha256")]
     if "stagesPath" in row:
@@ -377,7 +385,7 @@ def _convert(input_path, output, gojo_root, *, limit=None, categories=None, recu
                 summary = native.get("summary", {})
                 if summary.get("sourceId") != source["key_id"] or summary.get("sourceSha256") != raw_hash:
                     raise ValueError("Native record identity or exact source digest differs from the submitted acquisition")
-                native_path = root / "native" / (item_id + ".gojo.json.gz")
+                native_path = native_archive_path(root, item_id, native)
                 if not native_path.is_file():
                     raise RuntimeError("Native encoder did not create the expected content-addressed archive")
                 evidence_path = root / "records" / (item_id + ".evidence.json.gz")

@@ -28,6 +28,7 @@ internal sealed partial class MainWindow
     private readonly CheckBox _showJoints = new() { Content = "Joints", IsChecked = true, VerticalAlignment = VerticalAlignment.Center };
     private readonly NumericUpDown _refinementCount = Number(12, 1, 10000), _refinementPasses = Number(8, 1, 16);
     private readonly TextBox _refinementOutput = new();
+    private readonly CheckBox _refinementHistory = new() { Content = "Keep full proof history (larger and slower)", IsChecked = false };
 
     private Control RefinementControls() => new Expander
     {
@@ -35,8 +36,9 @@ internal sealed partial class MainWindow
         HorizontalContentAlignment = HorizontalAlignment.Stretch,
         Content = Card(Stack(10,
             Text("Keep the original ten stages and add a separate comparison using connected joints, shapes, symmetry, CAD relations and residual steeple/cross recovery."),
-            Text("Uses game-recognized churches from the selected folder, in the selected inspection order. No raw drawing conversion or new training. Native history can take about a minute per church and substantial disk space.", 12),
+            Text("Uses game-recognized churches in the selected inspection order. Saves current executable Gojo structures and visual passes. No raw drawing conversion or new training.", 12),
             Buttons(Field("Maximum churches", _refinementCount), Field("Settlement passes", _refinementPasses)),
+            _refinementHistory,
             Field("Result folder (optional)", _refinementOutput, "Blank creates a new sibling result folder. Reuse the same path and settings to resume; choose a new folder after processing code changes."),
             Buttons(JobButton("Run connected refinement", [PipelineAction.Refine], true),
                 JobButton("Open comparison", [PipelineAction.RefineReview]))))
